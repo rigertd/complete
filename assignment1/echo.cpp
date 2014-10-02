@@ -19,35 +19,35 @@
  *     Enter an integer value for me to repeat: 100
  *     You entered 100.
  *********************************************************/
-#include <iostream>
-#include <cstdio>
+#include <iostream> // required for cin and cout
+#include <limits>   // required for numeric_limits
 
 using namespace std;
 
 int main()
 {
-    long input; // for storing user input
+    long input;    // for storing user input.
     
     cout << "Enter an integer value for me to repeat: ";
-    cin >> input;
+    cin >> input;  // Store console input in 'input' variable.
 	
-	/* Basic input validation.
-	 * This does not catch instances where the input starts with a number
-	 * and is followed by a non-number. For example, input of "123abc"
+    /* Basic input validation.
+     * This does not catch instances where the input starts with a number
+     * and is followed by a non-number. For example, input of "123abc"
      * will print "123" and input of "456.7" will print "456"
      * I would need to use cin.getline for proper input validation.	 
-	 */
+     */
     while (cin.fail())   // true if input starts with non-number.
     {
         cout << "That is not a valid integer. " << endl 
              << "Please enter a positive or negative whole number: ";
         cin.clear();     // Clear the error bit.
         // Ignore any remaining input in buffer, up to the max buffer size.
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cin >> input;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin >> input;    // Store new console input in 'input' variable.
     }
     cout << "You entered " << input << ".\n";
     
     return 0;
 }
-    
+
