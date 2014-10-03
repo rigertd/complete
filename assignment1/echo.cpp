@@ -17,6 +17,7 @@
  *     The output to the console will be in the form of:
  *
  *     Enter an integer value for me to repeat: 100
+ *
  *     You entered 100.
  *********************************************************/
 #include <iostream> // required for cin and cout
@@ -32,21 +33,22 @@ int main()
     cin >> input;  // Store console input in 'input' variable.
 	
     /* Basic input validation.
-     * This does not catch instances where the input starts with a number
-     * and is followed by a non-number. For example, input of "123abc"
-     * will print "123" and input of "456.7" will print "456"
-     * I would need to use cin.getline for proper input validation.	 
+     * The program will only accept input that includes all numerical values.
+     * It does this by detecting the next character in the cin buffer.
+     * Unless the next char is a newline, 
+     * it means there is unused data still in the buffer.
      */
-    while (cin.fail())   // true if input starts with non-number.
+    while (cin.get() != '\n')   // true if next char is not newline
     {
-        cout << "That is not a valid integer. " << endl 
-             << "Please enter a positive or negative whole number: ";
-        cin.clear();     // Clear the error bit.
+        cout << endl << "That is not a valid integer. " << endl 
+             << "Please enter a positive or negative whole number" << endl
+			 << "between -2147483647 and 2147483647 without any commas: ";
+        cin.clear();     // Clear any errors.
         // Ignore any remaining input in buffer, up to the max buffer size.
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> input;    // Store new console input in 'input' variable.
     }
-    cout << "You entered " << input << ".\n";
+    cout << endl << "You entered " << input << ".\n";
     
     return 0;
 }
