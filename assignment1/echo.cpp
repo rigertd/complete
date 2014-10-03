@@ -42,7 +42,9 @@ int main()
     {
         cout << endl << "That is not a valid integer. " << endl 
              << "Please enter a positive or negative whole number" << endl
-             << "between -2147483647 and 2147483647 without any commas: ";
+             << " between " << numeric_limits<long>::min() // Smallest long val
+             << " and " << numeric_limits<long>::max()    // Largest long val
+             << "without any commas: ";
         cin.clear();     // Clear any errors.
         // Ignore any remaining input in buffer, up to the max buffer size.
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
