@@ -31,7 +31,7 @@ int main()
     
     cout << "Enter an integer value for me to repeat: ";
     cin >> input;  // Store console input in 'input' variable.
-	
+    
     /* Basic input validation.
      * The program will only accept input that includes all numerical values.
      * It does this by detecting the next character in the cin buffer.
@@ -42,7 +42,7 @@ int main()
     {
         cout << endl << "That is not a valid integer. " << endl 
              << "Please enter a positive or negative whole number" << endl
-			 << "between -2147483647 and 2147483647 without any commas: ";
+             << "between -2147483647 and 2147483647 without any commas: ";
         cin.clear();     // Clear any errors.
         // Ignore any remaining input in buffer, up to the max buffer size.
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
