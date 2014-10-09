@@ -31,51 +31,22 @@
 **********************************************************/
 #include <iostream>
 #include <limits>
+#include <string>
 using namespace std;
+
+// Function prototypes
+short getShort(string);
 
 int main()
 {
     short capacity = 0,  // Maximum room capacity. Initialize to 0.
           attendees = 0; // Number of attendees. Initialize to 0.
     
-    cout << "Enter the maximum room capacity: ";
-    cin >> capacity;  // Store console input in 'capacity' variable.
+    // Store console input in 'capacity' variable.
+    capacity = getShort("Enter the maximum room capacity: ");  
     
-    /* Basic input validation.
-     * The program will only accept input that is an integer.
-     * It does this by detecting the next character in the cin buffer.
-     * Unless the next char is a newline, 
-     * it means there is unused data still in the buffer.
-     */
-    while (cin.get() != '\n') // true if next char not newline
-    {
-        cout << endl << "That is not a valid number. " << endl 
-             << "Please enter a whole number between 1 and "
-             << numeric_limits<short>::max()  // Max short
-             << endl << "without any commas: ";
-        cin.clear();        // Clear any errors.
-        // Ignore any remaining input in buffer, up to the max buffer size.
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cin >> capacity;    // Store console input in 'capacity' variable.
-    }
-    
-    cout << endl << "Enter the number of attendees: ";
-    cin >> attendees;  // Store console input in 'attendees' variable.
-    
-    /* Basic input validation.
-     * Same as above.
-     */
-    while (cin.get() != '\n') // true if next char not newline
-    {
-        cout << endl << "That is not a valid number. " << endl 
-             << "Please enter a whole number between 1 and "
-             << numeric_limits<short>::max() // Max short
-             << " without any commas: ";
-        cin.clear();         // Clear any errors.
-        // Ignore any remaining input in buffer, up to the max buffer size.
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cin >> attendees;    // Store console input in 'attendees' variable.
-    }
+    // Store console input in 'attendees' variable.
+    attendees = getShort("Enter the number of attendees: ");
     
     if (attendees == 0)
     {
@@ -125,3 +96,30 @@ int main()
     return 0;
 }
 
+/*  Gets an integer value from the console.
+ *  Prints the specified prompt before accepting input.
+ *  Performs basic input validation to ensure a valid integer.
+ */
+short getShort(string prompt)
+{
+    short input = 0; // for storing user input
+    
+    cout << prompt;
+    cin >> input;
+    
+    /* Implements validation by detecting the next char in the cin buffer.
+     * Unless the next char is a newline, 
+     * it means there is unused data still in the buffer.
+     */
+    while (cin.get() != '\n') // true if next char not newline
+    {
+        cout << endl << "That is not a valid number. " << endl 
+             << "Please enter a whole number between 1 and "
+             << numeric_limits<short>::max()  // Max short
+             << endl << "without any commas: ";
+        cin.clear();        // Clear any errors.
+        // Ignore any remaining input in buffer, up to the max buffer size.
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin >> input;    // Store console input in 'input' variable.
+    }
+}
