@@ -99,9 +99,27 @@ int main()
     }
     else // attendees < capacity
     {
-        cout << endl << "You can hold the meeting as planned."
-             << endl << "There is still space for " << (capacity - attendees)
-             << " more attendees." << endl;
+        cout << endl << "You can hold the meeting as planned." << endl;
+        
+        if (capacity - attendees == 0)
+        {
+            cout << "The meeting room is full." << endl;
+        }
+        else
+        {
+            cout << "There is still space for " 
+            << (capacity - attendees) << " more ";
+            
+            // Change to plural if > 1.
+            if ((capacity - attendees) > 1)
+            {
+                cout << "attendees." << endl;
+            }
+            else
+            {
+                cout << "attendee." << endl;
+            }
+        }
     }
     
     return 0;
