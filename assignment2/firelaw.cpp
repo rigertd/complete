@@ -122,4 +122,6 @@ short getShort(string prompt)
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> input;    // Store console input in 'input' variable.
     }
+    
+    return input; // Send the input value back to the caller.
 }
