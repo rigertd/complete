@@ -48,7 +48,8 @@ int main()
     // Because this is more fun than reprompting
     if (coupons < 0)
     {
-        cout << endl << "You are " << abs(coupons) << " coupons in debt." << endl
+        cout << endl << "You are " << abs(static_cast<float>(coupons))
+             << " coupons in debt." << endl
              << "You owe the arcade prizes!" << endl;
     }
     else if (coupons == 0)
