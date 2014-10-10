@@ -136,7 +136,7 @@ short getValidatedShort(string prompt)
              << "Please enter a whole number between 1 and "
              << numeric_limits<short>::max()  // Max short
              << endl << "without any commas: ";
-        cin.clear();        // Clear any errors.
+        cin.clear();     // Clear any errors.
         // Ignore any remaining input in buffer, up to the max buffer size.
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> input;    // Store console input in 'input' variable.
