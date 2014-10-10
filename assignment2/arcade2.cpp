@@ -21,11 +21,13 @@
 *
 *     Enter the number of coupons you have: 
 *
-*     Your # coupons can be exchanged for:
+*     Your # coupons can be exchanged for...
+*     Candy bars:
 *     CCCCC CCCCC
 *     C   C C   C
 *     CCCCC CCCCC
 *
+*     Gumballs:
 *      GGG   GGG
 *     G   G G   G
 *      GGG   GGG
@@ -52,7 +54,7 @@ int main()
         leftover = 0;     // number of leftover coupons
     
     // Get the number of coupons from the user.
-    coupons = getValidatedInt("Enter the number of coupons you have: ");  
+    coupons = getValidatedInt("Enter the number of coupons you have: ");
     
     // Because this is more fun than reprompting
     if (coupons < 0)
@@ -95,10 +97,14 @@ int main()
             leftover -= 3; // decrement leftover by 3 each iteration
         }
 
-        cout << endl << "Your " << coupons << " coupons can be exchanged for:"
-             << endl;
+        cout << endl << "Your " << coupons 
+             << " coupons can be exchanged for..." << endl;
         
         // Only print candy bars if > 0
+        if (candyBars > 0)
+        {
+            cout << "Candy bars:" << endl;
+        }
         while (candyBars > 0)
         {
             int currentRow = min(candyBars, 13);
@@ -128,6 +134,7 @@ int main()
         // Only print gumballs if > 0
         if (gumballs > 0) 
         {
+            cout << "Gumballs:" << endl;
             // top of gumballs
             for (int i = 0; i < gumballs; i++)
             {

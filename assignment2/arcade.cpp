@@ -43,7 +43,7 @@ int main()
           leftover = 0;  // number of leftover coupons
     
     // Get the number of coupons from the user.
-    coupons = getValidatedShort("Enter the number of coupons you have: ");  
+    coupons = getValidatedShort("Enter the number of coupons you have: ");
     
     // Because this is more fun than reprompting
     if (coupons < 0)
@@ -76,8 +76,8 @@ int main()
         gumballs = leftover / 3;
         leftover = leftover % 3;
         
-        cout << endl << "Your " << coupons << " coupons can be exchanged for:"
-             << endl;
+        cout << endl << "Your " << coupons 
+             << " coupons can be exchanged for:" << endl;
         
         // Only print candy bars if > 0
         if (candyBars > 1)      // plural candy bars
