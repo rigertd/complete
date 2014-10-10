@@ -72,9 +72,8 @@ int main()
     else // User has at least 3 coupons.
     {
         candyBars = coupons / 10;
-        leftover = coupons - (candyBars * 10);
-        gumballs = leftover / 3;
-        leftover = leftover % 3;
+        gumballs = (coupons % 10) / 3;
+        leftover = (coupons % 10) % 3;
         
         cout << endl << "Your " << coupons 
              << " coupons can be exchanged for:" << endl;
