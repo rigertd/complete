@@ -1,7 +1,7 @@
 /**********************************************************
 * Author:                 David Rigert
 * Date Created:           10/8/2014
-* Last Modification Date: 10/8/2014
+* Last Modification Date: 10/11/2014
 * Assignment:             Assignment 2
 * Filename:               firelaws.cpp
 *
@@ -78,18 +78,9 @@ int main()
         }
         else
         {
-            cout << "There is still space for " 
-            << (capacity - attendees) << " more ";
-            
-            // Change to plural if > 1.
-            if ((capacity - attendees) > 1)
-            {
-                cout << "attendees." << endl;
-            }
-            else
-            {
-                cout << "attendee." << endl;
-            }
+            cout << "There is still space for " << (capacity - attendees) 
+            << " more attendee" << (capacity - attendees == 1 ? "." : "s.") 
+            << endl;
         }
     }
     

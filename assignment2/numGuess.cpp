@@ -1,7 +1,7 @@
 /**********************************************************
 * Author:                 David Rigert
 * Date Created:           10/10/2014
-* Last Modification Date: 10/10/2014
+* Last Modification Date: 10/11/2014
 * Assignment:             Assignment 2 Project
 * Filename:               numGuess.cpp
 *
@@ -84,7 +84,8 @@ int main()
         // Prompt Player 2 for first guess.
         // Decrement guessLeft by one.
         cout << "Player 2, try to guess Player 1's secret number. "
-             << "You have " << guessLeft-- << " guesses." << endl 
+             << "You have " << guessLeft-- << " guess" 
+             << (guessLeft == 1 ? "." : "es.") << endl 
              << "The number is between " << lowGuess << " and " 
              << highGuess << ".";
         guessNum = getValidInt(" Guess: ");
@@ -116,7 +117,8 @@ int main()
             
             // Get next guess.
             // Decrement guessLeft by 1.
-            cout << "You have " << guessLeft-- << " guesses left." << endl
+            cout << "You have " << guessLeft-- << " guess"
+                 << (guessLeft == 1 ? "" : "es") << " left." << endl
                  << "The number is between " << lowGuess << " and " 
                  << highGuess << "."; 
             guessNum = getValidInt(" Guess: ");
