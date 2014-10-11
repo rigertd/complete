@@ -1,7 +1,7 @@
 /**********************************************************
 * Author:                 David Rigert
 * Date Created:           10/9/2014
-* Last Modification Date: 10/9/2014
+* Last Modification Date: 10/10/2014
 * Assignment:             Assignment 2
 * Filename:               arcade2.cpp
 *
