@@ -3,7 +3,7 @@
 * Date Created:           10/8/2014
 * Last Modification Date: 10/8/2014
 * Assignment:             Assignment 2
-* Filename:               firelaw.cpp
+* Filename:               firelaws.cpp
 *
 * Overview:
 *     This program prompts the user for the room capacity
