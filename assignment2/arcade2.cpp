@@ -40,7 +40,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <cmath>
+#include <cstdlib>
 using namespace std;
 
 // Function prototypes
@@ -59,7 +59,7 @@ int main()
     // Because this is more fun than reprompting
     if (coupons < 0)
     {
-        cout << endl << "You are " << abs(static_cast<float>(coupons)) 
+        cout << endl << "You are " << abs(coupons) 
              << " coupon" << (coupons == -1 ? "" : "s") <<" in debt." << endl
              << "You owe the arcade prizes!" << endl;
     }

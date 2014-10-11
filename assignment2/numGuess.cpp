@@ -42,7 +42,7 @@
 #include <limits>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <cstdlib>
 using namespace std;
 
 // Function prototypes
@@ -133,7 +133,7 @@ int main()
             cout << endl << "Sorry, you are out of guesses. "
                  << "The secret number was " << secretNum << "." << endl
                  << "Your closest guess was off by " 
-                 << abs(static_cast<float>(guessNum - secretNum)) 
+                 << abs(guessNum - secretNum) 
                  << "." << endl;
         }
         
