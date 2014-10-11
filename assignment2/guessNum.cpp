@@ -105,12 +105,12 @@ int main()
             // Tell user if too high or too low
             if (guessNum > secretNum)
             {
-                highGuess = guessNum - 1; // Set high end of range to guessNum - 1
+                highGuess = guessNum - 1; // Set high end of range to guess - 1
                 cout << endl << "Your guess is too high. ";
             }
             else if (guessNum < secretNum)
             {
-                lowGuess = guessNum + 1;  // Set low end of range to guessNum + 1
+                lowGuess = guessNum + 1;  // Set low end of range to guess + 1
                 cout << endl << "Your guess is too low. ";
             }
             
@@ -130,7 +130,8 @@ int main()
         {
             cout << endl << "Sorry, you are out of guesses. "
                  << "The secret number was " << secretNum << "." << endl
-                 << "Your closest guess was off by " << abs(guessNum - secretNum)
+                 << "Your closest guess was off by " 
+                 << abs(static_cast<float>(guessNum - secretNum)) 
                  << "." << endl;
         }
         
@@ -167,6 +168,10 @@ char getYesNo()
         cin >> input;    // Store console input in 'input' variable.
     }
     
+    // Clear any text left in buffer.
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     // Always return lowercase 'y' or 'n'
     return input == 'Y' || input == 'y' ? 'y' : 'n';
 }
