@@ -1,7 +1,7 @@
 /**********************************************************
 * Author:                 David Rigert
 * Date Created:           10/9/2014
-* Last Modification Date: 10/9/2014
+* Last Modification Date: 10/11/2014
 * Assignment:             Assignment 2
 * Filename:               arcade.cpp
 *
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <cmath>
+#include <cstdlib>
 using namespace std;
 
 // Function prototypes
@@ -48,8 +48,8 @@ int main()
     // Because this is more fun than reprompting
     if (coupons < 0)
     {
-        cout << endl << "You are " << abs(static_cast<float>(coupons))
-             << " coupons in debt." << endl
+        cout << endl << "You are " << abs(coupons)
+             << " coupon" << (coupons == -1 ? "" : "s") << " in debt." << endl
              << "You owe the arcade prizes!" << endl;
     }
     else if (coupons == 0)
@@ -58,16 +58,9 @@ int main()
     }
     else if (coupons < 3)
     {
-        cout << endl << "Sorry, you can't afford any of the prizes "
-             << "with your measly " << coupons;
-        if (coupons < 2) // 1 coupon
-        {
-            cout << " coupon!" << endl;
-        }
-        else             // 2 coupons
-        {
-            cout << " coupons!" << endl;
-        }
+        cout << endl << "Sorry, you can't afford any of the prizes with your "
+             << "measly " << coupons << " coupon" << (coupons == 1 ? "" : "s")
+             << "!" << endl;
     }
     else // User has at least 3 coupons.
     {
@@ -79,36 +72,22 @@ int main()
              << " coupons can be exchanged for:" << endl;
         
         // Only print candy bars if > 0
-        if (candyBars > 1)      // plural candy bars
+        if (candyBars > 0)
         {
-            cout << "    " << candyBars << " candy bars" << endl;
-        }
-        else if (candyBars > 0) // only 1 candy bar
-        {
-            cout << "    " << candyBars << " candy bar" << endl;
+            cout << "    " << candyBars << " candy bar" 
+            << (candyBars == 1 ? "" : "s") << endl;
         }
 
         // Only print gumballs if > 0
-        if (gumballs > 1)       // plural gumballs
+        if (gumballs > 0)
         {
-            cout << "    " << gumballs << " gumballs" << endl;
-        }
-        else if (gumballs > 0)  // only 1 gumball
-        {
-            cout << "    " << gumballs << " gumball" << endl;
+            cout << "    " << gumballs << " gumball" 
+                 << (gumballs == 1 ? "" : "s") << endl;
         }
         
         // Print leftover coupons
-        cout << "with ";
-        if (leftover > 1 || leftover == 0)
-        {
-             cout << leftover << " coupons ";
-        }
-        else
-        {
-            cout << leftover << " coupon ";
-        }
-        cout << "left over." << endl;
+        cout << "with " << leftover << " coupon"
+             << (leftover == 1 ? "" : "s") << " left over." << endl;
     }
     
     return 0;

@@ -1,7 +1,7 @@
 /**********************************************************
 * Author:                 David Rigert
 * Date Created:           10/9/2014
-* Last Modification Date: 10/9/2014
+* Last Modification Date: 10/11/2014
 * Assignment:             Assignment 2
 * Filename:               arcade2.cpp
 *
@@ -40,7 +40,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <cmath>
+#include <cstdlib>
 using namespace std;
 
 // Function prototypes
@@ -59,8 +59,8 @@ int main()
     // Because this is more fun than reprompting
     if (coupons < 0)
     {
-        cout << endl << "You are " << abs(static_cast<float>(coupons)) 
-             << " coupons in debt." << endl
+        cout << endl << "You are " << abs(coupons) 
+             << " coupon" << (coupons == -1 ? "" : "s") <<" in debt." << endl
              << "You owe the arcade prizes!" << endl;
     }
     else if (coupons == 0)
@@ -70,15 +70,8 @@ int main()
     else if (coupons < 3)
     {
         cout << endl << "Sorry, you can't afford any of the prizes "
-             << "with your measly " << coupons;
-        if (coupons < 2) // 1 coupon
-        {
-            cout << " coupon!" << endl;
-        }
-        else             // 2 coupons
-        {
-            cout << " coupons!" << endl;
-        }
+             << "with your measly " << coupons << " coupon"
+             << (coupons == 1 ? "" : "s") << "!" << endl;
     }
     else // User has at least 3 coupons.
     {
