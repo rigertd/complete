@@ -27,7 +27,7 @@
 
 int main()
 {
-	std::string fullName;        // String for storing full name
+    std::string fullName;        // String for storing full name
     std::string firstName = "";  // String for storing first name
     std::string middleInit = ""; // String for storing middle initial
     std::string lastName = "";   // String for storing last name

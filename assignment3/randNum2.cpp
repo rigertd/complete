@@ -32,7 +32,7 @@ int getValidatedInt(std::string);
 
 int main()
 {
-	int maxNum;          // Maximum random number
+    int maxNum;          // Maximum random number
     int minNum;          // Minimum random number
     int randNum;         // Generated random number
     unsigned int seed;   // seed for srand function
@@ -59,7 +59,7 @@ int main()
     // Print the randomly generated number
     std::cout << std::endl << "Your randomly picked number is "
               << randNum << "." << std::endl;
-    std::cin.get();
+
     return 0;
 }
 

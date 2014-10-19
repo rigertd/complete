@@ -27,7 +27,7 @@
 
 int main()
 {
-	const int MAX_NUM = 100;    // Maximum random number
+    const int MAX_NUM = 100;    // Maximum random number
     const int MIN_NUM = 1;      // Minimum random number
     const int NUM_COUNT = 10;   // Number of numbers to print
     unsigned int seed;          // seed for srand function

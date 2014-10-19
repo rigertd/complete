@@ -57,7 +57,8 @@ int main()
 
     // Print result
     std::cout << std::endl << "\"" << str1 << "\" and \""
-              << str2 << "\" are " << (isEqual ? "" : "not ") << "the same.";
+              << str2 << "\" are " << (isEqual ? "" : "not ") << "the same."
+	      << std::endl;
 
     return 0;
 }

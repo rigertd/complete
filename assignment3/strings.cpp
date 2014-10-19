@@ -28,7 +28,7 @@
 
 int main()
 {
-	std::string my_str;  // String for storing user input
+    std::string my_str;  // String for storing user input
     int letterCount = 0; // Count letters in string
     
     std::cout << "Enter a string of characters: ";
