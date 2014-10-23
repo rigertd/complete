@@ -128,7 +128,8 @@ int GetValidatedInt(std::string prompt)
     while (std::cin.get() != '\n') // true if next char not newline
     {
         std::cout << std::endl << "That is not a valid number. " << std::endl
-                  << "Please enter a whole number between 1 and "
+                  << "Please enter a whole number between "
+                  << std::numeric_limits<int>::min() << " and " // Min int
                   << std::numeric_limits<int>::max()  // Max int
                   << std::endl << "without any commas: ";
         std::cin.clear();     // Clear any errors.
