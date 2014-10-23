@@ -49,18 +49,18 @@ int main()
 
         // Get valid user input. Value must be greater than 0.
         liters = GetValidatedDouble(
-	    "Enter how many liters of gasoline you used: ");
+                     "Enter how many liters of gasoline you used: ");
         while (liters <= 0)
         {
             liters = GetValidatedDouble(
-	        "You must enter a value larger than 0: ");
+                         "You must enter a value larger than 0: ");
         }
 
         miles = GetValidatedDouble("Enter how many miles you travelled: ");
         while (miles <= 0)
         {
             miles = GetValidatedDouble(
-	        "You must enter a value larger than 0: ");
+                        "You must enter a value larger than 0: ");
         }
         
         // Get the MPG
