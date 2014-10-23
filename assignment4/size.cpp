@@ -113,11 +113,11 @@ int main()
  *  double GetHatSize(double height, double weight)
  *
  *  Purpose: This function takes height and weight as arguments
- *           and returns the hat size, rounded up.
+ *           and returns the hat size.
  *
  *  Preconditions: height and weight are greater than 0
  *   
- *  Postconditions: Returns hat size as an integer value.
+ *  Postconditions: Returns hat size as a double value.
  *********************************************************/
 double GetHatSize(double height, double weight)
 {
@@ -129,12 +129,12 @@ double GetHatSize(double height, double weight)
  *  int GetJacketSize(double height, double weight, int age)
  *
  *  Purpose: This function takes height, weight, and age as arguments
- *           and returns the jacket size, rounded up.
+ *           and returns the jacket size.
  *
  *  Preconditions: height and weight are greater than 0,
  *                 age is greater than or equal to 0
  *   
- *  Postconditions: Returns jacket size as an integer value.
+ *  Postconditions: Returns jacket size as a double value.
  *********************************************************/
 double GetJacketSize(double height, double weight, int age)
 {
@@ -147,12 +147,12 @@ double GetJacketSize(double height, double weight, int age)
  *  double GetWaistSize(double weight, int age)
  *
  *  Purpose: This function takes weight and age as arguments
- *           and returns the waist size, rounded up.
+ *           and returns the waist size.
  *
  *  Preconditions: weight are greater than 0,
  *                 age is greater than or equal to 0
  *   
- *  Postconditions: Returns waist size as an integer value.
+ *  Postconditions: Returns waist size as a double value.
  *********************************************************/
 double GetWaistSize(double weight, int age)
 {
