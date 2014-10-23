@@ -38,11 +38,11 @@
 // Function prototypes
 
 // Calculates the hat size based on height and weight.
-int GetHatSize(double, double); 
+double GetHatSize(double, double); 
 // Calculates the jacket size based on height, weight, and age.
-int GetJacketSize(double, double, int); 
+double GetJacketSize(double, double, int); 
 // Calculates the waist size based on weight and age.
-int GetWaistSize(double, int); 
+double GetWaistSize(double, int); 
 // Calculates the age-based adjustment multiplier.
 int GetAdjustment(int, int, int); 
 // Prompts the user for a valid integer and returns it.
@@ -95,7 +95,8 @@ int main()
         }
         
         // Print out the sizes.
-        std::cout << std::endl << "Your hat size is "
+        std::cout << std::endl << std::fixed << std::setprecision(2)
+                  << "Your hat size is "
                   << GetHatSize(height, weight) << "," << std::endl
                   << "your jacket size is " 
                   << GetJacketSize(height, weight, age) << "," << std::endl
@@ -109,55 +110,54 @@ int main()
 }
 
 /**********************************************************
- *  int GetHatSize(double height, double weight)
+ *  double GetHatSize(double height, double weight)
  *
  *  Purpose: This function takes height and weight as arguments
- *           and returns the hat size.
+ *           and returns the hat size, rounded up.
  *
  *  Preconditions: height and weight are greater than 0
  *   
  *  Postconditions: Returns hat size as an integer value.
  *********************************************************/
-int GetHatSize(double height, double weight)
+double GetHatSize(double height, double weight)
 {
     const double HAT_MULT = 2.9;
-    return static_cast<int>(weight / height * HAT_MULT);
+    return (weight / height * HAT_MULT);
 }
 
 /**********************************************************
  *  int GetJacketSize(double height, double weight, int age)
  *
  *  Purpose: This function takes height, weight, and age as arguments
- *           and returns the jacket size.
+ *           and returns the jacket size, rounded up.
  *
  *  Preconditions: height and weight are greater than 0,
  *                 age is greater than or equal to 0
  *   
  *  Postconditions: Returns jacket size as an integer value.
  *********************************************************/
-int GetJacketSize(double height, double weight, int age)
+double GetJacketSize(double height, double weight, int age)
 {
     const double JACKET_MULT = 1.0 / 288;
-    return static_cast<int>((height * weight * JACKET_MULT) 
-                           + (0.125 * GetAdjustment(age, 30, 10)));
+    return (height * weight * JACKET_MULT) 
+         + (0.125 * GetAdjustment(age, 30, 10));
 }
 
 /**********************************************************
- *  int GetWaistSize(double weight, int age)
+ *  double GetWaistSize(double weight, int age)
  *
  *  Purpose: This function takes weight and age as arguments
- *           and returns the waist size.
+ *           and returns the waist size, rounded up.
  *
  *  Preconditions: weight are greater than 0,
  *                 age is greater than or equal to 0
  *   
  *  Postconditions: Returns waist size as an integer value.
  *********************************************************/
-int GetWaistSize(double weight, int age)
+double GetWaistSize(double weight, int age)
 {
     const double WAIST_MULT = 1.0 / 5.7;
-    return static_cast<int>((weight * WAIST_MULT) 
-                          + (0.1 * GetAdjustment(age, 28, 2)));
+    return (weight * WAIST_MULT) + (0.1 * GetAdjustment(age, 28, 2));
 }
 
 /**********************************************************
