@@ -20,7 +20,8 @@
  *     Finalist #23!
  *     Finalist #16!
  *     Finalist #4!
- *     and the last winner is... Finalist #6!
+ *     and the last winner is...
+ *     Finalist #6!
  *
  *     Congratulations to our winners!
  *********************************************************/
@@ -36,7 +37,7 @@ int rand_int(int, int);
 // Prints dots to the console with a delay between each.
 void PrintSlowDots(unsigned int, unsigned int);
 // Sleeps for the specified number of seconds.
-void sleep(unsigned int);
+void my_sleep(unsigned int);
 
 int main()
 {
@@ -74,21 +75,21 @@ int main()
            || winner4 == winner3);
 
     // Present the winners in a suspenseful way
-    std::cout << "And the winners are";
-    PrintSlowDots(1, 3);
+    std::cout << "And the winners are...";
+    my_sleep(1);
     
     // I wish we could use arrays for this...
     // Print finalists
     std::cout << "\nFinalist #" << winner1 << "!";
-    sleep(1);
+    my_sleep(1);
     std::cout << "\nFinalist #" << winner2 << "!";
-    sleep(1);
+    my_sleep(1);
     std::cout << "\nFinalist #" << winner3 << "!";
-    sleep(1);
-    std::cout << "\nAnd the last winner is";
+    my_sleep(1);
+    std::cout << "\nand the last winner is...\n";
     // More suspense for last finalist
-    PrintSlowDots(1, 3);
-    std::cout << " Finalist #" << winner4 << "!\n\n"
+    my_sleep(2);
+    std::cout << "Finalist #" << winner4 << "!\n\n"
               << "Congratulations to our winners!\n";
     
     return 0;
@@ -109,26 +110,7 @@ int rand_int(int min, int max)
     return rand() % (max + 1 - min) + min;
 }
 
-/**********************************************************
- *  void PrintSlowDots(unsigned int delay, int dots)
- *
- *  Purpose: This function prints 'dots' periods to the console
- *           with a delay of 'delay' seconds between each period.
- *
- *  Preconditions: 'delay' and 'dots' are positive integers
- *   
- *  Postconditions: Prints 'dots' dots to the console
- *********************************************************/
-void PrintSlowDots(unsigned int delay, unsigned int dots)
-{
-    for (int i = 0; i < dots; i++)
-    {
-        sleep(delay);
-        std::cout << ".";
-    }
-}
-
-/**********************************************************
+/*********************************************************
  *  void PrintSlowDots(unsigned int sec)
  *
  *  Purpose: This function sleeps for 'sec' seconds
@@ -138,7 +120,7 @@ void PrintSlowDots(unsigned int delay, unsigned int dots)
  *   
  *  Postconditions: Sleeps for 'sec' seconds
  *********************************************************/
-void sleep(unsigned int sec)
+void my_sleep(unsigned int sec)
 {
     unsigned int start = std::time(0);
     // Stay in loop until 'sec' seconds have elapsed.
