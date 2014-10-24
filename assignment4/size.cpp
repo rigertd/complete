@@ -34,6 +34,7 @@
 #include <iomanip>  // For setprecision and fixed
 #include <limits>   // For numeric_limits
 #include <string>   // For string class
+#include <cmath>    // for ceil
 
 // Function prototypes
 
@@ -93,16 +94,25 @@ int main()
                 (age < 0 ? "You haven't been born yet? Try again: "
                          : "You should be dead by now. Try again: "));
         }
+        // Get sizes
+        double hat = GetHatSize(height, weight),
+               jacket = GetJacketSize(height, weight, age),
+               waist = GetWaistSize(weight, age);
         
         // Print out the sizes.
-        std::cout << std::endl << std::fixed << std::setprecision(2)
-                  << "Your hat size is "
-                  << GetHatSize(height, weight) << "," << std::endl
-                  << "your jacket size is " 
-                  << GetJacketSize(height, weight, age) << "," << std::endl
-                  << "and your waist size is "
-                  << GetWaistSize(weight, age) << "."
-                  << std::endl << std::endl;
+        std::cout << std::fixed << std::setprecision(2)
+                  << "\nYour exact hat size is " << hat << ".\n"
+                  << "We recommend a size " << std::setprecision(0)
+                  << std::ceil(hat) << " hat.\n\n"
+                  << std::setprecision(2)
+                  << "Your jacket size is " << jacket << ".\n"
+                  << "We recommend a size " << std::setprecision(0)
+                  << std::ceil(jacket) << " jacket.\n\n"
+                  << std::setprecision(2)
+                  << "Your waist size is " << waist << ".\n"
+                  << "We recommend pants with a size "
+                  << std::setprecision(0) << std::ceil(waist) 
+                  << " waist.\n\n";
     }
     while (GetYesNo("Do you want to calculate your sizes again? [Y/N]: "));
     
