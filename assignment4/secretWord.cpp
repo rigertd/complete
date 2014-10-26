@@ -97,8 +97,8 @@ int main()
              << "Player 1, enter your secret word using only letters: ";
         getline(cin, secret);
         
-        // Make sure it is a single word with only letters
-        while (ContainsNonAlpha(secret))
+        // Make sure it is non-empty and a single word with only letters
+        while (ContainsNonAlpha(secret) || secret.length() < 1)
         {
             cout << "The word must only contain letters. Try again: ";
             getline(cin, secret);
