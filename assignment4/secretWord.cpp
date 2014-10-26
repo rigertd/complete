@@ -82,6 +82,8 @@ void PrintSpaced(string);
 int main()
 {
     const int MAX_MISTAKES = 7; // Noose + body parts
+    const int MAX_LENGTH = 20;  // max length of secret word
+    const int MIN_LENGTH = 1;   // min length of secret word
     
     do // Start of play again loop
     {
@@ -94,13 +96,16 @@ int main()
         int wrongGuessCount = 0;        // number of wrong guesses
         
         cout << "\nWelcome to Hangman!\n"
-             << "Player 1, enter your secret word using only letters: ";
+             << "Player 1, enter a secret word with " << MIN_LENGTH 
+             << " to " << MAX_LENGTH << " letters: ";
         getline(cin, secret);
         
-        // Make sure it is non-empty and a single word with only letters
-        while (ContainsNonAlpha(secret) || secret.length() < 1)
+        // Make sure it is a single word between 1 and 20 letters
+        while (ContainsNonAlpha(secret) || secret.length() < MIN_LENGTH 
+               || secret.length() > MAX_LENGTH)
         {
-            cout << "The word must only contain letters. Try again: ";
+            cout << "Invalid entry. "
+                 << "Enter a single word made up of only letters: ";
             getline(cin, secret);
         }
         
