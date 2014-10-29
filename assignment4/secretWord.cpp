@@ -83,7 +83,7 @@ int main()
 {
     const int MAX_MISTAKES = 7; // Noose + body parts
     const int MAX_LENGTH = 20;  // max length of secret word
-    const int MIN_LENGTH = 1;   // min length of secret word
+    const int MIN_LENGTH = 2;   // min length of secret word
     
     do // Start of play again loop
     {
