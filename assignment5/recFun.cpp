@@ -67,7 +67,7 @@ int main()
  *********************************************************/
 int GetFib(int n)
 {
-    if (n <= 2) // Base case
+    if (n < 2) // Base case
     {
         return 1;
     }
