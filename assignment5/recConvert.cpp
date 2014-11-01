@@ -81,7 +81,7 @@ int main()
             // Validate input. More than 31 bits causes int overflow.
             if (IsBinary(input) && input.length() < 32)
             {
-                std::cout << input << " binary is "
+                std::cout << std::endl << input << " binary is "
                           << BinToDec(input) << " in decimal\n";
             }
             else
@@ -98,7 +98,7 @@ int main()
             // Validate input
             if (std::cin.get() == '\n' && input >= 0)
             {
-                std::cout << input << " decimal is "
+                std::cout << std::endl << input << " decimal is "
                           << DecToBin(input) << " in binary\n";
             }
             else
