@@ -27,7 +27,7 @@
 // Function prototypes
 
 // Recursively gets the nth Fibonacci number.
-long GetFib(int n);
+long GetFib(int);
 
 // Prompts the user for an integer in the specified range and returns it.
 int GetValidatedInt(const std::string &, 
@@ -35,7 +35,7 @@ int GetValidatedInt(const std::string &,
                     int = std::numeric_limits<int>::max());
 
 // Converts an integer to an ordinal string (1st, 2nd, etc.).
-std::string IntToOrdinal(int num);
+std::string IntToOrdinal(int);
 
 int main()
 {
