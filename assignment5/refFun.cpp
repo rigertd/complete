@@ -2,7 +2,7 @@
 * Author:                 David Rigert
 * Date Created:           10/21/2014
 * Last Modification Date: 10/31/2014
-* Assignment:             Assignment 4
+* Assignment:             Assignment 5
 * Filename:               refFun.cpp
 *
 * Overview:
