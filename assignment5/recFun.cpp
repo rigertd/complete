@@ -27,7 +27,7 @@
 // Function prototypes
 
 // Recursively gets the nth Fibonacci number.
-long GetFib(int n);
+long long GetFib(int n);
 
 // Prompts the user for an integer in the specified range and returns it.
 int GetValidatedInt(const std::string &, 
@@ -42,8 +42,10 @@ int main()
     int index,   // Index of the Fibonacci number to get
         result;  // Fibonacci number at index
     
-    // Get index of Fibonacci number
-    index = GetValidatedInt("Enter the index of the Fibonacci number to display: ", 0);
+    // Get index of Fibonacci number, up to 50 
+    // (trust me, you don't want to do higher than this)
+    index = GetValidatedInt(
+        "Enter the index of the Fibonacci number to display: ", 0, 50);
     
     // Get the Fibonacci number at index
     result = GetFib(index);
@@ -65,7 +67,7 @@ int main()
  *   
  *  Postconditions: Returns the nth Fibonacci number
  *********************************************************/
-long GetFib(int n)
+long long GetFib(int n)
 {
     if (n < 2) // Base case
     {
