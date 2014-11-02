@@ -33,7 +33,6 @@
  *********************************************************/
 #include <iostream> // For cout
 #include <string>   // For string class
-#include <limits>   // For numeric_limits
 #include <sstream>  // For stringstream class
 
 // Function prototypes
@@ -70,7 +69,8 @@ int main()
         if (std::cin.get() != '\n' || selection < 1 || selection > 3)
         {
             std::cout << "Invalid selection. Try again\n";
-            continue;
+            ClearBuffer();
+            continue; // just in case input started with 3
         }
         else if (selection == 1)
         {
@@ -203,6 +203,9 @@ bool IsBinary(std::string num)
  *********************************************************/
 void ClearBuffer()
 {
-    std::cin.clear();           // Clear any errors.
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (!std::cin.eof())
+    {
+        std::cin.clear(); // Clear any errors.
+        std::cin.sync();  // Clear the buffer.
+    }
 }
