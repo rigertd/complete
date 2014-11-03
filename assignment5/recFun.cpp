@@ -42,10 +42,10 @@ int main()
     int index,   // Index of the Fibonacci number to get
         result;  // Fibonacci number at index
     
-    // Get index of Fibonacci number, up to 47 
+    // Get index of Fibonacci number, up to 45 
     // (higher than this causes overflow)
     index = GetValidatedInt(
-        "Enter the index of the Fibonacci number to display: ", 0, 47);
+        "Enter the index of the Fibonacci number to display [0-45]: ", 0, 45);
     
     // Get the Fibonacci number at index
     result = GetFib(index);
