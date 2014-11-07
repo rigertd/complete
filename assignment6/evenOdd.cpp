@@ -43,8 +43,8 @@ int main()
         std::cin >> arrSize;
     }
     
-    // Create array
-    int inputArr[arrSize];
+    // Allocate memory for new array in heap
+    int *inputArrPtr = new int[arrSize];
     
     // Populate array
     int i = 0;
@@ -52,12 +52,12 @@ int main()
               << " integers, separated by spaces: ";
     while (i < arrSize)
     {
-        std::cin >> inputArr[i++];
+        std::cin >> inputArrPtr[i++];
     }
     
     // Display result
     std::cout << "\nEven values minus odd values is "
-              << GetEvenMinusOdd(inputArr, arrSize) << ".\n";
+              << GetEvenMinusOdd(inputArrPtr, arrSize) << ".\n";
 
     return 0;
 }
