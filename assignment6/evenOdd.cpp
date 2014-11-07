@@ -26,7 +26,7 @@
 
 // Function prototype
 // Returns the difference of the even and odd numbers in an array.
-int GetEvenMinusOdd(int *, int);
+int GetEvenMinusOdd(const int *, const int);
 
 int main()
 {
@@ -56,7 +56,7 @@ int main()
 }
 
 /**********************************************************
- *  int GetEvenMinusOdd(int *arr, int size)
+ *  int GetEvenMinusOdd(const int const *arr, const int size)
  *
  *  Purpose: This function returns the difference of the even
  *           and odd values in the specified array.
@@ -65,7 +65,7 @@ int main()
  *   
  *  Postconditions: Returns even numbers - odd numbers
  *********************************************************/
-int GetEvenMinusOdd(int *arr, int size)
+int GetEvenMinusOdd(const int *arr, const int size)
 {
     int difference = 0;
     
