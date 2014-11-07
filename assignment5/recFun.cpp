@@ -29,6 +29,9 @@
 // Recursively gets the nth Fibonacci number.
 long GetFib(int);
 
+// Recursively gets the nth Fibonacci number efficiently.
+long GetFib(int, long, long);
+
 // Prompts the user for an integer in the specified range and returns it.
 int GetValidatedInt(const std::string &, 
                     int = std::numeric_limits<int>::min(), 
@@ -39,8 +42,9 @@ std::string IntToOrdinal(int);
 
 int main()
 {
-    int index,   // Index of the Fibonacci number to get
-        result;  // Fibonacci number at index
+    int index;   // Index of the Fibonacci number to get
+    long result, // Fibonacci number at index
+         result2;
     
     // Get index of Fibonacci number, up to 45 
     // (higher than this causes overflow)
@@ -49,10 +53,17 @@ int main()
     
     // Get the Fibonacci number at index
     result = GetFib(index);
-    
-    // Print the specified Fibonacci number
+
+    // Display the specified Fibonacci number
     std::cout << "\nThe " << IntToOrdinal(index) 
               << " Fibonacci number is " << result << ".\n";
+    
+    // Get the Fibonacci number efficiently.
+    result2 = GetFib(index, 1, 1);
+    
+    // Display the specified Fibonacci number
+    std::cout << "\nUsing efficient recursion, the " << IntToOrdinal(index)
+              << " Fibonacci number is " << result2 << ".\n";
 
     return 0;
 }
@@ -78,6 +89,23 @@ long GetFib(int n)
         return GetFib(n - 2) + GetFib(n - 1);
     }
 }
+
+long GetFib(int n, long current, long previous)
+{
+    if (n == 0) // Base case
+    {
+        return previous;
+    }
+    else if (n == 1)
+    {
+        return current;
+    }
+    else       // Recursive case
+    {
+        return GetFib(n - 1, current + previous, current);
+    }
+}
+
 
 /**********************************************************
  *  int GetValidatedInt(std::string prompt,
