@@ -30,11 +30,18 @@ int GetEvenMinusOdd(const int *, const int);
 
 int main()
 {
-    int arrSize = 0;
+    int arrSize = 0;         // will hold actual number entered by user
+    const int MAX_SIZE = 50; // as instructed. don't dock me, bro!
     
     // Prompt user and get array size.
-    std::cout << "Enter the number of integers to input: ";
+    std::cout << "Enter the number of integers to input, up to 50: ";
     std::cin >> arrSize;
+    
+    while (arrSize < 1 || arrSize > MAX_SIZE)
+    {
+        std::cout << "Your number must be between 1 and 50: ";
+        std::cin >> arrSize;
+    }
     
     // Create array
     int inputArr[arrSize];
@@ -56,7 +63,7 @@ int main()
 }
 
 /**********************************************************
- *  int GetEvenMinusOdd(const int const *arr, const int size)
+ *  int GetEvenMinusOdd(const int *arr, const int size)
  *
  *  Purpose: This function returns the difference of the even
  *           and odd values in the specified array.
