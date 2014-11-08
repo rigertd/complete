@@ -67,6 +67,7 @@ int main()
         // Clear any leftover text in input buffer
         std::cin.clear();
         std::cin.ignore(1000, '\n');
+        std::cin.sync();
 
         // Re-prompt user for valid input.
         std::cout << "Your string must contain at least one character. Try again.\n";
@@ -79,6 +80,7 @@ int main()
         // Clear any leftover text in input buffer
         std::cin.clear();
         std::cin.ignore(1000, '\n');
+        std::cin.sync();
 
         // Prompt user for command
         std::cout << "Please enter a command.\n";
