@@ -73,7 +73,7 @@ int main()
     {
         // Clear any leftover text in input buffer
         std::cin.clear();
-        std::cin.sync();
+        std::cin.ignore(1000, '\n');
 
         // Prompt user for command
         std::cout << "Please enter a command.\n";
