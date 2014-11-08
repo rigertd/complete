@@ -53,21 +53,19 @@ void CStringToUpper(char *);
 
 int main()
 {
-    const int MAX_SIZE = 31; // Max chars allowed for user input
-    char input[MAX_SIZE];    // Stores user input string
-    char cmd[MAX_SIZE];      // Stores menu commands
+    const int MAX_SIZE = 31;   // Max chars allowed for user input
+    char input[MAX_SIZE] = ""; // Stores user input string
+    char cmd[MAX_SIZE];        // Stores menu commands
 
     // Prompt user for input string
     std::cout << "Please enter a string.\n";
     std::cin.getline(input, MAX_SIZE);
     
     // Validate user input
-    while (std::strlen(input) == 0)
+    while (std::strlen(input) < 1)
     {
-        // Clear any leftover text in input buffer
+        // Clear the failbit flag
         std::cin.clear();
-        std::cin.ignore(1000, '\n');
-        std::cin.sync();
 
         // Re-prompt user for valid input.
         std::cout << "Your string must contain at least one character. Try again.\n";
@@ -79,7 +77,6 @@ int main()
     {
         // Clear any leftover text in input buffer
         std::cin.clear();
-        std::cin.ignore(1000, '\n');
         std::cin.sync();
 
         // Prompt user for command
