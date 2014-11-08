@@ -48,7 +48,7 @@ void ShiftRight(char *, int);
 // Reverses the order of the chars in the string.
 void Reverse(char *);
 
-// Converts an entire C-style string to uppercase
+// Converts an entire C-style string to uppercase.
 void CStringToUpper(char *);
 
 int main()
@@ -68,7 +68,8 @@ int main()
         std::cin.clear();
 
         // Re-prompt user for valid input.
-        std::cout << "Your string must contain at least one character. Try again.\n";
+        std::cout << "Your string must contain at least one character. "
+                  << "Try again.\n";
         std::cin.getline(input, MAX_SIZE);
     }
 
@@ -242,3 +243,4 @@ void CStringToUpper(char *pText)
             pText[i] = pText[i] - 32;
     }
 }
+
