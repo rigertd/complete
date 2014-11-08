@@ -64,6 +64,11 @@ int main()
     // Validate user input
     while (std::strlen(input) == 0)
     {
+        // Clear any leftover text in input buffer
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
+
+        // Re-prompt user for valid input.
         std::cout << "Your string must contain at least one character. Try again.\n";
         std::cin.getline(input, MAX_SIZE);
     }
