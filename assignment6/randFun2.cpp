@@ -135,7 +135,7 @@ int GetValidatedInt(std::string prompt)
                   << std::numeric_limits<int>::max()  // Max int
                   << std::endl << "without any commas: ";
         std::cin.clear();     // Clear any errors.
-        std::sync();          // Ignore any remaining input in buffer.
+        std::cin.sync();      // Ignore any remaining input in buffer.
         std::cin >> input;    // Store console input in 'input' variable.
     }
     
