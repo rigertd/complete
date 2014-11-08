@@ -67,10 +67,13 @@ int main()
         std::cout << "Your string must contain at least one character. Try again.\n";
         std::cin.getline(input, MAX_SIZE);
     }
-    
+
     // Start of menu do-while loop
     do
     {
+        // Clear any leftover text in input buffer
+        std::cin.sync();
+
         // Prompt user for command
         std::cout << "Please enter a command.\n";
         std::cin.getline(cmd, MAX_SIZE);
