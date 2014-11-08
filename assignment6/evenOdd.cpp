@@ -16,7 +16,7 @@
  * Output:
  *     The output to the console will be in the form of:
  *
- *     Enter the number of integers to input: [4]
+ *     Enter the number of integers to input, up to 50: [4]
  *
  *     Enter 3 integers, separated by spaces: [1 2 3 4]
  *     
@@ -37,8 +37,11 @@ int main()
     std::cout << "Enter the number of integers to input, up to 50: ";
     std::cin >> arrSize;
     
-    while (arrSize < 1 || arrSize > MAX_SIZE)
+    // Validate input.
+    while (std::cin.fail() || arrSize < 1 || arrSize > MAX_SIZE)
     {
+        std::cin.clear(); // remove error bit
+        std::cin.sync();  // clear input buffer
         std::cout << "Your number must be between 1 and 50: ";
         std::cin >> arrSize;
     }
