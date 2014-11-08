@@ -72,6 +72,7 @@ int main()
     do
     {
         // Clear any leftover text in input buffer
+        std::cin.clear();
         std::cin.sync();
 
         // Prompt user for command
