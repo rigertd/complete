@@ -76,9 +76,12 @@ int main()
     do
     {
         // Clear any leftover text in input buffer
-        std::cin.clear();
-        std::cin.sync();
-
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(1000, '\n');
+        }
+        
         // Prompt user for command
         std::cout << "Please enter a command.\n";
         std::cin.getline(cmd, MAX_SIZE);
