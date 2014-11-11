@@ -258,6 +258,15 @@ void getRowInput(int *row, int size)
             num++;
         }
     }
+    
+    // skip rest of input buffer if not LF or EOF
+    if (std::cin.peek() != std::char_traits<char>::eof()
+        && std::cin.peek() != '\n')
+    {
+        std::getline(std::cin, invalid);
+        std::cout << "This row is already full. Skipping \""
+                  << invalid << "\".\n";
+    }
 
     // clear input buffer
     std::cin.clear();
