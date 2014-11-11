@@ -1,9 +1,9 @@
 /**********************************************************
  * Author:                 David Rigert
- * Date Created:           11/7/2014
- * Last Modification Date: 11/7/2014
- * Assignment:             Assignment 6
- * Filename:               wordShift.cpp
+ * Date Created:           11/10/2014
+ * Last Modification Date: 11/10/2014
+ * Assignment:             Assignment 7
+ * Filename:               sameSum.cpp
  *
  * Overview:
  *     This program determines whether sums of the numbers in
