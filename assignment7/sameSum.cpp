@@ -80,13 +80,13 @@ int main()
 }
 
 /**********************************************************
- *  bool hasSameSum(const squareArray arr, int rows)
+ *  bool hasSameSum(int ** const arr, int rows)
  *
  *  Purpose: This function determines whether all rows, columns,
  *           and major diagonals have the same sum.
  *
- *  Preconditions: arr is a square 2D array with up to 
- *                 MAX_COLUMNS columns and MAX_ROWS rows
+ *  Preconditions: arr is an initialized square 2D array
+ *                 with 'rows' height and width
  *   
  *  Postconditions: Returns whether the sums are equal
  *********************************************************/
