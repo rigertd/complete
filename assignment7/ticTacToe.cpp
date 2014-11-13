@@ -239,7 +239,6 @@ bool getMove(gameBoard board, int size, char player)
         cout << "Invalid input. Enter the row and column numbers, "
              << "separated by a space.\n";
         cin.clear();
-        cin.ignore(1000, '\n');
         row = col = -1;
     }
     // check for invalid numbers
@@ -256,9 +255,17 @@ bool getMove(gameBoard board, int size, char player)
         row = col = -1;
     }
     
+    // clear input buffer if anything is left in it
+    if (cin.peek() != '\n')
+    {
+        cin.ignore(1000, '\n');
+    }
+    
     if (row == -1 || col == -1)
+    {
         // invalid input
         return false;
+    }
     else
     {
         // update game board
