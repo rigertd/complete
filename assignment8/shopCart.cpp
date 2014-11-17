@@ -89,6 +89,8 @@ int main()
                 cin.clear();
                 cin.ignore(1000, '\n');
             }
+            // reset menu selection
+            selection = 0;
         }
         else if (selection == 1)
         {
@@ -105,7 +107,7 @@ int main()
             // show total cost
             printTotal(shoppingCart, itemCount);
         }
-    } while (selection != 4);
+    } while (selection != 4 && !cin.fail());
 
     cout << "\nThank you for shopping with us!\n";
     
@@ -156,10 +158,10 @@ void addItem(Item cart[], int &count, const int max)
     }
     else
     {
-        // clear input buffer just in case
-        cin.clear();
-        cin.sync();
-        
+        // consume line feed in buffer
+        if (cin.peek() == '\n')
+            cin.ignore();
+
         // get user input
         cart[count].name = getValidString(
             "\nEnter the product name: ", 1, MAX_NAME_LEN);
