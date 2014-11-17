@@ -23,18 +23,7 @@
 #include <limits>
 #include <iomanip>
 
-using std::string;
-using std::cin;
-using std::cout;
-using std::endl;
-using std::numeric_limits;
-using std::setprecision;
-using std::fixed;
-using std::showpoint;
-using std::setw;
-using std::left;
-using std::right;
-using std::getline;
+using namespace std;
 
 struct Item
 {
@@ -54,15 +43,20 @@ void listItems(const Item [], const int);
 void printTotal(const Item [], const int);
 // Prompts the user for an integer in the specified range and returns it.
 int getValidInt(const string &, 
-                    int = numeric_limits<int>::min(), 
-                    int = numeric_limits<int>::max());
+                int = numeric_limits<int>::min(), 
+                int = numeric_limits<int>::max());
 // Prompts the user for a double in the specified range and returns it.
 double getValidDouble(const string &, 
-                          double = numeric_limits<double>::min(), 
-                          double = numeric_limits<double>::max());
-
+                      double = numeric_limits<double>::min(), 
+                      double = numeric_limits<double>::max());
+// Prompts the user for a string and validates the length.
+string getValidString(const string &, int = 0, int = 0);
+                          
 // global constants
 const int MAX_ITEMS = 100;
+const int MAX_NAME_LEN = 40;
+const double MAX_PRICE = 99999999.99;
+const int MAX_QUANTITY = 99999999;
 
 int main()
 {
@@ -167,21 +161,34 @@ void addItem(Item cart[], int &count, const int max)
         cin.sync();
         
         // get user input
-        cout << "\nEnter the product name: ";
-        getline(cin, cart[count].name);
-        cart[count].price = getValidDouble("\nEnter the price of the product: ", 0.0, 10000000.0);
-        cart[count].quantity = getValidInt("\nEnter how many you want: ", 1, 99999999);
+        cart[count].name = getValidString(
+            "\nEnter the product name: ", 1, MAX_NAME_LEN);
+        cart[count].price = getValidDouble(
+            "\nEnter the price of the product: ", 0.0, MAX_PRICE);
+        cart[count].quantity = getValidInt(
+            "\nEnter how many you want: ", 1, MAX_QUANTITY);
         
         // increment counter
         count++;
     }
 }
 
-// Lists the items in the specified array.
+/**
+    void listItems(const Item cart[], const int count)
+    
+    Purpose:
+        This function lists the items in the specified array.
+    
+    Preconditions:
+        cart is initialized and contains count Items
+    
+    Postconditions:
+        items in cart are displayed in console window
+ */
 void listItems(const Item cart[], const int count)
 {
     cout << "\nYour cart contains the following:\n\n"
-         << left << setw(40) << "Product Name"
+         << left << setw(MAX_NAME_LEN + 2) << "Product Name"
          << setw(15) << "Price"
          << setw(8) << "Quantity\n"
          << string (65, '-') << endl;
@@ -191,7 +198,7 @@ void listItems(const Item cart[], const int count)
     }
     for (int i = 0; i < count; i++)
     {
-        cout << left << setw(40) << cart[i].name
+        cout << left << setw(MAX_NAME_LEN + 2) << cart[i].name
              << "$" << right << setw(11) << cart[i].price
              << left << "   " << setw(10) << cart[i].quantity
              << endl;
@@ -199,6 +206,19 @@ void listItems(const Item cart[], const int count)
 }
 
 // Shows the total cost of all items in the specified array.
+/**
+    void printTotal(const Item cart[], const int count)
+    
+    Purpose:
+        This function shows the total cost of all items
+        in the specified array.
+    
+    Preconditions:
+        cart is initialized and contains count Items
+    
+    Postconditions:
+        total cost is displayed in console window
+ */
 void printTotal(const Item cart[], const int count)
 {
     double total = 0.0;
@@ -314,5 +334,51 @@ double getValidDouble(const string &prompt, double min, double max)
     }
     
     // send input value back to caller
+    return input;
+}
+
+/**
+    string getValidString(const string &prompt,
+                              int minLen = 0,
+                              int maxLen = 0)
+ 
+    Purpose: 
+        This function displays the specified prompt and gets a string 
+        from the user within the specified length range. The range
+        defaults to no limit if not specified.
+        The user is reprompted if the input is less than the minimum,
+        but the input is truncated and returned if it is over the maximum.
+
+    Preconditions:
+        none
+ 
+    Postconditions: 
+        input buffer is empty
+        returns a string with a length between minLen and maxLen
+ */
+string getValidString(const string &prompt, int minLen, int maxLen)
+{
+    string input;  // stores user input
+    
+    // handle any error bits and leftover input
+    cin.clear();
+    cin.sync();
+        
+    // get input from user
+    cout << prompt;
+    getline(cin, input);
+    
+    // validate
+    while (input.length() < minLen)
+    {
+        cout << "The input must contain at least " << minLen << " character"
+             << (minLen == 1 ? ".\n" : "s.\n") << prompt;
+        getline(cin, input);
+    }
+    
+    // truncate if over maxLen
+    if (input.length() > maxLen)
+        input = input.substr(0, maxLen);
+    
     return input;
 }
