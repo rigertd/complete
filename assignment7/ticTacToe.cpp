@@ -229,11 +229,7 @@ bool getMove(gameBoard board, int size, char player)
     cout << "Player " << player << ": please enter your move.\n";
     
     // check for invalid input type
-    cin >> row;
-    if (!cin.fail())
-    {
-        cin >> col;
-    }
+    cin >> row >> col;
     if (cin.fail())
     {
         cout << "Invalid input. Enter the row and column numbers, "
