@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           11/16/2014
- * Last Modification Date: 11/16/2014
+ * Last Modification Date: 11/17/2014
  * Assignment:             Assignment 8
  * Filename:               shopCart.cpp
  *
@@ -16,7 +16,16 @@
  *
  * Output:
  *     The output to the console will be in the form of:
+ *     Choose an item from the menu to manage your shopping cart.
  *
+ *     1) Add item
+ *     2) List contents
+ *     3) Total price
+ *     4) Quit
+ *
+ *     Enter your selection: [4]
+ *
+ *     Thank you for shopping with us!
  ************************************************************************/
 #include <iostream>
 #include <string>
