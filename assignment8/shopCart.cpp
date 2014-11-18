@@ -216,7 +216,6 @@ void listItems(const Item cart[], const int count)
     }
 }
 
-// Shows the total cost of all items in the specified array.
 /**
     void printTotal(const Item cart[], const int count)
     
