@@ -17,13 +17,22 @@
  * Output:
  *     The output to the console will be in the form of:
  *
+ *     This program finds the mode(s) of a list of integer values.
+ *     Press Enter without any value when you are done.
+ *
+ *     Enter a value: [4]
+ *     Enter a value: [2]
+ *     Enter a value: [9]
+ *     Enter a value: [2]
+ *     Enter a value:
+ *
+ *     The mode is 2.
  ************************************************************************/
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cctype>
 #include <cstdlib>
-#include <limits>
 
 using namespace std;
 
@@ -32,6 +41,8 @@ using namespace std;
 vector<int> findMode(const vector<int> &);
 // Determines whether a string is a valid integer.
 bool isInteger(const string &);
+// Sorts an integer vector into ascending order.
+void sortIntVectorAsc(vector<int> &);
 
 int main()
 {
@@ -69,25 +80,25 @@ int main()
         if (result.size() > 1)
         {
             // fencepost
-            cout << "The modes are " << result[0];
+            cout << "\nThe modes are " << result[0];
             for (int i = 1; i < result.size(); i++)
             {
                 if (i == result.size() - 1)
-                    cout << ", and " << result[i] << ".\n";
+                    cout << " and " << result[i] << ".\n";
                 else
                     cout << ", " << result[i];
             }
         }
         else if (result.size() == 1)
         {
-            cout << "The mode is " << result[0] << ".\n";
+            cout << "\nThe mode is " << result[0] << ".\n";
         }
     }
     else              // empty
     {
-        cout << "You did not enter any integers.\n";
+        cout << "\nYou did not enter any integers.\n";
     }
-    
+
     return 0;
 }
 
@@ -112,7 +123,7 @@ bool isInteger(const string &str)
     // check each char
     for (int i = 0; i < str.length(); i++)
     {
-        if (!isdigit(str[i]))
+        if (!isdigit(str[i]) && (i != 0 || str[i] != '-'))
             return false;
     }
     
@@ -121,85 +132,104 @@ bool isInteger(const string &str)
 }
 
 /**
-    void printTotal(const Item cart[], const int count)
+    vector<int> findMode(const vector<int> &vals)
     
     Purpose:
-        This function shows the total cost of all items
-        in the specified array.
+        This function finds the mode of the integer values in the specified 
+        vector. Returns multiple values if there is more than one mode.
     
     Preconditions:
-        cart is initialized and contains count Items
+        vals is initialized
     
     Postconditions:
-        total cost is displayed in console window
+        returns a vector containing the mode(s)
  */
 vector<int> findMode(const vector<int> &vals)
 {
-    // keep track of highest and lowest values
-    int high = numeric_limits<int>::min(),
-        low = numeric_limits<int>::max(); 
-    // keep track of highest count
-    short highest = 0;
+    // create working vectors
+    vector<int> sorted (vals);
+    vector<int> results;
     
-    // find the lowest and highest values entered
-    for (int i = 0; i < vals.size(); i++)
-    {
-        high = max(high, vals[i])
-    }
-    // create arrays for counting all possible int values
-    // (surely there must be a better way to do this without a dictionary)
-    short *negCount = new short[-MAX_NEG_INT];
-    short *posCount = new short[MAX_POS_INT];
+    // return empty vector if vals is empty
+    if (vals.empty())
+        return results;
     
-    cout << "Initializing count array\n";
-    // initialize counting arrays
-    for (int i = 0; i < MAX_POS_INT; i++)
-    {
-        posCount[i] = 0;
-        negCount[i] = 0;
-    }
-    cout << "End of count array init.\n";
-    negCount[MAX_NEG_INT - 1] = 0;
+    // sort vector into ascending order
+    sortIntVectorAsc(sorted);
     
-    cout << "Incrementing count array\n";
-    // increment array counters based on vector values
-    // also find highest count.
-    for (int i = 0; i < vals.size(); i++)
+    // add first element to result
+    results.push_back(sorted[0]);
+    int prev = sorted[0];
+    int highCount = 1;
+    int count = 1;
+    
+    // check for repeats in sorted vector and keep track of highest count
+    for (int i = 1; i < sorted.size(); i++)
     {
-        int index;
-        if (vals[i] < 0)
-        {
-            index = -vals[i];
-            negCount[index]++;
-            highest = static_cast<short>(
-                max(negCount[index], highest));
+        if (sorted[i] == prev)
+        { // current value same as previous
+            count++;
+            if (count > highCount)
+            {
+                // update highCount
+                highCount = count;
+                // clear previous results unless current value is only result
+                if (results.size() > 1 || results[0] != sorted[i])
+                {
+                    results.clear();
+                    results.push_back(sorted[i]);
+                }
+            }
+            else if (count == highCount)
+            {
+                // add current value to results
+                results.push_back(sorted[i]);
+            }
         }
         else
-        {
-            index = vals[i];
-            posCount[index]++;
-            highest = static_cast<short>(
-                max(posCount[index], highest));
+        { // different value--reset count and prev variables
+            count = 1;
+            prev = sorted[i];
+            if (count == highCount)
+            {
+                // add current value to results
+                results.push_back(sorted[i]);
+            }
         }
     }
-    
-    // add most common vals to result vector
-    cout << "Declaring result array\n";
-    vector<int> results;
-    cout << "Populating result array\n";
-    for (int i = 0; i < MAX_POS_INT; i++)
-    {
-        if (posCount[i] == highest)
-            results.push_back(i);
-        if (negCount[i] == highest)
-            results.push_back(-i);
-    }
-    if (negCount[MAX_NEG_INT - 1] == highest)
-        results.push_back(MAX_NEG_INT - 1);
-    
-    // delete arrays
-    delete [] posCount;
-    delete [] negCount;
-    
+
     return results;
+}
+
+/**
+    void sortIntVectorAsc(vector<int> &vec)
+    
+    Purpose:
+        This function sorts the values in an integer vector
+        into ascending order (smallest to largest).
+    
+    Preconditions:
+        vec is initialized
+    
+    Postconditions:
+        values in vec are sorted into ascending order
+ */
+void sortIntVectorAsc(vector<int> &vec)
+{
+    bool changed = true; // detects when sorted
+    int tmp;             // for swapping
+    while (changed)
+    {
+        changed = false;
+        for (int i = 1; i < vec.size(); i++)
+        {
+            if (vec[i-1] > vec[i])
+            {
+                tmp = vec[i-1];
+                vec[i-1] = vec[i];
+                vec[i] = tmp;
+                changed = true;
+            }
+        }
+    }
 }
