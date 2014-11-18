@@ -33,6 +33,7 @@
 #include <vector>
 #include <cctype>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
@@ -41,8 +42,6 @@ using namespace std;
 vector<int> findMode(const vector<int> &);
 // Determines whether a string is a valid integer.
 bool isInteger(const string &);
-// Sorts an integer vector into ascending order.
-void sortIntVectorAsc(vector<int> &);
 
 int main()
 {
@@ -155,7 +154,7 @@ vector<int> findMode(const vector<int> &vals)
         return results;
     
     // sort vector into ascending order
-    sortIntVectorAsc(sorted);
+    sort(sorted.begin(), sorted.end());
     
     // add first element to result
     results.push_back(sorted[0]);
@@ -199,37 +198,4 @@ vector<int> findMode(const vector<int> &vals)
     }
 
     return results;
-}
-
-/**
-    void sortIntVectorAsc(vector<int> &vec)
-    
-    Purpose:
-        This function sorts the values in an integer vector
-        into ascending order (smallest to largest).
-    
-    Preconditions:
-        vec is initialized
-    
-    Postconditions:
-        values in vec are sorted into ascending order
- */
-void sortIntVectorAsc(vector<int> &vec)
-{
-    bool changed = true; // detects when sorted
-    int tmp;             // for swapping
-    while (changed)
-    {
-        changed = false;
-        for (int i = 1; i < vec.size(); i++)
-        {
-            if (vec[i-1] > vec[i])
-            {
-                tmp = vec[i-1];
-                vec[i-1] = vec[i];
-                vec[i] = tmp;
-                changed = true;
-            }
-        }
-    }
 }
