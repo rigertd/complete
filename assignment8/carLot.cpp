@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           11/17/2014
- * Last Modification Date: 11/17/2014
+ * Last Modification Date: 11/18/2014
  * Assignment:             Assignment 8
  * Filename:               carLot.cpp
  *
@@ -37,6 +37,8 @@
 #include <iomanip>
 #include <cstdlib>
 
+#define MARGIN "  "
+
 using namespace std;
 
 // represents a date
@@ -61,14 +63,36 @@ struct Car
 };
 
 // function prototypes
-// Prints the menu.
-void printMenu();
 // Adds a car entry to the system.
 void addEntry(vector<Car> &);
 // Lists all unsold cars in inventory.
 void listInventory(const vector<Car> &);
+// Prints the menu.
+void printMenu();
 // Prompts user for a month and year and prints the profit.
 void printProfit(const vector<Car> &);
+
+/********************************************************************
+ *  user input functions
+ *******************************************************************/
+// Gets an amount from the user as a double.
+double getAmount(const string &, double, double);
+// Gets valid month, day and year values from the user.
+void getDate(const string &, int &, int &, int &);
+// Gets valid month and year values from the user.
+void getMonthYear(int &, int &);
+// Gets a string of length minLen to maxLen from the user.
+string getString(const string &, int, int);
+// Gets valid year value from the user.
+int getYear(const string &);
+// Prompts user for yes/no answer and returns true if yes/no
+bool getYesNo(const string &);
+
+/********************************************************************
+ *  helper functions
+ *******************************************************************/
+// Determines whether a string is a valid double.
+bool isDouble(const string &);
 // Determines whether a string is a valid integer.
 bool isInteger(const string &);
 // Splits a string on the specified delimiter.
@@ -139,13 +163,113 @@ int main()
 }
 
 /**
+    void addEntry(vector<Car> &ledger)
+    
+    Purpose:
+        This function adds a car entry to the system.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        User input is stored in a new element of ledger.
+ */
+void addEntry(vector<Car> &ledger)
+{
+    string input;   // user input buffer
+    Car temp;       // stores input
+    
+    // get make
+    temp.make = getString("Enter the make: ", 1, MAKE_MAX_LEN);
+    
+    // get model
+    temp.model = getString("Enter the model: ", 1, MODEL_MAX_LEN);
+    
+    // get year
+    temp.year = getYear("Enter the year: ");
+    
+    // get datePurchased
+    getDate("Enter the purchase date as MM/DD/YYYY: ", 
+            temp.datePurchased.month,
+            temp.datePurchased.day,
+            temp.datePurchased.year);
+    
+    // get purchasePrice
+    temp.purchasePrice = getAmount("Enter the purchase price: ", 0, PRICE_MAX);
+    
+    // get isSold value
+    temp.isSold = getYesNo("Has this car already been sold? (Y/N): ");
+    
+    if (temp.isSold)
+    {
+        // get dateSold
+        getDate("Enter the date sold as MM/DD/YYYY: ",
+                temp.dateSold.month,
+                temp.dateSold.day,
+                temp.dateSold.year);
+    
+        // get salePrice
+        temp.salePrice = getAmount("Enter the sale price: ", 0, PRICE_MAX);
+    }
+    
+    // add temp struct to vector
+    ledger.push_back(temp);
+}
+
+/**
+    void listInventory(const vector<Car> &ledger)
+    
+    Purpose:
+        This function lists all unsold cars in inventory.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        All unsold cars in ledger are printed to the console.
+ */
+void listInventory(const vector<Car> &ledger)
+{
+    unsigned int unsold = 0;
+    
+    // header row
+    cout << "\nYou have the following unsold cars on the lot:\n\n"
+         << setfill(' ') << left << setw(MAKE_MAX_LEN) << "Make" << MARGIN
+         << setw(MODEL_MAX_LEN) << "Model" << MARGIN
+         << setw(4) << "Year" << MARGIN
+         << setw(DATE_LEN) << "Purchased" << MARGIN
+         << setw(PRICE_LEN + 1) << "Price Paid" << MARGIN
+         << endl << string (73, '-') << endl;
+    for (int i = 0; i < ledger.size(); i++)
+    {
+        // print only if not sold
+        if (!ledger[i].isSold)
+        {
+            cout << left << setw(MAKE_MAX_LEN) << ledger[i].make << MARGIN
+                 << setw(MODEL_MAX_LEN) << ledger[i].model << MARGIN
+                 << setfill('0') << setw(4) << ledger[i].year << MARGIN
+                 << setw(2) << ledger[i].datePurchased.month << "/"
+                 << setw(2) << ledger[i].datePurchased.day << "/"
+                 << setw(4) << ledger[i].datePurchased.year << MARGIN
+                 << setfill(' ') << right << fixed << showpoint
+                 << "$" << setprecision(2) << setw(PRICE_LEN) 
+                 << ledger[i].purchasePrice << endl;
+            
+            unsold++;
+        }
+    }
+    cout << "\nYou have " << unsold << " unsold car"
+         << (unsold == 1 ? " " : "s ") << "on the lot.\n\n";
+}
+
+/**
     void printMenu()
     
     Purpose:
         This function prints the menu to the console.
     
     Preconditions:
-        None.
+        none
     
     Postconditions:
         Menu is printed to the console.
@@ -159,46 +283,6 @@ void printMenu()
          << "4) Quit\n\n";
 }
 
-// Adds a car entry to the system.
-void addEntry(vector<Car> &ledger)
-{
-
-}
-
-// Lists all unsold cars in inventory.
-void listInventory(const vector<Car> &ledger)
-{
-    unsigned int unsold = 0;
-    
-    cout << "\nYou have the following unsold cars on the lot:\n\n"
-         << left << setw(MAKE_MAX_LEN + 2) << "Make"
-         << setw(MODEL_MAX_LEN + 2) << "Model"
-         << setw(6) << "Year"
-         << setw(DATE_LEN + 2) << "Purchased"
-         << setw(PRICE_LEN + 3) << "Price Paid"
-         << endl << string (75, '-') << endl;
-    for (int i = 0; i < ledger.size(); i++)
-    {
-        // print only if not sold
-        if (!ledger[i].isSold)
-        {
-            cout << left << setw(MAKE_MAX_LEN + 2) << ledger[i].make
-                 << setw(MODEL_MAX_LEN + 2) << ledger[i].model
-                 << setw(6) << ledger[i].year
-                 << ledger[i].datePurchased.month << "/"
-                 << ledger[i].datePurchased.day << "/"
-                 << setw(6) << ledger[i].datePurchased.year
-                 << "$" << right << setw(PRICE_LEN + 2) << ledger[i].purchasePrice
-                 << endl;
-            
-            unsold++;
-        }
-    }
-    cout << "\nYou have " << unsold << " unsold car"
-         << (unsold == 1 ? " " : "s ") << "on the lot.\n\n";
-}
-
-// Prompts user for a month and year and prints the profit.
 /**
     void printProfit(const vector<Car> &ledger)
     
@@ -214,10 +298,179 @@ void listInventory(const vector<Car> &ledger)
  */
 void printProfit(const vector<Car> &ledger)
 {
-    double profit = 0.0;       // total profit for month
+    double profit = 0.0;      // total profit for month
+    int month = 0, year = 0;  // numerical month and year
+    
+    // get valid month and year
+    getMonthYear(month, year);
+    
+    for (int i = 0; i < ledger.size(); i++)
+    {
+        // only count if correct month and year
+        if (ledger[i].dateSold.month == month && 
+            ledger[i].dateSold.year == year)
+            profit += ledger[i].salePrice - ledger[i].purchasePrice;
+    }
+    
+    cout << "\nYour total profit for " 
+         << setfill('0') << setw(2) << month << "/" 
+         << setfill('0') << setw(4) << year << " was $"
+         << fixed << showpoint << setprecision(2) << profit << ".\n";
+}
+
+/**
+    double getAmount(const string &prompt, double min, double max)
+    
+    Purpose:
+        This function prompts the user for an amount of money and validates 
+        the input. The user is reprompted until a valid value is entered.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        returns entered amount
+ */
+double getAmount(const string &prompt, double min, double max)
+{
+    string input;   // user input buffer
+    double amt;     // amount value
+    bool valid;     // store isDouble result
+    
+    do
+    {
+        cout << prompt;
+        getline(cin, input);
+        valid = isDouble(input);
+        
+        // validate input
+        if (valid)
+        {
+            amt = atof(input.c_str());
+            if (amt < min || amt > max)
+            {
+                cout << "Invalid amount. " 
+                     << "Enter a value between "
+                     << fixed << showpoint << setprecision(2)
+                     << min << " and " << max << ".\n";
+                
+                // set valid flag to false
+                valid = false;
+            }
+        }
+        else
+            cout << "Invalid amount.\n";
+    } while (!valid);
+    
+    return amt;
+}
+
+/**
+    void getDate(const string &prompt, int &month, int &day, int &year)
+    
+    Purpose:
+        This function prompts the user for the month, day and year
+        and validates the input. The user is reprompted until 
+        valid values are entered.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        month, day and year contain the entered month, day and year
+ */
+void getDate(const string &prompt, int &month, int &day, int &year)
+{
+    string input;         // user input buffer
+    vector<string> date;  // split month, day and year
+    
+    do
+    {
+        cout << prompt;
+        getline(cin, input);
+        
+        // split on slash
+        date = split(input, '/');
+        
+        // validate input length
+        if (date.size() != 3)
+            cout << "Invalid date format.\n";
+        else
+        {
+            // validate month
+            if (isInteger(date[0]))
+            {
+                month = atoi(date[0].c_str());
+                if (month < 1 || month > 12 || date[0].length() > 2)
+                {
+                    cout << "Invalid month. "
+                         << "Enter a number between 1 and 12.\n";
+                    month = day = year = 0;
+                    // cannot detect valid day without valid month
+                    continue;
+                }
+            }
+            else
+                cout << "Invalid month.\n";
+            
+            // validate day
+            if (isInteger(date[1]))
+            {
+                int maxDay;
+                // set maxDay based on month
+                if (month == 4 || month == 6 || month == 9 || month == 11)
+                    maxDay = 30;
+                else if (month == 2)
+                    maxDay = 28;
+                else
+                    maxDay = 31;
+                
+                day = atoi(date[1].c_str());
+                if (day < 1 || day > maxDay || date[1].length() > 2)
+                {
+                    cout << "Invalid day. "
+                         << "Enter a number between 1 and " << maxDay <<".\n";
+                    month = day = year = 0;
+                }
+            }
+            else
+                cout << "Invalid year.\n";
+            
+            // validate year
+            if (isInteger(date[2]))
+            {
+                year = atoi(date[2].c_str());
+                if (year < 1 || year > 9999 || date[2].length() != 4)
+                {
+                    cout << "Invalid year. "
+                         << "Enter a number between 0001 and 9999.\n";
+                    month = day = year = 0;
+                }
+            }
+            else
+                cout << "Invalid year.\n";
+        }
+    } while (month == 0 || day == 0 || year == 0);
+}
+
+/**
+    void getMonthYear(int &month, int &year)
+    
+    Purpose:
+        This function prompts the user for a month and a year
+        and validates the input. The user is reprompted until 
+        valid values are entered.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        month and year contain the entered month and year
+ */
+void getMonthYear(int &month, int &year)
+{
     string input;              // user input buffer
     vector<string> monthYear;  // split month and year
-    short month = 0, year = 0; // numerical month and year
     
     do
     {
@@ -236,8 +489,12 @@ void printProfit(const vector<Car> &ledger)
             if (isInteger(monthYear[0]))
             {
                 month = atoi(monthYear[0].c_str());
-                if (month < 1 || month > 12)
-                    cout << "Invalid month. Enter a number between 1 and 12.\n";
+                if (month < 1 || month > 12 || monthYear[0].length() > 2)
+                {
+                    cout << "Invalid month. "
+                         << "Enter a number between 1 and 12.\n";
+                    month = year = 0;
+                }
             }
             else
                 cout << "Invalid month.\n";
@@ -245,24 +502,177 @@ void printProfit(const vector<Car> &ledger)
             if (isInteger(monthYear[1]))
             {
                 year = atoi(monthYear[1].c_str());
-                if (year < 1 || year > 9999)
-                    cout << "Invalid year. Enter a number between 1 and 9999.\n";
+                if (year < 1 || year > 9999 || monthYear[1].length() != 4)
+                {
+                    cout << "Invalid year. "
+                         << "Enter a number between 0001 and 9999.\n";
+                    month = year = 0;
+                }
             }
             else
                 cout << "Invalid year.\n";
         }
     } while (month < 1 || month > 12 || year < 1 || year > 9999);
+}
+
+/**
+    string getString(const string &prompt,
+                     int minLen = 0,
+                     int maxLen = 0)
+ 
+    Purpose: 
+        This function displays the specified prompt and gets a string 
+        from the user within the specified length range. The range
+        defaults to no limit if not specified.
+        The user is reprompted if the input is less than the minimum,
+        but the input is truncated and returned if it is over the maximum.
+
+    Preconditions:
+        none
+ 
+    Postconditions: 
+        input buffer is empty
+        returns a string with a length between minLen and maxLen
+ */
+string getString(const string &prompt, int minLen, int maxLen)
+{
+    string input;  // stores user input
     
-    for (int i = 0; i < ledger.size(); i++)
+    // handle any error bits and leftover input
+    cin.clear();
+    cin.sync();
+        
+    // get input from user
+    cout << prompt;
+    getline(cin, input);
+    
+    // validate
+    while (input.length() < minLen)
     {
-        // only count if correct month and year
-        if (ledger[i].dateSold.month == month && 
-            ledger[i].dateSold.year == year)
-            profit += ledger[i].salePrice - ledger[i].purchasePrice;
+        cout << "The input must contain at least " << minLen << " character"
+             << (minLen == 1 ? ".\n" : "s.\n") << prompt;
+        getline(cin, input);
     }
     
-    cout << "\nYour total profit for " << month << "/" << year << " was $"
-         << fixed << showpoint << setprecision(2) << profit << ".\n";
+    // truncate if over maxLen
+    if (input.length() > maxLen)
+        input = input.substr(0, maxLen);
+    
+    return input;
+}
+
+/**
+    int getYear(const string &prompt)
+    
+    Purpose:
+        This function prompts the user for a year and validates 
+        the input. The user is reprompted until a valid value is entered.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        returns entered year value
+ */
+int getYear(const string &prompt)
+{
+    string input;   // user input buffer
+    int year;     // year value
+    
+    do
+    {
+        cout << prompt;
+        getline(cin, input);
+        
+        // validate year
+        if (isInteger(input))
+        {
+            year = atoi(input.c_str());
+            if (year < 1 || year > 9999 || input.length() != 4)
+            {
+                cout << "Invalid year. "
+                     << "Enter a number between 0001 and 9999.\n";
+                year = 0;
+            }
+        }
+        else
+            cout << "Invalid year.\n";
+    } while (year < 1 || year > 9999);
+    
+    return year;
+}
+
+/**
+    bool getYesNo(string prompt)
+
+    Purpose: 
+        This function displays the specified prompt until the first char 
+        of the input is 'Y', 'y', 'N', or 'n'.
+  
+    Preconditions: 
+        none
+     
+    Postconditions: 
+        input buffer is empty and returns true if 'y' or 'Y'
+ */
+bool getYesNo(const string &prompt)
+{
+    char input; // for storing user input
+    
+    cout << prompt;
+    cin >> input;
+    
+    // Flushes buffer and reprompts until valid value is entered.
+    while (input != 'y' && input != 'Y' && input != 'n' && input != 'N')
+    {
+        cout << "Please type yes or no: ";
+        cin.clear();     // Clear any errors.
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin >> input;    // Store console input in 'input' variable.
+    }
+    
+    // Clear any text left in buffer.
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    return input == 'Y' || input == 'y';
+}
+
+/**
+    bool isDouble(const string &str)
+    
+    Purpose:
+        This function determines whether a string is a valid double.
+        Note that a valid integer is considered to be a valid double.
+    
+    Preconditions:
+        none
+    
+    Postconditions:
+        returns true if entire string is valid double
+ */
+bool isDouble(const string &str)
+{
+    // return false if empty
+    if (str.length() < 1)
+        return false;
+    
+    bool pointFound = false;
+    
+    // check each char
+    for (int i = 0; i < str.length(); i++)
+    {
+        if ( !isdigit(str[i]) &&            // not a digit
+             (i != 0 || str[i] != '-') &&   // not '-' at beginning
+             (str[i] == '.' && pointFound)  // '.' when one already found
+           )
+            return false;
+        if (str[i] == '.')
+            pointFound = true;
+    }
+    
+    // no illegal chars found
+    return true;
 }
 
 /**
@@ -275,7 +685,7 @@ void printProfit(const vector<Car> &ledger)
         none
     
     Postconditions:
-        returns true if string only contains 0-9, false otherwise
+        returns true if entire string is valid integer
  */
 bool isInteger(const string &str)
 {
@@ -294,7 +704,6 @@ bool isInteger(const string &str)
     return true;
 }
 
-// Splits a string on the specified delimiter.
 /**
     vector<string> split(const string &text, char delim = ' ')
     
