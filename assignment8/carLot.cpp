@@ -18,16 +18,14 @@
  * Output:
  *     The output to the console will be in the form of:
  *
- *     This program finds the mode(s) of a list of integer values.
- *     Press Enter without any value when you are done.
+ *     Choose an item from the menu.
  *
- *     Enter a value: [4]
- *     Enter a value: [2]
- *     Enter a value: [9]
- *     Enter a value: [2]
- *     Enter a value:
+ *     1) Add entry
+ *     2) List current inventory
+ *     3) Profit for a month
+ *     4) Quit
  *
- *     The mode is 2.
+ *     Enter your selection:
  ************************************************************************/
 #include <iostream>
 #include <string>
@@ -37,6 +35,7 @@
 #include <iomanip>
 #include <cstdlib>
 
+// margin between columns
 #define MARGIN "  "
 
 using namespace std;
