@@ -312,9 +312,9 @@ void printProfit(const vector<Car> &ledger)
     }
     
     cout << "\nYour total profit for " 
-         << setfill('0') << setw(2) << month << "/" 
-         << setfill('0') << setw(4) << year << " was $"
-         << fixed << showpoint << setprecision(2) << profit << ".\n";
+         << right << setfill('0') << setw(2) << month << "/" 
+         << right << setfill('0') << setw(4) << year << " was $"
+         << left << fixed << showpoint << setprecision(2) << profit << ".\n";
 }
 
 /**
