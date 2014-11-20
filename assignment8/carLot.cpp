@@ -245,14 +245,14 @@ void listInventory(const vector<Car> &ledger)
         if (!ledger[i].isSold)
         {
             cout << left << setw(MAKE_MAX_LEN) << ledger[i].make << MARGIN
-                 << setw(MODEL_MAX_LEN) << ledger[i].model << MARGIN
+                 << setw(MODEL_MAX_LEN) << ledger[i].model << MARGIN << right
                  << setfill('0') << setw(4) << ledger[i].year << MARGIN
                  << setw(2) << ledger[i].datePurchased.month << "/"
                  << setw(2) << ledger[i].datePurchased.day << "/"
                  << setw(4) << ledger[i].datePurchased.year << MARGIN
-                 << setfill(' ') << right << fixed << showpoint
+                 << setfill(' ') << fixed << showpoint
                  << "$" << setprecision(2) << setw(PRICE_LEN) 
-                 << ledger[i].purchasePrice << endl;
+                 << ledger[i].purchasePrice << left << endl;
             
             unsold++;
         }
