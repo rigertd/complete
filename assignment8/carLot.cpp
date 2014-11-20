@@ -194,7 +194,7 @@ void addEntry(vector<Car> &ledger)
             temp.datePurchased.year);
     
     // get purchasePrice
-    temp.purchasePrice = getAmount("Enter the purchase price: ", 0, PRICE_MAX);
+    temp.purchasePrice = getAmount("Enter the purchase price: $", 0, PRICE_MAX);
     
     // get isSold value
     temp.isSold = getYesNo("Has this car already been sold? (Y/N): ");
@@ -208,7 +208,7 @@ void addEntry(vector<Car> &ledger)
                 temp.dateSold.year);
     
         // get salePrice
-        temp.salePrice = getAmount("Enter the sale price: ", 0, PRICE_MAX);
+        temp.salePrice = getAmount("Enter the sale price: $", 0, PRICE_MAX);
     }
     
     // add temp struct to vector
