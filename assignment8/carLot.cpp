@@ -661,9 +661,9 @@ bool isDouble(const string &str)
     // check each char
     for (int i = 0; i < str.length(); i++)
     {
-        if ( !isdigit(str[i]) &&            // not a digit
-             (i != 0 || str[i] != '-') &&   // not '-' at beginning
-             (str[i] == '.' && pointFound)  // '.' when one already found
+        if ( !isdigit(str[i]) &&           // not a digit
+            (str[i] != '-' || i != 0) &&   // not '-' at beginning
+            (str[i] != '.' || pointFound)  // '.' when one already found
            )
             return false;
         if (str[i] == '.')
