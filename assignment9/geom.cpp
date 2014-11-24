@@ -94,34 +94,8 @@ Point::Point(double xVal, double yVal)
  *******************************************************************/
 double Point::distanceTo(const Point &p)
 {
-    double minX, maxX;  // min and max X vals
-    double minY, maxY;  // min and max Y vals
-    
-    // fewer function calls are faster, so no min and max functions
-    if (x < p.x)
-    {
-        minX = x;
-        maxX = p.x;
-    }
-    else
-    {
-        minX = p.x;
-        maxX = x;
-    }
-    
-    if (y < p.y)
-    {
-        minY = y;
-        maxY = p.y;
-    }
-    else
-    {
-        minY = p.y;
-        maxY = y;
-    }
-
-    double dX = maxX - minX;    // X delta
-    double dY = maxY - minY;    // Y delta
+    double dX = x - p.x;    // X delta
+    double dY = y - p.y;    // Y delta
     
     // Use a^2 + b^2 = c^2
     return sqrt((dX * dX) + (dY * dY));
