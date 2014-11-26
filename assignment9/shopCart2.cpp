@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           11/16/2014
- * Last Modification Date: 11/23/2014
+ * Last Modification Date: 11/25/2014
  * Assignment:             Assignment 9
  * Filename:               shopCart2.cpp
  *
@@ -63,7 +63,6 @@ class ShoppingCart
         vector<Item> items; // items in cart
         
     public:
-        ShoppingCart() {;}  // default constructor
         void addItem(Item); // function prototypes
         void listItems() const;
         double totalPrice() const;
