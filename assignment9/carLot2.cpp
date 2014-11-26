@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           11/17/2014
- * Last Modification Date: 11/24/2014
+ * Last Modification Date: 11/26/2014
  * Assignment:             Assignment 9
  * Filename:               carLot2.cpp
  *
@@ -41,8 +41,8 @@
 #define MARGIN "  "             // margin between columns
 #define MAKE_MAX_LEN 20         // max length of make in list
 #define MODEL_MAX_LEN 20        // max length of model in list
-#define DATE_LEN 10             // max length of date in list
-#define PRICE_LEN 10            // max length of price in list
+#define DATE_LEN 10             // length of date in list
+#define PRICE_LEN 10            // length of price in list
 #define PRICE_MAX 9999999.99    // max price value <= PRICE_LEN
 
 using namespace std;
@@ -233,12 +233,16 @@ void CarLot::listCurrentInv() const
          << endl << string (73, '-') << endl;
     for (int i = 0; i < lot.size(); i++)
     {
-        // print only if not sold
+        // Print only if not sold. Format is as follows:
+        // Make (max 20 chars)  Model (max 20 chars)  Year  Purchased  Price
         if (!lot[i].getIsSold())
         {
-            cout << left << setw(MAKE_MAX_LEN) << lot[i].getMake() << MARGIN
-                 << setw(MODEL_MAX_LEN) << lot[i].getModel() << MARGIN << right
-                 << setfill('0') << setw(4) << lot[i].getModelYear() << MARGIN
+            cout << left << setw(MAKE_MAX_LEN) 
+                 << lot[i].getMake().substr(0, MAKE_MAX_LEN) << MARGIN
+                 << setw(MODEL_MAX_LEN) 
+                 << lot[i].getModel().substr(0,MODEL_MAX_LEN) << MARGIN 
+                 << right << setfill('0') << setw(4) 
+                 << lot[i].getModelYear() << MARGIN
                  << setw(2) << lot[i].getPurchDate().getMonth() << "/"
                  << setw(2) << lot[i].getPurchDate().getDay() << "/"
                  << setw(4) << lot[i].getPurchDate().getYear() << MARGIN
