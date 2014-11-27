@@ -37,14 +37,6 @@
 #include <stdexcept>
 #include <cmath>
 
-// macro definitions
-#define MARGIN "  "             // margin between columns
-#define MAKE_MAX_LEN 20         // max length of make in list
-#define MODEL_MAX_LEN 20        // max length of model in list
-#define DATE_LEN 10             // length of date in list
-#define PRICE_LEN 10            // length of price in list
-#define PRICE_MAX 9999999.99    // max price value <= PRICE_LEN
-
 using namespace std;
 
 // represents a date
@@ -79,7 +71,7 @@ class Car
              dateSold;          // date sold by dealer
         double purchasePrice,   // price paid by dealer
                salePrice;       // price paid by customer
-        bool isSold;            // whether the car is sold
+        bool sold;              // whether the car is sold
         
     public:
         // constructor prototypes
@@ -92,7 +84,7 @@ class Car
         int getModelYear() const {return year;}              // model year
         Date getPurchDate() const {return datePurchased;}    // purchase date
         double getPurchPrice() const {return purchasePrice;} // purchase price
-        bool getIsSold() const {return isSold;}              // whether sold
+        bool isSold() const {return sold;}                   // whether sold
         Date getSoldDate() const {return dateSold;}          // sale date
         
         // member function prototypes
@@ -106,14 +98,29 @@ class CarLot
         vector<Car> lot;    // ledger
         
     public:
+        static const string MARGIN;     // margin between columns
+        static const int MAKE_MAX_LEN;  // max length of make in list
+        static const int MODEL_MAX_LEN; // max length of model in list
+        static const int DATE_LEN;      // length of date in list
+        static const int PRICE_LEN;     // length of price in list
+        static const double PRICE_MAX;  // max price value <= PRICE_LEN
+        
         // member function prototypes
         void addCar(Car);             // adds the specified car to the ledger
         void listCurrentInv() const;  // prints unsold cars on lot to console
         double getMonthProfit(int, int) const; // gets profit for month/year
 };
 
-// assign number of days in each month to const array
+// assign number of days in each month to static const array
 const int Date::DAYS_IN_MONTH[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+// set values in CarLot static constants
+const string CarLot::MARGIN = "  ";
+const int CarLot::MAKE_MAX_LEN = 20;
+const int CarLot::MODEL_MAX_LEN = 20;
+const int CarLot::DATE_LEN = 10;
+const int CarLot::PRICE_LEN = 10;
+const double CarLot::PRICE_MAX = 9999999.99;
 
 // member function implementations
 
@@ -137,7 +144,7 @@ Date::Date(int d, int m, int y)
         throw invalid_argument("ERROR: Invalid month specified.");
     
     // validate day value
-    if (d < 1 || d > Date::DAYS_IN_MONTH[m])
+    if (d < 1 || d > DAYS_IN_MONTH[m])
         throw invalid_argument("ERROR: Invalid day specified.");
     
     day = d;
@@ -156,7 +163,7 @@ Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate,
     year = yearVal;
     datePurchased = purchDate;
     purchasePrice = purchPrice;
-    isSold = sold;
+    sold = sold;
     dateSold = sellDate;
     salePrice = sellPrice;
 }
@@ -172,7 +179,7 @@ Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate,
     year = yearVal;
     datePurchased = purchDate;
     purchasePrice = purchPrice;
-    isSold = sold;
+    sold = sold;
     salePrice = 0;
 }
 
@@ -188,7 +195,7 @@ Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate,
 double Car::getProfit() const
 {
     // return not-a-number if unsold
-    if (!isSold)
+    if (!sold)
         return NAN;
     
     return salePrice - purchasePrice;
@@ -235,7 +242,7 @@ void CarLot::listCurrentInv() const
     {
         // Print only if not sold. Format is as follows:
         // Make (max 20 chars)  Model (max 20 chars)  Year  Purchased  Price
-        if (!lot[i].getIsSold())
+        if (!lot[i].isSold())
         {
             cout << left << setw(MAKE_MAX_LEN) 
                  << lot[i].getMake().substr(0, MAKE_MAX_LEN) << MARGIN
@@ -402,9 +409,10 @@ void addEntry(CarLot &lot)
     purchased = getDate("Enter the purchase date as MM/DD/YYYY: ");
     
     // get purchase price
-    purchPrice = getAmount("Enter the purchase price: $", 0, PRICE_MAX);
+    purchPrice = getAmount("Enter the purchase price: $", 0, 
+                           CarLot::PRICE_MAX);
     
-    // get isSold value
+    // get sold value
     isSold = getYesNo("Has this car already been sold? (Y/N): ");
     
     if (isSold)
@@ -413,7 +421,7 @@ void addEntry(CarLot &lot)
         sold = getDate("Enter the date sold as MM/DD/YYYY: ");
     
         // get salePrice
-        salePrice = getAmount("Enter the sale price: $", 0, PRICE_MAX);
+        salePrice = getAmount("Enter the sale price: $", 0, CarLot::PRICE_MAX);
         
         // add sold Car to CarLot
         lot.addCar(Car (make, model, year, purchased, purchPrice, isSold,
@@ -676,7 +684,7 @@ bool isDouble(const string &str)
     for (int i = 0; i < str.length(); i++)
     {
         if ( !isdigit(str[i]) &&           // not a digit
-            (str[i] != '-' || i != 0) &&   // not '-' at beginning
+            (str[i] != '-' || i != 0) &&   // '-' found not at beginning
             (str[i] != '.' || pointFound)  // '.' when one already found
            )
             return false;
