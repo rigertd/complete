@@ -386,7 +386,6 @@ int main()
  ********************************************************************/
 void addEntry(CarLot &lot)
 {
-    string input;   // user input buffer
     string make,    // temporary input storage
            model;
     int year, purchDay, purchMonth, purchYear, 
