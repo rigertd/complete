@@ -1,3 +1,4 @@
+#include "Book.h"
 #include "Patron.h"
 #include <iostream>
 #include <string>
