@@ -41,6 +41,11 @@ int Library::findMember(std::string memberId)
     return -1;
 }
 
+bool Library::isMember(std::string memberId)
+{
+    return findMember(memberId) >= 0;
+}
+
 void Library::addBook()
 {
     std::string idCode, title, author;  // user input

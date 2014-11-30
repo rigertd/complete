@@ -27,6 +27,7 @@ private:
 public:
     static const double DAILY_FINE = 0.1;
     Library();
+    bool isMember(std::string memberId);    // checks if valid member ID
     void addBook();
     void addMember();
     void checkOutBook(std::string patronID, std::string bookID);
