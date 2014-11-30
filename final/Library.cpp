@@ -89,6 +89,7 @@ void Library::addMember()
     std::getline(std::cin, name);
     
     // add patron object to members
+    std::cout << "\nAdding " << name << " to records.\n";
     members.push_back(Patron (idNum, name));
 }
 
@@ -199,6 +200,13 @@ void Library::requestBook(std::string patronID, std::string bookID)
     if (holdings[bIndex].getRequestedBy() != NULL)
     {
         std::cout << "\nThat book is already requested by another member.\n";
+        return;
+    }
+    else if (holdings[bIndex].getRequestedBy()->getIdNum() == patronID)
+    {
+        // cannot request book that is checked out by requester
+        std::cout << "\nA member cannot request a book that he or she "
+                  << "already has checked out.\n";
         return;
     }
     
