@@ -31,7 +31,7 @@ public:
     void addBook(Book* b);                  // see implementation file
     void removeBook(Book* b);               // see implementation file
     double getFineAmount()                  { return fineAmount; }
-    void amendFine(double amount)           { fineAmount = amount; }
+    void amendFine(double amount)           { fineAmount += amount; }
 };
 
 #endif /* defined(__examples__Patron__) */

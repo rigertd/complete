@@ -237,8 +237,7 @@ void Library::incrementCurrentDate()
     currentDate++;
     for (int i = 0; i < members.size(); i++)
     {
-        double fineAmt = 0.0,                           // new fines
-               currentAmt = members[i].getFineAmount(); // current fines
+        double fineAmt = 0.0;     // new fines
         // store return value to minimize function calls
         std::vector<Book*> checkedOut = members[i].getCheckedOutBooks();
         
@@ -251,7 +250,7 @@ void Library::incrementCurrentDate()
                 fineAmt += DAILY_FINE;
         }
         // add new fine to current fine and amend patron total fine
-        members[i].amendFine(currentAmt + fineAmt);
+        members[i].amendFine(fineAmt);
     }
 }
 
@@ -268,10 +267,8 @@ void Library::payFine(std::string patronID, double payment)
         return;
     }
 
-    // get amount owed by patron
-    double amountOwed = members[mIndex].getFineAmount();
-    // apply payment to amountOwed
-    members[mIndex].amendFine(amountOwed - payment);
+    // subtract payment from amount owed
+    members[mIndex].amendFine(payment * -1);
     // print confirmation message
     std::cout << std::fixed << std::showpoint << std::setprecision(2)
               << "\nFines for " << members[mIndex].getName() << " are now $"
