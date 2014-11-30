@@ -1,3 +1,40 @@
+/*************************************************************************
+ * Author:                 David Rigert
+ * Date Created:           11/30/2014
+ * Last Modification Date: 11/30/2014
+ * Assignment:             Final Project
+ * Filename:               menu.cpp
+ *
+ * Overview:
+ *     This program is a rudimentary menu-driven library management tool.
+ *     It keeps track of books, members, and who has what books checked out
+ *     and on hold or requested. Daily fines are assessed for overdue books.
+ * 
+ * Input:
+ *     menu selection
+ *     book data entry
+ *     member data entry
+ *
+ * Output:
+ *     The output to the console will be in the form of:
+ *
+ *     Welcome to the library.
+ *
+ *     Choose an item from the menu below.
+ *
+ *       1) Add a book to the library
+ *       2) Add a member to the library
+ *       3) Check out a book
+ *       4) Return a book
+ *       5) Request a book
+ *       6) Pay an outstanding fine
+ *       7) Increment day counter (run once per day)
+ *       8) Look up information on a member
+ *       9) Look up information on a book
+ *      10) Exit the program
+ *
+ *     Enter your selection:
+ ************************************************************************/
 #include "Book.h"
 #include "Patron.h"
 #include "Library.h"
