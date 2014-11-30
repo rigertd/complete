@@ -296,9 +296,9 @@ void Library::viewPatronInfo(std::string patronID)
     if (checkedOut.size() > 0)
         for (int i = 0; i < checkedOut.size(); i++)
         {
-            std::cout << "\n  Book ID:  " << checkedOut[i]->getIdCode()
-                      << "\n  Title:    " << checkedOut[i]->getTitle()
-                      << "\n  Author:   " << checkedOut[i]->getAuthor()
+            std::cout << "\n    Book ID: " << checkedOut[i]->getIdCode()
+                      << "\n    Title:   " << checkedOut[i]->getTitle()
+                      << "\n    Author:  " << checkedOut[i]->getAuthor()
                       << "\n\n";
         }
     else

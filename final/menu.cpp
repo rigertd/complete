@@ -56,7 +56,7 @@ int main()
                 lib.addMember();
                 break;
             case 3: // check out a book
-                cout << "Checking out a book.\n"
+                cout << "\nChecking out a book.\n"
                      << "Enter the member ID: ";
                 getline(cin, memID);
                 cout << "Enter the book ID: ";
@@ -64,13 +64,13 @@ int main()
                 lib.checkOutBook(memID, bookID);
                 break;
             case 4: // return a book
-                cout << "Returning a book.\n"
+                cout << "\nReturning a book.\n"
                      << "Enter the book ID: ";
                 getline(cin, bookID);
                 lib.returnBook(bookID);
                 break;
             case 5: // request a book
-                cout << "Requesting a book.\n"
+                cout << "\nRequesting a book.\n"
                      << "Enter the member ID: ";
                 getline(cin, memID);
                 cout << "Enter the book ID: ";
@@ -78,12 +78,12 @@ int main()
                 lib.requestBook(memID, bookID);
                 break;
             case 6: // pay a fine
-                cout << "Paying a fine.\n"
+                cout << "\nPaying a fine.\n"
                      << "Enter the member ID: ";
                 getline(cin, memID);
                 // print member info, including fine amount owed
                 lib.viewPatronInfo(memID);
-                cout << "Enter the amount to pay: ";
+                cout << "\nEnter the amount to pay: $";
                 getline(cin, payment);
                 if (isDouble(payment))
                 {
@@ -91,29 +91,29 @@ int main()
                     lib.payFine(memID, amount);
                 }
                 else
-                    cout << "Invalid amount.\n";
+                    cout << "\nInvalid amount.\n";
                 break;
             case 7: // increment day counter
-                cout << "Updating date to next day.\n";
+                cout << "\nUpdating date to next day.\n";
                 lib.incrementCurrentDate();
                 break;
             case 8: // view member info
-                cout << "Looking up information on a member.\n"
+                cout << "\nLooking up information on a member.\n"
                      << "Enter the member ID: ";
                 getline(cin, memID);
                 lib.viewPatronInfo(memID);
                 break;
             case 9: // view book info
-                cout << "Looking up information on a book.\n"
+                cout << "\nLooking up information on a book.\n"
                      << "Enter the book ID: ";
                 getline(cin, bookID);
                 lib.viewBookInfo(bookID);
                 break;
             case 10: // exit program
-                cout << "Thank you for using your local library.\n";
+                cout << "\nThank you for using your local library.\n";
                 break;
             default: // invalid input
-                cout << "Invalid selection. Try again.\n";
+                cout << "\nInvalid selection. Try again.\n";
         }
         
         // make user press ENTER to continue.
