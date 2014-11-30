@@ -31,6 +31,9 @@ int main()
         // reset selection variable
         selection = 0;
 
+        // print menu options
+        printMenu();
+        
         // prompt user for selection and store it in input
         cout << "Enter your selection: ";
         getline(cin, input);
