@@ -17,20 +17,20 @@ class Book;
 class Patron
 {
 private:
-    std::string idNum;
-    std::string name;
-    std::vector<Book*> checkedOutBooks;
-    double fineAmount;
+    std::string idNum;                      // id number of patron
+    std::string name;                       // name of patron
+    std::vector<Book*> checkedOutBooks;     // books checked out by patron
+    double fineAmount;                      // amount owed in fines by patron
 public:
-    Patron();
-    Patron(std::string idn, std::string n);
-    std::string getIdNum();
-    std::string getName();
-    std::vector<Book*> getCheckedOutBooks();
-    void addBook(Book* b);
-    void removeBook(Book* b);
-    double getFineAmount();
-    void amendFine(double amount);
+    Patron();                               // see implementation file
+    Patron(std::string idn, std::string n); // see implementation file
+    std::string getIdNum()                  { return idNum; }
+    std::string getName()                   { return name; }
+    std::vector<Book*> getCheckedOutBooks() { return checkedOutBooks; }
+    void addBook(Book* b);                  // see implementation file
+    void removeBook(Book* b);               // see implementation file
+    double getFineAmount()                  { return fineAmount; }
+    void amendFine(double amount)           { fineAmount = amount; }
 };
 
 #endif /* defined(__examples__Patron__) */

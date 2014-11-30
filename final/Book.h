@@ -27,18 +27,17 @@ public:
     static const int CHECK_OUT_LENGTH = 21;
     Book();
     Book(std::string idc, std::string t, std::string a);
-    int getCheckOutLength();
-    std::string getIdCode();
-    std::string getTitle();
-    std::string getAuthor();
-    Locale getLocation();
-    void setLocation(Locale lo);
-    Patron* getCheckedOutBy();
-    void setCheckedOutBy(Patron* p);
-    Patron* getRequestedBy();
-    void setRequestedBy(Patron* p);
-    int getDateCheckedOut();
-    void setDateCheckedOut(int d);
+    std::string getIdCode()         { return idCode; }
+    std::string getTitle()          { return title; }
+    std::string getAuthor()         { return author; }
+    Locale getLocation()            { return location; }
+    void setLocation(Locale lo)     { location = lo; }
+    Patron* getCheckedOutBy()       { return checkedOutBy; }
+    void setCheckedOutBy(Patron* p) { checkedOutBy = p; }
+    Patron* getRequestedBy()        { return requestedBy; }
+    void setRequestedBy(Patron* p)  { requestedBy = p; }
+    int getDateCheckedOut()         { return dateCheckedOut; }
+    void setDateCheckedOut(int d)   { dateCheckedOut = d; }
 };
 
 #endif

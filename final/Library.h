@@ -10,6 +10,7 @@
 #define __examples__Library__
 
 #include <vector>
+#include <string>
 #include <stdio.h>
 
 class Patron;
@@ -21,9 +22,11 @@ private:
     std::vector<Book> holdings;
     std::vector<Patron> members;
     int currentDate;
+    int findBook(std::string bookId);       // finds a book in holdings
+    int findMember(std::string memberId);   // finds a patron in members
 public:
     static const double DAILY_FINE = 0.1;
-    Library()
+    Library() { currentDate = 0; }          // default constructor
     void addBook();
     void addMember();
     void checkOutBook(std::string patronID, std::string bookID);
