@@ -12,6 +12,8 @@ using namespace std;
  *******************************************************************/
 // Prints the menu to the console.
 void printMenu();
+// Prompts the user to press ENTER to continue.
+void enterToContinue();
 // Determines whether a string is a valid double.
 bool isDouble(const string &);
 // Determines whether a string is a valid integer.
@@ -24,6 +26,9 @@ int main()
     int selection;        // menu selection
     string memID, bookID; // member ID and book ID input buffer
     string payment;       // payment amount input buffer
+    
+    // print welcome message
+    cout << "Welcome to the library.\n";
     
     // start of menu loop
     do
@@ -110,6 +115,9 @@ int main()
             default: // invalid input
                 cout << "Invalid selection. Try again.\n";
         }
+        
+        // make user press ENTER to continue.
+        enterToContinue();
     } while (selection != 10);
 }
 
@@ -124,7 +132,7 @@ int main()
  ********************************************************************/
 void printMenu()
 {
-    cout << "\nWelcome to the library. Choose an item from the menu below.\n"
+    cout << "\nChoose an item from the menu below.\n\n"
          << "  1) Add a book to the library\n"
          << "  2) Add a member to the library\n"
          << "  3) Check out a book\n"
@@ -135,6 +143,22 @@ void printMenu()
          << "  8) Look up information on a member\n"
          << "  9) Look up information on a book\n"
          << " 10) Exit the program\n\n";
+}
+
+/********************************************************************
+ *  void printMenu()
+ *
+ *  Purpose: This function prompts the user to press ENTER and waits
+ *           for any input followed by ENTER.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Blocks until ENTER is pressed.
+ ********************************************************************/
+void enterToContinue()
+{
+    cout << "\nPress ENTER to continue...";
+    cin.get();
 }
 
 /********************************************************************
