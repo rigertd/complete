@@ -1,4 +1,6 @@
 #include "Library.h"
+#include "Book.h"
+#include "Patron.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -70,7 +72,7 @@ void Library::addMember()
     std::getline(std::cin, idNum);
     
     // check if ID is already in use
-    if (findMember(idCode) >= 0)
+    if (findMember(idNum) >= 0)
     {
         std::cout << "That ID is already in use.\n";
         return;
