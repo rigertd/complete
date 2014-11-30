@@ -264,12 +264,12 @@ void Library::viewPatronInfo(std::string patronID)
     // validate patronID
     if (mIndex < 0)
     {
-        std::cout << "That member ID was not found in the library database.\n";
+        std::cout << "\nThat member ID was not found in the library database.\n";
         return;
     }
 
     // print patron ID and name
-    std::cout << "Information on member ID " << members[mIndex].getIdNum()
+    std::cout << "\nInformation on member ID " << members[mIndex].getIdNum()
               << "\nName: " << members[mIndex].getName() 
               << "\nBooks checked out:\n";
     // store return value to minimize function calls
@@ -298,13 +298,13 @@ void Library::viewBookInfo(std::string bookID)
     // validate bookID
     if (bIndex < 0)
     {
-        std::cout << "That book ID was not found in the library database.\n";
+        std::cout << "\nThat book ID was not found in the library database.\n";
         return;
     }
     
     // print book ID, title and author
-    std::cout << "Information on book ID " << holdings[bIndex].getIdCode()
-              << "\nTitle: " << holdings[bIndex].getTitle()
+    std::cout << "\nInformation on book ID " << holdings[bIndex].getIdCode()
+              << "\nTitle:  " << holdings[bIndex].getTitle()
               << "\nAuthor: " << holdings[bIndex].getAuthor() << "\n";
     
     // print book location

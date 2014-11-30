@@ -157,8 +157,9 @@ void printMenu()
  ********************************************************************/
 void enterToContinue()
 {
+    string input;
     cout << "\nPress ENTER to continue...";
-    cin.get();
+    getline(cin, input);
 }
 
 /********************************************************************
