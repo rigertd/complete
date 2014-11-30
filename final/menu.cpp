@@ -81,6 +81,12 @@ int main()
                 cout << "\nPaying a fine.\n"
                      << "Enter the member ID: ";
                 getline(cin, memID);
+                // check if valid ID
+                if (!lib.isMember(memID))
+                {
+                    cout << "\nMember ID not found.\n";
+                    break;
+                }
                 // print member info, including fine amount owed
                 lib.viewPatronInfo(memID);
                 cout << "\nEnter the amount to pay: $";
