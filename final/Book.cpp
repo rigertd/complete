@@ -23,5 +23,5 @@ Book::Book(std::string idc, std::string t, std::string a)
     checkedOutBy = NULL;    // not checked out
     requestedBy = NULL;     // not requested
     dateCheckedOut = 0;     // not checked out
-    // location is undefined
+    location = ON_SHELF;    // on the shelf
 }

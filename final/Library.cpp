@@ -133,6 +133,7 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
             // update dateCheckedOut to currentDate
             holdings[bIndex].setDateCheckedOut(currentDate);
             // add pointer to patron checkedOutBooks
+            std::cout << "Calling addBook function\n";
             members[mIndex].addBook(&(holdings[bIndex]));
             // print confirmation message
             std::cout << "\"" << holdings[bIndex].getTitle() << "\""

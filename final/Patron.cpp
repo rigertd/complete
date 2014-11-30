@@ -26,9 +26,9 @@ Patron::Patron(std::string idn, std::string n)
 void Patron::addBook(Book* b)
 {
     // throw exception if null pointer
-    if (b = NULL)
+    if (b == NULL)
         throw std::invalid_argument("ERROR: Book object not found.");
-        
+    
     // check if already checked out based on idCode
     for (int i = 0; i < checkedOutBooks.size(); i++)
     {
@@ -47,7 +47,7 @@ void Patron::addBook(Book* b)
 void Patron::removeBook(Book* b)
 {
     // throw exception if null pointer
-    if (b = NULL)
+    if (b == NULL)
         throw std::invalid_argument("ERROR: Book object not found.");
     
     // remove if found in checkedOutBooks
