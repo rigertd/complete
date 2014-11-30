@@ -202,7 +202,8 @@ void Library::requestBook(std::string patronID, std::string bookID)
         std::cout << "\nThat book is already requested by another member.\n";
         return;
     }
-    else if (holdings[bIndex].getRequestedBy()->getIdNum() == patronID)
+    else if (holdings[bIndex].getCheckedOutBy() != NULL
+             && holdings[bIndex].getCheckedOutBy()->getIdNum() == patronID)
     {
         // cannot request book that is checked out by requester
         std::cout << "\nA member cannot request a book that he or she "
