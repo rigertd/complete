@@ -112,8 +112,7 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
             return;
         case ON_HOLD:
             // check if on hold by requester
-            Patron *pReqBy = holdings[bIndex].getRequestedBy();
-            if ((*pReqBy).getIdNum() != patronID)
+            if ((*(holdings[bIndex].getRequestedBy())).getIdNum() != patronID)
             {
                 std::cout << "That book is on hold by another member.\n";
                 return;
@@ -222,7 +221,7 @@ void Library::incrementCurrentDate()
         for (int j = 0; j < checkedOut.size(); j++)
         {
             // add daily fine to total for each overdue book
-            if (currentDate - *(checkedOut[j]).getDateCheckedOut() > 
+            if (currentDate - (*(checkedOut[j])).getDateCheckedOut() > 
                 Book::CHECK_OUT_LENGTH)
                 fineAmt += DAILY_FINE;
         }
@@ -274,7 +273,7 @@ void Library::viewPatronInfo(std::string patronID)
     // print book info for each book, or message if none checked out
     if (checkedOut.size() > 0)
         for (int i = 0; i < checkedOut.size(); i++)
-            viewBookInfo(*(checkedOut[i]).getIdCode);
+            viewBookInfo((*(checkedOut[i])).getIdCode);
     else
         std::cout << "None\n";
     
