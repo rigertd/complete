@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           11/17/2014
- * Last Modification Date: 11/26/2014
+ * Last Modification Date: 11/27/2014
  * Assignment:             Assignment 9
  * Filename:               carLot2.cpp
  *
@@ -156,14 +156,14 @@ Date::Date(int d, int m, int y)
  *  Eight argument constructor. Used for cars that are already sold.
  *******************************************************************/
 Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate, 
-         double purchPrice, bool sold, Date sellDate, double sellPrice)
+         double purchPrice, bool isSold, Date sellDate, double sellPrice)
 {
     make = makeVal;
     model = modelVal;
     year = yearVal;
     datePurchased = purchDate;
     purchasePrice = purchPrice;
-    sold = sold;
+    sold = isSold;
     dateSold = sellDate;
     salePrice = sellPrice;
 }
@@ -172,14 +172,14 @@ Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate,
  *  Six argument constructor. Used for cars that are still in inventory.
  *******************************************************************/
 Car::Car(string &makeVal, string &modelVal, int yearVal, Date purchDate, 
-         double purchPrice, bool sold)
+         double purchPrice, bool isSold)
 {
     make = makeVal;
     model = modelVal;
     year = yearVal;
     datePurchased = purchDate;
     purchasePrice = purchPrice;
-    sold = sold;
+    sold = isSold;
     salePrice = 0;
 }
 
@@ -281,9 +281,10 @@ double CarLot::getMonthProfit(int month, int year) const
     
     for (int i = 0; i < lot.size(); i++)
     {
-        // only count if correct month and year
-        if (lot[i].getSoldDate().getMonth() == month 
-            && lot[i].getSoldDate().getYear() == year)
+        // only count if sold and correct month and year
+        if (lot[i].isSold() &&
+            lot[i].getSoldDate().getMonth() == month &&
+            lot[i].getSoldDate().getYear() == year)
             profit += lot[i].getProfit();
     }
     
@@ -385,14 +386,13 @@ int main()
  ********************************************************************/
 void addEntry(CarLot &lot)
 {
-    string input;   // user input buffer
     string make,    // temporary input storage
            model;
     int year, purchDay, purchMonth, purchYear, 
         soldDay, soldMonth, soldYear;
     double purchPrice, salePrice;
     bool isSold;
-    Date purchased, sold;
+    Date purchDate, saleDate;
     
     // get make
     cout << "Enter the make: ";
@@ -406,7 +406,7 @@ void addEntry(CarLot &lot)
     year = getYear("Enter the year: ");
     
     // get date purchased
-    purchased = getDate("Enter the purchase date as MM/DD/YYYY: ");
+    purchDate = getDate("Enter the purchase date as MM/DD/YYYY: ");
     
     // get purchase price
     purchPrice = getAmount("Enter the purchase price: $", 0, 
@@ -418,19 +418,19 @@ void addEntry(CarLot &lot)
     if (isSold)
     {
         // get dateSold
-        sold = getDate("Enter the date sold as MM/DD/YYYY: ");
+        saleDate = getDate("Enter the date sold as MM/DD/YYYY: ");
     
         // get salePrice
         salePrice = getAmount("Enter the sale price: $", 0, CarLot::PRICE_MAX);
         
         // add sold Car to CarLot
-        lot.addCar(Car (make, model, year, purchased, purchPrice, isSold,
-                        sold, salePrice));
+        lot.addCar(Car (make, model, year, purchDate, purchPrice, isSold,
+                        saleDate, salePrice));
     }
     else
     {
         // add unsold Car to CarLot
-        lot.addCar(Car (make, model, year, purchased, purchPrice, isSold));
+        lot.addCar(Car (make, model, year, purchDate, purchPrice, isSold));
     }
 }
 
