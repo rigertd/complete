@@ -55,7 +55,7 @@ int Library::findMember(std::string memberId)
     // return first subscript of memberId found in holdings
     for (int i = 0; i < members.size(); i++)
     {
-        if (members[i].getIdCode() == memberId)
+        if (members[i].getIdNum() == memberId)
             return i;
     }
     
@@ -112,7 +112,7 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
             return;
         case ON_HOLD:
             // check if on hold by requester
-            if (*(holdings[bIndex].getRequestedBy()).getIdNum != patronID)
+            if (*(holdings[bIndex].getRequestedBy()).getIdNum() != patronID)
             {
                 std::cout << "That book is on hold by another member.\n";
                 return;
@@ -165,7 +165,7 @@ void Library::returnBook(std::string bookID)
         holdings[bIndex].setLocation(ON_SHELF);
     
     // print confirmation message
-    std::cout << "\"" << holdings[bIndex].getName() << "\""
+    std::cout << "\"" << holdings[bIndex].getTitle() << "\""
               << " has been returned to the library.\n";
 }
 
@@ -214,7 +214,7 @@ void Library::incrementCurrentDate()
         double fineAmt = 0.0,                           // new fines
                currentAmt = members[i].getFineAmount(); // current fines
         // store return value to minimize function calls
-        vector<Book*> checkedOut = members[i].getCheckedOutBooks();
+        std::vector<Book*> checkedOut = members[i].getCheckedOutBooks();
         
         // loop through all checked out books and check for overdue books
         for (int j = 0; j < checkedOut.size(); j++)
@@ -268,7 +268,7 @@ void Library::viewPatronInfo(std::string patronID)
               << "\nName: " << members[mIndex].getName() 
               << "\nBooks checked out:\n";
     // store return value to minimize function calls
-    vector<Book*> checkedOut = members[mIndex].getCheckedOutBooks();
+    std::vector<Book*> checkedOut = members[mIndex].getCheckedOutBooks();
     // print book info for each book, or message if none checked out
     if (checkedOut.size() > 0)
         for (int i = 0; i < checkedOut.size(); i++)
