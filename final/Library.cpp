@@ -273,7 +273,7 @@ void Library::viewPatronInfo(std::string patronID)
     // print book info for each book, or message if none checked out
     if (checkedOut.size() > 0)
         for (int i = 0; i < checkedOut.size(); i++)
-            viewBookInfo((*(checkedOut[i])).getIdCode);
+            viewBookInfo((*(checkedOut[i])).getIdCode());
     else
         std::cout << "None\n";
     
