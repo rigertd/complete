@@ -31,7 +31,7 @@ void Patron::addBook(Book* b)
     // check if already checked out based on idCode
     for (int i = 0; i < checkedOutBooks.size(); i++)
     {
-        if (b.getIdCode() == checkedOutBooks[i].getIdCode())
+        if (b->getIdCode() == checkedOutBooks[i]->getIdCode())
         {
             std::cout << "The patron already has that book checked out.\n";
             return;
@@ -52,7 +52,7 @@ void Patron::removeBook(Book* b)
     // remove if found in checkedOutBooks
     for (int i = 0; i < checkedOutBooks.size(); i++)
     {
-        if (b.getIdCode() == checkedOutBooks[i].getIdCode())
+        if (b->getIdCode() == checkedOutBooks[i]->getIdCode())
         {
             checkedOutBooks.erase(checkedOutBooks.begin() + i);
             return;
