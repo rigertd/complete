@@ -166,6 +166,9 @@ void Library::returnBook(std::string bookID)
     // remove book from current patron checkedOutBooks
     holdings[bIndex].getCheckedOutBy()->removeBook(&(holdings[bIndex]));
     
+    // set book checkedOutBy to NULL
+    holdings[bIndex].setCheckedOutBy(NULL);
+    
     // check if requested by another patron
     if (holdings[bIndex].getRequestedBy() != NULL)
         holdings[bIndex].setLocation(ON_HOLD);
@@ -362,9 +365,9 @@ void Library::viewBookInfo(std::string bookID)
             std::cout << "  It is due on day " << due << ", which is today.\n";
         else if (due > currentDate)
             std::cout << "  It is due on day " << due << ", "
-                      << "which is in " << currentDate - due << " days.\n";
+                      << "which is in " << due - currentDate << " days.\n";
         else
             std::cout << "  It is due on day " << due << ", "
-                      << "which was " << due - currentDate << " days ago.\n";
+                      << "which was " << currentDate - due << " days ago.\n";
     }
 }
