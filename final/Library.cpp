@@ -299,18 +299,18 @@ void Library::viewPatronInfo(std::string patronID)
             std::cout << "\n    Book ID: " << checkedOut[i]->getIdCode()
                       << "\n    Title:   " << checkedOut[i]->getTitle()
                       << "\n    Author:  " << checkedOut[i]->getAuthor()
-                      << "\n\n";
+                      << "\n";
         }
     else
-        std::cout << "  None\n";
+        std::cout << "\n    None\n";
     
     // print fine amount, if any
     double fine = members[mIndex].getFineAmount();
     if (fine >= 0.01)
         std::cout << std::fixed << std::showpoint << std::setprecision(2)
-                  << "  This member owes $" << fine << " in fines.\n";
+                  << "\n  This member owes $" << fine << " in fines.\n";
     else
-        std::cout << "  This member does not owe any fines.\n";
+        std::cout << "\n  This member does not owe any fines.\n";
 }
 
 void Library::viewBookInfo(std::string bookID)
