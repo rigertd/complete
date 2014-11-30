@@ -15,33 +15,6 @@ Library::Library()
     currentDate = 0;
 }
 
-void Library::addBook()
-{
-    std::string idCode, title, author;  // user input
-    
-    // prompt user for book ID
-    std::cout << "Enter the book ID: ";
-    std::getline(std::cin, idCode);
-    
-    // check if ID is already in use
-    if (findBook(idCode) >= 0)
-    {
-        std::cout << "That ID is already in use.\n";
-        return;
-    }
-    
-    // prompt user for book title
-    std::cout << "Enter the book title: ";
-    std::getline(std::cin, title);
-    
-    // prompt user for book author
-    std::cout << "Enter the book author: ";
-    std::getline(std::cin, author);
-    
-    // add book object to holdings
-    holdings.push_back(Book (idCode, title, author));
-}
-
 int Library::findBook(std::string bookId)
 {
     // return first subscript of bookId found in holdings
@@ -68,18 +41,46 @@ int Library::findMember(std::string memberId)
     return -1;
 }
 
+void Library::addBook()
+{
+    std::string idCode, title, author;  // user input
+    
+    // prompt user for book ID
+    std::cout << "\nEnter the book ID: ";
+    std::getline(std::cin, idCode);
+    
+    // check if ID is already in use
+    if (findBook(idCode) >= 0)
+    {
+        std::cout << "\nThat ID is already in use.\n";
+        return;
+    }
+    
+    // prompt user for book title
+    std::cout << "Enter the book title: ";
+    std::getline(std::cin, title);
+    
+    // prompt user for book author
+    std::cout << "Enter the book author: ";
+    std::getline(std::cin, author);
+    
+    // add book object to holdings
+    std::cout << "\nAdding \"" << title << "\" to records.\n";
+    holdings.push_back(Book (idCode, title, author));
+}
+
 void Library::addMember()
 {
     std::string idNum, name;    // user input
     
     // prompt user for patron ID
-    std::cout << "Enter the member ID: ";
+    std::cout << "\nEnter the member ID: ";
     std::getline(std::cin, idNum);
     
     // check if ID is already in use
     if (findMember(idNum) >= 0)
     {
-        std::cout << "That ID is already in use.\n";
+        std::cout << "\nThat ID is already in use.\n";
         return;
     }
     
@@ -100,12 +101,13 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
     // validate patronID and bookID
     if (bIndex < 0)
     {
-        std::cout << "That book ID was not found in the library database.\n";
+        std::cout << "\nThat book ID was not found in the library database.\n";
         return;
     }
     if (mIndex < 0)
     {
-        std::cout << "That member ID was not found in the library database.\n";
+        std::cout << "\nThat member ID was not found in the library database."
+                  << "\n";
         return;
     }
     
@@ -113,13 +115,13 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
     switch (holdings[bIndex].getLocation())
     {
         case CHECKED_OUT:
-            std::cout << "That book is already checked out.\n";
+            std::cout << "\nThat book is already checked out.\n";
             return;
         case ON_HOLD:
             // check if on hold by requester
             if (holdings[bIndex].getRequestedBy()->getIdNum() != patronID)
             {
-                std::cout << "That book is on hold by another member.\n";
+                std::cout << "\nThat book is on hold by another member.\n";
                 return;
             }
             // on hold by requester. reset requestedBy
@@ -133,10 +135,9 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
             // update dateCheckedOut to currentDate
             holdings[bIndex].setDateCheckedOut(currentDate);
             // add pointer to patron checkedOutBooks
-            std::cout << "Calling addBook function\n";
             members[mIndex].addBook(&(holdings[bIndex]));
             // print confirmation message
-            std::cout << "\"" << holdings[bIndex].getTitle() << "\""
+            std::cout << "\n\"" << holdings[bIndex].getTitle() << "\""
                       << " is now checked out to "
                       << members[mIndex].getName() << ".\n";
     }
@@ -150,14 +151,14 @@ void Library::returnBook(std::string bookID)
     // validate bookID
     if (bIndex < 0)
     {
-        std::cout << "That book ID was not found in the library database.\n";
+        std::cout << "\nThat book ID was not found in the library database.\n";
         return;
     }
     
     // validate current location
     if (holdings[bIndex].getLocation() != CHECKED_OUT)
     {
-        std::cout << "That book is not checked out right now.\n";
+        std::cout << "\nThat book is not checked out right now.\n";
         return;
     }
     
@@ -171,7 +172,7 @@ void Library::returnBook(std::string bookID)
         holdings[bIndex].setLocation(ON_SHELF);
     
     // print confirmation message
-    std::cout << "\"" << holdings[bIndex].getTitle() << "\""
+    std::cout << "\n\"" << holdings[bIndex].getTitle() << "\""
               << " has been returned to the library.\n";
 }
 
@@ -184,19 +185,20 @@ void Library::requestBook(std::string patronID, std::string bookID)
     // validate patronID and bookID
     if (bIndex < 0)
     {
-        std::cout << "That book ID was not found in the library database.\n";
+        std::cout << "\nThat book ID was not found in the library database.\n";
         return;
     }
     if (mIndex < 0)
     {
-        std::cout << "That member ID was not found in the library database.\n";
+        std::cout << "\nThat member ID was not found in the library database."
+                  << "\n";
         return;
     }
 
     // check if already requested
     if (holdings[bIndex].getRequestedBy() != NULL)
     {
-        std::cout << "That book is already requested by another member.\n";
+        std::cout << "\nThat book is already requested by another member.\n";
         return;
     }
     
@@ -208,8 +210,8 @@ void Library::requestBook(std::string patronID, std::string bookID)
         holdings[bIndex].setLocation(ON_HOLD);
     
     // print confirmation message
-    std::cout << "\"" << holdings[bIndex].getTitle() << "\""
-              << " is on request for "
+    std::cout << "\n\"" << holdings[bIndex].getTitle() << "\""
+              << " is now on request by "
               << members[mIndex].getName() << ".\n";
 }
 
@@ -244,7 +246,8 @@ void Library::payFine(std::string patronID, double payment)
     // validate patronID
     if (mIndex < 0)
     {
-        std::cout << "That member ID was not found in the library database.\n";
+        std::cout << "\nThat member ID was not found in the library database."
+                  << "\n";
         return;
     }
 
@@ -254,7 +257,7 @@ void Library::payFine(std::string patronID, double payment)
     members[mIndex].amendFine(amountOwed - payment);
     // print confirmation message
     std::cout << std::fixed << std::showpoint << std::setprecision(2)
-              << "Fines for " << members[mIndex].getName() << " are now $"
+              << "\nFines for " << members[mIndex].getName() << " are now $"
               << members[mIndex].getFineAmount() << ".\n";
 }
 
@@ -266,30 +269,36 @@ void Library::viewPatronInfo(std::string patronID)
     // validate patronID
     if (mIndex < 0)
     {
-        std::cout << "\nThat member ID was not found in the library database.\n";
+        std::cout << "\nThat member ID was not found in the library database."
+                  << "\n";
         return;
     }
 
     // print patron ID and name
     std::cout << "\nInformation on member ID " << members[mIndex].getIdNum()
-              << "\nName: " << members[mIndex].getName() 
-              << "\nBooks checked out:\n";
+              << "\n  Name: " << members[mIndex].getName() 
+              << "\n  Books checked out:\n";
     // store return value to minimize function calls
     std::vector<Book*> checkedOut = members[mIndex].getCheckedOutBooks();
     // print book info for each book, or message if none checked out
     if (checkedOut.size() > 0)
         for (int i = 0; i < checkedOut.size(); i++)
-            viewBookInfo((checkedOut[i])->getIdCode());
+        {
+            std::cout << "\n  Book ID:  " << checkedOut[i]->getIdCode()
+                      << "\n  Title:    " << checkedOut[i]->getTitle()
+                      << "\n  Author:   " << checkedOut[i]->getAuthor()
+                      << "\n\n";
+        }
     else
-        std::cout << "None\n";
+        std::cout << "  None\n";
     
     // print fine amount, if any
     double fine = members[mIndex].getFineAmount();
     if (fine >= 0.01)
         std::cout << std::fixed << std::showpoint << std::setprecision(2)
-                  << "This member owes $" << fine << " in fines.\n";
+                  << "  This member owes $" << fine << " in fines.\n";
     else
-        std::cout << "This member does not owe any fines.\n";
+        std::cout << "  This member does not owe any fines.\n";
 }
 
 void Library::viewBookInfo(std::string bookID)
@@ -306,44 +315,47 @@ void Library::viewBookInfo(std::string bookID)
     
     // print book ID, title and author
     std::cout << "\nInformation on book ID " << holdings[bIndex].getIdCode()
-              << "\nTitle:  " << holdings[bIndex].getTitle()
-              << "\nAuthor: " << holdings[bIndex].getAuthor() << "\n";
+              << "\n  Title:    " << holdings[bIndex].getTitle()
+              << "\n  Author:   " << holdings[bIndex].getAuthor();
     
     // print book location
+    std::cout << "\n  Location: ";
     switch (holdings[bIndex].getLocation())
     {
         case CHECKED_OUT:
-            std::cout << "This book is currently checked out.\n";
+            std::cout << "Checked out\n";
             break;
         case ON_HOLD:
-            std::cout << "This book is currently on hold.\n";
+            std::cout << "On hold\n";
             break;
         case ON_SHELF:
-            std::cout << "This book is currently on the shelf.\n";
+            std::cout << "On the shelf\n";
     }
+    
+    std::cout << std::endl;
     
     // print requestedBy if book has been requested
     Patron *pPatron = holdings[bIndex].getRequestedBy();
     if (pPatron != NULL)
-        std::cout << "This book has been requested by "
+        std::cout << "  This book has been requested by "
                   << pPatron->getName() << ".\n";
     
     // print checkedOutBy and due date if book is checked out
     pPatron = holdings[bIndex].getCheckedOutBy();
     if (pPatron != NULL)
     {
-        std::cout << "This book is checked out by "
+        std::cout << "  This book is checked out by "
                   << pPatron->getName() << ".\n";
         
         // get due date and print appropriate message
         int due = holdings[bIndex].getDateCheckedOut() + Book::CHECK_OUT_LENGTH;
         if (due == currentDate)
-            std::cout << "It is due on day " << due << ", which is today.\n";
-        else if (due < currentDate)
-            std::cout << "It is due on day " << due << ", "
+            std::cout << "  It is due on day " << due << ", which is today.\n";
+        else if (due > currentDate)
+            std::cout << "  It is due on day " << due << ", "
                       << "which is in " << currentDate - due << " days.\n";
         else
-            std::cout << "It is due on day " << due << ", "
+            std::cout << "  It is due on day " << due << ", "
                       << "which was " << due - currentDate << " days ago.\n";
     }
 }
