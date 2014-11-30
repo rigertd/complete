@@ -1,3 +1,16 @@
+/*************************************************************************
+ * Author:                 David Rigert
+ * Date Created:           11/29/2014
+ * Last Modification Date: 11/30/2014
+ * Assignment:             Final Project
+ * Filename:               Library.cpp
+ *
+ * Overview:
+ *     The Patron class represents a Patron in the Library class. A Patron
+ *     is the object used for members of the Library.
+ *     This file provides the implementation details and documentation for
+ *     the functions defined in Patron.h.
+ ************************************************************************/
 #include "Book.h"
 #include "Patron.h"
 #include "Library.h"
@@ -10,11 +23,25 @@
 #define NULL \0
 #endif
 
+/********************************************************************
+ *  Default constructor. Sets the currentDate to 0.
+ *******************************************************************/
 Library::Library()
 {
     currentDate = 0;
 }
 
+/********************************************************************
+ *  private: int Library::findBook(std::string bookId)
+ *
+ *  Purpose: This function finds the subscript of the specified bookId
+ *           in the list of Book objects registered in the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns subscript value of Book object that matches
+ *                  bookId, or -1 if no matching Book object was found.
+ *******************************************************************/
 int Library::findBook(std::string bookId)
 {
     // return first subscript of bookId found in holdings
@@ -28,6 +55,17 @@ int Library::findBook(std::string bookId)
     return -1;
 }
 
+/********************************************************************
+ *  private: int Library::findMember(std::string memberId)
+ *
+ *  Purpose: This function finds the subscript of the specified memberId
+ *           in the list of Patron objects registered in the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns subscript value of Patron object that matches
+ *                  memberId, or -1 if no matching Patron object was found.
+ *******************************************************************/
 int Library::findMember(std::string memberId)
 {
     // return first subscript of memberId found in holdings
@@ -41,11 +79,32 @@ int Library::findMember(std::string memberId)
     return -1;
 }
 
+/********************************************************************
+ *  bool Library::isMember(std::string memberId)
+ *
+ *  Purpose: This function determines whether the specified memberId is
+ *           in the list of Patron objects registered in the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns true if the memberId is registered in the library.
+ *******************************************************************/
 bool Library::isMember(std::string memberId)
 {
     return findMember(memberId) >= 0;
 }
 
+/********************************************************************
+ *  void Library::addBook()
+ *
+ *  Purpose: This function prompts the user for book information and
+ *           adds a Book object set with that information to the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: If a unique idCode was entered, the library contains 
+ *                  a Book object with the specified values.
+ *******************************************************************/
 void Library::addBook()
 {
     std::string idCode, title, author;  // user input
@@ -74,6 +133,17 @@ void Library::addBook()
     holdings.push_back(Book (idCode, title, author));
 }
 
+/********************************************************************
+ *  void Library::addMember()
+ *
+ *  Purpose: This function prompts the user for member information and
+ *           adds a Patron object set with that information to the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: If a unique idNum was entered, the library contains 
+ *                  a Patron object with the specified values.
+ *******************************************************************/
 void Library::addMember()
 {
     std::string idNum, name;    // user input
@@ -98,6 +168,21 @@ void Library::addMember()
     members.push_back(Patron (idNum, name));
 }
 
+/********************************************************************
+ *  void Library::checkOutBook(std::string patronID, std::string bookID)
+ *
+ *  Purpose: This function has the Patron object with the specified ID
+ *           check out the Book object with the specified ID.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The check out operation succeeds if the following
+ *                  conditions hold:
+ *                  - the library has a Patron object with an ID of patronID
+ *                  - the library has a Book object with an ID of bookID
+ *                  - the Book object is not already checked out
+ *                  - the Book object is not on hold by another Patron object
+ *******************************************************************/
 void Library::checkOutBook(std::string patronID, std::string bookID)
 {
     // declare and set to indices of book and patron
@@ -149,6 +234,23 @@ void Library::checkOutBook(std::string patronID, std::string bookID)
     }
 }
 
+/********************************************************************
+ *  void Library::returnBook(std::string bookID)
+ *
+ *  Purpose: This function returns the Book object with the specified ID
+ *           to the library.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The return operation succeeds if the following
+ *                  conditions hold:
+ *                  - the library has a Book object with an ID of bookID
+ *                  - the Book object is checked out
+ *                  If the Book object is not requested by another Patron,
+ *                  the location is set to ON_SHELF.
+ *                  If the Book object is requested by another Patron,
+ *                  the location is set to ON_HOLD.
+ *******************************************************************/
 void Library::returnBook(std::string bookID)
 {
     // declare variable and set to book index
@@ -185,6 +287,21 @@ void Library::returnBook(std::string bookID)
               << " has been returned to the library.\n";
 }
 
+/********************************************************************
+ *  void Library::requestBook(std::string patronID, std::string bookID)
+ *
+ *  Purpose: This function has the Patron object with the specified ID
+ *           request the Book object with the specified ID.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The request operation succeeds if the following
+ *                  conditions hold:
+ *                  - the library has a Patron object with an ID of patronID
+ *                  - the library has a Book object with an ID of bookID
+ *                  - the Book object is not requested by another Patron object
+ *                  - the Book object is not checked out by same Patron object
+ *******************************************************************/
 void Library::requestBook(std::string patronID, std::string bookID)
 {
     // declare and set to indices of book and patron
@@ -232,6 +349,18 @@ void Library::requestBook(std::string patronID, std::string bookID)
               << members[mIndex].getName() << ".\n";
 }
 
+/********************************************************************
+ *  void Library::incrementCurrentDate()
+ *
+ *  Purpose: This function advances the date counter in the library by 1
+ *           and updates fines owed by Patron objects accordingly.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The current date value is increased by 1.
+ *                  For every overdue Book object, DAILY_FINE is added to the 
+ *                  fine owed by the Patron object that has it checked out.
+ *******************************************************************/
 void Library::incrementCurrentDate()
 {
     currentDate++;
@@ -254,6 +383,17 @@ void Library::incrementCurrentDate()
     }
 }
 
+/********************************************************************
+ *  void Library::payFine(std::string patronID, double payment)
+ *
+ *  Purpose: This function subtracts the specified amount from the fines
+ *           owed by the Patron object that matches the specified patronID.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The fine owed by the Patron object is decreased by 
+ *                  the amount specified in the payment argument.
+ *******************************************************************/
 void Library::payFine(std::string patronID, double payment)
 {
     // declare variable and set to patron index
@@ -275,6 +415,17 @@ void Library::payFine(std::string patronID, double payment)
               << members[mIndex].getFineAmount() << ".\n";
 }
 
+/********************************************************************
+ *  void Library::viewPatronInfo(std::string patronID)
+ *
+ *  Purpose: This function prints the information of the Patron object
+ *           that matches the specified patronID to the console.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The information of the Patron object is printed to
+ *                  the console window.
+ *******************************************************************/
 void Library::viewPatronInfo(std::string patronID)
 {
     // declare variable and set to patron index
@@ -315,6 +466,17 @@ void Library::viewPatronInfo(std::string patronID)
         std::cout << "\n  This member does not owe any fines.\n";
 }
 
+/********************************************************************
+ *  void Library::viewBookInfo(std::string bookID)
+ *
+ *  Purpose: This function prints the information of the Book object
+ *           that matches the specified bookID to the console.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The information of the Book object is printed to
+ *                  the console window.
+ *******************************************************************/
 void Library::viewBookInfo(std::string bookID)
 {
     // declare variable and set to book index

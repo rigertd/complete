@@ -1,3 +1,16 @@
+/*************************************************************************
+ * Author:                 David Rigert
+ * Date Created:           11/29/2014
+ * Last Modification Date: 11/30/2014
+ * Assignment:             Final Project
+ * Filename:               Patron.cpp
+ *
+ * Overview:
+ *     The Patron class represents a Patron in the Library class. A Patron
+ *     is the object used for members of the Library.
+ *     This file provides the implementation details and documentation for
+ *     the functions defined in Patron.h.
+ ************************************************************************/
 #include "Book.h"
 #include "Patron.h"
 #include <iostream>
@@ -9,12 +22,19 @@
 #define NULL \0
 #endif
 
+/********************************************************************
+ *  Default constructor. Sets the fineAmount to 0.0.
+ *******************************************************************/
 Patron::Patron()
 {
     fineAmount = 0.0;   // no fine
     // checkedOutBooks empty by default
 }
 
+/********************************************************************
+ *  Three argument constructor. Sets idNum and name to the specified
+ *  values, and sets fineAmount to 0.0.
+ *******************************************************************/
 Patron::Patron(std::string idn, std::string n)
 {
     idNum = idn;        // ID number of patron
@@ -23,6 +43,17 @@ Patron::Patron(std::string idn, std::string n)
     // checkedOutBooks empty by default
 }
 
+/********************************************************************
+ *  void Patron::addBook(Book* b)
+ *
+ *  Purpose: This function adds a pointer to a Book to the list of books
+ *           checked out by the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: If b is a valid pointer to a Book object and is not
+ *                  already checked out, b is added to checkedOutBooks.
+ *******************************************************************/
 void Patron::addBook(Book* b)
 {
     // throw exception if null pointer
@@ -44,6 +75,18 @@ void Patron::addBook(Book* b)
     checkedOutBooks.push_back(b);
 }
 
+/********************************************************************
+ *  void Patron::removeBook(Book* b)
+ *
+ *  Purpose: This function removes the Book object pointed to by b 
+ *           from the list of books checked out by the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: If b is a valid pointer to a Book object that is an
+ *                  element of checkedOutBooks, that object is removed
+ *                  from checkedOutBooks.
+ *******************************************************************/
 void Patron::removeBook(Book* b)
 {
     // throw exception if null pointer
@@ -64,3 +107,56 @@ void Patron::removeBook(Book* b)
     // print error message
     std::cout << "The patron does not have that book checked out.\n";
 }
+
+/********************************************************************
+ *  std::string getIdNum()
+ *
+ *  Purpose: This function gets the idNum of the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns idNum value.
+ *******************************************************************/
+
+/********************************************************************
+ *  std::string getName()
+ *
+ *  Purpose: This function gets the name of the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns name value.
+ *******************************************************************/
+
+/********************************************************************
+ *  std::vector<Book*> getCheckedOutBooks()
+ *
+ *  Purpose: This function gets a list of pointers to Book objects
+ *           checked out by the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns a vector of pointers to checked out Book objects.
+ *******************************************************************/
+
+/********************************************************************
+ *  double getFineAmount()
+ *
+ *  Purpose: This function gets the amount owed in fines by the Patron object.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: Returns the amount owed in fines.
+ *******************************************************************/
+
+/********************************************************************
+ *  void amendFine(double amount)
+ *
+ *  Purpose: This function amends the amount owed in fines by the Patron
+ *           object. A positive number increases the fine owed, and a negative
+ *           argument decreases the fine owed.
+ *
+ *  Preconditions: none
+ *
+ *  Postconditions: The fine owed is adjusted by amount.
+ *******************************************************************/
