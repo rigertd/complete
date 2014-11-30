@@ -117,7 +117,8 @@ int main()
         }
         
         // make user press ENTER to continue.
-        enterToContinue();
+        if (selection != 10)
+            enterToContinue();
     } while (selection != 10);
 }
 
