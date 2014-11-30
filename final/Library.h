@@ -26,7 +26,7 @@ private:
     int findMember(std::string memberId);   // finds a patron in members
 public:
     static const double DAILY_FINE = 0.1;
-    Library() { currentDate = 0; }          // default constructor
+    Library();
     void addBook();
     void addMember();
     void checkOutBook(std::string patronID, std::string bookID);

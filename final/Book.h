@@ -8,6 +8,7 @@
 
 #ifndef examples_Book_h
 #define examples_Book_h
+
 #include <string>
 
 class Patron;

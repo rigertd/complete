@@ -1,6 +1,6 @@
-#include "Library.h"
 #include "Book.h"
 #include "Patron.h"
+#include "Library.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -9,6 +9,11 @@
 #ifndef NULL
 #define NULL \0
 #endif
+
+Library::Library()
+{
+    currentDate = 0;
+}
 
 void Library::addBook()
 {
