@@ -197,6 +197,7 @@ void Library::requestBook(std::string patronID, std::string bookID)
     if (holdings[bIndex].getRequestedBy() != NULL)
     {
         std::cout << "That book is already requested by another member.\n";
+        return;
     }
     
     // set requestedBy of book to requester
