@@ -459,9 +459,11 @@ void Library::viewPatronInfo(std::string patronID)
     
     // print fine amount, if any
     double fine = members[mIndex].getFineAmount();
+    std::cout << std::fixed << std::showpoint << std::setprecision(2);
     if (fine >= 0.01)
-        std::cout << std::fixed << std::showpoint << std::setprecision(2)
-                  << "\n  This member owes $" << fine << " in fines.\n";
+        std::cout << "\n  This member owes $" << fine << " in fines.\n";
+    else if (fine <= -0.01)
+        std::cout << "\n  This member is owed a refund of $" << -fine << ".\n";
     else
         std::cout << "\n  This member does not owe any fines.\n";
 }
