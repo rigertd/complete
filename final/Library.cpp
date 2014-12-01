@@ -420,7 +420,7 @@ void Library::payFine(std::string patronID, double payment)
                   << -fine << ".\n";
     else
         std::cout << members[mIndex].getName() << " has paid all outstanding"
-                  << " fines.\n" 
+                  << " fines.\n";
 }
 
 /********************************************************************
