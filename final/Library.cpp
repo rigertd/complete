@@ -410,7 +410,7 @@ void Library::payFine(std::string patronID, double payment)
     // subtract payment from amount owed
     members[mIndex].amendFine(payment * -1);
     // print confirmation message
-    int fine = members[mIndex].getFineAmount()
+    int fine = members[mIndex].getFineAmount();
     std::cout << std::fixed << std::showpoint << std::setprecision(2);
     if (fine >= 0.01)
         std::cout << members[mIndex].getName() << " owes $" 
