@@ -1,6 +1,6 @@
 /*************************************************************************
  * Author:                 David Rigert
- * Date Created:           11/29/2014
+ * Date Created:           11/27/2014
  * Last Modification Date: 11/30/2014
  * Assignment:             Final Project
  * Filename:               Patron.cpp
@@ -8,8 +8,8 @@
  * Overview:
  *     The Patron class represents a Patron in the Library class. A Patron
  *     is the object used for members of the Library.
- *     This file provides the implementation details and documentation for
- *     the functions defined in Patron.h.
+ *     This file provides the implementation details for functions not
+ *     implemented in Patron.h.
  ************************************************************************/
 #include "Book.h"
 #include "Patron.h"
@@ -109,48 +109,7 @@ void Patron::removeBook(Book* b)
 }
 
 /********************************************************************
- *  std::string getIdNum()
- *
- *  Purpose: This function gets the idNum of the Patron object.
- *
- *  Preconditions: none
- *
- *  Postconditions: Returns idNum value.
- *******************************************************************/
-
-/********************************************************************
- *  std::string getName()
- *
- *  Purpose: This function gets the name of the Patron object.
- *
- *  Preconditions: none
- *
- *  Postconditions: Returns name value.
- *******************************************************************/
-
-/********************************************************************
- *  std::vector<Book*> getCheckedOutBooks()
- *
- *  Purpose: This function gets a list of pointers to Book objects
- *           checked out by the Patron object.
- *
- *  Preconditions: none
- *
- *  Postconditions: Returns a vector of pointers to checked out Book objects.
- *******************************************************************/
-
-/********************************************************************
- *  double getFineAmount()
- *
- *  Purpose: This function gets the amount owed in fines by the Patron object.
- *
- *  Preconditions: none
- *
- *  Postconditions: Returns the amount owed in fines.
- *******************************************************************/
-
-/********************************************************************
- *  void amendFine(double amount)
+ *  void Patron::amendFine(double amount)
  *
  *  Purpose: This function amends the amount owed in fines by the Patron
  *           object. A positive number increases the fine owed, and a negative
@@ -160,3 +119,7 @@ void Patron::removeBook(Book* b)
  *
  *  Postconditions: The fine owed is adjusted by amount.
  *******************************************************************/
+void Patron::amendFine(double amount)
+{
+    fineAmount += amount;
+}

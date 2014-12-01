@@ -4,6 +4,8 @@
 //
 //  Created by Tim Alcon on 11/25/14.
 //  Copyright (c) 2014 Tim Alcon. All rights reserved.
+//  
+//  Modified by David Rigert on 11/30/14.
 //
 
 #ifndef __examples__Patron__
@@ -31,7 +33,7 @@ public:
     void addBook(Book* b);                  // see implementation file
     void removeBook(Book* b);               // see implementation file
     double getFineAmount()                  { return fineAmount; }
-    void amendFine(double amount)           { fineAmount += amount; }
+    void amendFine(double amount);          // see implementation file
 };
 
 #endif /* defined(__examples__Patron__) */
