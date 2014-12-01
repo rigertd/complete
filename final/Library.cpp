@@ -410,9 +410,17 @@ void Library::payFine(std::string patronID, double payment)
     // subtract payment from amount owed
     members[mIndex].amendFine(payment * -1);
     // print confirmation message
-    std::cout << std::fixed << std::showpoint << std::setprecision(2)
-              << "\nFines for " << members[mIndex].getName() << " are now $"
-              << members[mIndex].getFineAmount() << ".\n";
+    int fine = members[mIndex].getFineAmount()
+    std::cout << std::fixed << std::showpoint << std::setprecision(2);
+    if (fine >= 0.01)
+        std::cout << members[mIndex].getName() << " owes $" 
+                  << fine << " in fines.\n";
+    else if (fine <= -0.01)
+        std::cout << members[mIndex].getName() << " is owed a refund of $" 
+                  << -fine << ".\n";
+    else
+        std::cout << members[mIndex].getName() << " has paid all outstanding"
+                  << " fines.\n" 
 }
 
 /********************************************************************
