@@ -28,6 +28,8 @@
  *******************************************************************/
 Library::Library()
 {
+    holdings.reserve(100);  // avoid broken pointers due to resizing
+    members.reserve(100);   // avoid broken pointers due to resizing
     currentDate = 0;
 }
 
