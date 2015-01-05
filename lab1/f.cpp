@@ -7,7 +7,10 @@
  * Filename:               f.cpp
  *
  * Overview:
- *     This implements the function prototype declared in the f.h file.
+ *     Implements the function prototype declared in the f.h file.
+ *
+ * Requirements:
+ *     - Print a message indicating that the function was called.
  ************************************************************************/
 #include <iostream>
 #include "f.h"

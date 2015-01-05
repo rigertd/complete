@@ -9,6 +9,12 @@
  * Overview:
  *     This program displays three integer values, sorts them into 
  *     ascending order, and displays the sorted values.
+ *
+ * Requirements:
+ *     - Function takes 3 pointers to int as arguments
+ *     - Put lowest first, second lowest in middle, and highest last
+ *     - No return value (void)
+ *     - Print values before and after calling function
  ************************************************************************/
 #include <iostream>
 

@@ -7,7 +7,10 @@
  * Filename:               g.cpp
  *
  * Overview:
- *     This implements the function prototype declared in the g.h file.
+ *     Implements the function prototype declared in the g.h file.
+ *
+ * Requirements:
+ *     - Print a message indicating that the function was called.
  ************************************************************************/
 #include <iostream>
 #include "g.h"

@@ -9,16 +9,20 @@
  * Overview:
  *     This program includes two custom header files and calls a function
  *     from each file.
+ *
+ * Requirements:
+ *     - Include required header files (f.h and g.h)
+ *     - Call f function and g function
  ************************************************************************/
 #include "f.h"
 #include "g.h"
 
 int main()
 {
-    // call 'f' function in f.h
+    // call 'f' function defined in f.h
     f();
     
-    // call 'g' function in g.h
+    // call 'g' function defined in g.h
     g();
     
     return 0;
