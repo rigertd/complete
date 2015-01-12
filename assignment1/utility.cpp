@@ -19,7 +19,7 @@ void clearWindow()
     // clear screen
     std::cout << "\033[2J";
     // move cursor to top-left
-    std::cout << "\033[1;1H"
+    std::cout << "\033[1;1H";
     #endif
     
     // Clear window in Windows using cls command
@@ -34,7 +34,7 @@ void moveCursorToTopLeft()
     // Clear window in Linux terminal using ANSI escape codes
     #if defined(__linux__)
     // move cursor to top-left
-    std::cout << "\033[1;1H"
+    std::cout << "\033[1;1H";
     #endif
     
     // Place cursor in top-left position
