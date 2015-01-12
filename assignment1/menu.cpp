@@ -38,6 +38,10 @@ int main()
     // Load patterns from file
     loadPatterns(patterns);
     
+    // Display welcome message
+    std::cout << "\nWelcome to David Rigert's Life Simulator.\n";
+    std::cout << "This program is for CS162_400 in Winter 2015.\n\n";
+
     // Menu loop
     do
     {
@@ -99,7 +103,6 @@ void loadPatterns(std::vector<Pattern> &patterns)
 {
     // Patterns taken from http://en.wikipedia.org/wiki/Conway's_Game_of_Life
     std::ifstream dataIn;
-    std::cout << "Loading patterns.txt\n";
     dataIn.open("patterns.txt");
     if (dataIn.fail())
     {
@@ -118,16 +121,10 @@ void loadPatterns(std::vector<Pattern> &patterns)
     // Load patterns from file
     while (!dataIn.eof())
     {
-        std::cout << "dataIn.eof() value = " << dataIn.eof() << std::endl;
-        // Load name and size of pattern
-        std::cout << "reading name\n";
+        // Load name and first line of values
         std::getline(dataIn, name);
-        std::cout << "read name: " << name << "\n";
-
-        std::cout << "reading vals\n";
         std::getline(dataIn, vals);
-        std::cout << "read vals: " << vals << "\n";
-        // Create array and store pattern
+        // Create vector rows and store pattern
         while (vals != "#" && !dataIn.eof())
         {
             iss.clear();
@@ -140,10 +137,9 @@ void loadPatterns(std::vector<Pattern> &patterns)
             grid.push_back(row);
             std::getline(dataIn, vals);
         }
-        std::cout << "Pushing grid name: " << name << " size: " << grid.size() << "\n";
+
         // Store pattern in vector
         patterns.push_back(Pattern(name, grid));
-        std::cout << "Clearing grid vector\n";
         grid.clear();
     }
     
