@@ -6,16 +6,15 @@ CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x ${DEBUG}
 PROGS = lifesim
-SRCS = Simulator.cpp Pattern.cpp utility.cpp menu.cpp
-OBJS = ${SRCS:.cpp=.o}
+OBJS = Simulation.o Pattern.o utility.o menu.o
 
 all: ${PROGS}
 
 ${PROGS}: ${OBJS}
 	${CXX} ${CXXFLAGS} ${OBJS} -o $@
 
-${OBJS}: ${SRCS}
+${OBJS}: ${@:.o=.cpp}
 	${CXX} ${CXXFLAGS} -c ${@:.o=.cpp}
 
 clean:
-	${RM} ${PROGS}
+	${RM} ${PROGS} ${OBJS}
