@@ -129,6 +129,7 @@ void loadPatterns(std::vector<Pattern> &patterns)
         // Load name and first line of values
         std::getline(dataIn, name);
         std::getline(dataIn, vals);
+
         // Create vector rows and store pattern
         while (vals != "#" && !dataIn.eof())
         {
@@ -143,8 +144,11 @@ void loadPatterns(std::vector<Pattern> &patterns)
             std::getline(dataIn, vals);
         }
 
-        // Store pattern in vector
-        patterns.push_back(Pattern(name, grid));
+        // Store pattern in vector unless name is blank
+        if (!name.empty())
+        {
+            patterns.push_back(Pattern(name, grid));
+        }
         grid.clear();
     }
     
