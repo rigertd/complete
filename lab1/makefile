@@ -13,7 +13,7 @@ lab1-1:
 	${CXX} ${CXXFLAGS} lab1-1.cpp -o lab1-1
 
 lab1-2:
-	${CXX} ${CXXFLAGS} h.cpp g.cpp lab1-2.cpp -o lab1-2
+	${CXX} ${CXXFLAGS} f.cpp g.cpp lab1-2.cpp -o lab1-2
 
 clean:
 	${RM} ${PROGS}

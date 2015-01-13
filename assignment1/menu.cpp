@@ -40,11 +40,12 @@ int main()
     
     // Display welcome message
     std::cout << "\nWelcome to David Rigert's Life Simulator.\n";
-    std::cout << "This program is for CS162_400 in Winter 2015.\n\n";
+    std::cout << "This program is for CS162_400 in Winter 2015.\n";
 
     // Menu loop
     do
     {
+        std::cout << std::endl;
         printMenu();
         std::cout << "Enter your selection: ";
         std::cin >> selection;
@@ -57,9 +58,13 @@ int main()
         {
             case 1: 
                 sim.printCurrent();
+                std::cout << "Press Enter to continue...";
+                std::cin.ignore(1000, '\n');
                 break;
             case 2:
+                std::cout << std::endl;
                 index = selectPattern(patterns);
+                std::cout << std::endl;
                 getCoordinates(x, y);
                 
                 // Validate coordinates
@@ -165,6 +170,7 @@ void printPatternMenu(std::vector<Pattern> &patterns)
                   << patterns[i].getWidth() << " x " 
                   << patterns[i].getHeight() << " cells)" << std::endl;
     }
+    std::cout << std::endl;
 }
 
 // Runs the simulation based on the current setup configuration
