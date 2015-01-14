@@ -1,3 +1,13 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/10/2015
+ * Last Modified:   1/13/2015
+ * Assignment:      Assignment 1
+ * Filename:        utility.cpp
+ *
+ * Description:     This is a collection of utility functions for common 
+ *                  tasks. 
+ ************************************************************************/
 #include <iostream>
 #include "utility.hpp"
 
@@ -11,7 +21,13 @@
 #include <windows.h>
 #endif
 
-// Clears the console window in both Linux and Windows
+/********************************************************************
+ *  Function:       void clearWindow()
+ *  Description:    Clears the console window.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Console window is cleared and cursor is at top-left.
+ *******************************************************************/
 void clearWindow()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -28,7 +44,13 @@ void clearWindow()
     #endif
 }
 
-// Moves the cursor to the top-left corner of the console
+/********************************************************************
+ *  Function:       void moveCursorToTopLeft()
+ *  Description:    Moves the cursor to the top-left corner of the console.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Cursor is at top-left corner of console window.
+ *******************************************************************/
 void moveCursorToTopLeft()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -47,7 +69,13 @@ void moveCursorToTopLeft()
     #endif
 }
 
-// Sleeps for the specified number of milliseconds
+/********************************************************************
+ *  Function:       void sleepMilliseconds(int milliseconds)
+ *  Description:    Sleeps for the specified number of milliseconds.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: none
+ *******************************************************************/
 void sleepMilliseconds(int milliseconds)
 {
     #if defined(__linux__)

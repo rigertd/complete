@@ -1,4 +1,13 @@
-#include <algorithm>
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/10/2015
+ * Last Modified:   1/13/2015
+ * Assignment:      Assignment 1
+ * Filename:        Simulation.cpp
+ *
+ * Description:     Implementation of the Simulation class.
+ *                  Represents a Game of Life simulator.
+ ************************************************************************/
 #include <iostream>
 #include <stdexcept>
 #include "Simulation.hpp"
@@ -9,11 +18,20 @@
 #define NULL 0
 #endif
 
-Simulation::Simulation(int width, int height, int bufferCellCount)
+/********************************************************************
+ *  Function:       Simulation(int width, int height, int bufCellCount)
+ *  Description:    The constructor takes the width and height of the
+ *                  visible grid and creates a vgrid with bufCellCount 
+ *                  cells added to all sides.
+ *  Parameters:     width           Width of the visible grid
+ *                  height          Height of the visible grid
+ *                  bufCellCount    Number of padding cells added to all sides
+ *******************************************************************/
+Simulation::Simulation(int width, int height, int bufCellCount)
 {
-    this->bufferCellCount = bufferCellCount;
-    this->width = width + (bufferCellCount * 2);
-    this->height = height + (bufferCellCount * 2);
+    this->bufCellCount = bufCellCount;
+    this->width = width + (bufCellCount * 2);
+    this->height = height + (bufCellCount * 2);
     generationCount = 0;
     
     // Initialize grids
@@ -21,7 +39,18 @@ Simulation::Simulation(int width, int height, int bufferCellCount)
     initializeGrid(nextGrid);
 }
 
-// Returns whether the specified cell is alive in next generation
+/********************************************************************
+ *  Function:       bool getCellNextState(int x, int y)
+ *  Description:    Gets whether the specified cell will be alive in
+ *                  the next generation. Live cells will be alive if
+ *                  there are 2-3 live neighbors. Dead cells will
+ *                  come to life if there are 3 live neighbors.
+ *  Parameters:     x   X coordinate of cell to check
+ *                  y   Y coordinate of cell to check
+ *  Preconditions:  Grids are initialized
+ *                  Specified coords are at least 1 cell away from real edge
+ *  Postconditions: Returns true if cell is alive in next generation.
+ *******************************************************************/
 bool Simulation::getCellNextState(int x, int y)
 {
     // Validate argument values
@@ -64,6 +93,15 @@ bool Simulation::getCellNextState(int x, int y)
     return nextState;
 }
 
+/********************************************************************
+ *  Function:       void initializeGrid(vgrid &grid)
+ *  Description:    Creates the specified vgrid based on the width and
+ *                  height member variables and sets all values to false.
+ *  Parameters:     &grid   Grid to initialize
+ *  Preconditions:  width and height are set
+ *  Postconditions: Specified grid is initialized as 2D vector with
+ *                  height rows, width columns, and all elements set to false.
+ *******************************************************************/
 void Simulation::initializeGrid(vgrid &grid)
 {
     // Clear any existing data
@@ -82,6 +120,13 @@ void Simulation::initializeGrid(vgrid &grid)
 }
 
 // Sets the entire existing grid to false
+/********************************************************************
+ *  Function:       void resetGrid(vgrid &grid)
+ *  Description:    Sets all values of the specified vgrid to false.
+ *  Parameters:     &grid   Grid to reset
+ *  Preconditions:  none
+ *  Postconditions: Specified grid has all elements set to false.
+ *******************************************************************/
 void Simulation::resetGrid(vgrid &grid)
 {
     // Set entire grid to false
@@ -98,8 +143,8 @@ void Simulation::resetGrid(vgrid &grid)
 void Simulation::addPattern(Pattern p, int x, int y)
 {
     // Convert visible x and y to actual x and y
-    int realX = x + bufferCellCount;
-    int realY = y + bufferCellCount;
+    int realX = x + bufCellCount;
+    int realY = y + bufCellCount;
     int patternX = p.getWidth();
     int patternY = p.getHeight();
     
@@ -152,10 +197,10 @@ void Simulation::advanceGeneration()
 void Simulation::printCurrent()
 {
     // Calculate visible range of coordinates
-    int startX = bufferCellCount;
-    int startY = bufferCellCount;
-    int endX = width - bufferCellCount - 1;
-    int endY = height - bufferCellCount - 1;
+    int startX = bufCellCount;
+    int startY = bufCellCount;
+    int endX = width - bufCellCount - 1;
+    int endY = height - bufCellCount - 1;
     
     for (int i = startY; i < endY; i++)
     {

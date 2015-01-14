@@ -1,3 +1,12 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/10/2015
+ * Last Modified:   1/13/2015
+ * Assignment:      Assignment 1
+ * Filename:        Simulation.hpp
+ *
+ * Description:     Represents a Game of Life simulator.
+ ************************************************************************/
 #ifndef SIMULATION_HPP
 #define SIMULATION_HPP
 
@@ -24,8 +33,9 @@ private:
 private:
     // Gets whether a cell will be alive or dead next generation.
     bool getCellNextState(int, int);
-    // Sets the specified vgrid to all false.
+    // Creates the specified vgrid with all values set to false.
     void initializeGrid(vgrid &);
+    // Sets the specified vgrid to all false.
     void resetGrid(vgrid &);
 public:
     Simulation(int, int, int);
