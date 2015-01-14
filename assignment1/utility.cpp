@@ -5,10 +5,10 @@
  * Assignment:      Assignment 1
  * Filename:        utility.cpp
  *
- * Description:     This is a collection of utility functions for common 
- *                  tasks. 
+ * Description:     Implementations of the utility functions. 
  ************************************************************************/
 #include <iostream>
+#include <limits>
 #include "utility.hpp"
 
 // Include unix header if running on Linux
@@ -21,13 +21,14 @@
 #include <windows.h>
 #endif
 
-/********************************************************************
- *  Function:       void clearWindow()
- *  Description:    Clears the console window.
- *  Parameters:     none
- *  Preconditions:  none
- *  Postconditions: Console window is cleared and cursor is at top-left.
- *******************************************************************/
+// Clears the keyboard buffer in the console window.
+void clearInputBuffer()
+{
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+// Clears the console window.
 void clearWindow()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -44,13 +45,7 @@ void clearWindow()
     #endif
 }
 
-/********************************************************************
- *  Function:       void moveCursorToTopLeft()
- *  Description:    Moves the cursor to the top-left corner of the console.
- *  Parameters:     none
- *  Preconditions:  none
- *  Postconditions: Cursor is at top-left corner of console window.
- *******************************************************************/
+// Moves the cursor to the top-left corner of the console.
 void moveCursorToTopLeft()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -69,14 +64,8 @@ void moveCursorToTopLeft()
     #endif
 }
 
-/********************************************************************
- *  Function:       void sleepMilliseconds(int milliseconds)
- *  Description:    Sleeps for the specified number of milliseconds.
- *  Parameters:     none
- *  Preconditions:  none
- *  Postconditions: none
- *******************************************************************/
-void sleepMilliseconds(int milliseconds)
+// Sleeps for the specified number of milliseconds.
+ void sleepMilliseconds(int milliseconds)
 {
     #if defined(__linux__)
     unsigned int microseconds = milliseconds * 1000;

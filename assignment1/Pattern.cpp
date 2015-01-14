@@ -1,8 +1,18 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/10/2015
+ * Last Modified:   1/13/2015
+ * Assignment:      Assignment 1
+ * Filename:        Pattern.cpp
+ *
+ * Description:     Implementation of the Pattern class.
+ ************************************************************************/
 #include <stdexcept>
 #include <algorithm>
 #include "Pattern.hpp"
 
-Pattern::Pattern(std::string name, std::vector<std::vector<bool> > &sourceGrid)
+// Constructs a Pattern object with the specified name and pattern
+Pattern::Pattern(std::string name, vgrid &sourceGrid)
 {
     this->name = name;
     

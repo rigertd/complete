@@ -6,27 +6,14 @@
  * Filename:        Simulation.cpp
  *
  * Description:     Implementation of the Simulation class.
- *                  Represents a Game of Life simulator.
  ************************************************************************/
 #include <iostream>
 #include <stdexcept>
 #include "Simulation.hpp"
 #include "Pattern.hpp"
+#include "utility.hpp"
 
-// Define NULL if not already defined
-#ifndef NULL
-#define NULL 0
-#endif
-
-/********************************************************************
- *  Function:       Simulation(int width, int height, int bufCellCount)
- *  Description:    The constructor takes the width and height of the
- *                  visible grid and creates a vgrid with bufCellCount 
- *                  cells added to all sides.
- *  Parameters:     width           Width of the visible grid
- *                  height          Height of the visible grid
- *                  bufCellCount    Number of padding cells added to all sides
- *******************************************************************/
+// Instantiates a simulation object with a grid of the specified size.
 Simulation::Simulation(int width, int height, int bufCellCount)
 {
     this->bufCellCount = bufCellCount;
@@ -39,18 +26,7 @@ Simulation::Simulation(int width, int height, int bufCellCount)
     initializeGrid(nextGrid);
 }
 
-/********************************************************************
- *  Function:       bool getCellNextState(int x, int y)
- *  Description:    Gets whether the specified cell will be alive in
- *                  the next generation. Live cells will be alive if
- *                  there are 2-3 live neighbors. Dead cells will
- *                  come to life if there are 3 live neighbors.
- *  Parameters:     x   X coordinate of cell to check
- *                  y   Y coordinate of cell to check
- *  Preconditions:  Grids are initialized
- *                  Specified coords are at least 1 cell away from real edge
- *  Postconditions: Returns true if cell is alive in next generation.
- *******************************************************************/
+// Gets whether a cell will be alive or dead next generation.
 bool Simulation::getCellNextState(int x, int y)
 {
     // Validate argument values
@@ -93,15 +69,7 @@ bool Simulation::getCellNextState(int x, int y)
     return nextState;
 }
 
-/********************************************************************
- *  Function:       void initializeGrid(vgrid &grid)
- *  Description:    Creates the specified vgrid based on the width and
- *                  height member variables and sets all values to false.
- *  Parameters:     &grid   Grid to initialize
- *  Preconditions:  width and height are set
- *  Postconditions: Specified grid is initialized as 2D vector with
- *                  height rows, width columns, and all elements set to false.
- *******************************************************************/
+// Creates the specified vgrid with all values set to false.
 void Simulation::initializeGrid(vgrid &grid)
 {
     // Clear any existing data
@@ -119,14 +87,7 @@ void Simulation::initializeGrid(vgrid &grid)
     }
 }
 
-// Sets the entire existing grid to false
-/********************************************************************
- *  Function:       void resetGrid(vgrid &grid)
- *  Description:    Sets all values of the specified vgrid to false.
- *  Parameters:     &grid   Grid to reset
- *  Preconditions:  none
- *  Postconditions: Specified grid has all elements set to false.
- *******************************************************************/
+// Sets the specified vgrid to all false.
 void Simulation::resetGrid(vgrid &grid)
 {
     // Set entire grid to false
@@ -218,4 +179,17 @@ void Simulation::printCurrent()
         std::cout << std::endl;
     }
     std::cout << "Current generation number: " << generationCount << std::endl;
+}
+
+void Simulation::runInConsole(int generations)
+{
+    for (int i = 0; i < generations; i++)
+    {
+        sleepMilliseconds(SLEEP_MS);
+        advanceGeneration();
+        moveCursorToTopLeft();
+        printCurrent();
+    }
+    clearWindow();
+    printCurrent();
 }
