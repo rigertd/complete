@@ -21,14 +21,26 @@
 #include <windows.h>
 #endif
 
-// Clears the keyboard buffer in the console window.
+/********************************************************************
+ *  Function:       void clearInputBuffer()
+ *  Description:    Clears the keyboard buffer in the console window.
+ *  Parameters:     none
+ *  Preconditions:  Keyboard buffer has input (or blocks until input received).
+ *  Postconditions: Keyboard buffer and fail bit are cleared.
+ *******************************************************************/
 void clearInputBuffer()
 {
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-// Clears the console window.
+/********************************************************************
+ *  Function:       void clearWindow()
+ *  Description:    Clears the console window.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Console window is cleared and cursor is at top-left.
+ *******************************************************************/
 void clearWindow()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -45,7 +57,13 @@ void clearWindow()
     #endif
 }
 
-// Moves the cursor to the top-left corner of the console.
+/********************************************************************
+ *  Function:       void moveCursorToTopLeft()
+ *  Description:    Moves the cursor to the top-left corner of the console.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Cursor is at top-left corner of console window.
+ *******************************************************************/
 void moveCursorToTopLeft()
 {
     // Clear window in Linux terminal using ANSI escape codes
@@ -64,8 +82,14 @@ void moveCursorToTopLeft()
     #endif
 }
 
-// Sleeps for the specified number of milliseconds.
- void sleepMilliseconds(int milliseconds)
+/********************************************************************
+ *  Function:       void sleepMilliseconds(int milliseconds)
+ *  Description:    Sleeps for the specified number of milliseconds.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: none
+ *******************************************************************/
+void sleepMilliseconds(int milliseconds)
 {
     #if defined(__linux__)
     unsigned int microseconds = milliseconds * 1000;

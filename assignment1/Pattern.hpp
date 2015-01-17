@@ -25,7 +25,6 @@ private:
 
 // member functions    
 public:
-
     /********************************************************************
      *  Function:       Pattern()
      *  Description:    The default constructor. Sets name to empty string
@@ -36,13 +35,7 @@ public:
         name = "";
     }
     
-    /********************************************************************
-     *  Function:       Pattern(std::string name, vgrid &sourceGrid)
-     *  Description:    Instantiates a Pattern with the specified name
-     *                  and pattern.
-     *  Parameters:     name        Name to assign to pattern
-     *                  sourceGrid  Grid pattern to copy to new object
-     *******************************************************************/
+    // Constructs a Pattern object with the specified name and pattern
     Pattern(std::string, vgrid &);
     
     /********************************************************************
@@ -81,15 +74,7 @@ public:
         return name;
     }
     
-    /********************************************************************
-     *  Function:       bool getCellState(int x, int y)
-     *  Description:    Gets whether the cell at the specified coordinates
-     *                  is alive.
-     *  Parameters:     x   X coordinate of the cell to check
-     *                  y   Y coordinate of the cell to check
-     *  Preconditions:  x,y is a valid cell
-     *  Postconditions: Returns true if the cell is alive; false otherwise
-     *******************************************************************/
+    // Gets whether the specified cell is alive
     bool getCellState(int, int);
 };
 
