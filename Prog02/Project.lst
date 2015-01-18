@@ -1,8 +1,8 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
-%Programming Assignment 1 (prog01.asm			     Page 1 - 1
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
+%Programming Assignment 2 (prog02.asm			     Page 1 - 1
 
 
-				TITLE Programming Assignment 1 (prog01.asm)
+				TITLE Programming Assignment 2 (prog02.asm)
 
 				; Author: David Rigert
 				; Course / Project ID : CS271 / #02               Date: 1 / 15 / 2015
@@ -59,7 +59,7 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
 	   ]
  0000006C 48 65 6C 6C 6F	greeting   BYTE     "Hello, ", 0
 	   2C 20 00
- 00000074 45 6E 74 65 72	instruct   BYTE     "Enter the number of Fibonacci terms to display, between 1 and 46.", 0
+ 00000074 45 6E 74 65 72	instruct1  BYTE     "Enter the number of Fibonacci terms to display, between 1 and ", 0
 	   20 74 68 65 20
 	   6E 75 6D 62 65
 	   72 20 6F 66 20
@@ -71,15 +71,15 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
 	   79 2C 20 62 65
 	   74 77 65 65 6E
 	   20 31 20 61 6E
-	   64 20 34 36 2E
-	   00
- 000000B6 4E 75 6D 62 65	prompt     BYTE     "Number of Fibonacci terms: ", 0
+	   64 20 00
+ 000000B3 2E 00			instruct2  BYTE     ".", 0
+ 000000B5 4E 75 6D 62 65	prompt     BYTE     "Number of Fibonacci terms: ", 0
 	   72 20 6F 66 20
 	   46 69 62 6F 6E
 	   61 63 63 69 20
 	   74 65 72 6D 73
 	   3A 20 00
- 000000D2 49 6E 76 61 6C	invalid    BYTE     "Invalid number. Enter a number from 1 to 46.", 0
+ 000000D1 49 6E 76 61 6C	invalid1   BYTE     "Invalid number. Enter a number from 1 to ", 0
 	   69 64 20 6E 75
 	   6D 62 65 72 2E
 	   20 45 6E 74 65
@@ -87,12 +87,13 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
 	   75 6D 62 65 72
 	   20 66 72 6F 6D
 	   20 31 20 74 6F
-	   20 34 36 2E 00
- 000000FF 00000000		nums       DWORD    ?
- 00000103 00000000		fn1        DWORD    0
- 00000107 00000001		fn2        DWORD    1
- 0000010B 00000000		columnNo   DWORD    0
- 0000010F 53 6F 20 6C 6F	goodbye    BYTE     "So long and thanks for all the fish.", 0
+	   20 00
+ 000000FB 2E 00			invalid2   BYTE     ".", 0
+ 000000FD 00000000		nums       DWORD    ?
+ 00000101 00000000		fn1        DWORD    0
+ 00000105 00000001		fn2        DWORD    1
+ 00000109 00000000		columnNo   DWORD    0
+ 0000010D 53 6F 20 6C 6F	goodbye    BYTE     "So long and thanks for all the fish.", 0
 	   6E 67 20 61 6E
 	   64 20 74 68 61
 	   6E 6B 73 20 66
@@ -127,97 +128,105 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
  00000041  E8 00000000 E	     call Crlf
 
 				; display instructions
- 00000046  BA 00000074 R	     mov  edx, OFFSET instruct
+ 00000046  BA 00000074 R	     mov  edx, OFFSET instruct1
  0000004B  E8 00000000 E	     call WriteString
- 00000050  E8 00000000 E	     call Crlf
+ 00000050  B8 0000002E			 mov  eax, NUM_MAX
+ 00000055  E8 00000000 E		 call WriteDec
+ 0000005A  BA 000000B3 R		 mov  edx, OFFSET instruct2
+ 0000005F  E8 00000000 E		 call WriteString
+ 00000064  E8 00000000 E	     call Crlf
 
 				; prompt user for input
- 00000055			L1:
- 00000055  BA 000000B6 R	     mov  edx, OFFSET prompt
- 0000005A  E8 00000000 E	     call WriteString
- 0000005F  E8 00000000 E	     call ReadInt
- 00000064  A3 000000FF R	     mov  nums, eax
+ 00000069			InputLoop:
+ 00000069  BA 000000B5 R	     mov  edx, OFFSET prompt
+ 0000006E  E8 00000000 E	     call WriteString
+ 00000073  E8 00000000 E	     call ReadInt
+ 00000078  A3 000000FD R	     mov  nums, eax
 
-				; check if user input < 1 or > 46
- 00000069  83 F8 01		     cmp  eax, 1
- 0000006C  72 07		     jb   InvalidInput
- 0000006E  83 F8 2E		     cmp  eax, NUM_MAX
- 00000071  77 02		     ja   InvalidInput
- 00000073  EB 11		     jmp  InputOk
+				; check if user input < 1 or > NUM_MAX
+ 0000007D  83 F8 01		     cmp  eax, 1
+ 00000080  72 07		     jb   InvalidInput
+ 00000082  83 F8 2E		     cmp  eax, NUM_MAX
+ 00000085  77 02		     ja   InvalidInput
+ 00000087  EB 25		     jmp  InputOk
 
 				; input was invalid, display error and reprompt
- 00000075			InvalidInput:
- 00000075  BA 000000D2 R	     mov  edx, OFFSET invalid
- 0000007A  E8 00000000 E	     call WriteString
- 0000007F  E8 00000000 E	     call Crlf
- 00000084  EB CF		     jmp  L1
+ 00000089			InvalidInput:
+ 00000089  BA 000000D1 R	     mov  edx, OFFSET invalid1
+ 0000008E  E8 00000000 E	     call WriteString
+ 00000093  B8 0000002E			 mov  eax, NUM_MAX
+ 00000098  E8 00000000 E		 call WriteDec
+ 0000009D  BA 000000FB R		 mov  edx, OFFSET invalid2
+ 000000A2  E8 00000000 E		 call WriteString
+ 000000A7  E8 00000000 E	     call Crlf
+ 000000AC  EB BB		     jmp  InputLoop
 
- 00000086			InputOk:
- 00000086  E8 00000000 E	     call Crlf
+ 000000AE			InputOk:
+ 000000AE  E8 00000000 E	     call Crlf
 
 				; display first Fibonacci number and increment column number
- 0000008B  B8 00000001		     mov  eax, 1
- 00000090  E8 00000000 E	     call WriteDec
- 00000095  B0 09		     mov  al, TAB
- 00000097  E8 00000000 E	     call WriteChar
- 0000009C  E8 00000000 E	     call WriteChar
- 000000A1  FF 05 0000010B R	     inc  columnNo
+ 000000B3  B8 00000001		     mov  eax, 1
+ 000000B8  E8 00000000 E	     call WriteDec
+ 000000BD  B0 09		     mov  al, TAB
+ 000000BF  E8 00000000 E	     call WriteChar
+ 000000C4  E8 00000000 E	     call WriteChar
+ 000000C9  FF 05 00000109 R	     inc  columnNo
 
 				; set loop counter and decrement by one
 				; only enter loop if ecx > 0
- 000000A7  8B 0D 000000FF R	     mov  ecx, nums
- 000000AD  49			     dec  ecx
- 000000AE  83 F9 00		     cmp  ecx, 0
- 000000B1  74 56		     je   EndLoop
+ 000000CF  8B 0D 000000FD R	     mov  ecx, nums
+ 000000D5  49			     dec  ecx
+ 000000D6  83 F9 00		     cmp  ecx, 0
+ 000000D9  74 56		     je   EndLoop
 
 				; display remaining Fibonacci numbers
- 000000B3			L2:
- 000000B3  A1 00000103 R	     mov  eax, fn1
- 000000B8  03 05 00000107 R	     add  eax, fn2
- 000000BE  E8 00000000 E	     call WriteDec
- 000000C3  FF 05 0000010B R	     inc  columnNo
- 000000C9  8B 1D 00000107 R	     mov  ebx, fn2
- 000000CF  89 1D 00000103 R	     mov  fn1, ebx
- 000000D5  A3 00000107 R	     mov  fn2, eax
+ 000000DB			CalculateFib:
+ 000000DB  A1 00000101 R	     mov  eax, fn1
+ 000000E0  03 05 00000105 R	     add  eax, fn2
+ 000000E6  E8 00000000 E	     call WriteDec
+ 000000EB  FF 05 00000109 R	     inc  columnNo
+ 000000F1  8B 1D 00000105 R	     mov  ebx, fn2
+ 000000F7  89 1D 00000101 R	     mov  fn1, ebx
+ 000000FD  A3 00000105 R	     mov  fn2, eax
 
 				; add linefeed and no padding if 5th column
- 000000DA  83 3D 0000010B R	     cmp  columnNo, COLUMN_MAX
+ 00000102  83 3D 00000109 R	     cmp  columnNo, COLUMN_MAX
 	   05
- 000000E1  72 11		     jb   Padding
- 000000E3  E8 00000000 E	     call Crlf
- 000000E8  C7 05 0000010B R	     mov  columnNo, 0
+ 00000109  72 11		     jb   Padding
+ 0000010B  E8 00000000 E	     call Crlf
+ 00000110  C7 05 00000109 R	     mov  columnNo, 0
 	   00000000
- 000000F2  EB 13		     jmp  EndLinefeed
+ 0000011A  EB 13		     jmp  EndLinefeed
 
 				; add one tab if more than 8 digits, 2 tabs otherwise
- 000000F4			Padding:
- 000000F4  B0 09		     mov  al, TAB
- 000000F6  E8 00000000 E	     call WriteChar
- 000000FB  3D 0098967F		     cmp  eax, 9999999
- 00000100  77 05		     ja  EndLinefeed
- 00000102  E8 00000000 E	     call WriteChar
+ 0000011C			Padding:
+ 0000011C  B0 09		     mov  al, TAB
+ 0000011E  E8 00000000 E	     call WriteChar
+ 00000123  3D 0098967F		     cmp  eax, 9999999
+ 00000128  77 05		     ja  EndLinefeed
+ 0000012A  E8 00000000 E	     call WriteChar
 
- 00000107			EndLinefeed:
- 00000107  E2 AA		     loop L2
+ 0000012F			EndLinefeed:
+ 0000012F  E2 AA		     loop CalculateFib
 
 				; say goodbye
- 00000109			EndLoop:
- 00000109  E8 00000000 E	     call Crlf
- 0000010E  E8 00000000 E	     call Crlf
- 00000113  BA 0000010F R	     mov  edx, OFFSET goodbye
- 00000118  E8 00000000 E	     call WriteString
- 0000011D  E8 00000000 E	     call Crlf
+ 00000131			EndLoop:
+ 00000131  E8 00000000 E	     call Crlf
+ 00000136  E8 00000000 E	     call Crlf
+ 0000013B  BA 0000010D R	     mov  edx, OFFSET goodbye
+ 00000140  E8 00000000 E	     call WriteString
+ 00000145  E8 00000000 E	     call Crlf
 
 				; exit to operating system
 				     exit
- 00000122  6A 00	   *	    push   +000000000h
- 00000124  E8 00000000 E   *	    call   ExitProcess
+ 0000014A  6A 00	   *	    push   +000000000h
+ 0000014C  E8 00000000 E   *	    call   ExitProcess
 
- 00000129			main ENDP
+ 00000151			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/15/15 23:44:34
-%Programming Assignment 1 (prog01.asm			     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
+%Programming Assignment 2 (prog02.asm			     Symbols 2 - 1
 
 
 
@@ -310,8 +319,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000134 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000129 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000132 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000151 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -418,14 +427,14 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000129 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 00000055 _TEXT	
-  InvalidInput . . . . . . . . .	L Near	 00000075 _TEXT	
-  InputOk  . . . . . . . . . . .	L Near	 00000086 _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 000000B3 _TEXT	
-  Padding  . . . . . . . . . . .	L Near	 000000F4 _TEXT	
-  EndLinefeed  . . . . . . . . .	L Near	 00000107 _TEXT	
-  EndLoop  . . . . . . . . . . .	L Near	 00000109 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000151 Public STDCALL
+  InputLoop  . . . . . . . . . .	L Near	 00000069 _TEXT	
+  InvalidInput . . . . . . . . .	L Near	 00000089 _TEXT	
+  InputOk  . . . . . . . . . . .	L Near	 000000AE _TEXT	
+  CalculateFib . . . . . . . . .	L Near	 000000DB _TEXT	
+  Padding  . . . . . . . . . . .	L Near	 0000011C _TEXT	
+  EndLinefeed  . . . . . . . . .	L Near	 0000012F _TEXT	
+  EndLoop  . . . . . . . . . . .	L Near	 00000131 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -649,18 +658,20 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-columnNo . . . . . . . . . . . .	DWord	 0000010B _DATA	
+columnNo . . . . . . . . . . . .	DWord	 00000109 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-fn1  . . . . . . . . . . . . . .	DWord	 00000103 _DATA	
-fn2  . . . . . . . . . . . . . .	DWord	 00000107 _DATA	
-goodbye  . . . . . . . . . . . .	Byte	 0000010F _DATA	
+fn1  . . . . . . . . . . . . . .	DWord	 00000101 _DATA	
+fn2  . . . . . . . . . . . . . .	DWord	 00000105 _DATA	
+goodbye  . . . . . . . . . . . .	Byte	 0000010D _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 greeting . . . . . . . . . . . .	Byte	 0000006C _DATA	
-instruct . . . . . . . . . . . .	Byte	 00000074 _DATA	
+instruct1  . . . . . . . . . . .	Byte	 00000074 _DATA	
+instruct2  . . . . . . . . . . .	Byte	 000000B3 _DATA	
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
-invalid  . . . . . . . . . . . .	Byte	 000000D2 _DATA	
+invalid1 . . . . . . . . . . . .	Byte	 000000D1 _DATA	
+invalid2 . . . . . . . . . . . .	Byte	 000000FB _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -669,8 +680,8 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 namePrompt . . . . . . . . . . .	Byte	 00000025 _DATA	
-nums . . . . . . . . . . . . . .	DWord	 000000FF _DATA	
-prompt . . . . . . . . . . . . .	Byte	 000000B6 _DATA	
+nums . . . . . . . . . . . . . .	DWord	 000000FD _DATA	
+prompt . . . . . . . . . . . . .	Byte	 000000B5 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 userName . . . . . . . . . . . .	Byte	 0000004D _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   

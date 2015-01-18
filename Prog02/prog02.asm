@@ -21,9 +21,11 @@ intro      BYTE     "Fibonacci Numbers    by David Rigert", 0
 namePrompt BYTE     "Enter your name (up to 30 characters): ", 0
 userName   BYTE     31 DUP(0)
 greeting   BYTE     "Hello, ", 0
-instruct   BYTE     "Enter the number of Fibonacci terms to display, between 1 and 46.", 0
+instruct1  BYTE     "Enter the number of Fibonacci terms to display, between 1 and ", 0
+instruct2  BYTE     ".", 0
 prompt     BYTE     "Number of Fibonacci terms: ", 0
-invalid    BYTE     "Invalid number. Enter a number from 1 to 46.", 0
+invalid1   BYTE     "Invalid number. Enter a number from 1 to ", 0
+invalid2   BYTE     ".", 0
 nums       DWORD    ?
 fn1        DWORD    0
 fn2        DWORD    1
@@ -56,18 +58,22 @@ main PROC
      call Crlf
 
 ; display instructions
-     mov  edx, OFFSET instruct
+     mov  edx, OFFSET instruct1
      call WriteString
+	 mov  eax, NUM_MAX
+	 call WriteDec
+	 mov  edx, OFFSET instruct2
+	 call WriteString
      call Crlf
 
 ; prompt user for input
-L1:
+InputLoop:
      mov  edx, OFFSET prompt
      call WriteString
      call ReadInt
      mov  nums, eax
 
-; check if user input < 1 or > 46
+; check if user input < 1 or > NUM_MAX
      cmp  eax, 1
      jb   InvalidInput
      cmp  eax, NUM_MAX
@@ -76,10 +82,14 @@ L1:
 
 ; input was invalid, display error and reprompt
 InvalidInput:
-     mov  edx, OFFSET invalid
+     mov  edx, OFFSET invalid1
      call WriteString
+	 mov  eax, NUM_MAX
+	 call WriteDec
+	 mov  edx, OFFSET invalid2
+	 call WriteString
      call Crlf
-     jmp  L1
+     jmp  InputLoop
 
 InputOk:
      call Crlf
@@ -100,7 +110,7 @@ InputOk:
      je   EndLoop
 
 ; display remaining Fibonacci numbers
-L2:
+CalculateFib:
      mov  eax, fn1
      add  eax, fn2
      call WriteDec
@@ -125,7 +135,7 @@ Padding:
      call WriteChar
 
 EndLinefeed:
-     loop L2
+     loop CalculateFib
 
 ; say goodbye
 EndLoop:
