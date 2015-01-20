@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/19/15 16:01:05
 %Programming Assignment 2 (prog02.asm			     Page 1 - 1
 
 
@@ -130,10 +130,10 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
 				; display instructions
  00000046  BA 00000074 R	     mov  edx, OFFSET instruct1
  0000004B  E8 00000000 E	     call WriteString
- 00000050  B8 0000002E			 mov  eax, NUM_MAX
- 00000055  E8 00000000 E		 call WriteDec
- 0000005A  BA 000000B3 R		 mov  edx, OFFSET instruct2
- 0000005F  E8 00000000 E		 call WriteString
+ 00000050  B8 0000002E		     mov  eax, NUM_MAX
+ 00000055  E8 00000000 E	     call WriteDec
+ 0000005A  BA 000000B3 R	     mov  edx, OFFSET instruct2
+ 0000005F  E8 00000000 E	     call WriteString
  00000064  E8 00000000 E	     call Crlf
 
 				; prompt user for input
@@ -154,10 +154,10 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
  00000089			InvalidInput:
  00000089  BA 000000D1 R	     mov  edx, OFFSET invalid1
  0000008E  E8 00000000 E	     call WriteString
- 00000093  B8 0000002E			 mov  eax, NUM_MAX
- 00000098  E8 00000000 E		 call WriteDec
- 0000009D  BA 000000FB R		 mov  edx, OFFSET invalid2
- 000000A2  E8 00000000 E		 call WriteString
+ 00000093  B8 0000002E		     mov  eax, NUM_MAX
+ 00000098  E8 00000000 E	     call WriteDec
+ 0000009D  BA 000000FB R	     mov  edx, OFFSET invalid2
+ 000000A2  E8 00000000 E	     call WriteString
  000000A7  E8 00000000 E	     call Crlf
  000000AC  EB BB		     jmp  InputLoop
 
@@ -225,7 +225,7 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
  00000151			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/18/15 14:59:32
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/19/15 16:01:05
 %Programming Assignment 2 (prog02.asm			     Symbols 2 - 1
 
 

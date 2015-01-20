@@ -60,10 +60,10 @@ main PROC
 ; display instructions
      mov  edx, OFFSET instruct1
      call WriteString
-	 mov  eax, NUM_MAX
-	 call WriteDec
-	 mov  edx, OFFSET instruct2
-	 call WriteString
+     mov  eax, NUM_MAX
+     call WriteDec
+     mov  edx, OFFSET instruct2
+     call WriteString
      call Crlf
 
 ; prompt user for input
@@ -84,10 +84,10 @@ InputLoop:
 InvalidInput:
      mov  edx, OFFSET invalid1
      call WriteString
-	 mov  eax, NUM_MAX
-	 call WriteDec
-	 mov  edx, OFFSET invalid2
-	 call WriteString
+     mov  eax, NUM_MAX
+     call WriteDec
+     mov  edx, OFFSET invalid2
+     call WriteString
      call Crlf
      jmp  InputLoop
 
