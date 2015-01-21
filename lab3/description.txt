@@ -1,0 +1,16 @@
+David Rigert
+CS161_400
+Winter 2015
+
+Brief Description of Program Testing
+
+I tested my program with the following numbers in the input files.
+
+    - The same number of values in each file, and all values are unique
+    - More values in the first file, and all values are unique
+    - More values in the second file, and all values are unique
+    - More values in the second file, and duplicate values between the files
+    - More values in the second file, and duplicate values in the same file
+
+This provides coverage of all valid number combinations in the input files.
+If any invalid data is encountered, the program stops reading that file.
