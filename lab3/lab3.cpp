@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           1/18/2015
- * Last Modification Date: 1/18/2015
+ * Last Modification Date: 1/20/2015
  * Course:                 CS162_400
  * Assignment:             Lab 3
  * Filename:               lab3.cpp
@@ -28,27 +28,26 @@
  ************************************************************************/
 #include <iostream>
 #include <fstream>
-#include <string>
 
 // forward declaration
 void mergeFiles(std::ifstream &, std::ifstream &, std::ofstream &);
 
 int main(int argc, char **argv)
 {
-    // declare filename variables
-    std::string inputFile1 = "input1.txt";
-    std::string inputFile2 = "input2.txt";
-    std::string outputFile = "output.txt";
+    // declare filename variables and set default values
+    char const *inputFile1 = "input1.txt";
+    char const *inputFile2 = "input2.txt";
+    char const *outputFile = "output.txt";
     
     // check if filenames were provided as arguments
     switch (argc)
     {
         case 4:  // input1 input2 output
-            outputFile = std::string(argv[3]);
+            outputFile = argv[3];
             // FALLTHOUGH
         case 3:  // input1 input2
-            inputFile1 = std::string(argv[1]);
-            inputFile2 = std::string(argv[2]);
+            inputFile1 = argv[1];
+            inputFile2 = argv[2];
             break;
         case 1:  // no arguments
             std::cout << "No arguments specified.\n\n"
@@ -62,9 +61,9 @@ int main(int argc, char **argv)
     }
     
     // declare and open filestreams
-    std::ifstream ifs1(inputFile1.c_str());
-    std::ifstream ifs2(inputFile2.c_str());
-    std::ofstream ofs(outputFile.c_str());
+    std::ifstream ifs1(inputFile1);
+    std::ifstream ifs2(inputFile2);
+    std::ofstream ofs(outputFile);
     
     // check if files exist and are read/writeable
     if (!ifs1 || !ifs2 || !ofs)
@@ -74,7 +73,7 @@ int main(int argc, char **argv)
     }
     
     // call the sorting function
-    sortInputFileNumbers(ifs1, ifs2, ofs);
+    mergeFiles(ifs1, ifs2, ofs);
     
     // close file handles
     ifs1.close();
