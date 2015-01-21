@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     if (!ifs1 || !ifs2 || !ofs)
     {
         std::cout << "WARNING: Unable to open file. Please check your arguments.\n";
-        return 0;
+        return 1;
     }
     
     // call the sorting function
