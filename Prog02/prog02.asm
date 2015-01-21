@@ -94,18 +94,45 @@ InvalidInput:
 InputOk:
      call Crlf
 
-; display first Fibonacci number and increment column number
+; set ECX variable to user input value
+     mov  ecx, nums
+
+; call subroutine to print Fibonacci numbers
+     call printFibNums
+
+; say goodbye
+     call Crlf
+     mov  edx, OFFSET goodbye
+     call WriteString
+     call Crlf
+
+; exit to operating system
+     exit
+
+main ENDP
+
+;-----------------------------------------------------------------------------
+; Computes and displays up to the nth Fibonacci number to the console.
+; Receives: ECX = the number of Fibonacci numbers to display
+; Preconditions: ECX > 0
+;-----------------------------------------------------------------------------
+printFibNums PROC
+; push all registers and variables modified by proc to the stack
+     pushad
+     push fn1
+     push fn2
+     push columnNo
+
+; display first Fibonacci number, increment column number and decrement ecx
      mov  eax, 1
      call WriteDec
      mov  al, TAB
      call WriteChar
      call WriteChar
      inc  columnNo
-
-; set loop counter and decrement by one
-; only enter loop if ecx > 0
-     mov  ecx, nums
      dec  ecx
+
+; only enter loop if ecx != 0
      cmp  ecx, 0
      je   EndLoop
 
@@ -130,24 +157,25 @@ CalculateFib:
 Padding:
      mov  al, TAB
      call WriteChar
-     cmp  eax, 9999999
-     ja  EndLinefeed
+     cmp  fn2, 9999999
+     ja   EndLinefeed
      call WriteChar
 
 EndLinefeed:
      loop CalculateFib
 
-; say goodbye
 EndLoop:
      call Crlf
-     call Crlf
-     mov  edx, OFFSET goodbye
-     call WriteString
-     call Crlf
 
-; exit to operating system
-     exit
+; restore all registers and variables
+     pop  columnNo
+     pop  fn2
+     pop  fn1
+     popad
 
-main ENDP
+; return to caller
+     ret
+
+printFibNums ENDP
 
 END main

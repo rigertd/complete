@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/19/15 16:01:05
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
 %Programming Assignment 2 (prog02.asm			     Page 1 - 1
 
 
@@ -164,68 +164,97 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/19/15 16:01:05
  000000AE			InputOk:
  000000AE  E8 00000000 E	     call Crlf
 
-				; display first Fibonacci number and increment column number
- 000000B3  B8 00000001		     mov  eax, 1
- 000000B8  E8 00000000 E	     call WriteDec
- 000000BD  B0 09		     mov  al, TAB
- 000000BF  E8 00000000 E	     call WriteChar
- 000000C4  E8 00000000 E	     call WriteChar
- 000000C9  FF 05 00000109 R	     inc  columnNo
+				; set ECX variable to user input value
+ 000000B3  8B 0D 000000FD R	     mov  ecx, nums
 
-				; set loop counter and decrement by one
-				; only enter loop if ecx > 0
- 000000CF  8B 0D 000000FD R	     mov  ecx, nums
- 000000D5  49			     dec  ecx
- 000000D6  83 F9 00		     cmp  ecx, 0
- 000000D9  74 56		     je   EndLoop
-
-				; display remaining Fibonacci numbers
- 000000DB			CalculateFib:
- 000000DB  A1 00000101 R	     mov  eax, fn1
- 000000E0  03 05 00000105 R	     add  eax, fn2
- 000000E6  E8 00000000 E	     call WriteDec
- 000000EB  FF 05 00000109 R	     inc  columnNo
- 000000F1  8B 1D 00000105 R	     mov  ebx, fn2
- 000000F7  89 1D 00000101 R	     mov  fn1, ebx
- 000000FD  A3 00000105 R	     mov  fn2, eax
-
-				; add linefeed and no padding if 5th column
- 00000102  83 3D 00000109 R	     cmp  columnNo, COLUMN_MAX
-	   05
- 00000109  72 11		     jb   Padding
- 0000010B  E8 00000000 E	     call Crlf
- 00000110  C7 05 00000109 R	     mov  columnNo, 0
-	   00000000
- 0000011A  EB 13		     jmp  EndLinefeed
-
-				; add one tab if more than 8 digits, 2 tabs otherwise
- 0000011C			Padding:
- 0000011C  B0 09		     mov  al, TAB
- 0000011E  E8 00000000 E	     call WriteChar
- 00000123  3D 0098967F		     cmp  eax, 9999999
- 00000128  77 05		     ja  EndLinefeed
- 0000012A  E8 00000000 E	     call WriteChar
-
- 0000012F			EndLinefeed:
- 0000012F  E2 AA		     loop CalculateFib
+				; call subroutine to print Fibonacci numbers
+ 000000B9  E8 0000001B		     call printFibNums
 
 				; say goodbye
- 00000131			EndLoop:
- 00000131  E8 00000000 E	     call Crlf
- 00000136  E8 00000000 E	     call Crlf
- 0000013B  BA 0000010D R	     mov  edx, OFFSET goodbye
- 00000140  E8 00000000 E	     call WriteString
- 00000145  E8 00000000 E	     call Crlf
+ 000000BE  E8 00000000 E	     call Crlf
+ 000000C3  BA 0000010D R	     mov  edx, OFFSET goodbye
+ 000000C8  E8 00000000 E	     call WriteString
+ 000000CD  E8 00000000 E	     call Crlf
 
 				; exit to operating system
 				     exit
- 0000014A  6A 00	   *	    push   +000000000h
- 0000014C  E8 00000000 E   *	    call   ExitProcess
+ 000000D2  6A 00	   *	    push   +000000000h
+ 000000D4  E8 00000000 E   *	    call   ExitProcess
 
- 00000151			main ENDP
+ 000000D9			main ENDP
+
+				;-----------------------------------------------------------------------------
+				; Computes and displays up to the nth Fibonacci number to the console.
+				; Receives: ECX = the number of Fibonacci numbers to display
+				; Preconditions: ECX > 0
+				;-----------------------------------------------------------------------------
+ 000000D9			printFibNums PROC
+				; push all registers and variables modified by proc to the stack
+ 000000D9  60			     pushad
+ 000000DA  FF 35 00000101 R	     push fn1
+ 000000E0  FF 35 00000105 R	     push fn2
+ 000000E6  FF 35 00000109 R	     push columnNo
+
+				; display first Fibonacci number, increment column number and decrement ecx
+ 000000EC  B8 00000001		     mov  eax, 1
+ 000000F1  E8 00000000 E	     call WriteDec
+ 000000F6  B0 09		     mov  al, TAB
+ 000000F8  E8 00000000 E	     call WriteChar
+ 000000FD  E8 00000000 E	     call WriteChar
+ 00000102  FF 05 00000109 R	     inc  columnNo
+ 00000108  49			     dec  ecx
+
+				; only enter loop if ecx != 0
+ 00000109  83 F9 00		     cmp  ecx, 0
+ 0000010C  74 5B		     je   EndLoop
+
+				; display remaining Fibonacci numbers
+ 0000010E			CalculateFib:
+ 0000010E  A1 00000101 R	     mov  eax, fn1
+ 00000113  03 05 00000105 R	     add  eax, fn2
+ 00000119  E8 00000000 E	     call WriteDec
+ 0000011E  FF 05 00000109 R	     inc  columnNo
+ 00000124  8B 1D 00000105 R	     mov  ebx, fn2
+ 0000012A  89 1D 00000101 R	     mov  fn1, ebx
+ 00000130  A3 00000105 R	     mov  fn2, eax
+
+				; add linefeed and no padding if 5th column
+ 00000135  83 3D 00000109 R	     cmp  columnNo, COLUMN_MAX
+	   05
+ 0000013C  72 11		     jb   Padding
+ 0000013E  E8 00000000 E	     call Crlf
+ 00000143  C7 05 00000109 R	     mov  columnNo, 0
+	   00000000
+ 0000014D  EB 18		     jmp  EndLinefeed
+
+				; add one tab if more than 8 digits, 2 tabs otherwise
+ 0000014F			Padding:
+ 0000014F  B0 09		     mov  al, TAB
+ 00000151  E8 00000000 E	     call WriteChar
+ 00000156  81 3D 00000105 R	     cmp  fn2, 9999999
+	   0098967F
+ 00000160  77 05		     ja   EndLinefeed
+ 00000162  E8 00000000 E	     call WriteChar
+
+ 00000167			EndLinefeed:
+ 00000167  E2 A5		     loop CalculateFib
+
+ 00000169			EndLoop:
+ 00000169  E8 00000000 E	     call Crlf
+
+				; restore all registers and variables
+ 0000016E  8F 05 00000109 R	     pop  columnNo
+ 00000174  8F 05 00000105 R	     pop  fn2
+ 0000017A  8F 05 00000101 R	     pop  fn1
+ 00000180  61			     popad
+
+				; return to caller
+ 00000181  C3			     ret
+
+ 00000182			printFibNums ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/19/15 16:01:05
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
 %Programming Assignment 2 (prog02.asm			     Symbols 2 - 1
 
 
@@ -320,7 +349,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000132 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000151 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000182 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -427,14 +456,15 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000151 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000000D9 Public STDCALL
   InputLoop  . . . . . . . . . .	L Near	 00000069 _TEXT	
   InvalidInput . . . . . . . . .	L Near	 00000089 _TEXT	
   InputOk  . . . . . . . . . . .	L Near	 000000AE _TEXT	
-  CalculateFib . . . . . . . . .	L Near	 000000DB _TEXT	
-  Padding  . . . . . . . . . . .	L Near	 0000011C _TEXT	
-  EndLinefeed  . . . . . . . . .	L Near	 0000012F _TEXT	
-  EndLoop  . . . . . . . . . . .	L Near	 00000131 _TEXT	
+printFibNums . . . . . . . . . .	P Near	 000000D9 _TEXT	Length= 000000A9 Public STDCALL
+  CalculateFib . . . . . . . . .	L Near	 0000010E _TEXT	
+  Padding  . . . . . . . . . . .	L Near	 0000014F _TEXT	
+  EndLinefeed  . . . . . . . . .	L Near	 00000167 _TEXT	
+  EndLoop  . . . . . . . . . . .	L Near	 00000169 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
