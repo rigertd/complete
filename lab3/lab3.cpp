@@ -92,24 +92,23 @@ void mergeFiles(std::ifstream &ifs1, std::ifstream &ifs2, std::ofstream &ofs)
     double input1;
     double input2;
     
-    /* Start by reading one value from each file. Keep reading from one file
-     * until a value larger than the one from the other file is found.
-     * Then start reading from the other file until a larger value is found.
+    /* Start by reading one value from each file.
+     * Insert the higher value and get the next value from that file.
      * Repeat until EOF or invalid data is encountered in both files.
      */
     ifs1 >> input1;
     ifs2 >> input2;
-    do
+    while (ifs1.good() || ifs2.good())
     {
-        while (ifs1.good() && (input1 <= input2 || !ifs2.good()))
+        if ((ifs1.good() && input1 <= input2) || !ifs2.good())
         {
             ofs << input1 << std::endl;
             ifs1 >> input1;
         }
-        while (ifs2.good() && (input2 <= input1 || !ifs1.good()))
+        else if ((ifs2.good() && input2 <= input1) || !ifs1.good())
         {
             ofs << input2 << std::endl;
             ifs2 >> input2;
         }
-    } while (ifs1.good() || ifs2.good());
+    }
 }
