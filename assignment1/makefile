@@ -4,17 +4,17 @@
 
 CXX = g++
 DEBUG = -g
-CXXFLAGS = -std=c++0x ${DEBUG}
+CXXFLAGS = -std=c++0x $(DEBUG)
 PROGS = lifesim
 OBJS = Simulation.o Pattern.o utility.o menu.o
 
-all: ${PROGS}
+all: $(PROGS)
 
-${PROGS}: ${OBJS}
-	${CXX} ${CXXFLAGS} ${OBJS} -o $@
+$(PROGS): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
-${OBJS}: ${@:.o=.cpp}
-	${CXX} ${CXXFLAGS} -c ${@:.o=.cpp}
+$(OBJS): $(@:.o=.cpp)
+	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
 clean:
-	${RM} ${PROGS} ${OBJS}
+	$(RM) $(PROGS) $(OBJS)
