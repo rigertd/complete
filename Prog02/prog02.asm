@@ -27,8 +27,8 @@ prompt     BYTE     "Number of Fibonacci terms: ", 0
 invalid1   BYTE     "Invalid number. Enter a number from 1 to ", 0
 invalid2   BYTE     ".", 0
 nums       DWORD    ?
-fn1        DWORD    0
-fn2        DWORD    1
+fn2        DWORD    0
+fn1        DWORD    1
 columnNo   DWORD    0
 goodbye    BYTE     "So long and thanks for all the fish.", 0
 
@@ -60,7 +60,7 @@ main PROC
 ; display instructions
      mov  edx, OFFSET instruct1
      call WriteString
-     mov  eax, NUM_MAX
+     mov  eax, NUM_MAX   ; max number from constant
      call WriteDec
      mov  edx, OFFSET instruct2
      call WriteString
@@ -71,27 +71,27 @@ InputLoop:
      mov  edx, OFFSET prompt
      call WriteString
      call ReadInt
-     mov  nums, eax
+     mov  nums, eax      ; number of Fibonacci nums to display
 
 ; check if user input < 1 or > NUM_MAX
      cmp  eax, 1
-     jb   InvalidInput
+     jb   InvalidInput   ; below 1
      cmp  eax, NUM_MAX
-     ja   InvalidInput
-     jmp  InputOk
+     ja   InvalidInput   ; above NUM_MAX (46)
+     jmp  InputOk        ; else, between 1 and NUM_MAX
 
 ; input was invalid, display error and reprompt
 InvalidInput:
      mov  edx, OFFSET invalid1
      call WriteString
-     mov  eax, NUM_MAX
+     mov  eax, NUM_MAX   ; max number from constant
      call WriteDec
      mov  edx, OFFSET invalid2
      call WriteString
      call Crlf
-     jmp  InputLoop
+     jmp  InputLoop      ; try input again
 
-InputOk:
+InputOk:                 ; input was valid
      call Crlf
 
 ; set ECX variable to user input value
@@ -118,59 +118,60 @@ main ENDP
 ;-----------------------------------------------------------------------------
 printFibNums PROC
 ; push all registers and variables modified by proc to the stack
-     pushad
+; this allows the procedure to be called multiple times within the same program
+     pushad         ; push all general registers
+     push fn2       ; push initial Fibonacci numbers
      push fn1
-     push fn2
-     push columnNo
+     push columnNo  ; for counting columns
 
 ; display first Fibonacci number, increment column number and decrement ecx
-     mov  eax, 1
+     mov  eax, 1         ; first number is 1
      call WriteDec
-     mov  al, TAB
+     mov  al, TAB        ; display 2 tab characters
      call WriteChar
      call WriteChar
-     inc  columnNo
-     dec  ecx
+     inc  columnNo       ; add one to column number
+     dec  ecx            ; decrement counter register
 
 ; only enter loop if ecx != 0
      cmp  ecx, 0
-     je   EndLoop
+     je   EndLoop   ; ecx == 0, so jump to end
 
 ; display remaining Fibonacci numbers
 CalculateFib:
-     mov  eax, fn1
-     add  eax, fn2
-     call WriteDec
-     inc  columnNo
-     mov  ebx, fn2
-     mov  fn1, ebx
-     mov  fn2, eax
+     mov  eax, fn2  ; copy f(n-2) to eax
+     add  eax, fn1  ; add f(n-1) to eax to get f(n)
+     call WriteDec  ; print number
+     inc  columnNo  ; increment the column counter
+     mov  ebx, fn1  ; store f(n-1) in temp register
+     mov  fn2, ebx  ; copy f(n-1) to f(n-2)
+     mov  fn1, eax  ; copy f(n) to f(n-1)
 
 ; add linefeed and no padding if 5th column
      cmp  columnNo, COLUMN_MAX
-     jb   Padding
-     call Crlf
-     mov  columnNo, 0
+     jb   Padding        ; jump if not 5th column
+     call Crlf           ; print linefeed
+     mov  columnNo, 0    ; reset column counter to 0
      jmp  EndLinefeed
 
 ; add one tab if more than 8 digits, 2 tabs otherwise
 Padding:
      mov  al, TAB
-     call WriteChar
-     cmp  fn2, 9999999
-     ja   EndLinefeed
-     call WriteChar
+     call WriteChar      ; print tab
+     cmp  fn1, 9999999   ; test if more than 7 digits
+     ja   EndLinefeed    ; jump if > 7 digits
+     call WriteChar      ; otherwise print one more tab
 
 EndLinefeed:
-     loop CalculateFib
+     loop CalculateFib   ; subtract one from ecx and jump if > 0
 
 EndLoop:
      call Crlf
 
 ; restore all registers and variables
      pop  columnNo
-     pop  fn2
      pop  fn1
+     pop  fn2
      popad
 
 ; return to caller
