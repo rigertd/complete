@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/24/15 22:45:18
 %Programming Assignment 2 (prog02.asm			     Page 1 - 1
 
 
@@ -90,8 +90,8 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
 	   20 00
  000000FB 2E 00			invalid2   BYTE     ".", 0
  000000FD 00000000		nums       DWORD    ?
- 00000101 00000000		fn1        DWORD    0
- 00000105 00000001		fn2        DWORD    1
+ 00000101 00000000		fn2        DWORD    0
+ 00000105 00000001		fn1        DWORD    1
  00000109 00000000		columnNo   DWORD    0
  0000010D 53 6F 20 6C 6F	goodbye    BYTE     "So long and thanks for all the fish.", 0
 	   6E 67 20 61 6E
@@ -130,7 +130,7 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
 				; display instructions
  00000046  BA 00000074 R	     mov  edx, OFFSET instruct1
  0000004B  E8 00000000 E	     call WriteString
- 00000050  B8 0000002E		     mov  eax, NUM_MAX
+ 00000050  B8 0000002E		     mov  eax, NUM_MAX   ; max number from constant
  00000055  E8 00000000 E	     call WriteDec
  0000005A  BA 000000B3 R	     mov  edx, OFFSET instruct2
  0000005F  E8 00000000 E	     call WriteString
@@ -141,27 +141,27 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
  00000069  BA 000000B5 R	     mov  edx, OFFSET prompt
  0000006E  E8 00000000 E	     call WriteString
  00000073  E8 00000000 E	     call ReadInt
- 00000078  A3 000000FD R	     mov  nums, eax
+ 00000078  A3 000000FD R	     mov  nums, eax      ; number of Fibonacci nums to display
 
 				; check if user input < 1 or > NUM_MAX
  0000007D  83 F8 01		     cmp  eax, 1
- 00000080  72 07		     jb   InvalidInput
+ 00000080  72 07		     jb   InvalidInput   ; below 1
  00000082  83 F8 2E		     cmp  eax, NUM_MAX
- 00000085  77 02		     ja   InvalidInput
- 00000087  EB 25		     jmp  InputOk
+ 00000085  77 02		     ja   InvalidInput   ; above NUM_MAX (46)
+ 00000087  EB 25		     jmp  InputOk        ; else, between 1 and NUM_MAX
 
 				; input was invalid, display error and reprompt
  00000089			InvalidInput:
  00000089  BA 000000D1 R	     mov  edx, OFFSET invalid1
  0000008E  E8 00000000 E	     call WriteString
- 00000093  B8 0000002E		     mov  eax, NUM_MAX
+ 00000093  B8 0000002E		     mov  eax, NUM_MAX   ; max number from constant
  00000098  E8 00000000 E	     call WriteDec
  0000009D  BA 000000FB R	     mov  edx, OFFSET invalid2
  000000A2  E8 00000000 E	     call WriteString
  000000A7  E8 00000000 E	     call Crlf
- 000000AC  EB BB		     jmp  InputLoop
+ 000000AC  EB BB		     jmp  InputLoop      ; try input again
 
- 000000AE			InputOk:
+ 000000AE			InputOk:                 ; input was valid
  000000AE  E8 00000000 E	     call Crlf
 
 				; set ECX variable to user input value
@@ -190,62 +190,63 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
 				;-----------------------------------------------------------------------------
  000000D9			printFibNums PROC
 				; push all registers and variables modified by proc to the stack
- 000000D9  60			     pushad
- 000000DA  FF 35 00000101 R	     push fn1
- 000000E0  FF 35 00000105 R	     push fn2
- 000000E6  FF 35 00000109 R	     push columnNo
+				; this allows the procedure to be called multiple times within the same program
+ 000000D9  60			     pushad         ; push all general registers
+ 000000DA  FF 35 00000101 R	     push fn2       ; push initial Fibonacci numbers
+ 000000E0  FF 35 00000105 R	     push fn1
+ 000000E6  FF 35 00000109 R	     push columnNo  ; for counting columns
 
 				; display first Fibonacci number, increment column number and decrement ecx
- 000000EC  B8 00000001		     mov  eax, 1
+ 000000EC  B8 00000001		     mov  eax, 1         ; first number is 1
  000000F1  E8 00000000 E	     call WriteDec
- 000000F6  B0 09		     mov  al, TAB
+ 000000F6  B0 09		     mov  al, TAB        ; display 2 tab characters
  000000F8  E8 00000000 E	     call WriteChar
  000000FD  E8 00000000 E	     call WriteChar
- 00000102  FF 05 00000109 R	     inc  columnNo
- 00000108  49			     dec  ecx
+ 00000102  FF 05 00000109 R	     inc  columnNo       ; add one to column number
+ 00000108  49			     dec  ecx            ; decrement counter register
 
 				; only enter loop if ecx != 0
  00000109  83 F9 00		     cmp  ecx, 0
- 0000010C  74 5B		     je   EndLoop
+ 0000010C  74 5B		     je   EndLoop   ; ecx == 0, so jump to end
 
 				; display remaining Fibonacci numbers
  0000010E			CalculateFib:
- 0000010E  A1 00000101 R	     mov  eax, fn1
- 00000113  03 05 00000105 R	     add  eax, fn2
- 00000119  E8 00000000 E	     call WriteDec
- 0000011E  FF 05 00000109 R	     inc  columnNo
- 00000124  8B 1D 00000105 R	     mov  ebx, fn2
- 0000012A  89 1D 00000101 R	     mov  fn1, ebx
- 00000130  A3 00000105 R	     mov  fn2, eax
+ 0000010E  A1 00000101 R	     mov  eax, fn2  ; copy f(n-2) to eax
+ 00000113  03 05 00000105 R	     add  eax, fn1  ; add f(n-1) to eax to get f(n)
+ 00000119  E8 00000000 E	     call WriteDec  ; print number
+ 0000011E  FF 05 00000109 R	     inc  columnNo  ; increment the column counter
+ 00000124  8B 1D 00000105 R	     mov  ebx, fn1  ; store f(n-1) in temp register
+ 0000012A  89 1D 00000101 R	     mov  fn2, ebx  ; copy f(n-1) to f(n-2)
+ 00000130  A3 00000105 R	     mov  fn1, eax  ; copy f(n) to f(n-1)
 
 				; add linefeed and no padding if 5th column
  00000135  83 3D 00000109 R	     cmp  columnNo, COLUMN_MAX
 	   05
- 0000013C  72 11		     jb   Padding
- 0000013E  E8 00000000 E	     call Crlf
- 00000143  C7 05 00000109 R	     mov  columnNo, 0
+ 0000013C  72 11		     jb   Padding        ; jump if not 5th column
+ 0000013E  E8 00000000 E	     call Crlf           ; print linefeed
+ 00000143  C7 05 00000109 R	     mov  columnNo, 0    ; reset column counter to 0
 	   00000000
  0000014D  EB 18		     jmp  EndLinefeed
 
 				; add one tab if more than 8 digits, 2 tabs otherwise
  0000014F			Padding:
  0000014F  B0 09		     mov  al, TAB
- 00000151  E8 00000000 E	     call WriteChar
- 00000156  81 3D 00000105 R	     cmp  fn2, 9999999
+ 00000151  E8 00000000 E	     call WriteChar      ; print tab
+ 00000156  81 3D 00000105 R	     cmp  fn1, 9999999   ; test if more than 7 digits
 	   0098967F
- 00000160  77 05		     ja   EndLinefeed
- 00000162  E8 00000000 E	     call WriteChar
+ 00000160  77 05		     ja   EndLinefeed    ; jump if > 7 digits
+ 00000162  E8 00000000 E	     call WriteChar      ; otherwise print one more tab
 
  00000167			EndLinefeed:
- 00000167  E2 A5		     loop CalculateFib
+ 00000167  E2 A5		     loop CalculateFib   ; subtract one from ecx and jump if > 0
 
  00000169			EndLoop:
  00000169  E8 00000000 E	     call Crlf
 
 				; restore all registers and variables
  0000016E  8F 05 00000109 R	     pop  columnNo
- 00000174  8F 05 00000105 R	     pop  fn2
- 0000017A  8F 05 00000101 R	     pop  fn1
+ 00000174  8F 05 00000105 R	     pop  fn1
+ 0000017A  8F 05 00000101 R	     pop  fn2
  00000180  61			     popad
 
 				; return to caller
@@ -254,7 +255,7 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
  00000182			printFibNums ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/20/15 23:51:25
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/24/15 22:45:18
 %Programming Assignment 2 (prog02.asm			     Symbols 2 - 1
 
 
@@ -691,8 +692,8 @@ brown  . . . . . . . . . . . . .	Number	 00000006h
 columnNo . . . . . . . . . . . .	DWord	 00000109 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-fn1  . . . . . . . . . . . . . .	DWord	 00000101 _DATA	
-fn2  . . . . . . . . . . . . . .	DWord	 00000105 _DATA	
+fn1  . . . . . . . . . . . . . .	DWord	 00000105 _DATA	
+fn2  . . . . . . . . . . . . . .	DWord	 00000101 _DATA	
 goodbye  . . . . . . . . . . . .	Byte	 0000010D _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
