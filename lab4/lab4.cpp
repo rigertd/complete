@@ -65,7 +65,7 @@ int main()
     }
     else
     {
-        std::cout< "ERROR: Could not open output file.\n";
+        std::cout << "ERROR: Could not open output file.\n";
     }
     
     // Close filestream to flush buffer
