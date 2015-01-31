@@ -23,17 +23,18 @@
 
 int main()
 {
-    // Declare 2 regular 6-sided dice and 2 loaded 6-sided dice
-    Dice die1 (6);
-    Dice die2 (6);
-    LoadedDice ldie1 (6);
-    LoadedDice ldie2 (6);
+    Dice d6_1;              // regular d6 x 2
+    Dice d6_2;
+    LoadedDice ld6_1;       // loaded d6 x 2
+    LoadedDice ld6_2;
+    Dice d20 (20);          // regular d20
+    LoadedDice ld20 (20);   // loaded d20
     
     // Print 10 rolls from regular dice to console
     std::cout << "Two regular 6-sided dice:";
     for (int i = 0; i < 10; i++)
     {
-        std::cout << " " << rollTwoDice(die1, die2);
+        std::cout << " " << rollTwoDice(d6_1, d6_2);
     }
     std::cout << std::endl;
     
@@ -41,27 +42,47 @@ int main()
     std::cout << "Two loaded 6-sided dice:";
     for (int i = 0; i < 10; i++)
     {
-        std::cout << " " << rollTwoDice(ldie1, ldie2);
+        std::cout << " " << rollTwoDice(ld6_1, ld6_2);
     }
     std::cout << std::endl;
     
+    // Print 10 rolls from regular d20 to console
+    std::cout << "Roll one regular 20-sided die twice:";
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << " " << rollTwoDice(d20, d20);
+    }
+    std::cout << std::endl;
+    
+    // Print 10 rolls from loaded d20 to console
+    std::cout << "Roll one loaded 20-sided die twice:";
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << " " << rollTwoDice(ld20, ld20);
+    }
+    std::cout << std::endl;
+
     // Open a file for CSV output
     std::ofstream ofs ("results.csv");
     
     // Write CSV header row
-    ofs << "\"Roll #\",\"Regular Dice\",\"Loaded Dice\"" << std::endl;
+    ofs << "\"Roll #\",\"Regular d6\",\"Loaded d6\",\"Regular d20\",\"Loaded d20\"" << std::endl;
     
     // Test if file is open and writeable
     if (ofs)
     {
+        std::cout << "Saving 1000 rolls to CSV... ";
         // Roll one regular die and one loaded die 1000 times each 
         // for statistical analysis
         for (int i = 1; i <= 1000; i++)
         {
             ofs << i << "," 
-                << die1.rollDice() << "," 
-                << ldie1.rollDice() << std::endl;
+                << d6_1.rollDice() << "," 
+                << ld6_1.rollDice() << ","
+                << d20.rollDice() << ","
+                << ld20.rollDice() << std::endl;
         }
+        std::cout << "Done!\n";
     }
     else
     {
