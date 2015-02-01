@@ -33,14 +33,17 @@ const int Item::SUBTOTAL_LEN = 10;  // width of subtotal column
 Item::Item(std::string &serialized)
 {
     // put name in separate string
-    size_t pos1 = serialized.find('\t', 0);
+    size_t pos = serialized.find('\t', 0);
     this->name = serialized.substr(0, pos1);
 
-    // tokenize remaining input using a stringstream object
+    // tokenize price and quantity using a stringstream object
     std::istringstream iss (serialized.substr(pos1));
     iss >> this->unitPrice;
     iss >> this->quantity;
-    iss >> this->unit;
+    
+    // get remainder of stringstream for unit
+    iss.ignore(1000, '\t');
+    std::getline(iss, this->unit);
     
     // throw exception on invalid serialized data
     if (iss.fail())
