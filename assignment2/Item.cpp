@@ -34,10 +34,10 @@ Item::Item(std::string &serialized)
 {
     // put name in separate string
     size_t pos = serialized.find('\t', 0);
-    this->name = serialized.substr(0, pos1);
+    this->name = serialized.substr(0, pos);
 
     // tokenize price and quantity using a stringstream object
-    std::istringstream iss (serialized.substr(pos1));
+    std::istringstream iss (serialized.substr(pos));
     iss >> this->unitPrice;
     iss >> this->quantity;
     
