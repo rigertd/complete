@@ -85,7 +85,7 @@ std::string Item::getFormattedPrice()
 }
 
 /*************************************************************************
- *  Function:       std::string Item::getFormattedPrice()
+ *  Function:       std::string Item::getFormattedQuantity()
  *  Description:    Gets the quantity and unit as a formatted string
  *  Parameters:     none
  *  Preconditions:  none
@@ -206,7 +206,7 @@ std::string Item::convertToTabDelim()
     oss << name << "\t" 
         << std::setprecision(2) << std::fixed   // price formatting
         << unitPrice << "\t"
-        << std::resetiosflags(std::ios::fixed)       // turn off for quantity
+        << std::resetiosflags(std::ios::fixed)  // turn off for quantity
         << std::setprecision(16)
         << quantity << "\t"
         << unit;
