@@ -346,7 +346,7 @@ void ShoppingList::saveList()
 }
 
 /*************************************************************************
- *  Function:       void ShoppingList::saveList()
+ *  Function:       void ShoppingList::loadList()
  *  Description:    Prompts the user for a filename, reads each line of the
  *                  specified file, and attempts to deserialize each line into
  *                  an Item object and add it to 'list'.
@@ -364,7 +364,7 @@ void ShoppingList::loadList()
     if (modified)
     {
         std::cout << "\nYour current list has been modified.\n"
-                  << "Are you sure you want to continue? (y/n)";
+                  << "Are you sure you want to continue? (y/n) ";
         if (!getYesNo())
         {
             return;

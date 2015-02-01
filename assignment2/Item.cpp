@@ -129,7 +129,11 @@ void Item::edit()
     std::getline(std::cin, unitPrice);
     
     // validate user input
-    if (!unitPrice.empty() && !isDouble(unitPrice))
+    if (unitPrice.empty())
+    {
+        // keep old value
+    }
+    else if ( !isDouble(unitPrice))
     {
         std::cout << "Invalid price entered. Aborting edit.\n";
         return;
@@ -151,7 +155,11 @@ void Item::edit()
     std::getline(std::cin, quantity);
     
     // validate user input
-    if (!quantity.empty() && !isDouble(quantity))
+    if (quantity.empty()
+    {
+        // keep old value
+    }
+    else if (!isDouble(quantity))
     {
         std::cout << "Invalid quantity entered. Aborting edit.\n";
         return;
