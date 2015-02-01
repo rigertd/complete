@@ -22,7 +22,7 @@ NUM_MIN = 0         ; minimum user input value
 NAME_MAX_LEN = 30   ; maximum length of user name
 
 intro       BYTE    "Integer Accumulator    by David Rigert", 0
-namePrompt1 BYTE    "Enter your name(up to ", 0
+namePrompt1 BYTE    "Enter your name (up to ", 0
 namePrompt2 BYTE     " characters) :", 0
 userName    BYTE    (NAME_MAX_LEN + 1) DUP(0)
 greeting    BYTE    "Hello, ", 0
@@ -48,58 +48,58 @@ main PROC
 
 ; display my name and program title
      mov  edx, OFFSET intro
-     call WriteString
+     call WriteString              ; display introduction
      call Crlf
      call Crlf
 
 ; prompt user for name, up to userName - 1 characters
      mov  edx, OFFSET namePrompt1
-     call WriteString
-     mov  eax, SIZEOF userName - 1  ; - 1 for null terminator
-     call WriteDec
+     call WriteString              ; display first half of prompt for name
+     mov  eax, SIZEOF userName - 1 ; - 1 for null terminator
+     call WriteDec                 ; display maximum name length
      mov  edx, OFFSET namePrompt2
-     call WriteString
+     call WriteString              ; display second half of prompt for name
 
 ; get the user's name
-     mov  edx, OFFSET userName
-     mov  ecx, SIZEOF userName
-     call ReadString
+     mov  edx, OFFSET userName     ; store input in userName
+     mov  ecx, SIZEOF userName     ; maximum input length
+     call ReadString               ; read user input
 
 ; display greeting
      mov  edx, OFFSET greeting
-     call WriteString
+     call WriteString    ; display greeting message
      mov  edx, OFFSET userName
-     call WriteString
+     call WriteString    ; address to user's name
      call Crlf
 
 ; display instructions
      mov  edx, OFFSET instruct1
-     call WriteString
-     mov  eax, NUM_MIN
+     call WriteString    ; display first third of instructions
+     mov  eax, NUM_MIN   ; minimum acceptable number
      call WriteDec       ; display minimum number value
      mov  edx, OFFSET instruct2
-     call WriteString
-     mov  eax, NUM_MAX
+     call WriteString    ; display second third of instructions
+     mov  eax, NUM_MAX   ; maximum acceptable number
      call WriteDec       ; display maximum number value
      mov  edx, OFFSET instruct3
-     call WriteString
+     call WriteString    ; display last third of instructions
      call Crlf
      call Crlf
 
 ; prompt user for input
 InputLoop:
      mov  edx, OFFSET prompt
-     call WriteString
-     call ReadInt       ; read as signed integer to detect negatives
-     mov  numInput, eax
+     call WriteString    ; display prompt for user input
+     call ReadInt        ; read as signed integer to detect negatives
+     mov  numInput, eax  ; store in numInput
 
 ; check if user input is negative
-     cmp  eax, NUM_MIN
-     jl   NegativeInput ; jump if less than NUM_MIN
+     cmp  eax, NUM_MIN   ; eax < NUM_MIN
+     jl   NegativeInput  ; jump if less than NUM_MIN
 
 ; check if user input > NUM_MAX
-     cmp  eax, NUM_MAX
-     jg   InvalidInput  ; jump if greater than NUM_MAX
+     cmp  eax, NUM_MAX   ; eax > NUM_MAX
+     jg   InvalidInput   ; jump if greater than NUM_MAX
      
 ; input was valid if execution reaches here
      add  eax, total     ; add running total to entered number
@@ -110,42 +110,42 @@ InputLoop:
 ; input was invalid, display error message and reprompt
 InvalidInput:
      mov  edx, OFFSET invalid1
-     call WriteString
+     call WriteString    ; display first half of invalid input error message
      mov  eax, NUM_MIN
      call WriteDec       ; display minimum number value
      mov  edx, OFFSET invalid2
-     call WriteString
+     call WriteString    ; display second half of invalid input error message
      mov  eax, NUM_MAX
      call WriteDec       ; display maximum number value
      mov  al, DOT
      call WriteChar      ; display a period character
      call Crlf
-     jmp  InputLoop ; go back to input prompt
+     jmp  InputLoop      ; go back to input prompt
 
 ; Input was negative. 
 NegativeInput:
 ; Test if any values were entered
-     cmp  numCount, 0
-     je   NoInput   ; jump if no numbers were entered
+     cmp  numCount, 0    ; numCount == 0
+     je   NoInput        ; jump to NoInput if no numbers were entered
      call Crlf
 
 ; display number of numbers entered
      mov  edx, OFFSET countText
-     call WriteString
+     call WriteString    ; display label for count
      mov  eax, numCount
-     call WriteDec
+     call WriteDec       ; display number count
      call Crlf
      
 ; display the sum of all positive numbers entered
      mov  edx, OFFSET sumText
-     call WriteString
+     call WriteString    ; display label for sum
      mov  eax, total
-     call WriteDec
+     call WriteDec       ; display sum
      call Crlf
 
 ; display the average number, rounded to 3 decimal places
      mov  edx, OFFSET avgText
-     call WriteString
+     call WriteString    ; display label for average
 
 ; calculate average
      mov  eax, total     ; copy the total to EAX
@@ -171,18 +171,18 @@ FractionalLoop:
 NoInput:
 ; display message indicating no numbers were entered
      mov  edx, OFFSET noNumbers
-     call WriteString
+     call WriteString    ; display message about no numbers being entered
      call Crlf
 
 EndOfReport:
 ; say goodbye
      call Crlf
      mov  edx, OFFSET goodbye
-     call WriteString
+     call WriteString    ; display the goodbye message
      mov  edx, OFFSET userName
-     call WriteString
+     call WriteString    ; display the user's name
      mov  al, DOT
-     call WriteChar     ; display a period character
+     call WriteChar      ; display a period character
      call Crlf
 
 ; exit to operating system

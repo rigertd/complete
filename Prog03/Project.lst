@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/26/15 17:28:53
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/31/15 22:52:23
 %Programming Assignment 3 (prog03.asm			     Page 1 - 1
 
 
@@ -141,153 +141,154 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/26/15 17:28:53
 
 				; display my name and program title
  00000000  BA 00000000 R	     mov  edx, OFFSET intro
- 00000005  E8 00000000 E	     call WriteString
+ 00000005  E8 00000000 E	     call WriteString              ; display introduction
  0000000A  E8 00000000 E	     call Crlf
  0000000F  E8 00000000 E	     call Crlf
 
 				; prompt user for name, up to userName - 1 characters
  00000014  BA 00000027 R	     mov  edx, OFFSET namePrompt1
- 00000019  E8 00000000 E	     call WriteString
- 0000001E  B8 0000001E		     mov  eax, SIZEOF userName - 1  ; - 1 for null terminator
- 00000023  E8 00000000 E	     call WriteDec
+ 00000019  E8 00000000 E	     call WriteString              ; display first half of prompt for name
+ 0000001E  B8 0000001E		     mov  eax, SIZEOF userName - 1 ; - 1 for null terminator
+ 00000023  E8 00000000 E	     call WriteDec                 ; display maximum name length
  00000028  BA 0000003E R	     mov  edx, OFFSET namePrompt2
- 0000002D  E8 00000000 E	     call WriteString
+ 0000002D  E8 00000000 E	     call WriteString              ; display second half of prompt for name
 
 				; get the user's name
- 00000032  BA 0000004D R	     mov  edx, OFFSET userName
- 00000037  B9 0000001F		     mov  ecx, SIZEOF userName
- 0000003C  E8 00000000 E	     call ReadString
+ 00000032  BA 0000004D R	     mov  edx, OFFSET userName     ; store input in userName
+ 00000037  B9 0000001F		     mov  ecx, SIZEOF userName     ; maximum input length
+ 0000003C  E8 00000000 E	     call ReadString               ; read user input
 
 				; display greeting
  00000041  BA 0000006C R	     mov  edx, OFFSET greeting
- 00000046  E8 00000000 E	     call WriteString
+ 00000046  E8 00000000 E	     call WriteString    ; display greeting message
  0000004B  BA 0000004D R	     mov  edx, OFFSET userName
- 00000050  E8 00000000 E	     call WriteString
+ 00000050  E8 00000000 E	     call WriteString    ; address to user's name
  00000055  E8 00000000 E	     call Crlf
 
 				; display instructions
  0000005A  BA 00000074 R	     mov  edx, OFFSET instruct1
- 0000005F  E8 00000000 E	     call WriteString
- 00000064  B8 00000000		     mov  eax, NUM_MIN
+ 0000005F  E8 00000000 E	     call WriteString    ; display first third of instructions
+ 00000064  B8 00000000		     mov  eax, NUM_MIN   ; minimum acceptable number
  00000069  E8 00000000 E	     call WriteDec       ; display minimum number value
  0000006E  BA 00000097 R	     mov  edx, OFFSET instruct2
- 00000073  E8 00000000 E	     call WriteString
- 00000078  B8 00000064		     mov  eax, NUM_MAX
+ 00000073  E8 00000000 E	     call WriteString    ; display second third of instructions
+ 00000078  B8 00000064		     mov  eax, NUM_MAX   ; maximum acceptable number
  0000007D  E8 00000000 E	     call WriteDec       ; display maximum number value
  00000082  BA 0000009D R	     mov  edx, OFFSET instruct3
- 00000087  E8 00000000 E	     call WriteString
+ 00000087  E8 00000000 E	     call WriteString    ; display last third of instructions
  0000008C  E8 00000000 E	     call Crlf
  00000091  E8 00000000 E	     call Crlf
 
 				; prompt user for input
  00000096			InputLoop:
- 00000096  BA 000000FA R	     mov  edx, OFFSET prompt
- 0000009B  E8 00000000 E	     call WriteString
- 000000A0  E8 00000000 E	     call ReadInt       ; read as signed integer to detect negatives
- 000000A5  A3 00000183 R	     mov  numInput, eax
+ 00000096  B8 FFFFFFFF		     mov  eax, -1        ; put an invalid value in eax in case no user input
+ 0000009B  BA 000000FA R	     mov  edx, OFFSET prompt
+ 000000A0  E8 00000000 E	     call WriteString    ; display prompt for user input
+ 000000A5  E8 00000000 E	     call ReadInt        ; read as signed integer to detect negatives
+ 000000AA  A3 00000183 R	     mov  numInput, eax  ; store in numInput
 
 				; check if user input is negative
- 000000AA  83 F8 00		     cmp  eax, NUM_MIN
- 000000AD  7C 4E		     jl   NegativeInput ; jump if less than NUM_MIN
+ 000000AF  83 F8 00		     cmp  eax, NUM_MIN   ; eax < NUM_MIN
+ 000000B2  7C 4E		     jl   NegativeInput  ; jump if less than NUM_MIN
 
 				; check if user input > NUM_MAX
- 000000AF  83 F8 64		     cmp  eax, NUM_MAX
- 000000B2  7F 13		     jg   InvalidInput  ; jump if greater than NUM_MAX
+ 000000B4  83 F8 64		     cmp  eax, NUM_MAX   ; eax > NUM_MAX
+ 000000B7  7F 13		     jg   InvalidInput   ; jump if greater than NUM_MAX
 				     
 				; input was valid if execution reaches here
- 000000B4  03 05 0000018B R	     add  eax, total     ; add running total to entered number
- 000000BA  A3 0000018B R	     mov  total, eax     ; copy new total to total variable
- 000000BF  FF 05 00000187 R	     inc  numCount       ; add 1 to input counter
- 000000C5  EB CF		     jmp  InputLoop      ; get another number from the user
+ 000000B9  03 05 0000018B R	     add  eax, total     ; add running total to entered number
+ 000000BF  A3 0000018B R	     mov  total, eax     ; copy new total to total variable
+ 000000C4  FF 05 00000187 R	     inc  numCount       ; add 1 to input counter
+ 000000CA  EB CA		     jmp  InputLoop      ; get another number from the user
 
 				; input was invalid, display error message and reprompt
- 000000C7			InvalidInput:
- 000000C7  BA 0000010B R	     mov  edx, OFFSET invalid1
- 000000CC  E8 00000000 E	     call WriteString
- 000000D1  B8 00000000		     mov  eax, NUM_MIN
- 000000D6  E8 00000000 E	     call WriteDec       ; display minimum number value
- 000000DB  BA 00000130 R	     mov  edx, OFFSET invalid2
- 000000E0  E8 00000000 E	     call WriteString
- 000000E5  B8 00000064		     mov  eax, NUM_MAX
- 000000EA  E8 00000000 E	     call WriteDec       ; display maximum number value
- 000000EF  B0 2E		     mov  al, DOT
- 000000F1  E8 00000000 E	     call WriteChar      ; display a period character
- 000000F6  E8 00000000 E	     call Crlf
- 000000FB  EB 99		     jmp  InputLoop ; go back to input prompt
+ 000000CC			InvalidInput:
+ 000000CC  BA 0000010B R	     mov  edx, OFFSET invalid1
+ 000000D1  E8 00000000 E	     call WriteString    ; display first half of invalid input error message
+ 000000D6  B8 00000000		     mov  eax, NUM_MIN
+ 000000DB  E8 00000000 E	     call WriteDec       ; display minimum number value
+ 000000E0  BA 00000130 R	     mov  edx, OFFSET invalid2
+ 000000E5  E8 00000000 E	     call WriteString    ; display second half of invalid input error message
+ 000000EA  B8 00000064		     mov  eax, NUM_MAX
+ 000000EF  E8 00000000 E	     call WriteDec       ; display maximum number value
+ 000000F4  B0 2E		     mov  al, DOT
+ 000000F6  E8 00000000 E	     call WriteChar      ; display a period character
+ 000000FB  E8 00000000 E	     call Crlf
+ 00000100  EB 94		     jmp  InputLoop      ; go back to input prompt
 
 				; Input was negative. 
- 000000FD			NegativeInput:
+ 00000102			NegativeInput:
 				; Test if any values were entered
- 000000FD  83 3D 00000187 R	     cmp  numCount, 0
+ 00000102  83 3D 00000187 R	     cmp  numCount, 0    ; numCount == 0
 	   00
- 00000104  74 7C		     je   NoInput   ; jump if no numbers were entered
- 00000106  E8 00000000 E	     call Crlf
+ 00000109  74 7C		     je   NoInput        ; jump to NoInput if no numbers were entered
+ 0000010B  E8 00000000 E	     call Crlf
 
 				; display number of numbers entered
- 0000010B  BA 0000014E R	     mov  edx, OFFSET countText
- 00000110  E8 00000000 E	     call WriteString
- 00000115  A1 00000187 R	     mov  eax, numCount
- 0000011A  E8 00000000 E	     call WriteDec
- 0000011F  E8 00000000 E	     call Crlf
+ 00000110  BA 0000014E R	     mov  edx, OFFSET countText
+ 00000115  E8 00000000 E	     call WriteString    ; display label for count
+ 0000011A  A1 00000187 R	     mov  eax, numCount
+ 0000011F  E8 00000000 E	     call WriteDec       ; display number count
+ 00000124  E8 00000000 E	     call Crlf
 				     
 				; display the sum of all positive numbers entered
- 00000124  BA 00000160 R	     mov  edx, OFFSET sumText
- 00000129  E8 00000000 E	     call WriteString
- 0000012E  A1 0000018B R	     mov  eax, total
- 00000133  E8 00000000 E	     call WriteDec
- 00000138  E8 00000000 E	     call Crlf
+ 00000129  BA 00000160 R	     mov  edx, OFFSET sumText
+ 0000012E  E8 00000000 E	     call WriteString    ; display label for sum
+ 00000133  A1 0000018B R	     mov  eax, total
+ 00000138  E8 00000000 E	     call WriteDec       ; display sum
+ 0000013D  E8 00000000 E	     call Crlf
 
 				; display the average number, rounded to 3 decimal places
- 0000013D  BA 00000171 R	     mov  edx, OFFSET avgText
- 00000142  E8 00000000 E	     call WriteString
+ 00000142  BA 00000171 R	     mov  edx, OFFSET avgText
+ 00000147  E8 00000000 E	     call WriteString    ; display label for average
 
 				; calculate average
- 00000147  A1 0000018B R	     mov  eax, total     ; copy the total to EAX
- 0000014C  99			     cdq                 ; fill EDX
- 0000014D  F7 35 00000187 R	     div  numCount       ; divide total by numCount
- 00000153  E8 00000000 E	     call WriteDec       ; Display integer part of average
- 00000158  B0 2E		     mov  al, DOT     
- 0000015A  E8 00000000 E	     call WriteChar      ; Display a decimal point
+ 0000014C  A1 0000018B R	     mov  eax, total     ; copy the total to EAX
+ 00000151  99			     cdq                 ; fill EDX
+ 00000152  F7 35 00000187 R	     div  numCount       ; divide total by numCount
+ 00000158  E8 00000000 E	     call WriteDec       ; Display integer part of average
+ 0000015D  B0 2E		     mov  al, DOT     
+ 0000015F  E8 00000000 E	     call WriteChar      ; Display a decimal point
 
 				; display the fractional part of the average, up to 3 digits
- 0000015F  B9 00000003		     mov  ecx, 3         ; set counter to 3
- 00000164			FractionalLoop:
- 00000164  8B C2		     mov  eax, edx       ; copy remainder to EAX
- 00000166  99			     cdq                 ; fill EDX
- 00000167  BB 0000000A		     mov  ebx, 10
- 0000016C  F7 E3		     mul  ebx            ; multiply remainder by 10
- 0000016E  F7 35 00000187 R	     div  numCount       ; divide remainder by numCount
- 00000174  E8 00000000 E	     call WriteDec       ; display integer part in EAX
- 00000179  E2 E9		     loop FractionalLoop ; decrement ECX and go back to beginning of loop
- 0000017B  E8 00000000 E	     call Crlf           ; end with a newline
- 00000180  EB 0F		     jmp  EndOfReport    ; jump to the goodbye message
+ 00000164  B9 00000003		     mov  ecx, 3         ; set counter to 3
+ 00000169			FractionalLoop:
+ 00000169  8B C2		     mov  eax, edx       ; copy remainder to EAX
+ 0000016B  99			     cdq                 ; fill EDX
+ 0000016C  BB 0000000A		     mov  ebx, 10
+ 00000171  F7 E3		     mul  ebx            ; multiply remainder by 10
+ 00000173  F7 35 00000187 R	     div  numCount       ; divide remainder by numCount
+ 00000179  E8 00000000 E	     call WriteDec       ; display integer part in EAX
+ 0000017E  E2 E9		     loop FractionalLoop ; decrement ECX and go back to beginning of loop
+ 00000180  E8 00000000 E	     call Crlf           ; end with a newline
+ 00000185  EB 0F		     jmp  EndOfReport    ; jump to the goodbye message
 
- 00000182			NoInput:
+ 00000187			NoInput:
 				; display message indicating no numbers were entered
- 00000182  BA 00000135 R	     mov  edx, OFFSET noNumbers
- 00000187  E8 00000000 E	     call WriteString
- 0000018C  E8 00000000 E	     call Crlf
-
- 00000191			EndOfReport:
-				; say goodbye
+ 00000187  BA 00000135 R	     mov  edx, OFFSET noNumbers
+ 0000018C  E8 00000000 E	     call WriteString    ; display message about no numbers being entered
  00000191  E8 00000000 E	     call Crlf
- 00000196  BA 00000193 R	     mov  edx, OFFSET goodbye
- 0000019B  E8 00000000 E	     call WriteString
- 000001A0  BA 0000004D R	     mov  edx, OFFSET userName
- 000001A5  E8 00000000 E	     call WriteString
- 000001AA  B0 2E		     mov  al, DOT
- 000001AC  E8 00000000 E	     call WriteChar     ; display a period character
- 000001B1  E8 00000000 E	     call Crlf
+
+ 00000196			EndOfReport:
+				; say goodbye
+ 00000196  E8 00000000 E	     call Crlf
+ 0000019B  BA 00000193 R	     mov  edx, OFFSET goodbye
+ 000001A0  E8 00000000 E	     call WriteString    ; display the goodbye message
+ 000001A5  BA 0000004D R	     mov  edx, OFFSET userName
+ 000001AA  E8 00000000 E	     call WriteString    ; display the user's name
+ 000001AF  B0 2E		     mov  al, DOT
+ 000001B1  E8 00000000 E	     call WriteChar      ; display a period character
+ 000001B6  E8 00000000 E	     call Crlf
 
 				; exit to operating system
 				     exit
- 000001B6  6A 00	   *	    push   +000000000h
- 000001B8  E8 00000000 E   *	    call   ExitProcess
+ 000001BB  6A 00	   *	    push   +000000000h
+ 000001BD  E8 00000000 E   *	    call   ExitProcess
 
- 000001BD			main ENDP
+ 000001C2			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/26/15 17:28:53
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/31/15 22:52:23
 %Programming Assignment 3 (prog03.asm			     Symbols 2 - 1
 
 
@@ -382,7 +383,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000001BC Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000001BD Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001C2 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -489,13 +490,13 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001BD Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001C2 Public STDCALL
   InputLoop  . . . . . . . . . .	L Near	 00000096 _TEXT	
-  InvalidInput . . . . . . . . .	L Near	 000000C7 _TEXT	
-  NegativeInput  . . . . . . . .	L Near	 000000FD _TEXT	
-  FractionalLoop . . . . . . . .	L Near	 00000164 _TEXT	
-  NoInput  . . . . . . . . . . .	L Near	 00000182 _TEXT	
-  EndOfReport  . . . . . . . . .	L Near	 00000191 _TEXT	
+  InvalidInput . . . . . . . . .	L Near	 000000CC _TEXT	
+  NegativeInput  . . . . . . . .	L Near	 00000102 _TEXT	
+  FractionalLoop . . . . . . . .	L Near	 00000169 _TEXT	
+  NoInput  . . . . . . . . . . .	L Near	 00000187 _TEXT	
+  EndOfReport  . . . . . . . . .	L Near	 00000196 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
