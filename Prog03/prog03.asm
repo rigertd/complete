@@ -23,7 +23,7 @@ NAME_MAX_LEN = 30   ; maximum length of user name
 
 intro       BYTE    "Integer Accumulator    by David Rigert", 0
 namePrompt1 BYTE    "Enter your name (up to ", 0
-namePrompt2 BYTE     " characters) :", 0
+namePrompt2 BYTE     " characters): ", 0
 userName    BYTE    (NAME_MAX_LEN + 1) DUP(0)
 greeting    BYTE    "Hello, ", 0
 instruct1   BYTE    "Enter a series of numbers between ", 0
@@ -46,9 +46,12 @@ goodbye     BYTE    "Thank you for playing. Have a good day, ", 0
 .code
 main PROC
 
-; display my name and program title
+;------------------------------------------------------------------------------
+; This section displays the program introduction, prompts the user for their
+; name, and greets the user by name.
+;------------------------------------------------------------------------------
      mov  edx, OFFSET intro
-     call WriteString              ; display introduction
+     call WriteString              ; display my name and program title
      call Crlf
      call Crlf
 
@@ -72,6 +75,9 @@ main PROC
      call WriteString    ; address to user's name
      call Crlf
 
+;------------------------------------------------------------------------------
+; This section displays the program instructions.
+;------------------------------------------------------------------------------
 ; display instructions
      mov  edx, OFFSET instruct1
      call WriteString    ; display first third of instructions
@@ -86,6 +92,11 @@ main PROC
      call Crlf
      call Crlf
 
+;------------------------------------------------------------------------------
+; This section is the input loop where the user is prompted to enter numbers
+; until a negative number is entered. The program counts the number of numbers
+; and the cumulative sum as the numbers are entered.
+;------------------------------------------------------------------------------
 ; prompt user for input
 InputLoop:
      mov  edx, OFFSET prompt
@@ -107,7 +118,9 @@ InputLoop:
      inc  numCount       ; add 1 to input counter
      jmp  InputLoop      ; get another number from the user
 
-; input was invalid, display error message and reprompt
+;------------------------------------------------------------------------------
+; Execution jumps here if the user enters invalid input.
+;------------------------------------------------------------------------------
 InvalidInput:
      mov  edx, OFFSET invalid1
      call WriteString    ; display first half of invalid input error message
@@ -122,13 +135,20 @@ InvalidInput:
      call Crlf
      jmp  InputLoop      ; go back to input prompt
 
-; Input was negative. 
+;------------------------------------------------------------------------------
+; Execution jumps here when the user enters a negative number.
+; The count is checked in case the first number entered was negative.
+;------------------------------------------------------------------------------
 NegativeInput:
 ; Test if any values were entered
      cmp  numCount, 0    ; numCount == 0
      je   NoInput        ; jump to NoInput if no numbers were entered
      call Crlf
 
+;------------------------------------------------------------------------------
+; This section displays the count, sum, and average of the numbers entered.
+; The average is rounded to 3 decimal places.
+;------------------------------------------------------------------------------
 ; display number of numbers entered
      mov  edx, OFFSET countText
      call WriteString    ; display label for count
@@ -168,12 +188,18 @@ FractionalLoop:
      call Crlf           ; end with a newline
      jmp  EndOfReport    ; jump to the goodbye message
 
+;------------------------------------------------------------------------------
+; Execution only reaches this section when the first number entered is negative.
+;------------------------------------------------------------------------------
 NoInput:
 ; display message indicating no numbers were entered
      mov  edx, OFFSET noNumbers
      call WriteString    ; display message about no numbers being entered
      call Crlf
 
+;------------------------------------------------------------------------------
+; This section displays the goodbye message and the user's name.
+;------------------------------------------------------------------------------
 EndOfReport:
 ; say goodbye
      call Crlf
