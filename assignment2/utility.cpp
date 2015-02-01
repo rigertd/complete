@@ -104,7 +104,7 @@ void moveCursorToTopLeft()
 /********************************************************************
  *  Function:       void sleepMilliseconds(int milliseconds)
  *  Description:    Sleeps for the specified number of milliseconds.
- *  Parameters:     milliseconds - number of milliseconds to sleep
+ *  Parameters:     milliseconds    number of milliseconds to sleep
  *  Preconditions:  none
  *  Postconditions: none
  *******************************************************************/
@@ -124,7 +124,7 @@ void sleepMilliseconds(int milliseconds)
  *  Function:       std::vector<std::string> split(const std::string &text, char delim)
  *  Description:    Splits a string into substrings based on the specified
  *                  delimiter. Defaults to a space if not specified.
- *  Parameters:     text - number of milliseconds to sleep
+ *  Parameters:     text    number of milliseconds to sleep
  *  Preconditions:  none
  *  Postconditions: Returns a vector containing the substrings.
  *******************************************************************/
@@ -150,7 +150,7 @@ std::vector<std::string> split(const std::string &text, char delim)
  *  Description:    This function determines whether a string is a valid
  *                  double. Note that a valid integer is considered to be 
  *                  a valid double.
- *  Parameters:     str - string object to test
+ *  Parameters:     str     string object to test
  *  Preconditions:  none
  *  Postconditions: Returns true if entire string is valid double.
  ********************************************************************/
@@ -182,7 +182,7 @@ bool isDouble(const std::string &str)
  *  Function:       bool isInteger(const std::string &str)
  *  Description:    This function determines whether a string is a valid
  *                  integer.
- *  Parameters:     str - string object to test
+ *  Parameters:     str     string object to test
  *  Preconditions:  none
  *  Postconditions: Returns true if entire string is valid integer.
  ********************************************************************/

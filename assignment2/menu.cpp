@@ -1,3 +1,22 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/31/2015
+ * Last Modified:   1/31/2015
+ * Assignment:      Assignment 2
+ * Filename:        menu.cpp
+ *
+ * Description:     This program is a menu-driven shopping list manager 
+ *                  that can be used to add, edit, and remove items on 
+ *                  a shopping list that can be loaded from or saved to a file.
+ *
+ * Input:           - User selects the options from a menu.
+ *                  - User loads an existing list or creates a new one manually.
+ *                  - User edits or removes existing items, and adds new ones.
+ *
+ * Output:          - Displays a menu of available commands.
+ *                  - Displays the content of the list.
+ *                  - User saves the list to the current file or a new one.
+ ************************************************************************/
 #include <string>
 #include <iostream>
 
@@ -5,6 +24,7 @@
 #include "ShoppingList.hpp"
 #include "utility.hpp"
 
+/*========================= Function Prototypes ========================*/
 // prints the menu to the terminal window
 void printMenu();
 
@@ -62,6 +82,7 @@ int main ()
                 // test if user entered something other than 'y'
                 if (!getYesNo())
                 {
+                    // if so, reset selection and go back to menu
                     selection = 0;
                     continue;
                 }
@@ -76,6 +97,13 @@ int main ()
     return 0;
 }
 
+/********************************************************************
+ *  Function:       void printMenu()
+ *  Description:    Prints the menu to the terminal window.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Menu is displayed on terminal window.
+ *******************************************************************/
 void printMenu()
 {
     std::cout << "Please choose an option from the menu.\n\n"

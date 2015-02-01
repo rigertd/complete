@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:          David Rigert
  * Date Created:    1/10/2015
- * Last Modified:   1/30/2015
+ * Last Modified:   1/31/2015
  * Assignment:      Assignment 2
  * Filename:        utility.hpp
  *

@@ -1,17 +1,52 @@
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    1/30/2015
+ * Last Modified:   1/31/2015
+ * Assignment:      Assignment 2
+ * Filename:        Item.cpp
+ *
+ * Description:     Implementation of the Item class. 
+ ************************************************************************/
 #include "ShoppingList.hpp"
-#include "Item.hpp"
-#include "utility.hpp"
 
-/********** Static Constants **********/
+#include <iostream>     // std::cout, std::cin, std::endl
+#include <iomanip>      // std::setprecision, std::fixed, std::setw, etc.
+#include <fstream>      // std::ifstream, std::ofstream
+#include <sstream>      // std::ostringstream
+#include <cstdlib>      // std::atoi, std::strtod
+
+#include "Item.hpp"
+#include "utility.hpp"  // isDouble()
+
+/*========================== Static Constants ==========================*/
 const std::string ShoppingList::DEFAULT_FILENAME = "list.txt";
 
-/********** Private Member Functions **********/
-// gets total price of all items on list
+/*====================== Private Member Functions ======================*/
+/*************************************************************************
+ *  Function:       std::string ShoppingList::getFormattedTotal()
+ *  Description:    Gets the total cost of all items on the list formatted
+ *                  as a string prepended with '$' and with 2 digits after 
+ *                  the decimal point .
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Returns the total cost of all items as a formatted string.
+ ************************************************************************/
+std::string ShoppingList::getFormattedTotal()
+{
+    std::ostringstream oss;
+    oss << "Total: $" << std::fixed << std::setprecision(2)
+        << getTotalCost();
+    
+    return oss.str();
+}
+
+/*************************************************************************
+ *  Function:       double ShoppingList::getTotalCost()
+ *  Description:    Gets the total cost of all items on the list.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Returns the total cost of all items as a double.
+ ************************************************************************/
 double ShoppingList::getTotalCost()
 {
     double total = 0.0;
@@ -23,23 +58,43 @@ double ShoppingList::getTotalCost()
     return total;
 }
 
-// writes each item on separate line, with details delimited by tab char
-void ShoppingList::writeTabDelimited(std::ostream &out)
+/*************************************************************************
+ *  Function:       double ShoppingList::getTotalCost()
+ *  Description:    Prints the header row as single line of text to the 
+ *                  terminal window.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: The Item header is displayed in the terminal window.
+ ************************************************************************/
+void ShoppingList::printHeaderRow()
 {
-    for (int i = 0; i < list.size(); i++)
-    {
-        out << list[i].convertToTabDelim() << std::endl;
-    }
+    std::cout << std::left
+              << "     " // for the item number
+              << std::setw(Item::NAME_LEN + 1) << "Item Name" 
+              << std::setw(Item::PRICE_LEN + 1) << "Unit Price"
+              << std::setw(Item::QUANTITY_LEN + 1) << "Quantity"
+              << std::setw(Item::SUBTOTAL_LEN) << "Subtotal"
+              << std::endl;
 }
 
-/********** Public Member Functions **********/
-// prompts user for input and adds item to list
+/*======================= Public Member Functions ======================*/
+/*************************************************************************
+ *  Function:       void ShoppingList::addItem()
+ *  Description:    Prompts user for input and adds a new Item to the list.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: A new Item is added if valid data was entered.
+ ************************************************************************/
 void ShoppingList::addItem()
 {
+    
+    // user input variables
     std::string name;
     std::string unit;
     std::string unitPrice;
     std::string quantity;
+
+    // for conversion to double
     double newUnitPrice;
     double newQuantity;
     
@@ -63,7 +118,7 @@ void ShoppingList::addItem()
     else
     {
         newUnitPrice = std::strtod(unitPrice.c_str(), NULL);
-        if (newUnitPrice < 0)
+        if (newUnitPrice < 0)   // must be at least 0
         {
             std::cout << "\nThe store will not pay you to take its merchandise.\n";
             return;
@@ -81,7 +136,7 @@ void ShoppingList::addItem()
     else
     {
         newQuantity = std::strtod(quantity.c_str(), NULL);
-        if (newQuantity <= 0)
+        if (newQuantity <= 0)   // must be greater than 0
         {
             std::cout << "\nThe store does not buy merchandise from customers.\n";
             return;
@@ -96,21 +151,28 @@ void ShoppingList::addItem()
         std::cout << "\nThe unit cannot be blank.\n";
     }
     
-    // If execution reaches here, all input was valid.
+    // if execution reaches here, all input was valid
     double q = strtod(quantity.c_str(), NULL);
     double up = strtod(unitPrice.c_str(), NULL);
     
-    // Instantiate new Item object and add to list.
+    // instantiate new Item object and add to list
     list.push_back(Item(name, unit, up, q));
     
     // set the modified flag
     this->modified = true;
 }
 
-// prompts user to select and edit an existing item
+/*************************************************************************
+ *  Function:       void ShoppingList::editItem()
+ *  Description:    Displays a list of current items and prompts user
+ *                  to select one to edit.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Selected Item is edited if valid data was entered.
+ ************************************************************************/
 void ShoppingList::editItem()
 {
-    std::string input;  // input variable
+    std::string input;  // user input variable
     
     // list items currently in list
     listItems();
@@ -149,7 +211,14 @@ void ShoppingList::editItem()
     this->modified = true;
 }
 
-// prompts user to select an item to remove from list
+/*************************************************************************
+ *  Function:       void ShoppingList::removeItem()
+ *  Description:    Displays a list of current items and prompts user
+ *                  to select one to remove.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Selected Item is removed if valid data was entered.
+ ************************************************************************/
 void ShoppingList::removeItem()
 {
     std::string input;  // input variable
@@ -191,18 +260,29 @@ void ShoppingList::removeItem()
     this->modified = true;
 }
 
-// displays the items to the terminal window
+/*************************************************************************
+ *  Function:       void ShoppingList::listItems()
+ *  Description:    Displays a numbered list of current items and the total
+ *                  price of all items to the terminal window.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: All items on the list are displayed in the terminal window
+ ************************************************************************/
 void ShoppingList::listItems()
 {
     // test for empty list
     if (!list.empty())
     {
         printHeaderRow();
+        
+        // print each Item in list
         for (int i = 0; i < list.size(); i++)
         {
             std::cout << std::right << std::setw(3) << (i + 1) << ": "
                       << std::left << list[i] << std::endl;
         }
+        
+        // print total price
         std::cout << std::endl 
                   << std::setw(Item::NAME_LEN + Item::PRICE_LEN + Item::QUANTITY_LEN + Item::SUBTOTAL_LEN + 8)
                   << std::right << getFormattedTotal() << std::left << std::endl;
@@ -213,7 +293,15 @@ void ShoppingList::listItems()
     }
 }
 
-// saves list to default or user-specified file
+/*************************************************************************
+ *  Function:       void ShoppingList::saveList()
+ *  Description:    Prompts the user for a filename, serializes all Item
+ *                  objects in the list and saves them to the specified file.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: All Item objects in 'list' are saved to the specified file
+ *                  as tab-delimited values.
+ ************************************************************************/
 void ShoppingList::saveList()
 {
     std::ofstream ofs;
@@ -257,7 +345,16 @@ void ShoppingList::saveList()
     ofs.close();
 }
 
-// loads list from default or user-specified file
+/*************************************************************************
+ *  Function:       void ShoppingList::saveList()
+ *  Description:    Prompts the user for a filename, reads each line of the
+ *                  specified file, and attempts to deserialize each line into
+ *                  an Item object and add it to 'list'.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: 'list' is cleared of any existing Item objects and
+ *                  contains all serialized Item objects in the specified file.
+ ************************************************************************/
 void ShoppingList::loadList()
 {
     std::ifstream ifs;
@@ -310,26 +407,4 @@ void ShoppingList::loadList()
     
     // close the filestream
     ifs.close();
-}
-
-// gets the total price of all items on list formatted as a string
-std::string ShoppingList::getFormattedTotal()
-{
-    std::ostringstream oss;
-    oss << "Total: $" << std::fixed << std::setprecision(2)
-        << getTotalCost();
-    
-    return oss.str();
-}
-
-// prints header row as single line of text to terminal window
-void ShoppingList::printHeaderRow()
-{
-    std::cout << std::left
-              << "     " // for the item number
-              << std::setw(Item::NAME_LEN + 1) << "Item Name" 
-              << std::setw(Item::PRICE_LEN + 1) << "Unit Price"
-              << std::setw(Item::QUANTITY_LEN + 1) << "Quantity"
-              << std::setw(Item::SUBTOTAL_LEN) << "Subtotal"
-              << std::endl;
 }
