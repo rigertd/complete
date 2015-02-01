@@ -155,7 +155,7 @@ void Item::edit()
     std::getline(std::cin, quantity);
     
     // validate user input
-    if (quantity.empty()
+    if (quantity.empty())
     {
         // keep old value
     }
