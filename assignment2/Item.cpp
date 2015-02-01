@@ -86,7 +86,7 @@ void Item::edit()
         newUnitPrice = std::strtod(unitPrice.c_str(), NULL);
         if (newUnitPrice < 0)
         {
-            std::cout << "The store will not pay you to take its goods.\n";
+            std::cout << "\nThe store will not pay you to take its goods.\n";
             return;
         }
     }
@@ -104,7 +104,7 @@ void Item::edit()
         newQuantity = std::strtod(quantity.c_str(), NULL);
         if (newQuantity <= 0)
         {
-            std::cout << "The store does not buy goods from customers.\n";
+            std::cout << "\nThe store does not buy goods from customers.\n";
             return;
         }
     }
