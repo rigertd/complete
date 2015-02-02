@@ -176,7 +176,7 @@ NegativeInput:
      call WriteChar      ; Display a decimal point
 
 ; display the fractional part of the average, up to 3 digits
-     mov  ecx, 3         ; set counter to 3
+     mov  ecx, 2         ; set counter to 2
 FractionalLoop:
      mov  eax, edx       ; copy remainder to EAX
      cdq                 ; fill EDX
@@ -185,6 +185,8 @@ FractionalLoop:
      div  numCount       ; divide remainder by numCount
      call WriteDec       ; display integer part in EAX
      loop FractionalLoop ; decrement ECX and go back to beginning of loop
+     call RoundUp        ; round the last digit to the nearest integer
+     call WriteDec       ; write the last digit
      call Crlf           ; end with a newline
      jmp  EndOfReport    ; jump to the goodbye message
 
@@ -215,5 +217,29 @@ EndOfReport:
      exit
 
 main ENDP
+
+;------------------------------------------------------------------------------
+; Rounds the value in EAX to the nearest integer based on the remainder in EDX
+; and the divisor in numCount.
+; Receives:    EAX contains the number to be rounded
+;              EDX contains the remainder and numCount contains the divisor
+; Returns:     EAX contains the rounded quotient
+;------------------------------------------------------------------------------
+RoundUp PROC
+     push eax       ; push quotient onto stack
+     mov  eax,edx   ; copy remainder to eax
+     mov  ebx,10
+     mul  ebx       ; multiply remainder by 10
+     div  numCount  ; divide by numCount
+     cmp  eax,5     ; test if quotient < 5
+     jb   endRound  ; do not round up if < 5
+     mov  eax,[esp] ; copy previous quotient to eax
+     inc  eax       ; increment previous quotient on stack
+     mov  [esp],eax ; update value on stack
+
+endRound:
+     pop  eax       ; put previous quotient back into eax
+     ret
+roundUp ENDP
 
 END main

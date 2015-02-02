@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/31/15 23:02:49
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    02/02/15 10:15:49
 %Programming Assignment 3 (prog03.asm			     Page 1 - 1
 
 
@@ -236,84 +236,110 @@ Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/31/15 23:02:49
 				; Test if any values were entered
  000000FD  83 3D 00000188 R	     cmp  numCount, 0    ; numCount == 0
 	   00
- 00000104  74 7C		     je   NoInput        ; jump to NoInput if no numbers were entered
- 00000106  E8 00000000 E	     call Crlf
+ 00000104  0F 84 00000086	     je   NoInput        ; jump to NoInput if no numbers were entered
+ 0000010A  E8 00000000 E	     call Crlf
 
 				;------------------------------------------------------------------------------
 				; This section displays the count, sum, and average of the numbers entered.
 				; The average is rounded to 3 decimal places.
 				;------------------------------------------------------------------------------
 				; display number of numbers entered
- 0000010B  BA 0000014F R	     mov  edx, OFFSET countText
- 00000110  E8 00000000 E	     call WriteString    ; display label for count
- 00000115  A1 00000188 R	     mov  eax, numCount
- 0000011A  E8 00000000 E	     call WriteDec       ; display number count
- 0000011F  E8 00000000 E	     call Crlf
+ 0000010F  BA 0000014F R	     mov  edx, OFFSET countText
+ 00000114  E8 00000000 E	     call WriteString    ; display label for count
+ 00000119  A1 00000188 R	     mov  eax, numCount
+ 0000011E  E8 00000000 E	     call WriteDec       ; display number count
+ 00000123  E8 00000000 E	     call Crlf
 				     
 				; display the sum of all positive numbers entered
- 00000124  BA 00000161 R	     mov  edx, OFFSET sumText
- 00000129  E8 00000000 E	     call WriteString    ; display label for sum
- 0000012E  A1 0000018C R	     mov  eax, total
- 00000133  E8 00000000 E	     call WriteDec       ; display sum
- 00000138  E8 00000000 E	     call Crlf
+ 00000128  BA 00000161 R	     mov  edx, OFFSET sumText
+ 0000012D  E8 00000000 E	     call WriteString    ; display label for sum
+ 00000132  A1 0000018C R	     mov  eax, total
+ 00000137  E8 00000000 E	     call WriteDec       ; display sum
+ 0000013C  E8 00000000 E	     call Crlf
 
 				; display the average number, rounded to 3 decimal places
- 0000013D  BA 00000172 R	     mov  edx, OFFSET avgText
- 00000142  E8 00000000 E	     call WriteString    ; display label for average
+ 00000141  BA 00000172 R	     mov  edx, OFFSET avgText
+ 00000146  E8 00000000 E	     call WriteString    ; display label for average
 
 				; calculate average
- 00000147  A1 0000018C R	     mov  eax, total     ; copy the total to EAX
- 0000014C  99			     cdq                 ; fill EDX
- 0000014D  F7 35 00000188 R	     div  numCount       ; divide total by numCount
- 00000153  E8 00000000 E	     call WriteDec       ; Display integer part of average
- 00000158  B0 2E		     mov  al, DOT     
- 0000015A  E8 00000000 E	     call WriteChar      ; Display a decimal point
+ 0000014B  A1 0000018C R	     mov  eax, total     ; copy the total to EAX
+ 00000150  99			     cdq                 ; fill EDX
+ 00000151  F7 35 00000188 R	     div  numCount       ; divide total by numCount
+ 00000157  E8 00000000 E	     call WriteDec       ; Display integer part of average
+ 0000015C  B0 2E		     mov  al, DOT     
+ 0000015E  E8 00000000 E	     call WriteChar      ; Display a decimal point
 
 				; display the fractional part of the average, up to 3 digits
- 0000015F  B9 00000003		     mov  ecx, 3         ; set counter to 3
- 00000164			FractionalLoop:
- 00000164  8B C2		     mov  eax, edx       ; copy remainder to EAX
- 00000166  99			     cdq                 ; fill EDX
- 00000167  BB 0000000A		     mov  ebx, 10
- 0000016C  F7 E3		     mul  ebx            ; multiply remainder by 10
- 0000016E  F7 35 00000188 R	     div  numCount       ; divide remainder by numCount
- 00000174  E8 00000000 E	     call WriteDec       ; display integer part in EAX
- 00000179  E2 E9		     loop FractionalLoop ; decrement ECX and go back to beginning of loop
- 0000017B  E8 00000000 E	     call Crlf           ; end with a newline
- 00000180  EB 0F		     jmp  EndOfReport    ; jump to the goodbye message
+ 00000163  B9 00000002		     mov  ecx, 2         ; set counter to 2
+ 00000168			FractionalLoop:
+ 00000168  8B C2		     mov  eax, edx       ; copy remainder to EAX
+ 0000016A  99			     cdq                 ; fill EDX
+ 0000016B  BB 0000000A		     mov  ebx, 10
+ 00000170  F7 E3		     mul  ebx            ; multiply remainder by 10
+ 00000172  F7 35 00000188 R	     div  numCount       ; divide remainder by numCount
+ 00000178  E8 00000000 E	     call WriteDec       ; display integer part in EAX
+ 0000017D  E2 E9		     loop FractionalLoop ; decrement ECX and go back to beginning of loop
+ 0000017F  E8 00000047		     call RoundUp        ; round the last digit to the nearest integer
+ 00000184  E8 00000000 E	     call WriteDec       ; write the last digit
+ 00000189  E8 00000000 E	     call Crlf           ; end with a newline
+ 0000018E  EB 0F		     jmp  EndOfReport    ; jump to the goodbye message
 
 				;------------------------------------------------------------------------------
 				; Execution only reaches this section when the first number entered is negative.
 				;------------------------------------------------------------------------------
- 00000182			NoInput:
+ 00000190			NoInput:
 				; display message indicating no numbers were entered
- 00000182  BA 00000136 R	     mov  edx, OFFSET noNumbers
- 00000187  E8 00000000 E	     call WriteString    ; display message about no numbers being entered
- 0000018C  E8 00000000 E	     call Crlf
+ 00000190  BA 00000136 R	     mov  edx, OFFSET noNumbers
+ 00000195  E8 00000000 E	     call WriteString    ; display message about no numbers being entered
+ 0000019A  E8 00000000 E	     call Crlf
 
 				;------------------------------------------------------------------------------
 				; This section displays the goodbye message and the user's name.
 				;------------------------------------------------------------------------------
- 00000191			EndOfReport:
+ 0000019F			EndOfReport:
 				; say goodbye
- 00000191  E8 00000000 E	     call Crlf
- 00000196  BA 00000194 R	     mov  edx, OFFSET goodbye
- 0000019B  E8 00000000 E	     call WriteString    ; display the goodbye message
- 000001A0  BA 0000004E R	     mov  edx, OFFSET userName
- 000001A5  E8 00000000 E	     call WriteString    ; display the user's name
- 000001AA  B0 2E		     mov  al, DOT
- 000001AC  E8 00000000 E	     call WriteChar      ; display a period character
- 000001B1  E8 00000000 E	     call Crlf
+ 0000019F  E8 00000000 E	     call Crlf
+ 000001A4  BA 00000194 R	     mov  edx, OFFSET goodbye
+ 000001A9  E8 00000000 E	     call WriteString    ; display the goodbye message
+ 000001AE  BA 0000004E R	     mov  edx, OFFSET userName
+ 000001B3  E8 00000000 E	     call WriteString    ; display the user's name
+ 000001B8  B0 2E		     mov  al, DOT
+ 000001BA  E8 00000000 E	     call WriteChar      ; display a period character
+ 000001BF  E8 00000000 E	     call Crlf
 
 				; exit to operating system
 				     exit
- 000001B6  6A 00	   *	    push   +000000000h
- 000001B8  E8 00000000 E   *	    call   ExitProcess
+ 000001C4  6A 00	   *	    push   +000000000h
+ 000001C6  E8 00000000 E   *	    call   ExitProcess
 
- 000001BD			main ENDP
+ 000001CB			main ENDP
+
+				;------------------------------------------------------------------------------
+				; Rounds the value in EAX to the nearest integer based on the remainder in EDX
+				; and the divisor in numCount.
+				; Receives:    EAX contains the number to be rounded
+				;              EDX contains the remainder and numCount contains the divisor
+				; Returns:     EAX contains the rounded quotient
+				;------------------------------------------------------------------------------
+ 000001CB			RoundUp PROC
+ 000001CB  50			     push eax       ; push quotient onto stack
+ 000001CC  8B C2		     mov  eax,edx   ; copy remainder to eax
+ 000001CE  BB 0000000A		     mov  ebx,10
+ 000001D3  F7 E3		     mul  ebx       ; multiply remainder by 10
+ 000001D5  F7 35 00000188 R	     div  numCount  ; divide by numCount
+ 000001DB  83 F8 05		     cmp  eax,5     ; test if quotient < 5
+ 000001DE  72 07		     jb   endRound  ; do not round up if < 5
+ 000001E0  8B 04 24		     mov  eax,[esp] ; copy previous quotient to eax
+ 000001E3  40			     inc  eax       ; increment previous quotient on stack
+ 000001E4  89 04 24		     mov  [esp],eax ; update value on stack
+
+ 000001E7			endRound:
+ 000001E7  58			     pop  eax       ; put previous quotient back into eax
+ 000001E8  C3			     ret
+ 000001E9			roundUp ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 12.00.30501.0	    01/31/15 23:02:49
+Microsoft (R) Macro Assembler Version 12.00.30501.0	    02/02/15 10:15:49
 %Programming Assignment 3 (prog03.asm			     Symbols 2 - 1
 
 
@@ -408,7 +434,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000001BD Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000001BD Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001E9 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -478,6 +504,8 @@ ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+RoundUp  . . . . . . . . . . . .	P Near	 000001CB _TEXT	Length= 0000001E Public STDCALL
+  endRound . . . . . . . . . . .	L Near	 000001E7 _TEXT	
 SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -515,13 +543,13 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001BD Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001CB Public STDCALL
   InputLoop  . . . . . . . . . .	L Near	 00000096 _TEXT	
   InvalidInput . . . . . . . . .	L Near	 000000C7 _TEXT	
   NegativeInput  . . . . . . . .	L Near	 000000FD _TEXT	
-  FractionalLoop . . . . . . . .	L Near	 00000164 _TEXT	
-  NoInput  . . . . . . . . . . .	L Near	 00000182 _TEXT	
-  EndOfReport  . . . . . . . . .	L Near	 00000191 _TEXT	
+  FractionalLoop . . . . . . . .	L Near	 00000168 _TEXT	
+  NoInput  . . . . . . . . . . .	L Near	 00000190 _TEXT	
+  EndOfReport  . . . . . . . . .	L Near	 0000019F _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
