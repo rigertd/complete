@@ -11,47 +11,47 @@ int main(int argc, char **argv)
     std::ofstream ofs;
     
     // parse command-line arguments (if any)
-    if (argc == 2)
+    if (argc == 1)
     {
-        ifs.open(argv[1]);
-        ofs.open("output.txt");
+        ifs.open("input.txt");
     }
-    else if (argc == 3)
+    else if (argc == 2)
     {
         ifs.open(argv[1]);
-        ofs.open(argv[2]);
     }
     else
     {
-        ifs.open("input.txt");
-        ofs.open("output.txt");
+        std::cout << "Invalid arguments.\n"
+                  << "Specify input file only or no argument to use \"input.txt\"\n";
+        return 1;
     }
     
-    // validate fstreams
+    // validate ifstream
     if (!ifs)
     {
         std::cout << "Cannot open input file.\n";
         ifs.close();
-        ofs.close();
-        
-        return 1;
-    }
-    else if (!ofs)
-    {
-        std::cout << "Cannot open output file.\n";
-        ifs.close();
-        ofs.close();
         
         return 1;
     }
     
     CopyFilter cf;
-    UppercaseFilter uf;
+    ofs.open("CopyOutput.txt");
+    cf.doFilter(ifs, ofs);
+    ofs.close();
     
+    UppercaseFilter uf;
+    ifs.clear();
+    ifs.seekg(0, ifs.beg);
+    ofs.open("UpperOutput.txt");
     uf.doFilter(ifs, ofs);
+    ofs.close();
+    
+    // EncryptionFilter ef;
+    // CipherTextFilter ctf;
+    
     
     ifs.close();
-    ofs.close();
 
     return 0;
 }
