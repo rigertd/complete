@@ -1,7 +1,6 @@
 #ifndef ENCRYPTION_FILTER_HPP
 #define ENCRYPTION_FILTER_HPP
 
-#include <fstream>
 #include "Filter.hpp"
 
 class EncryptionFilter : public Filter
