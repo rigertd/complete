@@ -9,6 +9,7 @@ private:
     virtual char transform(char);
 public:
     UppercaseFilter() {}
+    friend class CipherTextFilter;
 };
 
 #endif

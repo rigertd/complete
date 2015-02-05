@@ -5,7 +5,7 @@
 
 class EncryptionFilter : public Filter
 {
-private:
+protected:
     int key;
     virtual char transform(char);
 public:

@@ -4,6 +4,8 @@
 #include "Filter.hpp"
 #include "CopyFilter.hpp"
 #include "UppercaseFilter.hpp"
+#include "EncryptionFilter.hpp"
+#include "CipherTextFilter.hpp"
 
 int main(int argc, char **argv)
 {
@@ -47,8 +49,19 @@ int main(int argc, char **argv)
     uf.doFilter(ifs, ofs);
     ofs.close();
     
-    // EncryptionFilter ef;
-    // CipherTextFilter ctf;
+    EncryptionFilter ef (2);
+    ifs.clear();
+    ifs.seekg(0, ifs.beg);
+    ofs.open("EncryptionOutput.txt");
+    ef.doFilter(ifs, ofs);
+    ofs.close();
+    
+    CipherTextFilter ctf (2);
+    ifs.clear();
+    ifs.seekg(0, ifs.beg);
+    ofs.open("CipherTextOutput.txt");
+    ctf.doFilter(ifs, ofs);
+    ofs.close();
     
     
     ifs.close();
