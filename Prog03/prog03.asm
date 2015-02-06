@@ -112,6 +112,10 @@ InputLoop:
      cmp  eax, NUM_MAX   ; eax > NUM_MAX
      jg   InvalidInput   ; jump if greater than NUM_MAX
      
+; check if user input was blank or non-numeric
+     cmp  eax, 00
+     je  InvalidInput
+
 ; input was valid if execution reaches here
      add  eax, total     ; add running total to entered number
      mov  total, eax     ; copy new total to total variable
