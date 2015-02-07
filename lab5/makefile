@@ -6,6 +6,7 @@ CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x $(DEBUG)
 PROGS = lab5
+OUTPUTS = CiphertextOutput.txt EncryptionOutput.txt UpperOutput.txt CopyOutput.txt
 OBJS = Filter.o CopyFilter.o UppercaseFilter.o EncryptionFilter.o CipherTextFilter.o lab5.o
 
 all: $(PROGS)
@@ -17,4 +18,4 @@ $(OBJS): $(@:.o=.cpp)
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
 clean:
-	$(RM) $(PROGS) $(OBJS)
+	$(RM) $(PROGS) $(OBJS) $(OUTPUTS)
