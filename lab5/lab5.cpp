@@ -1,3 +1,26 @@
+/*************************************************************************
+ * Author:                 David Rigert
+ * Date Created:           2/4/2015
+ * Last Modification Date: 2/6/2015
+ * Course:                 CS162_400
+ * Assignment:             Lab 5
+ * Filename:               lab5.cpp
+ *
+ * Overview:
+ *     This program opens an input file and uses the CopyFilter, UppercaseFilter
+ *     EncryptionFilter, and CipherTextFilter classes to transform the data and
+ *     write it to separate output files. This program uses a static value for the
+ *     encryption key for testing purposes.
+ *
+ * Syntax:
+ *     lab5.exe [input_filename]
+ *
+ * Output:
+ *     CopyOutput.txt
+ *     UpperOutput.txt
+ *     EncryptionOutput.txt
+ *     CiphertextOutput.txt
+ ************************************************************************/
 #include <iostream>
 #include <fstream>
 
@@ -7,10 +30,13 @@
 #include "EncryptionFilter.hpp"
 #include "CipherTextFilter.hpp"
 
+// global constant
+int KEY = 2;    // encryption key
+
 int main(int argc, char **argv)
 {
-    std::ifstream ifs;
-    std::ofstream ofs;
+    std::ifstream ifs;  // input file stream
+    std::ofstream ofs;  // output file stream
     
     // parse command-line arguments (if any)
     if (argc == 1)
@@ -23,6 +49,7 @@ int main(int argc, char **argv)
     }
     else
     {
+        // display error message if more than 1 argument
         std::cout << "Invalid arguments.\n"
                   << "Specify input file only or no argument to use \"input.txt\"\n";
         return 1;
@@ -37,11 +64,13 @@ int main(int argc, char **argv)
         return 1;
     }
     
+    // create an unchanged copy
     CopyFilter cf;
     ofs.open("CopyOutput.txt");
     cf.doFilter(ifs, ofs);
     ofs.close();
     
+    // create an uppercase copy
     UppercaseFilter uf;
     ifs.clear();
     ifs.seekg(0, ifs.beg);
@@ -49,21 +78,23 @@ int main(int argc, char **argv)
     uf.doFilter(ifs, ofs);
     ofs.close();
     
-    EncryptionFilter ef (2);
+    // create a Caesar cipher-encrypted copy
+    EncryptionFilter ef (KEY);
     ifs.clear();
     ifs.seekg(0, ifs.beg);
     ofs.open("EncryptionOutput.txt");
     ef.doFilter(ifs, ofs);
     ofs.close();
     
-    CipherTextFilter ctf (2);
+    // create a ciphertext copy
+    CipherTextFilter ctf (KEY);
     ifs.clear();
     ifs.seekg(0, ifs.beg);
-    ofs.open("CipherTextOutput.txt");
+    ofs.open("CiphertextOutput.txt");
     ctf.doFilter(ifs, ofs);
     ofs.close();
     
-    
+    // close input file stream
     ifs.close();
 
     return 0;
