@@ -9,6 +9,12 @@ class TheShadow : public Character
 public:
     TheShadow(std::string);
     virtual void defense(int);
+    
+    // use parent class member function
+    void attack(Character &c1)
+    {
+        Character::attack(c1);
+    }
 };
 
 #endif  // end of THE_SHADOW_HPP definition

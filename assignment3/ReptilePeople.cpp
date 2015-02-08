@@ -2,7 +2,7 @@
 
 ReptilePeople::ReptilePeople(std::string name)
     : Character(
-                name + " the Reptile Person",
+                name + " the Reptile",
                 6,  // attack die sides
                 3,  // attack die rolls
                 6,  // defense die sides

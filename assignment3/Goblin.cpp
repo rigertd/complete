@@ -1,4 +1,6 @@
 #include <iostream>
+#include <typeinfo>
+
 #include "Goblin.hpp"
 
 Goblin::Goblin(std::string name)
@@ -19,7 +21,7 @@ Goblin::Goblin(std::string name)
 void Goblin::attack(Character &target)
 {
     int attackValue = getAttackRoll();
-    if (attackValue == 12)
+    if (attackValue == 12 && typeid(*this) != typeid(target))
     {
         achillesEnabled = true;
         std::cout << getName() << " hit " << target.getName() << "'s Achilles tendon!\n";

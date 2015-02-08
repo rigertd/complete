@@ -18,7 +18,7 @@ Character::Character(
     // create defense die
     for (int i = 0; i < defenseRolls; i++)
     {
-        attackDice.push_back(Dice(defenseSides));
+        defenseDice.push_back(Dice(defenseSides));
     }
 }
 
