@@ -1,7 +1,7 @@
 TITLE Programming Assignment 3 (prog03.asm)
 
 ; Author: David Rigert
-; Course / Project ID: CS271 / #03               Date: 1/26/2015
+; CS271 / #03               Date: 1/26/2015
 ; Description: Displays my name and program title to output screen,
 ;              gets the user's name and greets the user,
 ;              prompts the user to enter a positive number less than
@@ -96,6 +96,7 @@ main PROC
 ; This section is the input loop where the user is prompted to enter numbers
 ; until a negative number is entered. The program counts the number of numbers
 ; and the cumulative sum as the numbers are entered.
+; Blank input is counted as 0 due to limitations of ReadInt.
 ;------------------------------------------------------------------------------
 ; prompt user for input
 InputLoop:
@@ -112,9 +113,6 @@ InputLoop:
      cmp  eax, NUM_MAX   ; eax > NUM_MAX
      jg   InvalidInput   ; jump if greater than NUM_MAX
      
-; check if user input was blank or non-numeric
-     cmp  eax, 00
-     je  InvalidInput
 
 ; input was valid if execution reaches here
      add  eax, total     ; add running total to entered number
