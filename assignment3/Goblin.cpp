@@ -24,9 +24,9 @@ void Goblin::attack(Character &target)
     if (attackValue == 12 && typeid(*this) != typeid(target))
     {
         achillesEnabled = true;
-        std::cout << getName() << " hit " << target.getName() << "'s Achilles tendon!\n";
+        //std::cout << getName() << " hit " << target.getName() << "'s Achilles tendon!\n";
     }
-    std::cout << getName() << " attacked " << target.getName() << " ";
+    //std::cout << getName() << " attacked " << target.getName() << " ";
     target.defense(attackValue);
 }
 
@@ -37,7 +37,7 @@ void Goblin::defense(int attackValue)
     if (achillesEnabled)
     {
         modifiedAttack = attackValue / 2;
-        std::cout << "with an injured heel ";
+        //std::cout << "with an injured heel ";
     }
     this->Character::defense(modifiedAttack);
 }

@@ -52,7 +52,7 @@ int Character::getDefenseRoll()
 void Character::attack(Character &target)
 {
     int attackValue = getAttackRoll();
-    std::cout << name << " attacked " << target.getName() << " ";
+    //std::cout << name << " attacked " << target.getName() << " ";
     
     // call defense function of opponent
     target.defense(attackValue);
@@ -66,15 +66,15 @@ void Character::defense(int attackValue)
     
     if (attackValue <= defenseValue)
     {
-        std::cout << "and misses!\n";
+        //std::cout << "and misses!\n";
     }
     else if (damage <= 0)
     {
-        std::cout << "but it bounces off the armor.\n";
+        //std::cout << "but it bounces off the armor.\n";
     }
     else
     {
-        std::cout << "and lands a blow!\n";
+        //std::cout << "and lands a blow!\n";
         this->strengthPoints -= damage;
     }
 }

@@ -19,11 +19,11 @@ void TheShadow::defense(int attackValue)
     int defenseValue = getDefenseRoll();
     if (defenseValue == 1)
     {
-        std::cout << "and lands a blow!\n";
+        //std::cout << "and lands a blow!\n";
         this->strengthPoints -= attackValue;
     }
     else
     {
-        std::cout << "but the Shadow wasn't there!\n";
+        //std::cout << "but the Shadow wasn't there!\n";
     }
 }

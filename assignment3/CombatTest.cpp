@@ -105,17 +105,17 @@ void CombatTest::run()
         Character *winner = fight(c1, c2);
         if (winner == c1)
         {
-            std::cout << c1->getName() << " (Character 1) is victorious!\n";
+            //std::cout << c1->getName() << " (Character 1) is victorious!\n";
             c1Wins++;
         }
         else if (winner == c2)
         {
-            std::cout << c2->getName() << " (Character 2) is victorious!\n";
+            //std::cout << c2->getName() << " (Character 2) is victorious!\n";
             c2Wins++;
         }
         else
         {
-            std::cout << "Both combatants have fallen in battle!\n";
+            //std::cout << "Both combatants have fallen in battle!\n";
         }
         
         // delete characters from heap

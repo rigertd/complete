@@ -10,7 +10,7 @@ struct CharacterPair
     int c2;
 };
 
-const int COMBAT_COUNT = 100;   // each pair fights for this many rounds
+const int COMBAT_COUNT = 10000;   // each pair fights for this many rounds
 
 int main()
 {
@@ -24,12 +24,12 @@ int main()
             pairs.push_back(pair);
         }
     
+    std::cout << "Running 10000 rounds of combat per pair.\n\n";
+    // calculate and display statistics for each pair
     for (int i = 0; i < pairs.size(); i++)
     {
         CombatTest ct (pairs[i].c1, pairs[i].c2, COMBAT_COUNT);
         ct.run();
-        std::cout << "Press Enter to continue...";
-        std::getline(std::cin, buffer);
     }
     
     return 0;
