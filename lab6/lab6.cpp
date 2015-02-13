@@ -141,10 +141,10 @@ int main()
             binaryFind(lateZeroVals, 5);
             break;
         case 4: // exit the program
-            std::cout << "\nGoodbye!" << std::endl;
+            std::cout << "Goodbye!" << std::endl;
             break;
         default:
-            std::cout << "\nInvalid selection.\n";
+            std::cout << "Invalid selection.\n";
         }
     } while (selection != 4);
     
