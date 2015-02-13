@@ -29,20 +29,20 @@
 // prints the activity menu
 void printMenu();
 
+// runs a binary search on a sorted vector and returns the index
+int binaryFind(std::vector<int> &, int);
+
 // runs a linear search on a file and returns the index
 int linearFind(const char *, int);
 
 // loads the values in the specified file into a vector
 void loadFile(const char *, std::vector<int> &);
 
-// sorts an array into ascending order using the selection sort algorithm
-void selectionSort(std::vector<int> &);
-
 // prompts user for filename and saves vector to it
 void saveFile(const std::vector<int> &); 
 
-// runs a binary search on a sorted vector and returns the index
-int binaryFind(std::vector<int> &, int);
+// sorts an array into ascending order using the selection sort algorithm
+void selectionSort(std::vector<int> &);
 
 int main()
 {
@@ -68,13 +68,17 @@ int main()
         std::cin >> selection;
         std::cin.clear();
         std::cin.ignore(1000, '\n');
-        
+        std::cout << std::endl;
+
         switch (selection)
         {
         case 1: // linear search in random numbers
             linearFind(noZero, 0);
+            std::cout << std::endl;
             linearFind(earlyZero, 0);
+            std::cout << std::endl;
             linearFind(middleZero, 0);
+            std::cout << std::endl;
             linearFind(lateZero, 0);
             break;
         case 2: // sort input files and write them to an output file
@@ -114,26 +118,29 @@ int main()
             std::cout << "Sorting " << noZero << "...\n";
             selectionSort(noZeroVals);
             binaryFind(noZeroVals, 5);
+            std::cout << std::endl;
 
             // input file with 0 near beginning
             loadFile(earlyZero, earlyZeroVals);
             std::cout << "Sorting " << earlyZero << "...\n";
             selectionSort(earlyZeroVals);
             binaryFind(earlyZeroVals, 5);
+            std::cout << std::endl;
 
             // input file with 0 near middle
             loadFile(middleZero, middleZeroVals);
             std::cout << "Sorting " << middleZero << "...\n";
             selectionSort(middleZeroVals);
             binaryFind(middleZeroVals, 5);
+            std::cout << std::endl;
 
-            // input file with 0 near end
+            // input file with 0 near end and no 5s
             loadFile(lateZero, lateZeroVals);
             std::cout << "Sorting " << lateZero << "...\n";
             selectionSort(lateZeroVals);
-            binaryFind(lateZeroVals, 0);
+            binaryFind(lateZeroVals, 5);
             break;
-        case 4:
+        case 4: // exit the program
             std::cout << "\nGoodbye!" << std::endl;
             break;
         default:
@@ -152,6 +159,35 @@ void printMenu()
               << " 2: Sort all 4 sets of numbers and write to a file\n"
               << " 3: Find the index of '5' with a binary search\n"
               << " 4: Exit the program\n\n";
+}
+
+// Finds the index of a value using a binary search
+int binaryFind(std::vector<int> &vals, int value)
+{
+    unsigned startIndex = 0;                // start of search range
+    unsigned endIndex = vals.size() - 1;    // end of search range
+    int index = -1;                         // stores index if value is found
+    unsigned iterCount = 0;                 // number of iterations required
+    
+    while (startIndex <= endIndex && index < 0) // stop when index found or start == end
+    {
+        // set midpoint based on current start and end
+        int midIndex = (startIndex + endIndex) / 2;
+        
+        if (value == vals[midIndex])        // found value; set index
+            index = midIndex;
+        else if (value < vals[midIndex])    // too high, set end of range to midpoint - 1
+            endIndex = midIndex - 1;
+        else                                // too low, set start of range to midpoint + 1
+            startIndex = midIndex + 1;
+        
+        iterCount++;
+    }
+    
+    std::cout << "binaryFind found " << value << " at index " << index << ".\n";
+    std::cout << "binaryFind ran for " << iterCount << " iterations.\n";
+    
+    return index;
 }
 
 // Finds the index of the first instance of value in the file.
@@ -198,6 +234,34 @@ void loadFile(const char *filename, std::vector<int> &vals)
     }
     in.close();                 // close the file
     std::cout << "Done.\n";
+}
+
+// Prompts user for a filename and saves the vector values to it.
+void saveFile(const std::vector<int> &vals)
+{
+    std::string outFile;    // stores the output filename
+
+    // prompt user for output filename
+    std::cout << "Enter save filename: ";
+    std::getline(std::cin, outFile);
+            
+    // open file
+    std::ofstream out(outFile.c_str());
+    if (out)
+    {
+        for (int i = 0; i < vals.size(); i++)
+        {
+            out << vals[i] << " ";
+        }
+        out << std::endl;
+    }
+    else
+    {
+        std::cout << "ERROR: Cannot write to file.\n";
+    }
+    
+    // close file
+    out.close();
 }
 
 // Sorts an array into ascending order using the selection sort algorithm.
@@ -251,61 +315,4 @@ void selectionSort(std::vector<int> &vals)
     std::cout << std::endl;
 
     std::cout << "Sorted array in " << iterCount << " iterations.\n";
-}
-
-// Prompts user for a filename and saves the vector values to it.
-void saveFile(const std::vector<int> &vals)
-{
-    std::string outFile;    // stores the output filename
-
-    // prompt user for output filename
-    std::cout << "Enter save filename: ";
-    std::getline(std::cin, outFile);
-            
-    // open file
-    std::ofstream out(outFile.c_str());
-    if (out)
-    {
-        for (int i = 0; i < vals.size(); i++)
-        {
-            out << vals[i] << " ";
-        }
-        out << std::endl;
-    }
-    else
-    {
-        std::cout << "ERROR: Cannot write to file.\n";
-    }
-    
-    // close file
-    out.close();
-}
-
-// Finds the index of a value using a binary search
-int binaryFind(std::vector<int> &vals, int value)
-{
-    unsigned startIndex = 0;                // start of search range
-    unsigned endIndex = vals.size() - 1;    // end of search range
-    int index = -1;                         // stores index if value is found
-    unsigned iterCount = 0;                 // number of iterations required
-    
-    do
-    {
-        // set midpoint based on current start and end
-        int midIndex = (startIndex + endIndex) / 2;
-        
-        if (value == vals[midIndex])        // found value; set index
-            index = midIndex;
-        else if (value < vals[midIndex])    // too high, set end of range to midpoint - 1
-            endIndex = midIndex - 1;
-        else                                // too low, set start of range to midpoint + 1
-            startIndex = midIndex + 1;
-        
-        iterCount++;
-    } while (startIndex <= endIndex && index < 0);  // stop when index found or start == end
-    
-    std::cout << "binaryFind found " << value << " at index " << index << ".\n";
-    std::cout << "binaryFind ran for " << iterCount << " iterations.\n";
-    
-    return index;
 }
