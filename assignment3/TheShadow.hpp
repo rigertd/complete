@@ -6,8 +6,13 @@
 
 class TheShadow : public Character
 {
+private:
+    unsigned specialCount;  // for debugging special defense
+    unsigned totalCount;  // for debugging special defense
+
 public:
     TheShadow(std::string);
+    
     virtual void defense(int);
     
     // use parent class member function
@@ -15,6 +20,10 @@ public:
     {
         Character::attack(c1);
     }
+
+    // debug info accessors
+    unsigned getSpecialCount()  { return specialCount; }
+    unsigned getTotalCount()    { return totalCount; }
 };
 
 #endif  // end of THE_SHADOW_HPP definition

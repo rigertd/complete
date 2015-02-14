@@ -24,6 +24,10 @@ public:
     
     // Gets the name and class of the character.
     std::string getName()   { return this->name; }
+    
+    // Accessors for debugging special moves
+    virtual unsigned getSpecialCount()  { return 0; }
+    virtual unsigned getTotalCount()    { return 0; }
 
     // Determines whether the Character is still alive.
     bool isAlive()          { return strengthPoints > 0; }

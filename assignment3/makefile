@@ -7,7 +7,7 @@ DEBUG = -g
 CXXFLAGS = -std=c++0x $(DEBUG)
 PROGS = combat
 OUTPUTS = 
-OBJS = Dice.o Character.o Barbarian.o BlueMen.o Goblin.o ReptilePeople.o TheShadow.o combat.o
+OBJS = Dice.o Character.o Barbarian.o BlueMen.o Goblin.o ReptilePeople.o TheShadow.o CombatTest.o combat.o
 
 all: $(PROGS)
 

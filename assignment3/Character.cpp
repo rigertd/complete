@@ -28,7 +28,7 @@ int Character::getAttackRoll()
     int attackValue = 0;    // buffer for storing roll
     
     // roll all of the attack dice and store the result
-    for (int i = 0; i < attackDice.size(); i++)
+    for (unsigned i = 0; i < attackDice.size(); i++)
     {
         attackValue += attackDice[i].rollDice();
     }
@@ -41,7 +41,7 @@ int Character::getDefenseRoll()
     int defenseValue = 0;
     
     // roll all of the defense dice and store the result
-    for (int i = 0; i < defenseDice.size(); i++)
+    for (unsigned i = 0; i < defenseDice.size(); i++)
     {
         defenseValue += defenseDice[i].rollDice();
     }

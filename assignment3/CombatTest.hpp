@@ -11,6 +11,10 @@ private:
     int rounds;         // number of rounds of combat
     int c1Wins;         // wins by character 1
     int c2Wins;         // wins by character 2
+    int c1SpecialCount; // special moves by character 1
+    int c1TotalCount;   // total moves by character 1
+    int c2SpecialCount; // special moves by character 2
+    int c2TotalCount;   // total moves by character 2
     
     Character *createCharacter(int);
     void deleteCharacter(Character *&);

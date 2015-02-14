@@ -15,15 +15,20 @@ Goblin::Goblin(std::string name)
                )
 {
     achillesEnabled = false;    // Achilles attack disabled by default
+    specialCount = 0;
+    totalCount = 0;
 }
 
 // enable achillesEnabled if rolls a 12
 void Goblin::attack(Character &target)
 {
+    totalCount++;   // increment total attack counter
+    
     int attackValue = getAttackRoll();
     if (attackValue == 12 && typeid(*this) != typeid(target))
     {
         achillesEnabled = true;
+        specialCount++; // increment special attack counter
         //std::cout << getName() << " hit " << target.getName() << "'s Achilles tendon!\n";
     }
     //std::cout << getName() << " attacked " << target.getName() << " ";

@@ -18,7 +18,7 @@ int main()
     std::string buffer;
     
     for (int i = 1; i <= 5; i++)
-        for (int j = i; j <= 5; j++)
+        for (int j = 1; j <= 5; j++)
         {
             CharacterPair pair = {i, j};
             pairs.push_back(pair);
@@ -26,7 +26,7 @@ int main()
     
     std::cout << "Running 10000 rounds of combat per pair.\n\n";
     // calculate and display statistics for each pair
-    for (int i = 0; i < pairs.size(); i++)
+    for (unsigned i = 0; i < pairs.size(); i++)
     {
         CombatTest ct (pairs[i].c1, pairs[i].c2, COMBAT_COUNT);
         ct.run();
