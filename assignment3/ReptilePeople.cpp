@@ -1,5 +1,21 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        ReptilePeople.cpp
+ *
+ * Description:     Implementation of the ReptilePeople class.
+ ************************************************************************/
 #include "ReptilePeople.hpp"
 
+/*============================ Constructors ============================*/
+/*************************************************************************
+ *  Function:       ReptilePeople::ReptilePeople(std::string name)
+ *  Description:    Invokes the parent class constructor with values for
+ *                  a reptile person.
+ *  Parameters:     name    name of reptile person
+ ************************************************************************/
 ReptilePeople::ReptilePeople(std::string name)
     : Character(
                 name + " the Reptile",

@@ -1,3 +1,14 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        ReptilePeople.hpp
+ *
+ * Description:     Represents a Reptile Person character in a fantasy combat
+ *                  game. Uses the default attack and defense functions of the
+ *                  Character class.
+ ************************************************************************/
 #ifndef REPTILE_PEOPLE_HPP
 #define REPTILE_PEOPLE_HPP
 

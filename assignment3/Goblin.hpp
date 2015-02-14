@@ -1,3 +1,15 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        Goblin.hpp
+ *
+ * Description:     Represents a Goblin character in a fantasy combat game.
+ *                  Overrides the defense and attack functions to implement
+ *                  a special Achilles attack that halves the opponent's
+ *                  attack value.
+ ************************************************************************/
 #ifndef GOBLIN_HPP
 #define GOBLIN_HPP
 

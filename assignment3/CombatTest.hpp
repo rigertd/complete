@@ -1,3 +1,14 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/8/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        CombatTest.hpp
+ *
+ * Description:     Represents a test harness for a fantasy combat game.
+ *                  Outputs statistical information on wins, losses, and
+ *                  special ability usage.
+ ************************************************************************/
 #ifndef COMBAT_TEST_HPP
 #define COMBAT_TEST_HPP
 

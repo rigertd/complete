@@ -1,8 +1,24 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        Goblin.cpp
+ *
+ * Description:     Implementation of the Goblin class.
+ ************************************************************************/
 #include <iostream>
-#include <typeinfo>
+#include <typeinfo> // for typeid
 
 #include "Goblin.hpp"
 
+/*============================ Constructors ============================*/
+/*************************************************************************
+ *  Function:       Goblin::Goblin(std::string name)
+ *  Description:    Invokes the parent class constructor with values for
+ *                  a goblin.
+ *  Parameters:     name    name of goblin
+ ************************************************************************/
 Goblin::Goblin(std::string name)
     : Character(
                 name + " the Goblin",
@@ -19,7 +35,16 @@ Goblin::Goblin(std::string name)
     totalCount = 0;
 }
 
-// enable achillesEnabled if rolls a 12
+/*======================= Public Member Functions ======================*/
+/*************************************************************************
+ *  Function:       void Goblin::attack(Character &target)
+ *  Description:    Attacks the specified Character object.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Target character has strengthPoints reduced if attack
+ *                  was successful (attack score > defense score).
+ *                  Achilles attack is enabled if a 12 is rolled.
+ ************************************************************************/
 void Goblin::attack(Character &target)
 {
     totalCount++;   // increment total attack counter
@@ -35,7 +60,15 @@ void Goblin::attack(Character &target)
     target.defense(attackValue);
 }
 
-// opponent attack halved if achillesEnabled
+/*************************************************************************
+ *  Function:       void Goblin::defense(int attackValue)
+ *  Description:    Defends against an attack. Attack value is halved if an 
+ *                  Achilles attack was successful during the battle.
+ *  Parameters:     attackValue     attacker's attack roll
+ *  Preconditions:  none
+ *  Postconditions: strengthPoints is reduced if defenseValue + armor < attackValue
+ *                  attackValue is halved if achillesEnabled is true
+ ************************************************************************/
 void Goblin::defense(int attackValue)
 {
     int modifiedAttack = attackValue;

@@ -1,3 +1,12 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/8/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        CombatTest.hpp
+ *
+ * Description:     Implementation of the CombatTest class. 
+ ************************************************************************/
 #include <iostream>
 #include <iomanip>
 
@@ -8,13 +17,29 @@
 #include "BlueMen.hpp"
 #include "TheShadow.hpp"
 
-static std::string characterNames[] = { "",
+/*========================== Static Constants ==========================*/
+// used for converting characterType values to string
+static const std::string characterNames[] = { "",
                                    "Goblin",
                                    "Barbarian",
                                    "Reptile Person",
                                    "Blue Men",
                                    "The Shadow" };
 
+/*============================ Constructors ============================*/
+/*************************************************************************
+ *  Function:       Character::Character(
+ *                      std::string name, int attackSides, int attackRolls,
+ *                      int defenseSides, int defenseRolls, int armor, int strengthPoints
+ *  Description:    This constructor is called by derived classes.
+ *  Parameters:     name            name of character
+ *                  attackSides     sides of attack die
+ *                  attackRolls     number of attack dice
+ *                  defenseSides    sides of defense die
+ *                  defenseRolls    number of defense dice
+ *                  armor           armor value
+ *                  strengthPoints  amount of life
+ ************************************************************************/
 CombatTest::CombatTest(int c1Type, int c2Type, int rounds)
 {
     this->characterType1 = c1Type;
@@ -28,6 +53,17 @@ CombatTest::CombatTest(int c1Type, int c2Type, int rounds)
     c2TotalCount = 0;
 }
 
+/*====================== Private Member Functions ======================*/
+/*************************************************************************
+ *  Function:       Character *CombatTest::createCharacter(int characterType)
+ *  Description:    Creates an object of the specified character type and
+ *                  returns a pointer to the object.
+ *  Parameters:     characterType   1=Goblin, 2=Barbarian, 3=ReptilePeople
+ *                                  4=BlueMen, 5=TheShadow
+ *  Preconditions:  none
+ *  Postconditions: Returns a pointer to the instantiated object, 
+ *                  or NULL if an invalid character type is specified.
+ ************************************************************************/
 Character *CombatTest::createCharacter(int characterType)
 {
     Character *pCharacter;
@@ -53,6 +89,14 @@ Character *CombatTest::createCharacter(int characterType)
     }
     return pCharacter;
 }
+
+/*************************************************************************
+ *  Function:       void CombatTest::deleteCharacter(Character *&pCharacter)
+ *  Description:    Deletes the specified object and sets the pointer to NULL.
+ *  Parameters:     pCharacter  pointer to Character object to delete
+ *  Preconditions:  none
+ *  Postconditions: pCharacter is NULL and memory is returned to heap
+ ************************************************************************/
 void CombatTest::deleteCharacter(Character *&pCharacter)
 {
     if (pCharacter != NULL)
@@ -62,6 +106,15 @@ void CombatTest::deleteCharacter(Character *&pCharacter)
     }
 }
 
+/*************************************************************************
+ *  Function:       Character *CombatTest::fight(Character *c1, Character *c2)
+ *  Description:    Simulates a fight between two characters. c1 attacks first.
+ *                  c2 does not attack if already dead.
+ *  Parameters:     c1  pointer to first Character object
+ *                  c2  pointer to second Character object
+ *  Preconditions:  c1 and c2 are not NULL
+ *  Postconditions: Returns a pointer to the victor.
+ ************************************************************************/
 Character *CombatTest::fight(Character *c1, Character *c2)
 {
     do
@@ -78,6 +131,13 @@ Character *CombatTest::fight(Character *c1, Character *c2)
         return c2;
 }
 
+/*************************************************************************
+ *  Function:       void CombatTest::printResults()
+ *  Description:    Prints the results of this test object to the terminal.
+ *  Parameters:     none
+ *  Preconditions:  at least one round has been fought
+ *  Postconditions: Winning percentages are printed to the terminal.
+ ************************************************************************/
 void CombatTest::printResults()
 {
     // calculate percentages
@@ -118,6 +178,14 @@ void CombatTest::printResults()
     std::cout << std::endl;
 }
 
+/*======================= Public Member Functions ======================*/
+/*************************************************************************
+ *  Function:       void CombatTest::run()
+ *  Description:    Runs the configured simulation.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: results of simulation are printed to the terminal
+ ************************************************************************/
 void CombatTest::run()
 {
     // display combat announcement

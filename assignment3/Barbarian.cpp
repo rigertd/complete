@@ -1,5 +1,21 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        Barbarian.cpp
+ *
+ * Description:     Implementation of the Barbarian class.
+ ************************************************************************/
 #include "Barbarian.hpp"
 
+/*============================ Constructors ============================*/
+/*************************************************************************
+ *  Function:       Barbarian::Barbarian(std::string name)
+ *  Description:    Invokes the parent class constructor with values for
+ *                  a barbarian.
+ *  Parameters:     name    name of barbarian
+ ************************************************************************/
 Barbarian::Barbarian(std::string name)
     : Character(
                 name + " the Barbarian",

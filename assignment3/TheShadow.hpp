@@ -1,3 +1,14 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        TheShadow.hpp
+ *
+ * Description:     Represents TheShadow character in a fantasy combat game.
+ *                  Overrides the defense function to implement a special dodge
+ *                  move that has a 90% chance of taking no damage.
+ ************************************************************************/
 #ifndef THE_SHADOW_HPP
 #define THE_SHADOW_HPP
 

@@ -1,3 +1,14 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        Barbarian.hpp
+ *
+ * Description:     Represents a Barbarian character in a fantasy combat game.
+ *                  Uses the default attack and defense functions of the
+ *                  Character class.
+ ************************************************************************/
 #ifndef BARBARIAN_HPP
 #define BARBARIAN_HPP
 

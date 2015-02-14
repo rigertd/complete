@@ -1,3 +1,14 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    2/7/2015
+ * Last Modified:   2/14/2015
+ * Assignment:      Assignment 3
+ * Filename:        Character.hpp
+ *
+ * Description:     Represents a character in a fantasy combat game.
+ *                  This is an abstract class. All derived classes must
+ *                  define the attack() and defense() functions.
+ ************************************************************************/
 #ifndef CHARACTER_HPP
 #define CHARACTER_HPP
 
