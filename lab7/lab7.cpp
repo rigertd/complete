@@ -19,7 +19,7 @@
  *     5 - Exit the program
  *
  * Output:
- *     Ticks and milliseconds required for specified search/sort algorithm
+ *     Iterations and microseconds required for specified search/sort algorithm
  ************************************************************************/
 #include <fstream>
 #include <iostream>

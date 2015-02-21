@@ -12,15 +12,15 @@
  *     The filenames are specified by the user.
  *
  * Input:
- *     - Filename to save a sequence of random numbers with a 0 near the beginning
- *     - Filename to save a sequence of random numbers with a 0 near the middle
- *     - Filename to save a sequence of random numbers with a 0 near the end
+ *     - Filename to save a sequence of random numbers with a 0 in front
+ *     - Filename to save a sequence of random numbers with a 0 in the middle
+ *     - Filename to save a sequence of random numbers with a 0 in back
  *     - Filename to save a sequence of random numbers with no 0
  *
  * Output:
- *     - File with a sequence of random numbers with a 0 near the beginning
- *     - File with a sequence of random numbers with a 0 near the middle
- *     - File with a sequence of random numbers with a 0 near the end
+ *     - File with a sequence of random numbers with a 0 in front
+ *     - File with a sequence of random numbers with a 0 in the middle
+ *     - File with a sequence of random numbers with a 0 in back
  *     - File with a sequence of random numbers with no 0
  ************************************************************************/
 #include <cstdlib>  // srand, rand
