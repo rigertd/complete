@@ -10,11 +10,12 @@
  *     Implementations of functions in utility.hpp.
  ************************************************************************/
 #include <iostream>
+#include <string>
 
 #include "utility.hpp"
 
 // Gets a non-empty string.
-std::string getString(std::string prompt)
+std::string getFilename(std::string prompt, std::string defaultFilename)
 {
     std::string input;  // for storing user input
     
@@ -23,11 +24,11 @@ std::string getString(std::string prompt)
     std::getline(std::cin, input);
     
     // validate input
-    while (input.empty())
+    if (input.empty())
     {
-        std::cout << "ERROR: You must enter a value. Try again.\n";
-        std::cout << prompt;
-        std::getline(std::cin, input);
+        std::cout << "Using default filename of "
+                  << defaultFilename << ".\n";
+        input = defaultFilename;
     }
     
     return input;

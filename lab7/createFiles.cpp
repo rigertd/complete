@@ -27,120 +27,111 @@
 #include <ctime>    // time
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <limits>
 
-#include "utility.hpp"  // getInput<T>, getString
+#include "globals.hpp"  // global constants
+#include "utility.hpp"  // getFilename
 
-// prototype
-void writeRands(std::ofstream &, int, int, int);
+// prototypes
+template <typename T>
+T getInput(std::string);
+
+void writeRands(std::string &, int, int, int, int, int);
 
 int main()
 {
     std::srand(time(0));    // seed random number generator
     int numCount;           // number of numbers to generate
     std::string filename;   // stores filename to write to
-    std::ofstream ofs;      // for writing to file
-    
-    // enable file exceptions on failbit and badbit
-    ofs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
     // get the number of numbers to generate
     numCount = getInput<int>("Enter the number of numbers to generate: ");
     
+    std::cout << "Enter the filenames for each file, "
+              << "or leave blank for the default.\n";
+
     // name of file with 0 in front
-    filename = getString("Enter filename to have the 0 in front: ");
+    filename = getFilename("Name of file with 0 in front: ", FRONT_DEFAULT);
     
-    try
-    {
-        // open the file for output
-        ofs.open(filename.c_str());
-        
-        // write a 0
-        ofs << "0 ";
-        
-        // fill the rest with (numCount - 1) random numbers
-        writeRands(ofs, numCount - 1, 1, 9);
-        
-        // close the file
-        ofs.close();
-    }
-    catch (std::ios_base::failure e)
-    {
-        std::cout << e.what() << std::endl;
-    }
+    // fill with numCount - 1 random numbers 0 in front (position 0)
+    writeRands(filename, numCount, 1, 9, 0, 0);
     
     // name of file with 0 in middle
-    filename = getString("Enter filename to have the 0 in the middle: ");
+    filename = getFilename("Name of file with 0 in middle: ", MIDDLE_DEFAULT);
     
-    try
-    {
-        // open the file for output
-        ofs.open(filename.c_str());
-        
-        // write rands up to half-way point
-        writeRands(ofs, numCount / 2, 1, 9);
-        
-        // write a 0
-        ofs << "0 ";
-        
-        // fill the rest with ((numCount / 2) - 1) random numbers
-        writeRands(ofs, (numCount / 2) - 1, 1, 9);
-        
-        // close the file
-        ofs.close();
-    }
-    catch (std::ios_base::failure e)
-    {
-        std::cout << e.what() << std::endl;
-    }
+    // fill with numCount - 1 random numbers 0 in middle (position numCount / 2)
+    writeRands(filename, numCount, 1, 9, 0, numCount / 2);
     
     // name of file with 0 at end
-    filename = getString("Enter filename to have the 0 in back: ");
+    filename = getFilename("Name of file with 0 in back: ", BACK_DEFAULT);
     
-    try
-    {
-        // open the file for output
-        ofs.open(filename.c_str());
-        
-        // fill with (numCount - 1) random numbers
-        writeRands(ofs, numCount - 1, 1, 9);
-        
-        // write a 0
-        ofs << "0 ";
-        
-        // close the file
-        ofs.close();
-    }
-    catch (std::ios_base::failure e)
-    {
-        std::cout << e.what() << std::endl;
-    }
+    // fill with numCount - 1 random numbers 0 in back (position numCount - 1)
+    writeRands(filename, numCount, 1, 9, 0, numCount - 1);
 
     // name of file without a 0
-    filename = getString("Enter filename to have no zero: ");
+    filename = getFilename("Name of file without a 0: ", NO_ZERO_DEFAULT);
+    
+    // fill with numCount random numbers and no 0 (position -1)
+    writeRands(filename, numCount, 1, 9, 0, -1);
+}
+
+// Gets valid user input of type T.
+template <typename T>
+T getInput(std::string prompt)
+{
+    T input;    // for storing user input
+    
+    // prompt user and get input
+    std::cout << prompt;
+    std::cin >> input;
+    
+    // validate input
+    while (std::cin.get() != '\n')
+    {
+        // clear keyboard buffer
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        
+        std::cout << "ERROR: Invalid input. Try again.\n";
+        std::cout << prompt;
+        std::cin >> input;
+    }
+    
+    return input;
+}
+
+// Writes 'count' numbers between 'min' and 'max' to 'fn' with 'target' at 'pos'
+void writeRands(std::string &fn, int count, int min, int max, int target, int pos)
+{
+    std::ofstream out;
+    
+     // enable file exceptions on failbit and badbit
+    out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
     try
     {
-        // open the file for output
-        ofs.open(filename.c_str());
-        
-        // fill with numCount random numbers
-        writeRands(ofs, numCount, 1, 9);
-        
-        // close the file
-        ofs.close();
-    }
-    catch (std::ios_base::failure e)
-    {
-        std::cout << e.what() << std::endl;
-    }
-}
+        out.open(fn.c_str());
+   
+        // fencepost
+        if (count > 0)
+            if (pos == 0)
+                out << target;
+            else
+                out << rand() % (max - min + 1) + min;
 
-
-// Writes 'count' numbers between 'min' and 'max' to 'out'
-void writeRands(std::ofstream &out, int count, int min, int max)
-{
-    for (int i = 0; i < count; i++)
-    {
-        out << rand() % (max - min + 1) + min << " ";
+        for (int i = 1; i < count; i++)
+        {
+            if (pos == i)
+                out << " " << target;
+            else
+                out << " " << rand() % (max - min + 1) + min;
+        }
     }
+    catch (std::ios_base::failure)
+    {
+        std::cout << "Error saving to " << fn << std::endl;
+    }
+    
+    out.close();
 }

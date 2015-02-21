@@ -24,9 +24,13 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <ctime>
+#include <chrono>
 
-#include "utility.hpp"
+#include "globals.hpp"  // global constants
+#include "utility.hpp"  // getFilename
+
+// typedef to make high_resolution_clock shorter
+typedef std::chrono::high_resolution_clock hrc;
 
 // prints the activity menu
 void printMenu();
@@ -48,12 +52,9 @@ std::string getString(std::string);
 
 int main()
 {
-    unsigned selection = 0;                 // stores user input for menu
+    unsigned selection = 0; // stores user input for menu
 
-    std::string earlyZero;  // file with zero in front
-    std::string middleZero; // file with zero in middle
-    std::string lateZero;   // file with zero at end
-    std::string noZero;     // file without a zero
+    std::string filename;   // buffer for user filename input
     
     // keeps track of whether values have been sorted
     bool sorted = false;
@@ -79,14 +80,15 @@ int main()
         switch (selection)
         {
         case 1: // load the input files
-            earlyZero = getString("Enter the file with the 0 in front: ");
-            loadFile(earlyZero.c_str(), earlyZeroVals);
-            middleZero = getString("Enter the file with the 0 in the middle: ");
-            loadFile(middleZero.c_str(), middleZeroVals);
-            lateZero = getString("Enter the file with the 0 in the back: ");
-            loadFile(lateZero.c_str(), lateZeroVals);
-            noZero = getString("Enter the file without a 0 in it: ");
-            loadFile(noZero.c_str(), noZeroVals);
+            std::cout << "Enter the filename or blank to use the default.\n";
+            filename = getFilename("Name of file with 0 in front: ", FRONT_DEFAULT);
+            loadFile(filename.c_str(), earlyZeroVals);
+            filename = getFilename("Name of file with 0 in middle: ", MIDDLE_DEFAULT);
+            loadFile(filename.c_str(), middleZeroVals);
+            filename = getFilename("Name of file with 0 in back: ", BACK_DEFAULT);
+            loadFile(filename.c_str(), lateZeroVals);
+            filename = getFilename("Name of file without 0: ", NO_ZERO_DEFAULT);
+            loadFile(filename.c_str(), noZeroVals);
             std::cout << std::endl;
             sorted = false; // clear sorted flag
             break;
@@ -167,13 +169,13 @@ void printMenu()
 // Returns -1 if value is not found.
 int binaryFind(std::vector<int> &vals, int value)
 {
-    clock_t t;
-    t = clock();    // save current tick value
     
-    int startIndex = 0;                // start of search range
-    int endIndex = vals.size() - 1;    // end of search range
-    int index = -1;                         // stores index if value is found
-    unsigned iterCount = 0;                 // number of iterations required
+    hrc::time_point t1 = hrc::now();    // save clock value at start
+    
+    int startIndex = 0;                 // start of search range
+    int endIndex = vals.size() - 1;     // end of search range
+    int index = -1;                     // stores index if value is found
+    unsigned long iterCount = 0;             // number of iterations required
     
     while (startIndex <= endIndex && index < 0) // stop when index found or start == end
     {
@@ -190,12 +192,13 @@ int binaryFind(std::vector<int> &vals, int value)
         iterCount++;
     }
     
-    t = clock() - t;    // get difference in tick value
+    hrc::time_point t2 = hrc::now();    // save clock value at stop
     
     std::cout << "binaryFind found " << value << " at index " << index << ".\n";
     std::cout << "binaryFind ran for " << iterCount << " iterations.\n";
-    std::cout << "This took " << t << " ticks (" 
-              << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds).\n";
+    std::cout << "This took "
+              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
+              << " microseconds\n";
     
     return index;
 }
@@ -205,28 +208,28 @@ int binaryFind(std::vector<int> &vals, int value)
 // Returns -1 if value is not found.
 int linearFind(std::vector<int> &vals, int value)
 {
-    clock_t t;
-    t = clock();    // save current tick value
+    hrc::time_point t1 = hrc::now();    // save clock value at start
 
-    unsigned count = 0;         // counts the number of numbers read
+    unsigned long count = 0;         // counts the number of numbers read
     int index = -1;             // holds the index of the number
     
     while (count < vals.size())
     {
         if (vals[count++] == value)
         {
-            index = count;
+            index = count - 1;  // because we incremented it above
             break;
         }
     }
 
-    t = clock() - t;    // get difference in tick value
+    hrc::time_point t2 = hrc::now();    // save clock value at stop
     
     std::cout << "linearFind found " << value 
               << " at index " << index << ".\n";
     std::cout << "linearFind loop ran for " << count << " iterations.\n";
-    std::cout << "This took " << t << " ticks (" 
-              << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds).\n";
+    std::cout << "This took "
+              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
+              << " microseconds\n";
     
     return index;
 }
@@ -235,39 +238,42 @@ int linearFind(std::vector<int> &vals, int value)
 void loadFile(const char *filename, std::vector<int> &vals)
 {
     int buffer;                 // holds the number read from the file
-
-    vals.clear();               // delete any existing data
-    std::ifstream in(filename); // open the file
+    std::ifstream in;           // for reading the file
     
     // enable file exceptions on failbit and badbit
     in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
+    vals.clear();               // delete any existing data
+    
     std::cout << "Loading numbers from " << filename << "... ";
     try
     {
-        while (in >> buffer)
+        in.open(filename);          // open the file
+        
+        while (!in.eof())
         {
+            in >> buffer;
             vals.push_back(buffer); // add value to vector
         }
-        in.close();                 // close the file
         std::cout << "Done.\n";
+        in.close();                 // close the file
     }
-    catch (std::ios_base::failure e)
+    catch (std::ios_base::failure)
     {
-        std::cout << e.what() << std::endl;
+        std::cout << "Error loading " << filename << std::endl;
     }
+
 }
 
 // Sorts an array into ascending order using the selection sort algorithm.
 void selectionSort(std::vector<int> &vals)
 {
-    clock_t t;
-    t = clock();    // save current tick value
+    hrc::time_point t1 = hrc::now();    // save clock value at start
 
     int startIndex;// starting point for current iteration
     int minIndex;  // index of the minimum value
     int minValue;       // minimum value (so far)
-    unsigned iterCount = 0; // counts the iterations required for sort
+    unsigned long iterCount = 0; // counts the iterations required for sort
     
     // start from first element, find smallest value in vector
     // and swap with the current start element
@@ -295,9 +301,10 @@ void selectionSort(std::vector<int> &vals)
         vals[startIndex] = minValue;
     }
 
-    t = clock() - t;    // get difference in tick value
+    hrc::time_point t2 = hrc::now();    // save clock value at stop
 
     std::cout << "Sorted array in " << iterCount << " iterations.\n";
-    std::cout << "This took " << t << " ticks (" 
-              << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds).\n";
+    std::cout << "This took "
+              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
+              << " microseconds\n";
 }
