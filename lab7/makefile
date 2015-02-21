@@ -15,7 +15,7 @@ lab7: utility.o lab7.o
 	$(CXX) $(CXXFLAGS) utility.o lab7.o -o $@
 
 createFiles: utility.o createFiles.o
-	$(CXX) $(CXXFLAGS) utility.o lab7.o -o $@
+	$(CXX) $(CXXFLAGS) utility.o createFiles.o -o $@
 
 $(OBJS): $(@:.o=.cpp)
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
