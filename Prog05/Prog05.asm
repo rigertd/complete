@@ -40,13 +40,18 @@ arrCount  DWORD     0    ; number of elements in array
 
 .code
 main PROC
-     call displayIntro   ; display the program introduction
+     call Randomize       ; seed random number generator only once
      
-     push OFFSET request ; pointer to variable that will hold user input
-     call getUserData    ; get number from user and store in request argument
+     call displayIntro    ; display the program introduction
      
+     push OFFSET request  ; pointer to variable that will hold user input
+     call getUserData     ; get number from user and store in request argument
+     
+     push request         ; requested number of rands
+     push OFFSET numArray ; pointer to first element in array
+     call fillArray       ; fill array with random numbers
 
-     exit                ; exit to operating system
+     exit                 ; exit to operating system
 main ENDP
 
 ;------------------------------------------------------------------------------
@@ -76,7 +81,7 @@ displayIntro ENDP
 ;------------------------------------------------------------------------------
 getUserData PROC
      push ebp                 ; save original EBP on stack
-     mov  ebp, esp            ; copy current ESP to EBP
+     mov  ebp, esp            ; Set up stack frame
      push eax                 ; save current register values on stack
      push edx
 
@@ -129,6 +134,110 @@ invalidInput:                      ; invalid input
 validInput:    ; execution jumps to here if input was valid
      ret
 validateNum ENDP
+
+;------------------------------------------------------------------------------
+; Fills an array containing the specified number of WORD elements with random
+; numbers between LOW_RAND and HIGH_RAND.
+; Receives:    (EBP+12) Requested number of random numbers
+;              (EBP+8)  Reference to a WORD array 
+; Returns:     Array is filled with random numbers between LOW_RAND and HIGH_RAND
+;------------------------------------------------------------------------------
+fillArray PROC
+     push ebp            ; save original EBP on stack
+     mov  ebp, esp       ; set up stack frame
+     push eax            ; save old general-purpose register values
+     push ecx
+     push edi
+     
+     mov  ecx, [ebp+12]  ; set counter register to number of elements in array
+     mov  edi, [ebp+8]   ; set EDI to address of first element in array
+fillLoop:
+     mov  eax, HIGH_RAND - LOW_RAND + 1
+     call RandomRange               ; generate random number between 0 and EAX
+     add  eax, LOW_RAND             ; add LOW_RAND to bring up to correct range
+     mov  [edi], ax      ; copy random number to current element
+     add  edi, TYPE WORD ; advance EDI to next element
+     loop fillLoop       ; repeat for ECX iterations
+     
+     pop  edi            ; restore old general-purpose register values
+     pop  ecx
+     pop  eax
+     pop  ebp            ; restore old EBP value
+     ret 8               ; return and move ESP past 2 parameters
+fillArray ENDP
+
+;------------------------------------------------------------------------------
+; Sorts a WORD array of the specified size into descending order.
+; Uses the bubble sort algorithm.
+; Receives:    (EBP+12) Reference to a WORD array 
+;              (EBP+8)  Number of elements in the array
+; Returns:     Array is filled with random numbers between LOW_RAND and HIGH_RAND
+;------------------------------------------------------------------------------
+sortList PROC
+     push ebp            ; save old EBP value
+     mov  ebp, esp       ; set up stack frame
+     push eax            ; save general-purpose registers
+     push ecx
+     push edi
+     
+     mov  ecx, [ebp+8]   ; set counter register to number of elements
+     mov  edi, [ebp+12]  ; set pointer to first element in EDI
+     mov  edx, 0         ; set EDX to array offset of 0
+     dec  ecx            ; decrement counter by 1 for swapping next element
+sortLoop:
+     mov  ax, [edi]      ; copy current element to AX
+     push edi            ; save current element on stack
+     add  edi, TYPE WORD ; increment by 1 element
+     push edi            ; save next element on stack
+     cmp  ax, [edi]      ; compare to next element
+     ja   doSwap         ; if current > next, swap the values
+     
+     ; if execution reaches here, the values do not need to be swapped
+     pop  eax            ; discard parameters
+     pop  eax
+     jmp  endSwap        ; jump past swap code
+     
+doSwap:
+     ; parameters are already set
+     call swap           ; swap the values
+endSwap:
+     loop sortLoop       ; loop through every pair in array
+     
+     pop  edi            ; restore general-purpose registers
+     pop  edx
+     pop  ecx
+     pop  eax
+     pop  ebp            ; restore old EBP
+     
+     ret 8
+sortList ENDP
+
+;------------------------------------------------------------------------------
+; Swaps the values in the two specified WORD memory addresses.
+; Receives:    (EBP+12) Reference to first WORD value 
+;              (EBP+8)  Reference to second WORD value
+; Returns:     The values have been swapped
+;------------------------------------------------------------------------------
+swap PROC
+     push ebp            ; save old EBP value
+     mov  ebp, esp       ; set up stack frame
+     push eax            ; save general-purpose registers
+     push esi
+     push edi
+     
+     mov  esi, [ebp+12]  ; copy address of first value to ESI
+     mov  edi, [ebp+8]   ; copy address of second value to EDI
+     mov  ax, [esi]      ; copy first value to AX
+     xchg ax, [edi]      ; swap with second value
+     mov  [esi], ax      ; copy second value over first
+     
+     pop  edi            ; restore general-purpose registers
+     pop  esi
+     pop  eax
+     pop  ebp            ; restore old EBP
+     ret 8               ; return and clear params from stack
+swap ENDP
+
 
 ; ;------------------------------------------------------------------------------
 ; ; Displays the number of primes contained in EAX in a formatted list of
