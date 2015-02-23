@@ -32,6 +32,8 @@ prompt1   BYTE      "Number of random numbers to generate [",0
 prompt2   BYTE      " .. ",0
 prompt3   BYTE      "]: ",0
 inputErr  BYTE      "Invalid input. Try again.",0
+unsorted  BYTE      "Unsorted List",0
+sorted    BYTE      "Sorted List",0
 
 request   SDWORD    ?    ; number of random numbers to generate
 numArray  WORD      MAX_REQUEST DUP(0)  ; holds the random numbers
@@ -50,7 +52,21 @@ main PROC
      push request         ; requested number of rands
      push OFFSET numArray ; pointer to first element in array
      call fillArray       ; fill array with random numbers
+     
+     push OFFSET numArray ; pointer to first element in array
+     push request         ; number of elements in array
+     push OFFSET unsorted ; unsorted list title
+     call displayList     ; print array to terminal window
+     
+     push OFFSET numArray ; pointer to first element in array
+     push request         ; number of elements in array
+     call sortList        ; sort into ascending order using bubble sort
 
+     push OFFSET numArray ; pointer to first element in array
+     push request         ; number of elements in array
+     push OFFSET sorted   ; sorted list title
+     call displayList     ; print array to terminal window
+     
      exit                 ; exit to operating system
 main ENDP
 
@@ -177,35 +193,49 @@ sortList PROC
      push ebp            ; save old EBP value
      mov  ebp, esp       ; set up stack frame
      push eax            ; save general-purpose registers
+     push ebx
      push ecx
      push edi
      
      mov  ecx, [ebp+8]   ; set counter register to number of elements
-     mov  edi, [ebp+12]  ; set pointer to first element in EDI
-     mov  edx, 0         ; set EDX to array offset of 0
-     dec  ecx            ; decrement counter by 1 for swapping next element
-sortLoop:
+     mov  edi, [ebp+12]  ; set EDI to pointer to first element in array
+     dec  ecx            ; decrement counter by 1 to avoid last element
+outerLoop:
+     push ecx            ; save current counter value
+     push edi            ; save current pointer value
+     mov  ebx, 0         ; EBX is flag for whether any elements were swapped
+     
+innerLoop:
+     mov  eax, 0         ; zero out EAX
      mov  ax, [edi]      ; copy current element to AX
-     push edi            ; save current element on stack
-     add  edi, TYPE WORD ; increment by 1 element
-     push edi            ; save next element on stack
-     cmp  ax, [edi]      ; compare to next element
+     cmp  ax, [edi+2]    ; compare to next element
      ja   doSwap         ; if current > next, swap the values
      
      ; if execution reaches here, the values do not need to be swapped
-     pop  eax            ; discard parameters
-     pop  eax
      jmp  endSwap        ; jump past swap code
      
 doSwap:
-     ; parameters are already set
+     push edi            ; pointer to first value to swap
+     add  edi, TYPE WORD ; increment to next value
+     push edi            ; pointer to second value to swap
+     sub  edi, TYPE WORD ; decrement back to previous value
      call swap           ; swap the values
+     mov  ebx, 1         ; set swapped flag to true
 endSwap:
-     loop sortLoop       ; loop through every pair in array
+     add  edi, TYPE WORD ; increment pointer to next value
+     loop innerLoop      ; loop through every pair in array
      
+     pop  edi            ; restore starting pointer value
+     pop  ecx            ; restore starting counter value
+     cmp  ebx, 0         ; check swapped flag
+     jz   doneSwap       ; done with sorting if false (0)
+     loop outerLoop      ; otherwise run through again
+     
+     
+doneSwap:
      pop  edi            ; restore general-purpose registers
-     pop  edx
      pop  ecx
+     pop  ebx
      pop  eax
      pop  ebp            ; restore old EBP
      
@@ -221,23 +251,65 @@ sortList ENDP
 swap PROC
      push ebp            ; save old EBP value
      mov  ebp, esp       ; set up stack frame
-     push eax            ; save general-purpose registers
-     push esi
+     push esi            ; save general-purpose registers
      push edi
+     push eax
      
      mov  esi, [ebp+12]  ; copy address of first value to ESI
      mov  edi, [ebp+8]   ; copy address of second value to EDI
      mov  ax, [esi]      ; copy first value to AX
-     xchg ax, [edi]      ; swap with second value
-     mov  [esi], ax      ; copy second value over first
+     xchg ax, [edi]      ; swap first value with second
+     mov  [esi], ax      ; put second value back in location of first
      
-     pop  edi            ; restore general-purpose registers
+     pop  eax            ; restore general-purpose registers
+     pop  edi
      pop  esi
-     pop  eax
      pop  ebp            ; restore old EBP
      ret 8               ; return and clear params from stack
 swap ENDP
 
+;------------------------------------------------------------------------------
+; Displays all values in a WORD array with the specified number of elements.
+; Receives:    (EBP+16) Reference to a WORD array
+;              (EBP+12) Number of elements in the array
+;              (EBP+8)  Reference to title of array
+;------------------------------------------------------------------------------
+displayList PROC
+     push ebp            ; save old EBP value
+     mov  ebp, esp       ; set up stack frame
+     push eax            ; save general-purpose registers
+     push ecx
+     push edx
+     
+     ; display title of array
+     mov  edx, [ebp+8]   ; copy offset to first char of title
+     call WriteString    ; print to terminal window
+     call Crlf
+     call Crlf
+
+     ; display values in array
+     mov  ecx, [ebp+12]  ; copy number of elements to counter register
+     mov  esi, [ebp+16]  ; copy pointer to first element to ESI
+     
+startList:
+     mov  eax, 0         ; zero out EAX
+     mov  ax, [esi]      ; copy value to AX
+     call WriteDec       ; print value to terminal window
+     mov  ax, TAB        ; TAB char
+     call WriteChar      ; print the TAB character
+     add  esi, TYPE WORD ; increment ESI to next element
+     loop startList
+     
+     call Crlf           ; two more line feeds after list
+     call Crlf
+
+     pop edx             ; restore general-purpose registers
+     pop ecx
+     pop eax
+     pop ebp             ; restore old EBP value
+
+     ret 12              ; 3 DWORD parameters
+displayList ENDP
 
 ; ;------------------------------------------------------------------------------
 ; ; Displays the number of primes contained in EAX in a formatted list of
