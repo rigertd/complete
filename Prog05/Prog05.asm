@@ -34,6 +34,7 @@ prompt3   BYTE      "]: ",0
 inputErr  BYTE      "Invalid input. Try again.",0
 unsorted  BYTE      "Unsorted List",0
 sorted    BYTE      "Sorted List",0
+median    BYTE      "Median Value: ",0
 
 request   SDWORD    ?    ; number of random numbers to generate
 numArray  WORD      MAX_REQUEST DUP(0)  ; holds the random numbers
@@ -61,7 +62,12 @@ main PROC
      push OFFSET numArray ; pointer to first element in array
      push request         ; number of elements in array
      call sortList        ; sort into ascending order using bubble sort
-
+     
+     push OFFSET numArray ; pointer to first element in array
+     push request         ; number of elements in array
+     push OFFSET median   ; text to display before median
+     call displayMedian   ; print median value to terminal window
+     
      push OFFSET numArray ; pointer to first element in array
      push request         ; number of elements in array
      push OFFSET sorted   ; sorted list title
@@ -169,8 +175,8 @@ fillArray PROC
      mov  edi, [ebp+8]   ; set EDI to address of first element in array
 fillLoop:
      mov  eax, HIGH_RAND - LOW_RAND + 1
-     call RandomRange               ; generate random number between 0 and EAX
-     add  eax, LOW_RAND             ; add LOW_RAND to bring up to correct range
+     call RandomRange    ; generate random number between 0 and EAX
+     add  eax, LOW_RAND  ; add LOW_RAND to bring up to correct range
      mov  [edi], ax      ; copy random number to current element
      add  edi, TYPE WORD ; advance EDI to next element
      loop fillLoop       ; repeat for ECX iterations
@@ -206,10 +212,10 @@ outerLoop:
      mov  ebx, 0         ; EBX is flag for whether any elements were swapped
      
 innerLoop:
-     mov  eax, 0         ; zero out EAX
-     mov  ax, [edi]      ; copy current element to AX
-     cmp  ax, [edi+2]    ; compare to next element
-     ja   doSwap         ; if current > next, swap the values
+     mov  eax, 0              ; zero out EAX
+     mov  ax, [edi]           ; copy current element to AX
+     cmp  ax, [edi+TYPE WORD] ; compare to next element
+     jb   doSwap              ; if current < next, swap the values
      
      ; if execution reaches here, the values do not need to be swapped
      jmp  endSwap        ; jump past swap code
@@ -239,7 +245,7 @@ doneSwap:
      pop  eax
      pop  ebp            ; restore old EBP
      
-     ret 8
+     ret 8               ; return to caller and clear params from stack
 sortList ENDP
 
 ;------------------------------------------------------------------------------
@@ -265,7 +271,7 @@ swap PROC
      pop  edi
      pop  esi
      pop  ebp            ; restore old EBP
-     ret 8               ; return and clear params from stack
+     ret 8               ; return to caller and clear params from stack
 swap ENDP
 
 ;------------------------------------------------------------------------------
@@ -308,141 +314,50 @@ startList:
      pop eax
      pop ebp             ; restore old EBP value
 
-     ret 12              ; 3 DWORD parameters
+     ret 12              ; remove 3 DWORD parameters from stack
 displayList ENDP
 
-; ;------------------------------------------------------------------------------
-; ; Displays the number of primes contained in EAX in a formatted list of
-; ; NUMS_PER_ROW in each row, with a "any key to continue" message every
-; ; LINES_PER_PAGE rows.
-; ; Receives:    EAX contains the number of primes to show
-; ;------------------------------------------------------------------------------
-; showPrimes PROC USES ebx ecx edx
-     ; push eax            ; save number entered by user on stack
-     ; mov  ecx, eax       ; set counter to number entered by user
-     ; mov  eax, 1         ; set eax to 1
-; displayPrime:
-     ; call getNextPrime   ; place next prime number in eax
-     ; call WriteDec       ; display prime in eax to terminal window
-     ; call printWhiteSpace; display tab, line feed, or Press any key message
-     ; loop displayPrime   ; loop for number of times entered by user
-     ; call Crlf
-     ; call Crlf
-     ; pop  eax            ; restore user input
-     ; ret
-; showPrimes ENDP
-
-; ;------------------------------------------------------------------------------
-; ; Prints a tab character if the current prime count is not a multiple of 10,
-; ; or a line feed if it is a multiple of 10. Also prints a "any key to continue"
-; ; message after displaying LINES_PER_PAGE rows.
-; ; Receives:    primeCount contains the number of primes printed so far
-; ;------------------------------------------------------------------------------
-; printWhiteSpace PROC USES eax ebx edx
-     ; mov  eax,primeCount ; copy number displayed so far to eax
-     ; cdq                 ; zero out edx
-     ; mov  ebx, NUMS_PER_ROW
-     ; div  ebx            ; divide by number of primes to display per row
-     ; cmp  edx, 0         ; test if multiple of 10 by remainder of 0
-     ; jne  not10th        ; jump if not a multiple of 10
-     ; call Crlf           ; print line feed if multiple of 10
-     ; jmp  anyKeyTest     ; test if Press any key message is required
-
-; not10th:     
-     ; call printTab       ; display a tab character
-     ; jmp  endWhiteSpace  ; done with whitespace
-
-; anyKeyTest:    ; now test if multiple of NUMS_PER_ROW * LINES_PER_PAGE
-     ; mov  eax,primeCount ; copy number displayed so far to eax
-     ; cdq                 ; zero out edx
-     ; mov  ebx, NUMS_PER_ROW * LINES_PER_PAGE
-     ; div  ebx            ; divide by NUMS_PER_ROW * LINES_PER_PAGE
-     ; cmp  edx, 0         ; test if multiple by remainder
-     ; jne  endWhiteSpace  ; jump to end if not a multiple
-     ; mov  edx, OFFSET continue
-     ; call WriteString    ; display Press any key message
-     ; call ReadChar       ; block until any key is pressed
-     ; call Crlf           ; display another line feed
+;------------------------------------------------------------------------------
+; Displays the median value of a sorted array. 
+; Displays the average of the two middle values if even number of elements.
+; Receives:    (EBP+44) Reference to a WORD array
+;              (EBP+40) Number of elements in the array
+;              (EBP+36) Reference to median label
+;------------------------------------------------------------------------------
+displayMedian PROC
+     pushad              ; all general-purpose registers (32 bytes)
+     mov  ebp, esp       ; set up stack frame
      
-; endWhiteSpace:
-     ; ret
-; printWhiteSpace ENDP
-
-; ;------------------------------------------------------------------------------
-; ; Gets the next prime number after the value in EAX.
-; ; Receives:    EAX contains the current prime number
-; ; Returns:     EAX contains the next prime number
-; ;------------------------------------------------------------------------------
-; getNextPrime PROC
-; tryNext:
-     ; inc  eax
-     ; call isPrime
-     ; cmp  ebx, 0         ; test if number is prime
-     ; je   tryNext        ; try next number if ebx=0 (isPrime is false)
-     ; ret                 ; number in eax is prime
-; getNextPrime ENDP
-
-; ;------------------------------------------------------------------------------
-; ; Tests whether the number in EAX is prime by dividing it by every number in primeDivisors.
-; ; If it is, stores it in the primeDivisors array and increments primeCount.
-; ; Receives:    EAX contains the number to test
-; ; Returns:     EBX is set to 1 if the number is prime, or 0 if it is not.
-; ;------------------------------------------------------------------------------
-; isPrime PROC USES ecx edx esi edi
-     ; push eax            ; save number being tested on stack
-     ; cmp  eax, 1         ; test if number <= 1
-     ; jle  notPrime       ; return not prime if <= 1
-     ; cmp  eax, 2         ; test if number is 2
-     ; je   prime          ; number is prime if 2
-     ; mov  edi,primeCount ; otherwise try to divide by numbers in primeDivisors
+     mov  esi, [ebp+44]  ; copy pointer to first element in array
+     mov  eax, [ebp+40]  ; copy size of array
+     cdq                 ; zero out EDX
+     mov  ebx, 2         ; copy divisor to EBX
+     div  ebx            ; divide EDX:EAX by 2
+     mov  ecx, 0         ; zero out ECX
+     mov  cx, [esi+eax*TYPE WORD] ; copy middle element to CX
+     cmp  edx, 0         ; check for remainder
+     je   avgMedian      ; find average of two middle values if even
+     mov  eax, ecx       ; otherwise, copy median to EAX for display
+     jmp  showResult     ; and show the result
+avgMedian:
+     dec  eax            ; decrement EAX to previous element
+     add  cx, [esi+eax*TYPE WORD] ; add previous element to current
+     mov  eax, ecx       ; copy sum of middle 2 elements to EAX
+     cdq                 ; zero out EDX
+     div  ebx            ; divide sum by 2 to get average
+     cmp  edx,0          ; check for remainder
+     je   showResult     ; show the result if no remainder
+     inc  eax            ; otherwise round up the quotient
      
-; tryDivide:
-     ; mov  eax, [esp]     ; put original number back into eax
-     ; cdq                 ; zero out edx
-     ; dec  edi            ; decrement array index
-     ; mov  ebx, primeDivisors[edi*4]     ; copy prime divisor to ebx
-     ; div  ebx            ; divide number by prime divisor
-     ; cmp  edx, 0         ; test if remainder is 0
-     ; je   notPrime       ; return not prime if remainder is 0
-     ; cmp  edi, 0         ; test if first element of array was reached
-     ; jg   tryDivide      ; repeat divide loop with new counter value
-     
-     ; ; number is prime if execution reaches here
-     ; mov  ebx, 1         ; set ebx to 1 (true) if prime
-     ; jmp  prime
+showResult:
+     mov  edx, [ebp+36]  ; copy pointer to label to EDX
+     call WriteString    ; display the label
+     call WriteDec       ; display the value in EAX
+     call Crlf           ; display 2 line feeds
+     call Crlf
 
-; notPrime:
-     ; mov  ebx, 0         ; set ebx to 0 (false) if not prime
-     ; jmp  endPrime       ; jump to end of procedure
-     
-; prime:
-     ; mov  esi,primeCount ; index to store result at in primeDivisors array
-     ; mov  eax, [esp]     ; copy original number back into eax
-     ; mov  primeDivisors[esi*4], eax     ; save prime to primeDivisors array
-     ; inc  primeCount     ; increment the prime counter
-
-; endPrime:
-     ; pop  eax; restore number
-     ; ret
-; isPrime ENDP
-
-; ;------------------------------------------------------------------------------
-; ; Prints a tab character to the terminal window.
-; ;------------------------------------------------------------------------------
-; printTab PROC USES eax
-     ; mov  al, TAB
-     ; call WriteChar      ; display tab character
-     ; ret
-; printTab ENDP
-
-; ;------------------------------------------------------------------------------
-; ; Prints the goodbye message to the terminal window.
-; ;------------------------------------------------------------------------------
-; farewell PROC USES edx
-     ; mov  edx, OFFSET goodbye
-     ; call WriteString
-     ; call Crlf
-     ; ret
-; farewell ENDP
+     popad               ; restore all general-purpose registers
+     ret  12             ; remove 3 DWORD parameters from stack
+displayMedian ENDP
 
 END main
