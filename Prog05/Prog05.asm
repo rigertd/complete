@@ -77,9 +77,9 @@ main PROC
 main ENDP
 
 ;------------------------------------------------------------------------------
+displayIntro PROC USES eax edx
 ; Displays the program introduction message.
 ;------------------------------------------------------------------------------
-displayIntro PROC USES eax edx
      mov  edx, OFFSET intro1
      call WriteString    ; display part 1 of intro
      mov  eax, LOW_RAND
@@ -96,12 +96,12 @@ displayIntro PROC USES eax edx
 displayIntro ENDP
 
 ;------------------------------------------------------------------------------
+getUserData PROC
 ; Gets a number between MIN_REQUEST and MAX_REQUEST from the user
 ; and stores it in parameter.
 ; Receives:    Reference to DWORD to store user input (EBP + 8)
 ; Returns:     Parameter contains the validated user input
 ;------------------------------------------------------------------------------
-getUserData PROC
      push ebp                 ; save original EBP on stack
      mov  ebp, esp            ; Set up stack frame
      push eax                 ; save current register values on stack
@@ -135,12 +135,12 @@ getInput:
 getUserData ENDP
 
 ;------------------------------------------------------------------------------
+validateNum PROC USES edx
 ; Makes sure the number in EAX is between MIN_REQUEST and MAX_REQUEST.
 ; Displays an error message and sets EAX to 0 if out of range.
 ; Receives:    EAX contains the number to be validated
 ; Returns:     EAX contains the validated number if valid or 0 if invalid
 ;------------------------------------------------------------------------------
-validateNum PROC USES edx
      cmp  eax, MIN_REQUEST    ; compare against min valid input
      jl   invalidInput        ; jump if eax < MIN_REQUEST
      cmp  eax, MAX_REQUEST    ; compare against max valid input
@@ -158,13 +158,13 @@ validInput:    ; execution jumps to here if input was valid
 validateNum ENDP
 
 ;------------------------------------------------------------------------------
+fillArray PROC
 ; Fills an array containing the specified number of WORD elements with random
 ; numbers between LOW_RAND and HIGH_RAND.
 ; Receives:    (EBP+12) Requested number of random numbers
 ;              (EBP+8)  Reference to a WORD array 
 ; Returns:     Array is filled with random numbers between LOW_RAND and HIGH_RAND
 ;------------------------------------------------------------------------------
-fillArray PROC
      push ebp            ; save original EBP on stack
      mov  ebp, esp       ; set up stack frame
      push eax            ; save old general-purpose register values
@@ -189,13 +189,13 @@ fillLoop:
 fillArray ENDP
 
 ;------------------------------------------------------------------------------
+sortList PROC
 ; Sorts a WORD array of the specified size into descending order.
 ; Uses the bubble sort algorithm.
 ; Receives:    (EBP+12) Reference to a WORD array 
 ;              (EBP+8)  Number of elements in the array
 ; Returns:     Array is filled with random numbers between LOW_RAND and HIGH_RAND
 ;------------------------------------------------------------------------------
-sortList PROC
      push ebp            ; save old EBP value
      mov  ebp, esp       ; set up stack frame
      push eax            ; save general-purpose registers
@@ -249,12 +249,12 @@ doneSwap:
 sortList ENDP
 
 ;------------------------------------------------------------------------------
+swap PROC
 ; Swaps the values in the two specified WORD memory addresses.
 ; Receives:    (EBP+12) Reference to first WORD value 
 ;              (EBP+8)  Reference to second WORD value
 ; Returns:     The values have been swapped
 ;------------------------------------------------------------------------------
-swap PROC
      push ebp            ; save old EBP value
      mov  ebp, esp       ; set up stack frame
      push esi            ; save general-purpose registers
@@ -275,56 +275,127 @@ swap PROC
 swap ENDP
 
 ;------------------------------------------------------------------------------
-; Displays all values in a WORD array with the specified number of elements.
-; Receives:    (EBP+16) Reference to a WORD array
-;              (EBP+12) Number of elements in the array
-;              (EBP+8)  Reference to title of array
-;------------------------------------------------------------------------------
 displayList PROC
-     push ebp            ; save old EBP value
+; Displays all values in a WORD array with the specified number of elements.
+; Receives:    (EBP+44) Reference to a WORD array
+;              (EBP+40) Number of elements in the array
+;              (EBP+36) Reference to title of array
+;------------------------------------------------------------------------------
+     pushad              ; save general-purpose registers
      mov  ebp, esp       ; set up stack frame
-     push eax            ; save general-purpose registers
-     push ecx
-     push edx
      
      ; display title of array
-     mov  edx, [ebp+8]   ; copy offset to first char of title
+     mov  edx, [ebp+36]  ; copy offset to first char of title
      call WriteString    ; print to terminal window
      call Crlf
      call Crlf
-
+     
+     ; calculate number of rows
+     mov  eax, [ebp+40]  ; number of elements
+     call calcNumRows    ; put number of rows into EAX and 
+                         ; number of columns with extra value in EDX
+     mov  ecx, eax       ; copy number of rows to counter register
+     
      ; display values in array
-     mov  ecx, [ebp+12]  ; copy number of elements to counter register
-     mov  esi, [ebp+16]  ; copy pointer to first element to ESI
+     mov  ebx, 0         ; keep track of current row in EBX
      
-startList:
-     mov  eax, 0         ; zero out EAX
-     mov  ax, [esi]      ; copy value to AX
-     call WriteDec       ; print value to terminal window
-     mov  ax, TAB        ; TAB char
-     call WriteChar      ; print the TAB character
-     add  esi, TYPE WORD ; increment ESI to next element
-     loop startList
+startTable:
+     mov  esi, [ebp+44]  ; set ESI to beginning of array
+     shl  ebx, 1         ; shift EBX right for WORD multiplier
+     add  esi, ebx       ; offset index by row number
+     shr  ebx, 1         ; undo multiplier
+     push ecx            ; save outer loop counter
+     mov  ecx, edx       ; copy number of columns with extra row to counter
+; This section handles columns that have one more row than the rest
+extraRowColumns:
+     call printElement   ; print current element pointed to by ESI
+     call printTab
+     shl  eax, 1         ; WORD multiplier
+     add  esi, eax       ; increase index by number of rows
+     shr  eax, 1         ; undo multiplier
+     loop extraRowColumns
+; This section checks if the current row is the last row
+     inc  ebx            ; increase row counter by 1 so it is 1-based
+     cmp  ebx, eax       ; compare current row to total rows
+     je   endRow         ; end of row if last row
+     dec  ebx            ; restore row counter to 0 - based
+; This section handles columns that do not have an extra row
+     mov  ecx, NUMS_PER_ROW ; copy number of columns to counter
+     sub  ecx, edx       ; subtract columns with extra row
+     call printTab       ; print tab character left off at end of previous loop
+     dec  eax            ; subtract 1 from number of rows
+standardRowColumns:
+     call printElement   ; print current element pointed to by ESI
+     call printTab
+     shl  eax, 1         ; WORD multiplier
+     add  esi, eax       ; increase index by number of rows - 1
+     shr  eax, 1         ; undo multiplier
+     loop standardRowColumns
+     inc  eax            ; set number of rows back to original value
+endRow:
+     pop  ecx            ; restore outer loop counter
+     inc  ebx            ; increment row counter
+     call Crlf           ; print line feed
+     loop startTable     ; go to next row
      
-     call Crlf           ; two more line feeds after list
-     call Crlf
-
-     pop edx             ; restore general-purpose registers
-     pop ecx
-     pop eax
-     pop ebp             ; restore old EBP value
-
+     call Crlf           ; one more line feed after list
+     popad               ; restore general-purpose registers
      ret 12              ; remove 3 DWORD parameters from stack
 displayList ENDP
 
 ;------------------------------------------------------------------------------
+printTab PROC USES eax
+; Prints a tab character to the terminal window unless ECX is 1.
+;------------------------------------------------------------------------------
+     cmp  ecx, 1         ; if ECX == 1
+     je   noTab
+     mov  ax, TAB        ; TAB char
+     call WriteChar      ; print the TAB character
+noTab:
+     ret
+printTab ENDP
+
+;------------------------------------------------------------------------------
+printElement PROC USES eax
+; Prints the WORD value pointed to by ESI
+; Receives:    (ESI) Pointer to WORD value in an array
+;------------------------------------------------------------------------------
+     mov  eax, 0         ; zero out EAX
+     mov  ax, [esi]      ; copy value to AX
+     call WriteDec       ; print value to terminal window
+
+     ret
+printElement ENDP
+
+;------------------------------------------------------------------------------
+calcNumRows PROC USES ebx
+; Calculates the number of rows required to display an array with NUMS_PER_ROW
+; elements per row.
+; Receives:    (EAX) Number of elements in the array
+; Returns:     (EAX) Number of rows required
+;              (EDX) Number of columns with extra row
+;------------------------------------------------------------------------------
+     cdq                 ; zero out EDX
+     mov  ebx, NUMS_PER_ROW   ; divisor
+     div  ebx            ; divide number of elements by number shown per row
+     cmp  edx, 0         ; check for remainder
+     je   noRemainder    ; no partial row
+     inc  eax            ; add 1 to row count for partial row
+     jmp  endCalc
+noRemainder:
+     mov  edx, NUMS_PER_ROW   ; set EDX to number of columns if 0
+endCalc:
+     ret
+calcNumRows ENDP
+
+;------------------------------------------------------------------------------
+displayMedian PROC
 ; Displays the median value of a sorted array. 
 ; Displays the average of the two middle values if even number of elements.
 ; Receives:    (EBP+44) Reference to a WORD array
 ;              (EBP+40) Number of elements in the array
 ;              (EBP+36) Reference to median label
 ;------------------------------------------------------------------------------
-displayMedian PROC
      pushad              ; all general-purpose registers (32 bytes)
      mov  ebp, esp       ; set up stack frame
      
