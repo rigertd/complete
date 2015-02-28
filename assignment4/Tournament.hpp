@@ -22,18 +22,24 @@
 class Tournament
 {
 private:
-    std::queue<Character *> team1;      // holds fighters of player 1
-    std::queue<Character *> team2;      // holds fighters of player 2
-    std::list<Character *> standings;   // holds sorted standings
-    int teamSize;       // size of each team
-    Dice coin;          // d2 for coin flips
-    
     // keeps track of team number in standings
     struct TeamMember
     {
         Character *member;
         short teamNumber;
+        
+        TeamMember(Character *mem, short teamNum)
+        {
+            member = mem;
+            teamNumber = teamNum;
+        }
     };
+    
+    std::queue<Character *> team1;      // holds fighters of player 1
+    std::queue<Character *> team2;      // holds fighters of player 2
+    std::list<TeamMember> standings;   // holds sorted standings
+    int teamSize;       // size of each team
+    Dice coin;          // d2 for coin flips
     
 public:
     Tournament(int);    // constructor
@@ -55,6 +61,8 @@ private:
     Character *fight(Character *, Character *);
     // prints the top 3 of the standings after the tournament
     void printStandings();
+    // prints the current lineups of both teams
+    void printTeams();
     // prompts user to pick a character and name them
     Character *selectCharacter();
 };

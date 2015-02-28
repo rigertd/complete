@@ -19,6 +19,11 @@
 // Include Windows header if running on Windows
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+
+// required for Visual Studio
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #endif
 
 /********************************************************************
@@ -163,7 +168,7 @@ bool isDouble(const std::string &str)
     bool pointFound = false;
     
     // check each char
-    for (int i = 0; i < str.length(); i++)
+    for (unsigned i = 0; i < str.length(); i++)
     {
         if ( !isdigit(str[i]) &&           // not a digit
             (str[i] != '-' || i != 0) &&   // '-' found not at beginning
@@ -193,7 +198,7 @@ bool isInteger(const std::string &str)
         return false;
     
     // check each char
-    for (int i = 0; i < str.length(); i++)
+    for (unsigned i = 0; i < str.length(); i++)
     {
         if (!isdigit(str[i]) && (i != 0 || str[i] != '-'))
             return false;

@@ -25,10 +25,10 @@
 int main()
 {
     int count;      // stores number of fighters
-    char selection; // whether to play again
     
     do  // start of menu loop
     {
+        clearWindow();
         // get number of fighters
         std::cout << "Enter the number of fighters on each team: ";
         std::cin >> count;

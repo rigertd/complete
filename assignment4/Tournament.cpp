@@ -9,7 +9,9 @@
  ************************************************************************/
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
+#include "utility.hpp"
 #include "Tournament.hpp"
 #include "Goblin.hpp"
 #include "Barbarian.hpp"
@@ -35,6 +37,8 @@ static const std::string characterNames[] = { "",
  ************************************************************************/
 Tournament::Tournament(int teamSize)
 {
+    if (teamSize < 1)
+        throw std::invalid_argument("The team size must be at least 1.");
     this->teamSize = teamSize;
     this->coin = Dice(2);
 }
@@ -88,40 +92,43 @@ Tournament::~Tournament()
  ************************************************************************/
 void Tournament::addToStandings(TeamMember tm)
 {
-    auto current = standings.begin();
-    while (current != standings.end())
-    {
-        // insert before current position if parameter has more points
-        if (tm.member->getPoints() > current->member->getPoints())
+    std::list<TeamMember>::iterator current = standings.begin();
+    if (current == standings.end())
+        standings.push_front(tm);
+    else
+        while (current != standings.end())
         {
-            standings.insert(current, tm);
-            break;
-        }
-        // check tiebreaker if same number of points
-        else if (tm.member->getPoints() == current->member->getPoints())
-        {
-            // insert before current position if less starting strength points
-            if (tm.member->getStartingStrength() 
-                < current->member->getStartingStrength())
+            // insert before current position if parameter has more points
+            if (tm.member->getPoints() > current->member->getPoints())
             {
                 standings.insert(current, tm);
                 break;
             }
-            // flip a coin if starting strength is the same
-            else if (tm.member->getStartingStrength()
-                == current->member->getStartingStrength())
+            // check tiebreaker if same number of points
+            else if (tm.member->getPoints() == current->member->getPoints())
             {
-                if (coin.rollDice() == 1)
+                // insert before current position if less starting strength points
+                if (tm.member->getStartStrength() 
+                    < current->member->getStartStrength())
                 {
                     standings.insert(current, tm);
                     break;
                 }
+                // flip a coin if starting strength is the same
+                else if (tm.member->getStartStrength()
+                    == current->member->getStartStrength())
+                {
+                    if (coin.rollDice() == 1)
+                    {
+                        standings.insert(current, tm);
+                        break;
+                    }
+                }
             }
+            
+            // increment iterator and try next position
+            ++current;
         }
-        
-        // increment iterator and try next position
-        ++current;
-    }
 }
 
 /*************************************************************************
@@ -222,76 +229,257 @@ void Tournament::printStandings()
               << std::setw(50) << "Name"
               << std::setw(10) << "Points"
               << std::endl
-              << string(70, '-') << std::endl;
+              << std::string(70, '-') << std::endl;
+    
+    // get iterator to beginning of list
+    std::list<TeamMember>::iterator current = standings.begin();
     
     // print first 3, or everything in list if < 3
     for (unsigned i = 0; i < standings.size() && i < 3; ++i)
     {
-        // get iterator to offset of i
-        auto current = standings.begin() + i;
         std::cout << std::setw(5) << (i + 1)                // rank
                   << std::setw(5) << current->teamNumber    // team number
                   << std::setw(50) << current->member->getName()    // name
                   << std::setw(10) << current->member->getPoints()  // points
                   << std::endl;
+        ++current;
+    }
+}
+
+/*************************************************************************
+ *  Function:       void Tournament::printTeams()
+ *  Description:    Prints the match-ups for the current round of the
+ *                  tournament.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Both player's current lineups are displayed on screen
+ ************************************************************************/
+void Tournament::printTeams()
+{
+    unsigned maxSize = team1.size() > team2.size() ? team1.size() : team2.size();
+    Character *t1Begin = team1.front();
+    Character *c1 = t1Begin;
+    Character *t2Begin = team2.front();
+    Character *c2 = t2Begin;
+    std::cout << "--------------------------Fighter Lineup------------------------------\n";
+    std::cout << "     Player 1                     VS        Player 2\n";
+    for (int i = 0; i < maxSize; ++i)
+    {
+        // Team 1 fighter
+        if (i == 0 || t1Begin != c1)
+        {
+            team1.pop();
+            std::cout << std::right << std::setw(3) << (i + 1) << ": "
+                      << std::left << std::setw(34) << c1->getName();
+            team1.push(c1);
+            c1 = team1.front();
+        }
+        else
+        {
+            // display blank entry if not enough fighters
+            std::cout << std::setw(39) << " ";
+        }
+        // Team 2 fighter
+        if (i == 0 || t2Begin != c2)
+        {
+            team2.pop();
+            std::cout << std::right << std::setw(3) << (i + 1) << ": "
+                      << std::left << std::setw(34) << c2->getName();
+            team2.push(c2);
+            c2 = team2.front();
+        }
+        else
+        {
+            // display blank entry if not enough fighters
+            std::cout << std::setw(39) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+/*************************************************************************
+ *  Function:       Character *Tournament::selectCharacter()
+ *  Description:    Prompts the user for the type and name of the character
+ *                  to create.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Returns a pointer to a new Character subclass object
+ ************************************************************************/
+Character *Tournament::selectCharacter()
+{
+    int selection;      // holds character type
+    std::string name;   // holds character name
+    
+    // display selection menu
+    for (int i = 1; i < 6; ++i)
+    {
+        std::cout << i << ": " << characterNames[i] << std::endl;
+    }
+    
+    // prompt user for selection
+    std::cout << "\nCharacter type: ";
+    std::cin >> selection;
+    
+    // validate input
+    while (std::cin.get() != '\n' || selection < 1 || selection > 5)
+    {
+        clearInputBuffer();
+        std::cout << "Invalid selection. Try again: ";
+        std::cin >> selection;
+    }
+    
+    // prompt user for name
+    std::cout << "Character name: ";
+    std::getline(std::cin, name);
+    
+    // validate input
+    while (name.empty())
+    {
+        std::cout << "Name cannot be blank. Try again: ";
+        std::getline(std::cin, name);
+    }
+    
+    // return pointer to object
+    return createCharacter(selection, name);
+}
+
+/*************************************************************************
+ *  Function:       void Tournament::selectTeam(std::queue<Character *> &team)
+ *  Description:    Prompts the user to select all of the characters on their
+ *                  team and adds them to the queue for that team.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: Specified queue is filled with the selected characters
+ ************************************************************************/
+void Tournament::selectTeam(std::queue<Character *> &team)
+{
+    Character *pCharacter = NULL;
+    for (int i = 0; i < teamSize; ++i)
+    {
+        std::cout << "\nFighter #" << (i + 1) << ":" << std::endl;
+        pCharacter = selectCharacter();
+        team.push(pCharacter);
     }
 }
 
 /*======================= Public Member Functions ======================*/
 /*************************************************************************
- *  Function:       void CombatTest::run()
- *  Description:    Runs the configured simulation.
+ *  Function:       void Tournament::run()
+ *  Description:    Runs the configured tournament.
  *  Parameters:     none
  *  Preconditions:  none
  *  Postconditions: results of simulation are printed to the terminal
  ************************************************************************/
-void CombatTest::run()
+void Tournament::run()
 {
-    // display combat announcement
-    std::cout << "Starting combat between "
-              << characterNames[characterType1] << " and "
-              << characterNames[characterType2] << "...\n";
+    std::string buffer; // for user input
+    unsigned round = 0; // round number
+    Character *c1;      // first character
+    Character *c2;      // second character
+    Character *winner;  // winner of battle
+    short winTeam = 0;  // the winning team
     
-    Character *c1;  // first character
-    Character *c2;  // second character
-    for (int i = 0; i < rounds; i++)
+    std::cout << "Welcome to the Fantasy Fighting League Tournament!\n";
+    
+    do
     {
-        c1 = createCharacter(characterType1);
-        c2 = createCharacter(characterType2);
-        Character *winner = fight(c1, c2);
-        if (winner == c1)
+        // increment round number
+        ++round;
+        int battles = team1.size() > team2.size() ? team1.size() : team2.size();
+        
+        
+        // display round number and current lineup
+        std::cout << "\nStarting Round " << round << "...\n";
+        printTeams();
+        
+        // continue fighting until every character has fought, or one team wins
+        for (int i = 0; i < battles && team1.size() > 0 && team2.size() > 0; ++i)
         {
-            //std::cout << c1->getName() << " (Character 1) is victorious!\n";
-            c1Wins++;
+            // get fighter from team1
+            c1 = team1.front();
+            team1.pop();
             
-        }
-        else if (winner == c2)
-        {
-            //std::cout << c2->getName() << " (Character 2) is victorious!\n";
-            c2Wins++;
+            // get fighter from team2
+            c2 = team2.front();
+            team2.pop();
             
-        }
-        else
-        {
-            //std::cout << "Both combatants have fallen in battle!\n";
+            // display battle
+            std::cout << "\nBattle #" << (i + 1) << ": "
+                      << c1->getName() << " VS " << c2->getName() << "\n\n";
+            std::cout << "Press Enter to begin battle...";
+            std::getline(std::cin, buffer);
+            std::cout << std::endl;
+            
+            // start fight
+            winner = fight(c1, c2);
+            
+            // display victor
+            std::cout << "\nAnd the winner is " << winner->getName() << "!\n";
+            
+            winner->regenerate();
+            
+            std::cout << "\nPress Enter to continue...";
+            std::getline(std::cin, buffer);
+            
+            // add points to winner, put winner back in lineup, 
+            // and put loser in standings
+            if (winner == c1)
+            {
+                winner->addPoints(c2->getStartStrength());
+                team1.push(winner);
+                addToStandings(TeamMember(c2, 2));
+            }
+            else
+            {
+                winner->addPoints(c1->getStartStrength());
+                team2.push(winner);
+                addToStandings(TeamMember(c1, 1));
+            }
+            
+            clearWindow();
         }
         
-        // track special moves vs total moves
-        if (characterType1 == 1 || characterType1 == 5)
-        {
-            c1SpecialCount += c1->getSpecialCount();
-            c1TotalCount += c1->getTotalCount();
-        }
-        if (characterType2 == 1 || characterType2 == 5)
-        {
-            c2SpecialCount += c2->getSpecialCount();
-            c2TotalCount += c2->getTotalCount();
-        }
-        
-        // delete characters from heap
-        deleteCharacter(c1);
-        deleteCharacter(c2);
+    } while (team1.size() > 0 && team2.size() > 0);
+    
+    // move remaining characters to standings
+    while (team1.size() > 0)
+    {
+        winTeam = 1;
+        c1 = team1.front();
+        team1.pop();
+        addToStandings(TeamMember(c1, 1));
     }
-    std::cout << "All " << rounds << " rounds of combat are over.\n\n";
-    printResults();
+    while (team2.size() > 0)
+    {
+        winTeam = 2;
+        c2 = team2.front();
+        team2.pop();
+        addToStandings(TeamMember(c2, 2));
+    }
+    
+    // display winner and top 3 fighters
+    std::cout << "\nThe Grand Tournament is Over!\n";
+    std::cout << "The winning team is Team " << winTeam << "! Congratulations!\n\n";
+    printStandings();
+    std::cout << std::endl;
+}
+
+/*************************************************************************
+ *  Function:       void Tournament::setup()
+ *  Description:    Prompts each player to select their fighters.
+ *  Parameters:     none
+ *  Preconditions:  none
+ *  Postconditions: teamSize is set and team1 and team2 are filled with
+ *                  player-specified characters.
+ ************************************************************************/
+void Tournament::setup()
+{
+    // prompt player 1
+    std::cout << "\nPlayer 1, choose your fighters." << std::endl;
+    selectTeam(team1);
+    clearWindow();
+    // prompt player 2/25/2015
+    std::cout << "Player 2, choose your fighters." << std::endl;
+    selectTeam(team2);
+    clearWindow();
 }
