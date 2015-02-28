@@ -459,8 +459,8 @@ void Tournament::run()
     
     // display winner and top 3 fighters
     std::cout << "\nThe Grand Tournament is Over!\n";
-    std::cout << "The winning team is Team " << winTeam << " in " 
-              << round << " rounds! Congratulations!\n\n";
+    std::cout << "Player " << winTeam << "'s team won. Congratulations!\n"; 
+    std::cout << "Your team won in " << round << " rounds!\n\n";
     printStandings();
     std::cout << std::endl;
 }
