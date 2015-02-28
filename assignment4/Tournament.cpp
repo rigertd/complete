@@ -321,7 +321,7 @@ Character *Tournament::selectCharacter()
     std::cin >> selection;
     
     // validate input
-    while (std::cin.get() != '\n' || selection < 1 || selection > 5)
+    while (std::cin.peek() != '\n' || selection < 1 || selection > 5)
     {
         clearInputBuffer();
         std::cout << "Invalid selection. Try again: ";

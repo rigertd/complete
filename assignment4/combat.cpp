@@ -34,7 +34,7 @@ int main()
         std::cin >> count;
         
         // validate input
-        while (std::cin.get() != '\n' || count < 1)
+        while (std::cin.peek() != '\n' || count < 1)
         {
             clearInputBuffer();
             std::cout << "Invalid input. Try again: ";
