@@ -49,7 +49,7 @@ int main()
         t.run();
         
         // check if players want to play again
-        std::cout << "Do you want to play again? (Y/N): ";
+        std::cout << "Do you want to play again? (y/N): ";
     } while (getYesNo());
     
     std::cout << "\nThank you for playing!\n";
