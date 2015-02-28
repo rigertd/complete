@@ -329,6 +329,7 @@ Character *Tournament::selectCharacter()
     }
     
     // prompt user for name
+    clearInputBuffer();
     std::cout << "Character name: ";
     std::getline(std::cin, name);
     
