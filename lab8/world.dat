@@ -1,0 +1,112 @@
+1
+A new room
+start
+notend
+d
+2
+A new room
+notstart
+notend
+-
+d
+3
+A new room
+notstart
+notend
+d
+5
+A new room
+notstart
+notend
+-
+-
+s
+-
+d
+8
+A new room
+notstart
+notend
+d
+9
+You are in a dense forest. You see a cave entrance to the east.
+notstart
+notend
+-
+d
+12
+You are in a dark cave. You hear a thundering sound from the east.
+notstart
+notend
+-
+d
+14
+You are under a beautiful waterfall.
+notstart
+end
+-
+-
+-
+s
+d
+13
+A new room
+notstart
+notend
+s
+-
+-
+-
+s
+s
+d
+10
+A new room
+notstart
+notend
+-
+s
+-
+d
+11
+A new room
+notstart
+notend
+-
+s
+-
+-
+-
+-
+s
+d
+6
+A new room
+notstart
+notend
+s
+d
+7
+A new room
+notstart
+notend
+-
+-
+-
+s
+-
+-
+s
+s
+d
+4
+A new room
+notstart
+notend
+-
+s
+-
+-
+-
+-
+-

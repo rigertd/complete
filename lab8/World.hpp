@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           2/28/2015
- * Last Modification Date: 2/28/2015
+ * Last Modification Date: 3/1/2015
  * Course:                 CS162_400
  * Assignment:             Lab 8
  * Filename:               World.hpp
@@ -17,6 +17,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <fstream>
 
 // enumerates the available commands in each room
 enum Command
@@ -38,6 +39,8 @@ enum Command
     DELETE_WEST,    // delete room to west
     SET_START,      // set room as start point
     SET_END,        // set room as end point
+    SAVE_WORLD,     // save the world to file
+    LOAD_WORLD,     // load the world from file
     EXIT,           // exit the program
     HELP            // show available commands
 };
@@ -45,6 +48,7 @@ enum Command
 // enumerates available directions
 enum Direction
 {
+    NONE,
     NORTH,
     EAST,
     SOUTH,
@@ -56,7 +60,9 @@ enum Result
 {
     RESULT_SUCCESS,
     RESULT_FAILURE,
-    RESULT_EXIT
+    RESULT_EXIT,
+    RESULT_SAVE,
+    RESULT_LOAD
 };
 
 class World
@@ -106,10 +112,10 @@ private:
     *             Private Member Functions                *
     ******************************************************/
     // loads the world from a file
-    Result load(std::ifstream &);
+    Result load(Room *&, Room *, std::ifstream &);
     
     // saves the world to a file
-    Result save(std::ofstream &);
+    Result save(Room *, Direction, std::ofstream &);
     
     // builds the command map
     void buildCommandMap();
@@ -154,6 +160,12 @@ public:
     
     // displays the current room
     void printRoom() const;
+    
+    // loads world data
+    Result loadWorld(std::ifstream &);
+    
+    // saves world data
+    Result saveWorld(std::ofstream &);
 };
 
 #endif  // end of WORLD_HPP definition

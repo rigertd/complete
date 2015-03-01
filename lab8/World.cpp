@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           2/28/2015
- * Last Modification Date: 2/28/2015
+ * Last Modification Date: 3/1/2015
  * Course:                 CS162_400
  * Assignment:             Lab 8
  * Filename:               World.cpp
@@ -9,7 +9,7 @@
  * Overview:
  *     Implementation for World class.
  ************************************************************************/
-#include <iostream>
+#include <cstdlib>  // atoi
 
 #include "utility.hpp"
 #include "World.hpp"
@@ -53,6 +53,8 @@ void World::buildCommandMap()
     commands["setend"] = SET_END;
     commands["help"] = HELP;
     commands["h"] = HELP;
+    commands["save"] = SAVE_WORLD;
+    commands["load"] = LOAD_WORLD;
     commands["exit"] = EXIT;
     commands["x"] = EXIT;
     commands["quit"] = EXIT;
@@ -60,16 +62,123 @@ void World::buildCommandMap()
 }
 
 // loads the world from a file
-Result World::load(std::ifstream &in)
+Result World::load(Room *&rm, Room *source, std::ifstream &in)
 {
-    Result result = RESULT_FAILURE;
+    Result result = RESULT_SUCCESS;
+    std::string buffer;
+    
+    // read room info
+    if (std::getline(in, buffer))
+    {
+        rm->roomId = std::atoi(buffer.c_str());
+        std::getline(in, rm->description);
+        
+        // check if starting point
+        std::getline(in, buffer);
+        // test for least common occurrence first
+        if (buffer != "notstart")
+            start = rm;
+        
+        // check if end point
+        std::getline(in, buffer);
+        if (buffer != "notend")
+            end = rm;
+        
+        // north tree
+        std::getline(in, buffer);
+        if (buffer == "s")
+            rm->north = source;
+        else if (buffer == "d")
+        {
+            rm->north = new Room(nextRoomId++);
+            load(rm->north, rm, in);
+        }
+        
+        // east tree
+        std::getline(in, buffer);
+        if (buffer == "s")
+            rm->east = source;
+        else if (buffer == "d")
+        {
+            rm->east = new Room(nextRoomId++);
+            load(rm->east, rm, in);
+        }
+        
+        // south tree
+        std::getline(in, buffer);
+        if (buffer == "s")
+            rm->south = source;
+        else if (buffer == "d")
+        {
+            rm->south = new Room(nextRoomId++);
+            load(rm->south, rm, in);
+        }
+        
+        // west tree
+        std::getline(in, buffer);
+        if (buffer == "s")
+            rm->west = source;
+        else if (buffer == "d")
+        {
+            rm->west = new Room(nextRoomId++);
+            load(rm->west, rm, in);
+        }
+    }
     return result;
 }
 
 // saves the world to a file
-Result World::save(std::ofstream &out)
+Result World::save(Room *rm, Direction source, std::ofstream &out)
 {
-    Result result = RESULT_FAILURE;
+    Result result = RESULT_SUCCESS;
+    
+    // write room info
+    out << rm->roomId << std::endl
+        << rm->description << std::endl
+        << (rm == start ? "start" : "notstart") << std::endl
+        << (rm == end ? "end" : "notend") << std::endl;
+    
+    // north tree
+    if (rm->north == NULL)
+        out << '-' << std::endl;
+    else if (source == NORTH)
+        out << 's' << std::endl;
+    else
+    {
+        out << 'd' << std::endl;
+        result = save(rm->north, SOUTH, out);
+    }
+    // east tree
+    if (rm->east == NULL)
+        out << '-' << std::endl;
+    else if (source == EAST)
+        out << 's' << std::endl;
+    else
+    {
+        out << 'd' << std::endl;
+        result = save(rm->east, WEST, out);
+    }
+    // south tree
+    if (rm->south == NULL)
+        out << '-' << std::endl;
+    else if (source == SOUTH)
+        out << 's' << std::endl;
+    else
+    {
+        out << 'd' << std::endl;
+        result = save(rm->south, NORTH, out);
+    }
+    // west tree
+    if (rm->west == NULL)
+        out << '-' << std::endl;
+    else if (source == WEST)
+        out << 's' << std::endl;
+    else
+    {
+        out << 'd' << std::endl;
+        result = save(rm->west, EAST, out);
+    }
+
     return result;
 }
 
@@ -157,7 +266,7 @@ Result World::deleteRoom(Direction d)
 }
 
 // recursively deletes the entire tree connected to the specified room
-World::Room *World::deleteTree(World::Room *rm)
+World::Room *World::deleteTree(Room *rm)
 {
     if (rm->north != NULL)
     {
@@ -448,6 +557,12 @@ Result World::runCommand(Command c)
     case HELP:
         printHelp();
         break;
+    case SAVE_WORLD:
+        result = RESULT_SAVE;
+        break;
+    case LOAD_WORLD:
+        result = RESULT_LOAD;
+        break;
     case EXIT:
         std::cout << "\nAre you sure you want to exit? (y/N): ";
         if (getYesNo())
@@ -522,7 +637,8 @@ void World::printRoom() const
         std::cout << std::endl << current->description << "\n";
     // display if this is starting point
     if (current == start)
-        std::cout << "\nThis is where you started your journey.\n";
+        std::cout << "\nThis is where you started your journey.\n"
+                  << "Type 'help' or 'h' to display instructions.\n";
     // display if this is the end point
     if (current == end)
         std::cout << "\nCongratulations, you have reached your destination.\n"
@@ -533,4 +649,29 @@ void World::printRoom() const
               << (current->east != NULL ? "East " : "")
               << (current->south != NULL ? "South " : "")
               << (current->west != NULL ? "West" : "") << "\n\n";
+}
+
+Result World::loadWorld(std::ifstream &in)
+{
+    std::string line;
+    if (in)
+    {
+        load(start, NULL, in);
+    }
+    else
+    {
+        std::cout << "Cannot read data file.\n";
+    }
+}
+
+Result World::saveWorld(std::ofstream &out)
+{
+    if (out)
+    {
+        save(start, NONE, out);
+    }
+    else
+    {
+        std::cout << "Cannot save to file.\n";
+    }
 }

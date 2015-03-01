@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           2/28/2015
- * Last Modification Date: 2/28/2015
+ * Last Modification Date: 3/1/2015
  * Course:                 CS162_400
  * Assignment:             Lab 8
  * Filename:               lab8.cpp
@@ -38,12 +38,29 @@ int main()
     Result result;
     std::string input;
     
+    // load world data if found
+    std::ifstream in("world.dat");
+    if (in)
+    {
+        w.loadWorld(in);
+    }
+    in.close();
+    
+    // game loop
     do
     {
         w.printRoom();
         std::cout << "Where do you want to go?\n: ";
         std::getline(std::cin, input);
         result = w.command(input);
+        
+        // check for save command
+        if (result == RESULT_SAVE)
+        {
+            std::ofstream out("world.dat");
+            w.saveWorld(out);
+            out.close();
+        }
     } while (result != RESULT_EXIT);
     
     return 0;
