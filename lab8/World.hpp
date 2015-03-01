@@ -16,6 +16,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 
 // enumerates the available commands in each room
 enum Command
@@ -50,6 +51,14 @@ enum Direction
     WEST
 };
 
+// enumerates command results
+enum Result
+{
+    RESULT_SUCCESS,
+    RESULT_FAILURE,
+    RESULT_EXIT
+};
+
 class World
 {
 private:
@@ -76,6 +85,11 @@ private:
             east = NULL;
             west = NULL;
         }
+        ~Room()
+        {
+            // memory leak check
+            //std::cout << "Destroying Room " << roomId << std::endl;
+        }
     };
     
     Room *start;        // starting point
@@ -86,47 +100,44 @@ private:
     bool labelVis;      // label visibility flag
     
     // maps string input to the corresponding command
-    static std::map<std::string, Command> commands;
+    std::map<std::string, Command> commands;
     
     /******************************************************
     *             Private Member Functions                *
     ******************************************************/
     // loads the world from a file
-    void load(std::ifstream &);
+    Result load(std::ifstream &);
     
     // saves the world to a file
-    void save(std::ofstream &);
+    Result save(std::ofstream &);
     
     // builds the command map
     void buildCommandMap();
     
     // deletes the room in the specified direction
     // and any orphaned rooms
-    void deleteRoom(Direction);
+    Result deleteRoom(Direction);
     
     // deletes the entire tree connected to the specified room
-    void deleteTree(Room *);
+    Room *deleteTree(Room *);
     
     // edits the description of the current room
-    void editRoom();
+    Result editRoom();
     
     // checks if room has path to starting point
-    bool isConnectedToStart(Room *) const;
+    bool isConnectedToStart(Room *, Direction) const;
     
     // creates a new room in the specified direction
-    void makeRoom(Direction);
+    Result makeRoom(Direction);
     
     // moves in the specified direction
-    void move(Direction);
+    Result move(Direction);
     
     // displays the help menu
     void printHelp() const;
     
-    // displays the current room
-    void printRoom() const;
-    
     // runs the specified command
-    void runCommand(Command);
+    Result runCommand(Command);
     
 public:
     /******************************************************
@@ -139,7 +150,10 @@ public:
     *              Public Member Functions                *
     ******************************************************/
     // parses user input and runs the specified command
-    void command(std::string &);
+    Result command(std::string &);
+    
+    // displays the current room
+    void printRoom() const;
 };
 
 #endif  // end of WORLD_HPP definition
