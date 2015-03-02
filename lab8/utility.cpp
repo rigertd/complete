@@ -9,6 +9,8 @@
  ************************************************************************/
 #include <iostream>
 #include <limits>
+#include <algorithm>
+
 #include "utility.hpp"
 
 // Include unix header if running on Linux
@@ -128,7 +130,8 @@ void sleepMilliseconds(int milliseconds)
  *  Function:       std::vector<std::string> split(const std::string &text, char delim)
  *  Description:    Splits a string into substrings based on the specified
  *                  delimiter. Defaults to a space if not specified.
- *  Parameters:     text    number of milliseconds to sleep
+ *  Parameters:     text    source text to split
+ *                  delim   delimiter char
  *  Preconditions:  none
  *  Postconditions: Returns a vector containing the substrings.
  *******************************************************************/
@@ -147,6 +150,21 @@ std::vector<std::string> split(const std::string &text, char delim)
     }
     
     return buffer;
+}
+
+/********************************************************************
+ *  Function:       std::string toLower(const std::string &text)
+ *  Description:    Converts the specified string to lowercase.
+ *  Parameters:     text    text to convert
+ *  Preconditions:  none
+ *  Postconditions: Returns the argument as all lowercase.
+ *******************************************************************/
+std::string toLower(const std::string &text)
+{
+    std::string lower = text;
+    std::transform(text.begin(), text.end(), lower.begin(), ::tolower);
+    
+    return lower;
 }
 
 /********************************************************************

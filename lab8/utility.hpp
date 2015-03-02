@@ -31,6 +31,9 @@ void sleepMilliseconds(int);
 // Splits a string on the specified delimiter.
 std::vector<std::string> split(const std::string &, char = ' ');
 
+// Converts a string object to lower case.
+std::string toLower(const std::string &text);
+
 // Determines whether a string is a valid double.
 bool isDouble(const std::string &);
 
