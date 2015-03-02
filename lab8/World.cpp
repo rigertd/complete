@@ -255,8 +255,8 @@ Result World::deleteRoom(Direction d)
         std::cout << "No room exists there!\n";
     else
     {
-        // make current room new starting point if not connected anymore
-        if (!isConnectedToStart(current, d))
+        // make current room new starting point if starting point was deleted
+        if (start == NULL)
         {
             std::cout << "Making the current room the new starting point.\n";
             start = current;
@@ -292,6 +292,12 @@ World::Room *World::deleteTree(Room *rm)
         rm->west->east = NULL;
         delete deleteTree(rm->west);
     }
+    // set start/end point to null if the room is deleted
+    if (start == rm)
+        start = NULL;
+    if (end == rm)
+        end = NULL;
+    
     return rm;
 }
 
@@ -304,22 +310,6 @@ Result World::editRoom()
     if (!input.empty())
         current->description = input;
     return RESULT_SUCCESS;
-}
-
-// checks if room has path to starting point
-bool World::isConnectedToStart(Room *rm, Direction source) const
-{
-    bool result = rm == start;
-    
-    if (rm->north != NULL && source != NORTH && !result)
-        result = isConnectedToStart(rm->north, SOUTH);
-    if (rm->east != NULL && source != EAST && !result)
-        result = isConnectedToStart(rm->east, WEST);
-    if (rm->south != NULL && source != SOUTH && !result)
-        result = isConnectedToStart(rm->south, NORTH);
-    if (rm->west != NULL && source != WEST && !result)
-        result = isConnectedToStart(rm->west, EAST);
-    return result;
 }
 
 // creates a new room in the specified direction
