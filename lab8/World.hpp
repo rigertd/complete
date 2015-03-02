@@ -130,9 +130,6 @@ private:
     // edits the description of the current room
     Result editRoom();
     
-    // checks if room has path to starting point
-    bool isConnectedToStart(Room *, Direction) const;
-    
     // creates a new room in the specified direction
     Result makeRoom(Direction);
     
