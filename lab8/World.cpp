@@ -182,8 +182,7 @@ Result World::save(Room *rm, Direction source, std::ofstream &out)
     return result;
 }
 
-// deletes the room in the specified direction
-// and any orphaned rooms
+// deletes the room in the specified direction and any orphaned rooms
 Result World::deleteRoom(Direction d)
 {
     Result result = RESULT_SUCCESS;
@@ -195,6 +194,7 @@ Result World::deleteRoom(Direction d)
             // remove return pointer
             current->north->south = NULL;
             
+            // delete entire tree starting from node
             deleteTree(current->north);
             delete current->north;
             current->north = NULL;
@@ -210,6 +210,7 @@ Result World::deleteRoom(Direction d)
             // remove return pointer
             current->east->west = NULL;
             
+            // delete entire tree starting from node
             deleteTree(current->east);
             delete current->east;
             current->east = NULL;
@@ -225,6 +226,7 @@ Result World::deleteRoom(Direction d)
             // remove return pointer
             current->south->north = NULL;
             
+            // delete entire tree starting from node
             deleteTree(current->south);
             delete current->south;
             current->south = NULL;
@@ -240,6 +242,7 @@ Result World::deleteRoom(Direction d)
             // remove return pointer
             current->west->east = NULL;
             
+            // delete entire tree starting from node
             deleteTree(current->west);
             delete current->west;
             current->west = NULL;
@@ -292,7 +295,7 @@ World::Room *World::deleteTree(Room *rm)
         rm->west->east = NULL;
         delete deleteTree(rm->west);
     }
-    // set start/end point to null if the room is deleted
+    // set start/end point to null if that room is deleted
     if (start == rm)
         start = NULL;
     if (end == rm)
@@ -452,81 +455,81 @@ Result World::runCommand(Command c)
     Result result = RESULT_SUCCESS;
     switch (c)
     {
-    case MOVE_NORTH:
+    case MOVE_NORTH:    // move one room to the north
         move(NORTH);
         break;
-    case MOVE_EAST:
+    case MOVE_EAST:     // move one room to the east
         move(EAST);
         break;
-    case MOVE_SOUTH:
+    case MOVE_SOUTH:    // move one room to the south
         move(SOUTH);
         break;
-    case MOVE_WEST:
+    case MOVE_WEST:     // move one room to the west
         move(WEST);
         break;
-    case TOGGLE_LABEL:
+    case TOGGLE_LABEL:  // toggle the room ID label
         std::cout << "\nToggling room label\n";
         labelVis = !labelVis;
         break;
-    case TOGGLE_EDIT:
+    case TOGGLE_EDIT:   // toggle edit mode (off by default)
         std::cout << "\nToggling edit mode\n";
         editMode = !editMode;
         break;
-    case EDIT_DESC:
+    case EDIT_DESC:     // (edit mode) edit the room description
         if (editMode)
             editRoom();
         else
             result = RESULT_FAILURE;
         break;
-    case MAKE_NORTH:
+    case MAKE_NORTH:    // (edit mode) make a room to the north
         if (editMode)
             makeRoom(NORTH);
         else
             result = RESULT_FAILURE;
         break;
-    case MAKE_EAST:
+    case MAKE_EAST:     // (edit mode) make a room to the east
         if (editMode)
             makeRoom(EAST);
         else
             result = RESULT_FAILURE;
         break;
-    case MAKE_SOUTH:
+    case MAKE_SOUTH:    // (edit mode) make a room to the south
         if (editMode)
             makeRoom(SOUTH);
         else
             result = RESULT_FAILURE;
         break;
-    case MAKE_WEST:
+    case MAKE_WEST:     // (edit mode) make a room to the west
         if (editMode)
             makeRoom(WEST);
         else
             result = RESULT_FAILURE;
         break;
-    case DELETE_NORTH:
+    case DELETE_NORTH:  // (edit mode) delete the room to the north
         if (editMode)
             deleteRoom(NORTH);
         else
             result = RESULT_FAILURE;
         break;
-    case DELETE_EAST:
+    case DELETE_EAST:   // (edit mode) delete the room to the east
         if (editMode)
             deleteRoom(EAST);
         else
             result = RESULT_FAILURE;
         break;
-    case DELETE_SOUTH:
+    case DELETE_SOUTH:  // (edit mode) delete the room to the south
         if (editMode)
             deleteRoom(SOUTH);
         else
             result = RESULT_FAILURE;
         break;
-    case DELETE_WEST:
+    case DELETE_WEST:   // (edit mode) delete the room to the west
         if (editMode)
             deleteRoom(WEST);
         else
             result = RESULT_FAILURE;
         break;
-    case SET_START:
+    case SET_START:     // (edit mode) set starting point to current room
         if (editMode)
         {
             std::cout << "Setting starting point to current room.\n";
@@ -535,7 +538,7 @@ Result World::runCommand(Command c)
         else
             result = RESULT_FAILURE;
         break;
-    case SET_END:
+    case SET_END:       // (edit mode) set end point to current room
         if (editMode)
         {
             std::cout << "Setting end point to current room.\n";
@@ -544,16 +547,28 @@ Result World::runCommand(Command c)
         else
             result = RESULT_FAILURE;
         break;
-    case HELP:
+    case HELP:          // (edit mode) display help menu
         printHelp();
         break;
-    case SAVE_WORLD:
-        result = RESULT_SAVE;
+    case SAVE_WORLD:    // (edit mode) save the world
+        if (editMode)
+        {
+            std::cout << "Saving the world to the current directory.\n";
+            result = RESULT_SAVE;
+        }
+        else
+            result = RESULT_FAILURE;
         break;
-    case LOAD_WORLD:
-        result = RESULT_LOAD;
+    case LOAD_WORLD:    // (edit mode) load the world
+        if (editMode)
+        {
+            std::cout << "Loading the world from the current directory.\n";
+            result = RESULT_LOAD;
+        }
+        else
+            result = RESULT_FAILURE;
         break;
-    case EXIT:
+    case EXIT:          // exit the program
         std::cout << "\nAre you sure you want to exit? (y/N): ";
         if (getYesNo())
             result = RESULT_EXIT;
@@ -570,11 +585,9 @@ Result World::runCommand(Command c)
 ******************************************************/
 World::World()
 {
-    labelVis = true;
-    editMode = false;
-    
-    // start room ID at 1
-    nextRoomId = 1;
+    labelVis = true;    // labels are visible by default
+    editMode = false;   // edit mode is off by default
+    nextRoomId = 1;     // start room ID at 1
     
     // create first room and set to current
     current = new Room(nextRoomId++);
@@ -601,13 +614,19 @@ Result World::command(std::string &input)
 {
     Result result = RESULT_SUCCESS;
     
+    // convert command to lowercase
+    input = toLower(input);
+    
     // check command map for Command
     std::map<std::string, Command>::iterator iter;
     iter = commands.find(input);
+    
+    // run the command if found
     if (iter != commands.end())
     {
         result = runCommand(iter->second);
     }
+    // otherwise display an error message
     else
     {
         std::cout << "\nInvalid command. Try again or type 'help' for help.\n";
@@ -641,9 +660,9 @@ void World::printRoom() const
               << (current->west != NULL ? "West" : "") << "\n\n";
 }
 
+// loads the world from the specified file stream
 Result World::loadWorld(std::ifstream &in)
 {
-    std::string line;
     if (in)
     {
         load(start, NULL, in);
@@ -654,6 +673,7 @@ Result World::loadWorld(std::ifstream &in)
     }
 }
 
+// saves the world to the specified file stream
 Result World::saveWorld(std::ofstream &out)
 {
     if (out)
