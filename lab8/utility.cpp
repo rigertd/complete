@@ -19,7 +19,9 @@
 // Include Windows header if running on Windows
 #if defined(_WIN32) || defined(_WIN64)
 // required for Visual Studio
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #endif
 
