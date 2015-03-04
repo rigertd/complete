@@ -12,7 +12,7 @@ INCLUDE Irvine32.inc
 
 .const
 NUM_COUNT = 10      ; number of integers to get from user
-MAX_NUM_LEN = 11    ; maximum digits of a 32-bit signed integer
+MAX_NUM_LEN = 12    ; maximum digits of a 32-bit signed integer + 1 for validation
 
 ;----------------------------------------------------------------------
 ; Prompts the user for a string and stores the value in the memory
@@ -54,12 +54,11 @@ instruct2 BYTE      " positive or negative integers that fit in a 32-bit registe
                     "This program will then print each number, the sum of the numbers,",10,13,
                     "and the average value.",0
 num_prmpt BYTE      "Please enter a positive or negative integer: ", 0
-invalid   BYTE      "That is not a valid integer. Try again: ", 0
+invalid   BYTE      "That number is larger than 32 bits or is not a valid integer.", 0
 num_label BYTE      "You entered the following numbers: ",0
 sum_label BYTE      "The sum is: ",0
 avg_label BYTE      "The rounded average is: ",0
 goodbye   BYTE      "Thank you for a fun quarter!",0
-;input     BYTE      MAX_NUM_LEN+2 DUP(?)     ; stores user input string
 num_array SDWORD    NUM_COUNT DUP(?)         ; stores the converted numbers
 
 .code
@@ -81,31 +80,78 @@ main PROC
      push OFFSET num_array
      push OFFSET num_prmpt
      call readVal
+     
+     mov  eax, num_array
+     call WriteInt
+     call Crlf
 
      exit ; exit to operating system
 main ENDP
 
 ;----------------------------------------------------------------------
 ; Prompts the user for a 32-bit signed integer value and stores the
-; value in the specified memory location.
-readVal PROC,
+; value in the specified memory location. Displays an error and reprompts
+; if the input is not a valid integer or is larger than 32 bits.
+readVal PROC USES eax ebx ecx esi edi,
      pPrompt:PTR BYTE,   ; Address of prompt text
      pValue:PTR SDWORD   ; Address of memory location to store the value
      LOCAL input[MAX_NUM_LEN+2]:BYTE ; Buffer for user input string
 ; Outputs: Stores the signed value in address of 'value'.
 ;----------------------------------------------------------------------
+startReading:
+     mov  edi, pValue    ; copy array address to EDI
+     mov  SDWORD PTR [edi], 0 ; initialize element to 0
      lea  eax, input     ; copy address of local input variable to EAX
-     getString pPrompt, eax, LENGTHOF input
-
-     mov  [pValue], 0
-     mov  edx, eax
-     call WriteString
+     getString pPrompt, eax, LENGTHOF input  ; stores string it in input
+     mov  esi, eax       ; copy address of first character to ESI
+     mov  eax, 0         ; initialize EAX to 0
+     lodsb               ; load first character to EAX
+     cmp  al, '-'        ; compare first character to hyphen (negative)
+     je   isNegative     ; skip next code if negative
+     mov  ecx, 1         ; if positive, store a positive multiplier in ECX
+     dec  esi            ; and move pointer back to first chracter
+     jmp  beginParse
+isNegative:
+     mov  ecx, -1        ; if negative, store a negative multiplier in ECX
+     
+beginParse:
+     lodsb               ; load current character into EAX and increment ESI
+     cmp  al, '0'        ; test if less than 0
+     jb   endParse
+     cmp  al, '9'        ; test if greater than 9
+     ja   endParse
+     
+     ; Valid number if execution reaches here
+     mov  ebx, [edi]     ; copy current value to ebx
+     imul ebx, 10        ; multiply by 10 (this works because 10*0=0)
+     jc   endParse       ; number was too big if carry flag is set
+     mov  [edi], ebx     ; copy new value back to element
+     sub  eax, '0'       ; subtract ASCII value of '0' to get numeric value
+     add  [edi], eax     ; add the value to element
+     jc   endParse       ; number was too big if carry flag is set
+     jmp  beginParse     ; repeat parsing loop
+     
+endParse:
+     dec  esi            ; back up ESI pointer to last character
+     mov  al, [esi]      ; copy character to AL
+     cmp  al, 0          ; verify that it was NULL
+     je   doneReading    ; string successfully parsed if NULL
+     
+     ; Invalid user input if execution reaches here
+     displayString OFFSET invalid
+     call Crlf
+     mov  SDWORD PTR [edi], 0 ; reset value to 0
+     jmp  startReading   ; go back to start for new input
+     
+doneReading:
+     imul ecx, [edi]     ; apply sign multiplier to final result
+     mov  [edi], ecx     ; store final value in array element
 
      ret
 readVal ENDP
 
 writeVal PROC
-     ret  12
+     ret
 writeVal ENDP
 
 END main
