@@ -53,7 +53,7 @@ instruct2      BYTE      " positive or negative integers that fit in a 32-bit re
                     "This program will then print each number, the sum of the numbers,",10,13,
                     "and the average value.",0
 num_prompt     BYTE      "Please enter a signed 32-bit integer: ",0
-count_prompt   BYTE      "Entering value number ",0
+count_label    BYTE      "Entering value number ",0
 subtotal_label BYTE      "Sum of entries so far: ",0
 invalid_num    BYTE      "That number is larger than 32 bits or is not a valid integer.", 0
 num_label      BYTE      "You entered the following numbers: ",0
@@ -78,6 +78,10 @@ main PROC
      call Crlf
 
 ; Read a value from the user
+     push OFFSET invalid_num
+     push OFFSET num_prompt
+     push OFFSET subtotal_label
+     push OFFSET count_label
      push OFFSET num_array
      call GetVals
      
@@ -94,38 +98,6 @@ main PROC
 
      exit ; exit to operating system
 main ENDP
-
-;----------------------------------------------------------------------
-; Prompts the user for NUM_COUNT 32-bit signed integer values and stores
-; them in the array pointed to by pArray. Displays the number of values
-; entered so far and a running subtotal.
-GetVals PROC,
-     pArray:PTR SDWORD   ; address of array to store values in
-; Outputs: Fills the array with user input.
-;----------------------------------------------------------------------
-     mov  ebx, 1         ; keep track of number of values entered
-     mov  edi, pArray    ; copy address of array to EDI for writing
-     mov  ecx, NUM_COUNT ; set counter to number of values to enter
-fetchNumbers:
-; Display number of values entered so far
-     displayString OFFSET count_prompt
-     push ebx            ; count
-     call WriteVal       ; display count
-     call Crlf
-; Get value from user
-     push edi            ; element to save value to
-     call ReadVal        ; read value from user and store in element
-     inc  ebx            ; increment counter
-     add  edi, 4         ; increment EDI to next element
-; Display subtotal
-     displayString OFFSET subtotal_label
-     push pArray
-     call DisplaySum     ; display the running subtotal
-     call Crlf
-     call Crlf
-     loop fetchNumbers   ; repeat for NUM_COUNT times
-     ret
-GetVals ENDP
 
 ;----------------------------------------------------------------------
 ; Displays the sum of the SDWORD values in an array with NUM_COUNT elements.
@@ -158,11 +130,51 @@ DisplaySum ENDP
 ; DisplayList ENDP
 
 ;----------------------------------------------------------------------
+; Prompts the user for NUM_COUNT 32-bit signed integer values and stores
+; them in the array pointed to by pArray. Displays the number of values
+; entered so far and a running subtotal.
+GetVals PROC,
+     pArray:PTR SDWORD,       ; Address of array to store values in
+     pCountLabel:PTR BYTE,    ; Label for values entered so far
+     pSubtotalLabel:PTR BYTE, ; Subtotal label
+     pNumPrompt:PTR BYTE,     ; Prompt for user input of value
+     pInvalid:PTR BYTE        ; Invalid input message
+; Outputs: Fills the array with user input.
+;----------------------------------------------------------------------
+     mov  ebx, 1         ; keep track of number of values entered
+     mov  edi, pArray    ; copy address of array to EDI for writing
+     mov  ecx, NUM_COUNT ; set counter to number of values to enter
+fetchNumbers:
+; Display number of values entered so far
+     displayString pCountPrompt
+     push ebx            ; count
+     call WriteVal       ; display count
+     call Crlf
+; Get value from user
+     push pInvalid       ; invalid input message
+     push pNumPrompt     ; prompt text
+     push edi            ; element to save value to
+     call ReadVal        ; read value from user and store in element
+     inc  ebx            ; increment counter
+     add  edi, 4         ; increment EDI to next element
+; Display subtotal
+     displayString pSubtotalLabel
+     push pArray
+     call DisplaySum     ; display the running subtotal
+     call Crlf
+     call Crlf
+     loop fetchNumbers   ; repeat for NUM_COUNT times
+     ret
+GetVals ENDP
+
+;----------------------------------------------------------------------
 ; Prompts the user for a 32-bit signed integer value and stores the
 ; value in the specified memory location. Displays an error and reprompts
 ; if the input is not a valid integer or is larger than 32 bits.
 ReadVal PROC USES eax ebx ecx esi edi,
-     pValue:PTR SDWORD   ; Address of memory location to store the value
+     pValue:PTR SDWORD,  ; Memory location to store the value
+     pNumPrompt:PTR BYTE,; Prompt for user input of value
+     pInvalid:PTR BYTE   ; Invalid input message
      LOCAL input[MAX_NUM_LEN+2]:BYTE ; Buffer for user input string
 ; Outputs: Stores the signed value in address of 'value'.
 ;----------------------------------------------------------------------
@@ -170,7 +182,7 @@ startReading:
      mov  edi, pValue    ; copy value address to EDI
      mov  SDWORD PTR [edi], 0 ; initialize value to 0
      lea  eax, input     ; copy address of local input variable to EAX
-     getString OFFSET num_prompt, eax, LENGTHOF input  ; stores string in input
+     getString pNumPrompt, eax, LENGTHOF input  ; stores string in input
      mov  esi, eax       ; copy address of first character to ESI
      mov  eax, 0         ; initialize EAX to 0
      cld                 ; clear direction flag (forward direction)
@@ -207,7 +219,7 @@ endParse:
      je   doneReading    ; string successfully parsed if NULL
      
 ; Invalid user input if execution reaches here
-     displayString OFFSET invalid_num
+     displayString pInvalid
      call Crlf
      mov  SDWORD PTR [edi], 0 ; reset value to 0
      jmp  startReading   ; go back to start for new input
@@ -222,9 +234,9 @@ ReadVal ENDP
 ; Converts the signed integer value at the specified memory address
 ; to an ASCII string and displays it to the terminal window.
 WriteVal PROC USES eax ebx ecx edx edi,
-     value:SDWORD        ; signed integer value to write
-     LOCAL output[MAX_NUM_LEN+1]:BYTE, ; holds string representation of value
-           sign:BYTE     ; holds the sign of the number
+     value:SDWORD        ; Signed integer value to write
+     LOCAL output[MAX_NUM_LEN+1]:BYTE, ; Holds string representation of value
+           sign:BYTE     ; Holds the sign of the number
 ; Outputs: Prints string representation to terminal window
 ;----------------------------------------------------------------------
      lea  edi, output[MAX_NUM_LEN] ; copy address of end of string to EDI
