@@ -1,12 +1,14 @@
 TITLE I/O Procedures   (Prog06A.asm)
 
 ; Author: David Rigert
-; CS271 / Programming Assignment #6 Option A            3/2/2015
+; CS271 / Programming Assignment #6 Option A            3/5/2015
 ; Description: This program prompts the user for 10 valid 32-bit signed integers,
 ;              stores the values in an array, and then displays the integers,
 ;              their sums, and their average.
 ;              User input is read as a string and converted to numeric form.
 ;              The input is validated during the conversion process.
+; Extra Credit: 1) Each line of user input is numbered and has a running subtotal
+;               2) Handles signed integers
 
 INCLUDE Irvine32.inc
 
@@ -50,17 +52,19 @@ ENDM
 intro          BYTE      "Manual Integer Parsing Procedures     by David Rigert",0
 instruct1      BYTE      "Specify ",0
 instruct2      BYTE      " positive or negative integers that fit in a 32-bit register.",10,13,
-                    "This program will then print each number, the sum of the numbers,",10,13,
-                    "and the average value.",0
+                         "This program will then print each number, the sum of the numbers,",10,13,
+                         "and the average value.",0
 num_prompt     BYTE      "Please enter a signed 32-bit integer: ",0
 count_label    BYTE      "Entering value number ",0
 subtotal_label BYTE      "Sum of entries so far: ",0
 invalid_num    BYTE      "That number is larger than 32 bits or is not a valid integer.", 0
 num_label      BYTE      "You entered the following numbers: ",0
+delimiter      BYTE      ", ",0
 sum_label      BYTE      "The sum is: ",0
 avg_label      BYTE      "The average (rounded down) is: ",0
 goodbye        BYTE      "Thank you for a fun quarter!",0
 num_array      SDWORD    NUM_COUNT DUP(0)    ; stores the converted numbers
+sum_val        SDWORD    0  ; sum of values in array
 
 .code
 main PROC
@@ -78,36 +82,107 @@ main PROC
      call Crlf
 
 ; Read a value from the user
-     push OFFSET invalid_num
-     push OFFSET num_prompt
-     push OFFSET subtotal_label
-     push OFFSET count_label
-     push OFFSET num_array
+     push OFFSET invalid_num            ; invalid input message
+     push OFFSET num_prompt             ; prompt for user input
+     push OFFSET subtotal_label         ; label for subtotal
+     push OFFSET count_label            ; label for value number
+     push NUM_COUNT                     ; elements in array
+     push OFFSET num_array              ; array to store values
      call GetVals
      
 ; Display the values to the terminal window
-
-; Display the sum to the terminal window
-     displayString OFFSET sum_label
-     push OFFSET num_array
-     call DisplaySum     ; display the sum
+     displayString OFFSET num_label     ; display label for numbers entered
+     call Crlf
+     push OFFSET delimiter              ; delimiter between values
+     push NUM_COUNT                     ; elements in array
+     push OFFSET num_array              ; array to read values from
+     call DisplayList
      call Crlf
      
+; Display the sum to the terminal window
+     displayString OFFSET sum_label     ; label for sum
+     push OFFSET sum_val                ; stores the sum
+     push NUM_COUNT                     ; elements in array
+     push OFFSET num_array              ; array to get sum of
+     call GetSum                        ; put sum into sum_val
+     push sum_val                       ; sum value to display
+     call WriteVal
+     call Crlf
 
 ; Display the average to the terminal window
+     displayString OFFSET avg_label     ; label for average
+     push NUM_COUNT                     ; elements in array
+     push OFFSET num_array              ; array to get average of
+     call DisplayAverage
+     call Crlf
+     call Crlf
+
+; Display goodbye message
+     displayString OFFSET goodbye
+     call Crlf
 
      exit ; exit to operating system
 main ENDP
 
 ;----------------------------------------------------------------------
-; Displays the sum of the SDWORD values in an array with NUM_COUNT elements.
-DisplaySum PROC USES eax ebx ecx esi edi,
-     pArray:PTR SDWORD   ; address of array to sum values of
+; Displays the average of the SDWORD values in an array.
+DisplayAverage PROC USES eax ebx edx edi,
+     pArray:PTR SDWORD,  ; Address of array to display
+     count:DWORD         ; Number of elements in array
+     LOCAL sum:SDWORD    ; Holds the sum
+; Outputs: Displays the values of the array in the terminal window.
+;----------------------------------------------------------------------
+     lea  edi, sum       ; copy address of sum to EDI
+     push edi            ; out parameter for sum
+     push count          ; number of elements in array
+     push pArray         ; address of array
+     call GetSum         ; puts sum in 'sum' variable
+     mov  eax, sum       ; copy sum to EAX
+     mov  ebx, count     ; copy divisor to EBX
+     cdq                 ; sign extend value into EDX
+     idiv ebx            ; divide sum by count
+     push eax            ; push quotient on stack
+     call WriteVal       ; display the average
+     
+     ret
+DisplayAverage ENDP
+
+;----------------------------------------------------------------------
+; Displays all of the SDWORD values in an array.
+DisplayList PROC USES eax ecx esi,
+     pArray:PTR SDWORD,  ; Address of array to display
+     count:DWORD,        ; Number of elements in array
+     pDelim:PTR BYTE     ; Delimiter between values
+; Outputs: Displays the values of the array in the terminal window.
+;----------------------------------------------------------------------
+     mov  esi, pArray    ; copy address to ESI for reading
+     mov  ecx, count     ; set loop counter
+     
+; Display first value outside of loop so that last value will not have delimiter
+     lodsd               ; load value into EAX and increment ESI
+     push eax
+     call WriteVal       ; display value
+     dec  ecx            ; subtract 1 from counter
+startList:
+     displayString pDelim ; display delimiter
+     lodsd               ; load value into EAX and increment ESI
+     push eax
+     call WriteVal       ; display value
+     loop startList
+     ret
+DisplayList ENDP
+
+;----------------------------------------------------------------------
+; Gets the sum of the SDWORD values in an array.
+GetSum PROC USES eax ebx ecx esi edi,
+     pArray:PTR SDWORD,  ; Address of array to sum values of
+     count:DWORD,        ; Number of elements in array
+     pResult:PTR SDWORD  ; Stores the sum
 ; Outputs: Displays the sum in the terminal window.
 ;----------------------------------------------------------------------
      mov  esi, pArray    ; copy address to ESI for reading
      mov  ebx, 0         ; initialize EBX as accumulator
-     mov  ecx, NUM_COUNT ; set loop counter
+     mov  ecx, count     ; set loop counter
      cld                 ; clear direction flag (forward direction)
 
 ; Calculate the sum of all values currently in the array
@@ -116,39 +191,34 @@ startLoop:
      add  ebx, eax       ; add value to EBX
      loop startLoop      ; repeat for NUM_COUNT
      
-; Display the sum in the terminal window
-     push ebx            ; pass sum as parameter to WriteVal
-     call WriteVal       ; display sum to terminal window
+; Copy sum to out parameter
+     mov  edi, pResult
+     mov  [edi], ebx
      ret
-DisplaySum ENDP
-
-; DisplayList PROC,
-     ; pArray:PTR SDWORD   ; address of array to display
-     
-     
-     ; ret
-; DisplayList ENDP
+GetSum ENDP
 
 ;----------------------------------------------------------------------
-; Prompts the user for NUM_COUNT 32-bit signed integer values and stores
+; Prompts the user for 'count' 32-bit signed integer values and stores
 ; them in the array pointed to by pArray. Displays the number of values
 ; entered so far and a running subtotal.
 GetVals PROC,
      pArray:PTR SDWORD,       ; Address of array to store values in
+     count:DWORD,             ; Number of elements in array
      pCountLabel:PTR BYTE,    ; Label for values entered so far
      pSubtotalLabel:PTR BYTE, ; Subtotal label
      pNumPrompt:PTR BYTE,     ; Prompt for user input of value
      pInvalid:PTR BYTE        ; Invalid input message
+     LOCAL subtotal:SDWORD    ; Holds subtotal of values entered so far
 ; Outputs: Fills the array with user input.
 ;----------------------------------------------------------------------
      mov  ebx, 1         ; keep track of number of values entered
      mov  edi, pArray    ; copy address of array to EDI for writing
-     mov  ecx, NUM_COUNT ; set counter to number of values to enter
+     mov  ecx, count     ; set counter to number of values to enter
 fetchNumbers:
 ; Display number of values entered so far
-     displayString pCountPrompt
-     push ebx            ; count
-     call WriteVal       ; display count
+     displayString pCountLabel
+     push ebx            ; value count
+     call WriteVal       ; display value count
      call Crlf
 ; Get value from user
      push pInvalid       ; invalid input message
@@ -159,11 +229,16 @@ fetchNumbers:
      add  edi, 4         ; increment EDI to next element
 ; Display subtotal
      displayString pSubtotalLabel
-     push pArray
-     call DisplaySum     ; display the running subtotal
+     lea  eax, subtotal  ; copy address to EAX
+     push eax            ; out parameter for sum
+     push count          ; elements in array
+     push pArray         ; address of array
+     call GetSum         ; get the running subtotal
+     push subtotal
+     call WriteVal       ; display the subtotal
      call Crlf
      call Crlf
-     loop fetchNumbers   ; repeat for NUM_COUNT times
+     loop fetchNumbers   ; repeat 'count' times
      ret
 GetVals ENDP
 
@@ -187,6 +262,8 @@ startReading:
      mov  eax, 0         ; initialize EAX to 0
      cld                 ; clear direction flag (forward direction)
      lodsb               ; load first character to EAX
+     cmp  al, 0          ; test for blank input
+     je   isInvalid      ; blank input is invalid
      cmp  al, '-'        ; compare first character to hyphen (negative)
      je   isNegative     ; skip next code if negative
      mov  ecx, 1         ; if positive, store a positive multiplier in ECX
@@ -219,6 +296,7 @@ endParse:
      je   doneReading    ; string successfully parsed if NULL
      
 ; Invalid user input if execution reaches here
+isInvalid:
      displayString pInvalid
      call Crlf
      mov  SDWORD PTR [edi], 0 ; reset value to 0
