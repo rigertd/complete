@@ -1,8 +1,17 @@
+/*************************************************************************
+ * Author:          David Rigert
+ * Date Created:    3/6/2015
+ * Last Modified:   3/7/2015
+ * Assignment:      Lab 9
+ * Filename:        stack.cpp
+ *
+ * Description:     Implementation of the stack class template. 
+ ************************************************************************/
 #include <stdexcept>
 #include "stack.hpp"
 
 // adds value to top of stack
-template <class T>
+template <typename T>
 void stack<T>::push(const T &value)
 {
     // add value to new node, link new node to
@@ -11,7 +20,7 @@ void stack<T>::push(const T &value)
 }
 
 // returns value on top of stack
-template <class T>
+template <typename T>
 T &stack<T>::peek()
 {
     if (top)
@@ -21,7 +30,7 @@ T &stack<T>::peek()
 }
 
 // removes top value of stack
-template <class T>
+template <typename T>
 void stack<T>::pop()
 {
     // test for empty stack
@@ -37,15 +46,8 @@ void stack<T>::pop()
 }
 
 // determines whether stack is empty
-template <class T>
+template <typename T>
 bool stack<T>::isEmpty()
 {
     return !top;
-}
-
-// need to instantiate a class object for all types that will be used
-// with this class to avoid linker error
-void CreateClassObject()
-{
-    stack<int> s1;
 }
