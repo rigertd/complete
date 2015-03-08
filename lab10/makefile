@@ -4,18 +4,17 @@
 
 CXX = g++
 DEBUG = -g
-CXXFLAGS = -foptimize-sibling-calls -std=c++0x $(DEBUG)
-PROGS = lab10
-OUTPUTS = 
-OBJS = lab10.o
+CXXFLAGS = -std=c++0x $(DEBUG)
+OPTIMIZE = -foptimize-sibling-calls
+PROGS = lab10 lab10_op
 
 all: $(PROGS)
 
-$(PROGS): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
+lab10: lab10.cpp
+	$(CXX) $(CXXFLAGS) lab10.cpp -o $@
 
-$(OBJS): $(@:.o=.cpp)
-	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
+lab10_op: lab10.cpp
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE) lab10.cpp -o $@
 
 clean:
-	$(RM) $(PROGS) $(OBJS) $(OUTPUTS)
+	$(RM) $(PROGS)

@@ -45,13 +45,13 @@ int main()
     ****************************************************************/
     // display header row
     std::cout << "Execution Times of Fibonacci Functions (in microseconds)\n\n";
-    std::cout << std::setw(5) << "n" << std::setw(20) << "RecursionFib"
+    std::cout << std::setw(6) << "n" << std::setw(20) << "RecursionFib"
               << std::setw(20) << "TailRecursionFib"
               << std::setw(20) << "IterationFib" << std::endl;
               
     for (int i = 30; i <= 40; i++)
     {
-        std::cout << std::setw(5) << i;
+        std::cout << std::setw(6) << i;
         
         // recursive Fibonacci function
         t1 = hrc::now();    // save clock value at start
@@ -63,7 +63,7 @@ int main()
         
         // tail recursive Fibonacci function
         t1 = hrc::now();    // save clock value at start
-        result = TailRecursionFib(20);
+        result = TailRecursionFib(i);
         t2 = hrc::now();    // save clock value at stop
         
         std::cout << std::setw(20) 
@@ -71,7 +71,7 @@ int main()
 
         // iterative Fibonacci function
         t1 = hrc::now();    // save clock value at start
-        result = IterationFib(20);
+        result = IterationFib(i);
         t2 = hrc::now();    // save clock value at stop
         
         std::cout << std::setw(20) 
@@ -86,12 +86,12 @@ int main()
     ****************************************************************/
     std::cout << "\nExecution Times of Factorial Functions (in microseconds)\n\n";
     // display header row
-    std::cout << std::setw(5) << "n" << std::setw(20) << "rfactorial"
+    std::cout << std::setw(6) << "n" << std::setw(20) << "rfactorial"
               << std::setw(20) << "factorial" << std::endl;
 
-    for (int i = 1000; i <= 10000; i += 1000)
+    for (int i = 10000; i <= 100000; i += 10000)
     {
-        std::cout << std::setw(5) << i;
+        std::cout << std::setw(6) << i;
         
         // recursive Factorial function
         t1 = hrc::now();    // save clock value at start
