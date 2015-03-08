@@ -8,7 +8,6 @@
  * Description:     Implementation of the queue class template. 
  ************************************************************************/
 #include <stdexcept>
-#include <cassert>
 #include "queue.hpp"
 
 // copy constructor
@@ -16,13 +15,26 @@ template <typename T>
 queue<T>::queue(const queue<T> &obj)
 {
     // assign source obj front to temp pointer
-    node *temp = obj.front;
-    // copy over nodes
-    while (temp)
+    node *source = obj.front;
+    if (source)
     {
-        addBack(temp->value);
-        temp = temp->prev;
+        front = new node(source->value, NULL, NULL);
+        source = source->prev;
     }
+    else
+    {
+        front = NULL;
+        back = NULL;
+    }
+    // copy over remaining nodes
+    node *target = front;
+    while (source)
+    {
+        target->prev = new node(source->value, NULL, target);
+        target = target->prev;
+        source = source->prev;
+    }
+    back = target;
 }
 
 // assignment operator
@@ -33,14 +45,27 @@ queue<T> &queue<T>::operator=(const queue<T> &rhs)
     while (!isEmpty())
         removeFront();
 
-    // assign source rhs front to temp pointer
-    node *temp = rhs.front;
-    // copy over nodes
-    while (temp)
+    // assign source object front to temp pointer
+    node *source = rhs.front;
+    if (source)
     {
-        addBack(temp->value);
-        temp = temp->prev;
+        front = new node(source->value, NULL, NULL);
+        source = source->prev;
     }
+    else
+    {
+        front = NULL;
+        back = NULL;
+    }
+    // copy over remaining nodes
+    node *target = front;
+    while (source)
+    {
+        target->prev = new node(source->value, NULL, target);
+        target = target->prev;
+        source = source->prev;
+    }
+    back = target;
     return *this;
 }
 

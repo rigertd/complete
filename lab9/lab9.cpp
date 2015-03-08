@@ -47,6 +47,9 @@ int main()
         std::cout << "Type an integer: ";
         std::getline(std::cin, input);
     }
+    std::cout << std::endl;
+    
+    std::cout << "Stack Objects:" << std::endl << std::endl;
     
     // copy constructor
     std::cout << "Using copy constructor to initialize stack 2 to stack 1...";
@@ -64,10 +67,10 @@ int main()
     
     // assignment operator
     std::cout << "Using assignment operator to set stack 1 to stack 2...";
+    std::cout << std::endl;
     s1 = s2;
     
     // display content of stack 1
-    std::cout << std::endl;
     std::cout << "Peeking and popping values from stack 1: ";
     while (!s1.isEmpty())
     {
@@ -86,13 +89,16 @@ int main()
     {
         std::cout << "Caught exception: " << e.what() << std::endl;
     }
+    std::cout << std::endl;
+    
+    std::cout << "Queue Objects:" << std::endl << std::endl;
     
     // copy constructor
-    std::cout << "Using copy constructor to initialize queue 2 to queue 1...\n";
+    std::cout << "Using copy constructor to initialize queue 2 to queue 1...";
+    std::cout << std::endl;
     queue<int> q2 = q1;
     
     // display content of queue 1
-    std::cout << std::endl;
     std::cout << "Getting and removing values from queue 1: ";
     while (!q1.isEmpty())
     {
@@ -102,11 +108,11 @@ int main()
     std::cout << std::endl;
     
     // assignment operator
-    std::cout << "Using assignment operator to set queue 1 to queue 2...\n";
+    std::cout << "Using assignment operator to set queue 1 to queue 2...";
+    std::cout << std::endl;
     q1 = q2;
     
     // display content of queue 1
-    std::cout << std::endl;
     std::cout << "Getting and removing values from queue 1: ";
     while (!q1.isEmpty())
     {
