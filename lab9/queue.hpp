@@ -5,8 +5,8 @@
  * Assignment:      Lab 9
  * Filename:        queue.hpp
  *
- * Description:     This class template represents a stack structure
- *                  with an underlying container of a singly-linked list. 
+ * Description:     This class template represents a queue structure
+ *                  with an underlying container of a doubly-linked list. 
  ************************************************************************/
 #ifndef QUEUE_HPP
 #define QUEUE_HPP

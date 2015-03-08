@@ -50,6 +50,10 @@ void queue<T>::removeFront()
     front = front->prev;
     // delete old front node
     delete tmp;
+    // set next of new front to NULL if node exists
+    if (front)
+        front->next = NULL;
+    
 }
 
 // determines whether queue is empty
