@@ -9,11 +9,9 @@
  *                  function and an iterative Fibonacci function.
  *                  Then compares recursion and tail recursion versions of
  *                  a factorial function.
- * Input:           A series of integers, until a non-integer is entered
- * Output:          The same series of integers reversed for the stack and
- *                  in the same order from the queue.
  ************************************************************************/
 #include <iostream>     // std::cin, std::cout, std::getline
+#include <iomanip>      // std::setw
 #include <string>       // std::string
 #include <chrono>
 
@@ -34,126 +32,85 @@ int main()
     std::cout << "This program compares the execution time of recursive,\n"
               << "tail recursive, and iterative Fibonacci functions.\n"
               << "Then it compares the execution time of recursive and\n"
-              << "tail recursive factorial functions.\n";
+              << "tail recursive factorial functions.\n\n";
     
-    long result;
+    long result;        // holds result
+    hrc::time_point t1; // holds start time
+    hrc::time_point t2; // holds stop time
+    
     
     /****************************************************************
         Fibonacci number comparison
-        Start with 20 and then double it to 40. 
+        Start with 30 and then increment 1 at a time up to 40. 
     ****************************************************************/
-    std::cout << "\nFinding the 20th Fibonacci number...\n\n";
+    // display header row
+    std::cout << "Execution Times of Fibonacci Functions (in microseconds)\n\n";
+    std::cout << std::setw(5) << "n" << std::setw(20) << "RecursionFib"
+              << std::setw(20) << "TailRecursionFib"
+              << std::setw(20) << "IterationFib" << std::endl;
+              
+    for (int i = 30; i <= 40; i++)
+    {
+        std::cout << std::setw(5) << i;
+        
+        // recursive Fibonacci function
+        t1 = hrc::now();    // save clock value at start
+        result = RecursionFib(i);
+        t2 = hrc::now();    // save clock value at stop
+        
+        std::cout << std::setw(20) 
+                  << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+        
+        // tail recursive Fibonacci function
+        t1 = hrc::now();    // save clock value at start
+        result = TailRecursionFib(20);
+        t2 = hrc::now();    // save clock value at stop
+        
+        std::cout << std::setw(20) 
+                  << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-    // recursive Fibonacci function
-    hrc::time_point t1 = hrc::now();    // save clock value at start
-    result = RecursionFib(20);
-    hrc::time_point t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "RecursionFib found " << result << " for the 20th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-    
-    // tail recursive Fibonacci function
-    t1 = hrc::now();    // save clock value at start
-    result = TailRecursionFib(20);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "TailRecursionFib found " << result << " for the 20th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-
-    // iterative Fibonacci function
-    t1 = hrc::now();    // save clock value at start
-    result = IterationFib(20);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "IterationFib found " << result << " for the 20th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-
-    std::cout << "\nFinding the 40th Fibonacci number...\n\n";
-
-    // recursive Fibonacci function
-    t1 = hrc::now();    // save clock value at start
-    result = RecursionFib(40);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "RecursionFib found " << result << " for the 40th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-    
-    // tail recursive Fibonacci function
-    t1 = hrc::now();    // save clock value at start
-    result = TailRecursionFib(40);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "TailRecursionFib found " << result << " for the 40th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-
-    // iterative Fibonacci function
-    t1 = hrc::now();    // save clock value at start
-    result = IterationFib(40);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "IterationFib found " << result << " for the 40th Fibonacci number.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
+        // iterative Fibonacci function
+        t1 = hrc::now();    // save clock value at start
+        result = IterationFib(20);
+        t2 = hrc::now();    // save clock value at stop
+        
+        std::cout << std::setw(20) 
+                  << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+                  
+        std::cout << std::endl;
+    }
 
     /****************************************************************
         Factorial comparison
-        Start with 8 and then double it to 16. 
+        Start with 100 and increment by 100 up to 1000.
     ****************************************************************/
-    std::cout << "\nFinding 8!\n\n";
+    std::cout << "\nExecution Times of Factorial Functions (in microseconds)\n\n";
+    // display header row
+    std::cout << std::setw(5) << "n" << std::setw(20) << "rfactorial"
+              << std::setw(20) << "factorial" << std::endl;
 
-    // recursive Factorial function
-    t1 = hrc::now();    // save clock value at start
-    result = rfactorial(8);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "Recursive factorial found " << result << " for 8!.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-    
-    // tail recursive factorial function
-    t1 = hrc::now();    // save clock value at start
-    result = factorial(8);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "Tail recursive factorial found " << result << " for 8!.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-
-    
-    std::cout << "\nFinding 16!\n\n";
-
-    // recursive Factorial function
-    t1 = hrc::now();    // save clock value at start
-    result = rfactorial(16);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "Recursive factorial found " << result << " for 16!.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
-    
-    // tail recursive factorial function
-    t1 = hrc::now();    // save clock value at start
-    result = factorial(16);
-    t2 = hrc::now();    // save clock value at stop
-    
-    std::cout << "Tail recursive factorial found " << result << " for 16!.\n";
-    std::cout << "This took "
-              << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() 
-              << " microseconds\n";
+    for (int i = 100; i <= 1000; i += 100)
+    {
+        std::cout << std::setw(5) << i;
+        
+        // recursive Factorial function
+        t1 = hrc::now();    // save clock value at start
+        result = rfactorial(i);
+        t2 = hrc::now();    // save clock value at stop
+        
+        std::cout << std::setw(20) 
+                  << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+        
+        // tail recursive factorial function
+        t1 = hrc::now();    // save clock value at start
+        result = factorial(i);
+        t2 = hrc::now();    // save clock value at stop
+        
+        std::cout << std::setw(20) 
+                  << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+        
+        std::cout << std::endl;
+    }
 
     return 0;
 }
