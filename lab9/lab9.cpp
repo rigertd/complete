@@ -48,9 +48,27 @@ int main()
         std::getline(std::cin, input);
     }
     
-    // display content of stack
+    // copy constructor
+    std::cout << "Using copy constructor to initialize stack 2 to stack 1...";
+    stack<int> s2 = s1;
+    
+    // display content of stack 1
     std::cout << std::endl;
-    std::cout << "Peeking and popping values from stack: ";
+    std::cout << "Peeking and popping values from stack 1: ";
+    while (!s1.isEmpty())
+    {
+        std::cout << s1.peek() << " ";
+        s1.pop();
+    }
+    std::cout << std::endl;
+    
+    // assignment operator
+    std::cout << "Using assignment operator to set stack 1 to stack 2...";
+    s1 = s2;
+    
+    // display content of stack 1
+    std::cout << std::endl;
+    std::cout << "Peeking and popping values from stack 1: ";
     while (!s1.isEmpty())
     {
         std::cout << s1.peek() << " ";
@@ -84,7 +102,7 @@ int main()
     std::cout << std::endl;
     
     // assignment operator
-    std::cout << "Using assignment operator to set queue1 to queue 2...\n";
+    std::cout << "Using assignment operator to set queue 1 to queue 2...\n";
     q1 = q2;
     
     // display content of queue 1

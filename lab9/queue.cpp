@@ -8,7 +8,7 @@
  * Description:     Implementation of the queue class template. 
  ************************************************************************/
 #include <stdexcept>
-#include <iostream>
+#include <cassert>
 #include "queue.hpp"
 
 // copy constructor
@@ -16,14 +16,11 @@ template <typename T>
 queue<T>::queue(const queue<T> &obj)
 {
     // assign source obj front to temp pointer
-    std::cout << "Assigning " << obj.front->value << " pointer to temp.\n";
     node *temp = obj.front;
     // copy over nodes
     while (temp)
     {
-        std::cout << "Copying " << temp->value << "\n";
         addBack(temp->value);
-        std::cout << "Assigning prev pointer to temp.\n";
         temp = temp->prev;
     }
 }
@@ -51,19 +48,15 @@ queue<T> &queue<T>::operator=(const queue<T> &rhs)
 template <typename T>
 void queue<T>::addBack(const T &value)
 {
-    std::cout << "Adding new node and assigning to back\n";
-    node *tmp = back;
     back = new node(value, NULL, back);
     
     if (front)
     {
-        std::cout << "front is set, setting back->next->prev to back\n";
         // set return pointer of old back
-        tmp->prev = back;
+        back->next->prev = back;
     }
     else
     {
-        std::cout << "front is not set, setting front to back\n";
         // set front to new node
         front = back;
     }

@@ -10,6 +10,59 @@
 #include <stdexcept>
 #include "stack.hpp"
 
+// copy constructor
+template <typename T>
+stack<T>::stack(const stack<T> &obj)
+{
+    // start at top and work way to bottom
+    node *source = obj.top;
+    // test for empty source
+    if (source)
+    {
+        top = new node(source->value, NULL);
+        source = source->next;
+    }
+    else
+        top = NULL;
+    
+    node *target = top;
+    while (source)
+    {
+        target->next = new node(source->value, NULL);
+        target = target->next;
+        source = source->next;
+    }
+}
+
+template <typename T>
+stack<T> &stack<T>::operator=(const stack<T> &rhs)
+{
+    // delete any existing items
+    while (!isEmpty())
+        pop();
+
+    // start at top and work way to bottom
+    node *source = rhs.top;
+    // test for empty source
+    if (source)
+    {
+        top = new node(source->value, NULL);
+        source = source->next;
+    }
+    else
+        top = NULL;
+    
+    node *target = top;
+    while (source)
+    {
+        target->next = new node(source->value, NULL);
+        target = target->next;
+        source = source->next;
+    }
+    
+    return *this;
+}
+
 // adds value to top of stack
 template <typename T>
 void stack<T>::push(const T &value)

@@ -29,12 +29,14 @@ private:
     node *top; // points to top of stack
     
 public:
-    stack() { top = NULL; }
-    ~stack()
+    stack() { top = NULL; } // constructor
+    stack(const stack<T> &);// copy constructor
+    ~stack()                // destructor
     {
         while (!isEmpty())
             pop();
     }
+    stack<T> &operator=(const stack<T> &);  // assignment operator
     void push(const T &);   // adds value to top of stack
     T &peek();              // returns value on top of stack
     void pop();             // removes top value of stack
