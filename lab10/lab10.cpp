@@ -82,14 +82,14 @@ int main()
 
     /****************************************************************
         Factorial comparison
-        Start with 100 and increment by 100 up to 1000.
+        Start with 1000 and increment by 1000 up to 10000.
     ****************************************************************/
     std::cout << "\nExecution Times of Factorial Functions (in microseconds)\n\n";
     // display header row
     std::cout << std::setw(5) << "n" << std::setw(20) << "rfactorial"
               << std::setw(20) << "factorial" << std::endl;
 
-    for (int i = 100; i <= 1000; i += 100)
+    for (int i = 1000; i <= 10000; i += 1000)
     {
         std::cout << std::setw(5) << i;
         
