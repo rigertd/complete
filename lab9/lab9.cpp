@@ -25,8 +25,8 @@
 
 int main()
 {
-    stack<int> s;
-    queue<int> q;
+    stack<int> s1;
+    queue<int> q1;
     std::string input;
     
     // display instructions
@@ -40,8 +40,8 @@ int main()
     {
         // convert to int and add to stack and queue
         int value = std::atoi(input.c_str());
-        s.push(value);
-        q.addBack(value);
+        s1.push(value);
+        q1.addBack(value);
         
         // prompt for next number
         std::cout << "Type an integer: ";
@@ -51,10 +51,10 @@ int main()
     // display content of stack
     std::cout << std::endl;
     std::cout << "Peeking and popping values from stack: ";
-    while (!s.isEmpty())
+    while (!s1.isEmpty())
     {
-        std::cout << s.peek() << " ";
-        s.pop();
+        std::cout << s1.peek() << " ";
+        s1.pop();
     }
     std::cout << std::endl;
     
@@ -62,28 +62,46 @@ int main()
     std::cout << "Popping one more...";
     try
     {
-        s.pop();
+        s1.pop();
     }
     catch (std::underflow_error e)
     {
         std::cout << "Caught exception: " << e.what() << std::endl;
     }
     
-    // display content of queue
+    // copy constructor
+    std::cout << "Using copy constructor to initialize queue 2 to queue 1...\n";
+    queue<int> q2 = q1;
+    
+    // display content of queue 1
     std::cout << std::endl;
-    std::cout << "Getting and removing values from queue: ";
-    while (!q.isEmpty())
+    std::cout << "Getting and removing values from queue 1: ";
+    while (!q1.isEmpty())
     {
-        std::cout << q.getFront() << " ";
-        q.removeFront();
+        std::cout << q1.getFront() << " ";
+        q1.removeFront();
     }
     std::cout << std::endl;
     
+    // assignment operator
+    std::cout << "Using assignment operator to set queue1 to queue 2...\n";
+    q1 = q2;
+    
+    // display content of queue 1
+    std::cout << std::endl;
+    std::cout << "Getting and removing values from queue 1: ";
+    while (!q1.isEmpty())
+    {
+        std::cout << q1.getFront() << " ";
+        q1.removeFront();
+    }
+    std::cout << std::endl;
+
     // demonstrate exception
     std::cout << "Removing one more...";
     try
     {
-        q.removeFront();
+        q1.removeFront();
     }
     catch (std::underflow_error e)
     {

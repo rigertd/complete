@@ -30,6 +30,11 @@ private:
     
 public:
     stack() { top = NULL; }
+    ~stack()
+    {
+        while (!isEmpty())
+            pop();
+    }
     void push(const T &);   // adds value to top of stack
     T &peek();              // returns value on top of stack
     void pop();             // removes top value of stack

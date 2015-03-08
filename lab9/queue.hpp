@@ -32,11 +32,18 @@ private:
     node *back;     // points to back of queue
     
 public:
-    queue() 
+    queue()                 // constructor
     { 
         front = NULL;
         back = NULL;
     }
+    queue(const queue<T> &);   // copy constructor
+    ~queue()                // destructor
+    {
+        while (!isEmpty())
+            removeFront();
+    }
+    queue<T> &operator=(const queue<T> &);    // assignment operator
     void addBack(const T &);// adds value to back of queue
     T &getFront();          // returns value from front of queue
     void removeFront();     // removes value from front of queue

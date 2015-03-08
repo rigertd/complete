@@ -8,27 +8,69 @@
  * Description:     Implementation of the queue class template. 
  ************************************************************************/
 #include <stdexcept>
+#include <iostream>
 #include "queue.hpp"
 
+// copy constructor
+template <typename T>
+queue<T>::queue(const queue<T> &obj)
+{
+    // assign source obj front to temp pointer
+    std::cout << "Assigning " << obj.front->value << " pointer to temp.\n";
+    node *temp = obj.front;
+    // copy over nodes
+    while (temp)
+    {
+        std::cout << "Copying " << temp->value << "\n";
+        addBack(temp->value);
+        std::cout << "Assigning prev pointer to temp.\n";
+        temp = temp->prev;
+    }
+}
+
+// assignment operator
+template <typename T>
+queue<T> &queue<T>::operator=(const queue<T> &rhs)
+{
+    // delete existing nodes
+    while (!isEmpty())
+        removeFront();
+
+    // assign source rhs front to temp pointer
+    node *temp = rhs.front;
+    // copy over nodes
+    while (temp)
+    {
+        addBack(temp->value);
+        temp = temp->prev;
+    }
+    return *this;
+}
+
 // adds value to back of queue
-template <class T>
+template <typename T>
 void queue<T>::addBack(const T &value)
 {
+    std::cout << "Adding new node and assigning to back\n";
+    node *tmp = back;
     back = new node(value, NULL, back);
+    
     if (front)
     {
+        std::cout << "front is set, setting back->next->prev to back\n";
         // set return pointer of old back
-        back->next->prev = back;
+        tmp->prev = back;
     }
     else
     {
+        std::cout << "front is not set, setting front to back\n";
         // set front to new node
         front = back;
     }
 }
 
 // returns value from front of queue
-template <class T>
+template <typename T>
 T &queue<T>::getFront()
 {
     if (front)
@@ -38,7 +80,7 @@ T &queue<T>::getFront()
 }
 
 // removes value from front of queue
-template <class T>
+template <typename T>
 void queue<T>::removeFront()
 {
     if (!front)
@@ -57,7 +99,7 @@ void queue<T>::removeFront()
 }
 
 // determines whether queue is empty
-template <class T>
+template <typename T>
 bool queue<T>::isEmpty()
 {
     // empty if front is NULL
