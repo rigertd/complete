@@ -26,7 +26,7 @@ long TailRecursionFib(int);
 long TailRecursionFib(int, long, long);
 long IterationFib(int);
 long rfactorial(int);
-long factorialHelper(int, int);
+long factorialHelper(int, long);
 long factorial(int);
 
 int main()
@@ -228,7 +228,7 @@ long rfactorial (int n)
         return n * rfactorial(n-1);
 }   
 // Tail Recursive
-long factorialHelper (int n, int result)
+long factorialHelper (int n, long result)
 {
     if (n == 1)
         return result;
