@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:          David Rigert
  * Date Created:    3/7/2015
- * Last Modified:   3/7/2015
+ * Last Modified:   3/8/2015
  * Assignment:      Lab 10
  * Filename:        lab10.cpp
  *
@@ -82,7 +82,7 @@ int main()
 
     /****************************************************************
         Factorial comparison
-        Start with 1000 and increment by 1000 up to 10000.
+        Start with 10000 and increment by 10000 up to 100000.
     ****************************************************************/
     std::cout << "\nExecution Times of Factorial Functions (in microseconds)\n\n";
     // display header row
