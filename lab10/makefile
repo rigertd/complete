@@ -5,15 +5,15 @@
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x $(DEBUG)
-OPTIMIZE = -foptimize-sibling-calls
-PROGS = lab10 lab10_op
+OPTIMIZE = -O3
+PROGS = lab10 lab10_o3
 
 all: $(PROGS)
 
 lab10: lab10.cpp
 	$(CXX) $(CXXFLAGS) lab10.cpp -o $@
 
-lab10_op: lab10.cpp
+lab10_o3: lab10.cpp
 	$(CXX) $(CXXFLAGS) $(OPTIMIZE) lab10.cpp -o $@
 
 clean:
