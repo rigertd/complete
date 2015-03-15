@@ -57,6 +57,7 @@ public:
 		WORLD_ROOM_LIST,    // list all rooms in world
 		WORLD_SAVE,         // save the world to file
 		WORLD_SET_END,      // set end point
+        WORLD_SET_INTRO,    // set the introduction text
 		WORLD_SET_START,    // set start point
 		WORLD_SET_TIME,     // set time limit
 		WORLD_EXIT,         // exit the game

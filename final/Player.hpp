@@ -13,25 +13,33 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include <map>
+
 #include "Result.hpp"
 #include "Direction.hpp"
-#include "Item.hpp"
-#include "Room.hpp"
+
+class World;
+class Room;
+class Item;
 
 class Player
 {
     friend class UnitTest;      // for unit testing
 private:
     Room *location;             // current location of player
-    Item::ItemMap inventory;    // items carried by player
+    std::map<unsigned, Item *> inventory;   // items carried by player
     unsigned weightLimit;       // maximum weight the player can carry
     unsigned maxSize;           // maximum size of item the player can pick up
     unsigned maxQuantity;       // maximum number of items the player can carry
+    World *global;              // access to global functions
     
 public:
     // constructors
-    Player()    { location = NULL; }
-    Player(Room *, unsigned = 100, unsigned = 10, unsigned = 5);
+    Player(World * = NULL);
+    Player(World *, Room *, unsigned = 100, unsigned = 10, unsigned = 5);
+    
+    // for configuring object with save data
+    void deserialize(std::istream &);
     
     // drops the item with the specified ID in inventory
     Result dropItem(unsigned);
@@ -43,7 +51,7 @@ public:
     int getInventoryWeight();
     
     // gets a list of items held in inventory
-    Item::ItemMap &getItems()       { return inventory; }
+    std::map<unsigned, Item *> &getItems()       { return inventory; }
     
     // gets the maximum item size that can be held in inventory
     unsigned getMaxSize() const     { return maxSize; }
@@ -71,6 +79,9 @@ public:
     
     // view all items in inventory
     void viewItems();
+
+    // for converting object to save data
+    friend std::ostream &operator<<(std::ostream &, Player &);
 };
 
 #endif  // end of PLAYER_HPP definition

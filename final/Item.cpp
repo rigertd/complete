@@ -40,3 +40,28 @@ bool Item::hasName(std::string name)
     std::set<std::string>::iterator it = names.find(name);
     return it != names.end();
 }
+
+std::ostream &operator<<(std::ostream &out, Item &itm)
+{
+    // output item ID
+    out << itm.id << std::endl;
+    
+    // output real name followed by alternate names
+    out << "##ITEMNAMES##" << std::endl;
+    std::set<std::string>::iterator it = itm.names.begin();
+    while (it != itm.names.end())
+    {
+        out << *it << std::endl;
+        ++it;
+    }
+    out << "##ENDITEMNAMES##" << std::endl;
+    
+    // output description
+    out << itm.desc << std::endl;
+    
+    // output size
+    out << itm.size << std::endl;
+    
+    // output weight
+    out << itm.weight << std::endl;
+}

@@ -11,19 +11,24 @@
  ************************************************************************/
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
+
+#include "Item.hpp"
+#include "World.hpp"
 #include "Room.hpp"
 
 // static member variable for unique ID
 int Room::nextId = 1;
 
 // constructor
-Room::Room()
+Room::Room(World *w)
 {
     id = nextId++;
     north = NULL;
     south = NULL;
     east = NULL;
     west = NULL;
+    global = w;
 }
 
 // destructor
@@ -378,10 +383,93 @@ void Room::view(bool editMode)
     std::cout << description;
     
     // show item descriptions
-    Item::ItemMap::iterator it = items.begin();
+    std::map<unsigned, Item *>::iterator it = items.begin();
     while (it != items.end())
     {
         std::cout << it->second->getDesc() << std::endl;
         it++;
     }
+}
+
+// deserializes the room data and configures the Room object
+void Room::deserialize(std::istream &in)
+{
+    std::string input;      // input buffer
+    std::ostringstream oss; // description builder
+    
+    // get room ID
+    std::getline(in, input);
+    id = std::atoi(input.c_str());
+    nextId = (nextId > id ? nextId : id + 1);
+    
+    // get room description
+    std::getline(in, input);  // heading
+    std::getline(in, input);  // first line
+    while (input != "##ENDROOMDESCRIPTION##")
+    {
+        oss << input << std::endl;
+        std::getline(in, input);
+    }
+    description = oss.str();
+    
+    // get room items
+    std::getline(in, input);
+    std::istringstream iss(input);
+    unsigned itemId = 0;
+    while (iss >> itemId)
+    {
+        Item *itm = global->findItem(itemId);
+        if (itm)
+            items[itemId] = itm;
+    }
+}
+
+// serializes the exits of the room
+void Room::serializeExits(std::ostream &out)
+{
+    // output room ID
+    out << id << " ";
+    
+    // output north exit room ID or 0 for NULL
+    out << (north ? north->id : 0) << " ";
+    
+    // output east exit room ID or 0 for NULL
+    out << (east ? east->id : 0) << " ";
+    
+    // output south exit room ID or 0 for NULL
+    out << (south ? south->id : 0) << " ";
+    
+    // output west exit room ID or 0 for NULL
+    out << (west ? west->id : 0) << std::endl;
+}
+
+// converts Room data to save data
+void Room::serialize(std::ostream &out)
+{
+    // output room type
+    out << "basic" << std::endl;
+    
+    // output room ID
+    out << id << std::endl;
+    
+    // output description
+    out << "##ROOMDESCRIPTION##" << std::endl;
+    out << description << std::endl;
+    out << "##ENDROOMDESCRIPTION##" << std::endl;
+    
+    // output item IDs on one line
+    std::map<unsigned, Item *>::iterator it = items.begin();
+    while (it != items.end())
+    {
+        out << it->first << ' ';
+        ++it;
+    }
+    out << std::endl;
+}
+
+// cannot make this virtual so call a member function
+std::ostream &operator<<(std::ostream &out, Room &rm)
+{
+    rm.serialize(out);
+    return out;
 }

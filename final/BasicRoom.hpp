@@ -12,15 +12,16 @@
 #ifndef BASICROOM_HPP
 #define BASICROOM_HPP
 
-#include <iostream>
 #include "Room.hpp"
+
+#include <iostream>
 
 class BasicRoom : public Room
 {
     friend class UnitTest;  // for unit testing
 public:
     // constructor
-    BasicRoom();
+    BasicRoom(World * = NULL);
     
     // destructor
     virtual ~BasicRoom()

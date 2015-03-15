@@ -12,7 +12,7 @@
 #include "BasicRoom.hpp"
 
 // constructor
-BasicRoom::BasicRoom()
+BasicRoom::BasicRoom(World *w) : Room(w)
 {
     description = "A new basic room with no interactivity.\n";
 }

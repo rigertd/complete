@@ -15,13 +15,11 @@
 #include <map>
 #include <string>
 #include <set>
+#include <iostream>
+
 class Item
 {
     friend class UnitTest;      // for unit testing
-public:
-    // define type for mapping ID to Item pointer
-    typedef std::map<unsigned, Item *> ItemMap;
-    
 private:
     unsigned id;                // unique ID of item
     std::string realName;       // actual name of item
@@ -39,6 +37,7 @@ public:
         size = 0;
         weight = 0;
     }
+    Item(unsigned);
     Item(std::string, int size = 0, int weight = 0);
 
     void addName(std::string);
@@ -49,5 +48,11 @@ public:
     int getWeight() const       { return weight; }
     bool hasName(std::string);
     void setDesc(std::string desc)   { this->desc = desc; }
+    
+    // for configuring object with save data
+    void deserialize(std::istream &);
+    
+    // for converting object to save data
+    friend std::ostream &operator<<(std::ostream &, Item &);
 };
 #endif  // end of ITEM_HPP definition

@@ -1,0 +1,68 @@
+##ITEMS##
+1
+##ITEMNAMES##
+key
+##ENDITEMNAMES##
+There is a small key on the floor
+1
+1
+2
+##ITEMNAMES##
+chair
+wooden chair
+##ENDITEMNAMES##
+There is a small wooden chair in the middle of the room.
+12
+20
+##ENDITEMS##
+##ROOMS##
+basic
+1
+##ROOMDESCRIPTION##
+A new basic room with no interactivity.
+
+##ENDROOMDESCRIPTION##
+
+basic
+2
+##ROOMDESCRIPTION##
+This room is big and wide.
+It has many exits.
+
+##ENDROOMDESCRIPTION##
+
+basic
+3
+##ROOMDESCRIPTION##
+A new basic room with no interactivity.
+
+##ENDROOMDESCRIPTION##
+2 
+basic
+4
+##ROOMDESCRIPTION##
+A new basic room with no interactivity.
+
+##ENDROOMDESCRIPTION##
+
+##ENDROOMS##
+##ROOMEXITS##
+1 2 0 0 0
+2 4 3 1 0
+3 0 0 0 2
+4 0 0 2 0
+##ENDROOMEXITS##
+##PLAYER##
+100
+10
+5
+1 
+##INTRO##
+This is the introduction.
+It can be many lines
+or just one.
+
+##ENDINTRO##
+600
+1
+4

@@ -142,6 +142,7 @@ Command::CommandMap Command::populateCommands()
     result["listrooms"] = Command(WORLD_ROOM_LIST, "List all rooms in world.", true);
     result["save"] = Command(WORLD_SAVE, "Save the current world.", true);
     result["setend"] = Command(WORLD_SET_END, "Set current room to end point.", true);
+    result["setintro"] = Command(WORLD_SET_INTRO, "Set introduction displayed at start.", true);
     result["setstart"] = Command(WORLD_SET_START, "Set current room to start point.", true);
     result["timelimit"] = Command(WORLD_SET_TIME, "Set time limit to find end point.", true);
     result["h"] = Command(COMMAND_HELP, "Display all available commands.", false);

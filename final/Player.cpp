@@ -9,14 +9,27 @@
  * Overview:
  *     Implementation for the Player class.
  ************************************************************************/
-#include <iomanip>
-#include <iostream>
-
 #include "Player.hpp"
 
-// constructor - default weight = 100 lbs, default size = 10, default quantity = 5
-Player::Player(Room *location, unsigned weight, unsigned size, unsigned quantity)
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <cstdlib>
+
+#include "Item.hpp"
+#include "Room.hpp"
+#include "World.hpp"
+
+// constructor - default global pointer is NULL
+Player::Player(World *w)
 {
+    global = w;
+}
+
+// constructor - default weight = 100 lbs, default size = 10, default quantity = 5
+Player::Player(World *w, Room *location, unsigned weight, unsigned size, unsigned quantity)
+{
+    this->global = w;
     this->location = location;
     this->weightLimit = weight;
     this->maxSize = size;
@@ -28,7 +41,7 @@ Result Player::dropItem(unsigned id)
 {
     Result res(Result::SUCCESS);
     // check for ID in inventory
-    Item::ItemMap::iterator it = inventory.find(id);
+    std::map<unsigned, Item *>::iterator it = inventory.find(id);
     if (it != inventory.end())
     {
         // add item to Room
@@ -52,7 +65,7 @@ Result Player::dropItem(unsigned id)
 int Player::getInventoryWeight()
 {
     int total = 0;  // accumulator
-    Item::ItemMap::iterator it = inventory.begin();
+    std::map<unsigned, Item *>::iterator it = inventory.begin();
     while (it != inventory.end())
     {
         total += it->second->getWeight();
@@ -131,7 +144,7 @@ Result Player::useItem(unsigned id)
     Item *itm = NULL;
     
     // check if item is in inventory
-    Item::ItemMap::iterator it = inventory.find(id);
+    std::map<unsigned, Item *>::iterator it = inventory.find(id);
     if (it != inventory.end())
     {
         itm = it->second;
@@ -148,7 +161,7 @@ Result Player::useItem(unsigned id)
 // view all items in inventory
 void Player::viewItems()
 {
-    Item::ItemMap::iterator it = inventory.begin();
+    std::map<unsigned, Item *>::iterator it = inventory.begin();
 
     if (inventory.size() > 0)
         std::cout << "Your bag contains the following items:" << std::endl;
@@ -168,4 +181,54 @@ void Player::viewItems()
               << weightLimit << " lbs max"
               << "\nTotal quantity: " << inventory.size() << "/" 
               << maxQuantity << " items max" << std::endl;
+}
+
+// for configuring object with save data
+void Player::deserialize(std::istream &in)
+{
+    std::string input;      // input buffer
+    
+    // get weightLimit
+    std::getline(in, input);
+    weightLimit = std::atoi(input.c_str());
+    
+    // get maxSize
+    std::getline(in, input);
+    maxSize = std::atoi(input.c_str());
+    
+    // get maxQuantity
+    std::getline(in, input);
+    maxQuantity = std::atoi(input.c_str());
+    
+    // get player inventory
+    std::getline(in, input);
+    std::istringstream iss(input);
+    unsigned id = 0;
+    while (iss >> id)
+    {
+        Item *itm = global->findItem(id);
+        if (itm)
+            inventory[id] = itm;
+    }
+}
+
+std::ostream &operator<<(std::ostream &out, Player &plr)
+{
+    // output weight limit
+    out << plr.weightLimit << std::endl;
+    
+    // output max item size
+    out << plr.maxSize << std::endl;
+    
+    // output max inventory quantity
+    out << plr.maxQuantity << std::endl;
+    
+    // output item IDs on one line
+    std::map<unsigned, Item *>::iterator it = plr.inventory.begin();
+    while (it != plr.inventory.end())
+    {
+        out << it->first << ' ';
+        ++it;
+    }
+    out << std::endl;
 }

@@ -10,6 +10,10 @@
  *     Implementation for UnitTest class.
  ************************************************************************/
 #include "UnitTest.hpp"
+#include "Command.hpp"
+#include "Item.hpp"
+#include "BasicRoom.hpp"
+#include "Player.hpp"
 
 void UnitTest::test_Room()
 {
@@ -517,13 +521,13 @@ void UnitTest::test_Player()
      *************************************************************************/
     std::cout << "Testing constructor...";
     Room *rm = new BasicRoom();
-    Player p(rm);
+    Player p(NULL, rm);
     assert(p.location == rm);
     assert(p.inventory.size() == 0);
     assert(p.weightLimit = 100);
     assert(p.maxSize == 10);
     assert(p.maxQuantity == 5);
-    Player p2(rm, 1, 2, 3);
+    Player p2(NULL, rm, 1, 2, 3);
     assert(p2.location == rm);
     assert(p2.inventory.size() == 0);
     assert(p2.weightLimit = 1);

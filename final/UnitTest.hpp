@@ -15,11 +15,6 @@
 #include <iostream>
 #include <cassert>
 
-#include "Command.hpp"
-#include "Item.hpp"
-#include "BasicRoom.hpp"
-#include "Player.hpp"
-
 class UnitTest
 {
 public:

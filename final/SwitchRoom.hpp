@@ -21,7 +21,7 @@ class SwitchRoom : public Room
     friend class UnitTest;  // for unit testing
 public:
     // constructor
-    SwitchRoom();
+    SwitchRoom(World * = NULL);
     
     // destructor
     virtual ~SwitchRoom()

@@ -15,30 +15,31 @@
 #include <string>
 #include <map>
 
-#include "Item.hpp"
 #include "Result.hpp"
 #include "Direction.hpp"
+
+class Item;
+class World;
 
 class Room
 {
     friend class UnitTest;      // for unit testing
-public:    
-    // define type for mapping ID to Room pointer
-    typedef std::map<unsigned, Room *> RoomMap;
 protected:
     int id;                     // holds a unique room ID
     std::string description;    // description of the room
-    Item::ItemMap items;        // list of items in room
+    std::map<unsigned, Item *> items;   // list of items in room
     Room *north;                // pointer to north
     Room *south;                // pointer to south
     Room *east;                 // pointer to east
     Room *west;                 // pointer to west
+    World *global;              // access to global functions
     
     static int nextId;          // ID of next Room to be created
     
 public:
     // constructor
-    Room();
+    Room(World *);
+    
     // destructor
     virtual ~Room() = 0;
     
@@ -55,13 +56,22 @@ public:
     virtual Room *getExit(Direction d) const;
     
     // gets the ItemMap of the room
-    Item::ItemMap &getItems()   { return items; }
+    std::map<unsigned, Item *> &getItems()   { return items; }
     
     // gets the room ID
     unsigned getRoomId() const  { return id; }
     
     // removes an item with the specified id from the room
     Result removeItem(unsigned);
+    
+    // serializes the room data into the save file format
+    virtual void serialize(std::ostream &);
+    
+    // serializes the exits of the room
+    virtual void serializeExits(std::ostream &);
+    
+    // deserializes the room data and configures the Room object
+    virtual void deserialize(std::istream &);
     
     // prompts the user to set the room description
     virtual Result setDescription(std::string = "");
@@ -84,5 +94,8 @@ public:
     
     // displays the current room info in the terminal window
     virtual void view(bool);
+    
+    // for converting object to save data
+    friend std::ostream &operator<<(std::ostream &, Room &);
 };
 #endif  // end of ROOM_HPP definition

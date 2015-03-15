@@ -12,7 +12,7 @@
 #include "SwitchRoom.hpp"
 
 // constructor
-SwitchRoom::SwitchRoom()
+SwitchRoom::SwitchRoom(World *w) : Room(w)
 {
     description = "A room that switches the state of a different room.\n";
 }

@@ -22,7 +22,7 @@ class ConditionRoom : public Room
     friend class UnitTest;  // for unit testing
 public:
     // constructor
-    ConditionRoom();
+    ConditionRoom(World * = NULL);
     
     // destructor
     virtual ~ConditionRoom()

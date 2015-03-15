@@ -19,12 +19,14 @@
 #include <iostream>
 #include <fstream>
 
-#include "Command.hpp"
 #include "Direction.hpp"
-#include "Item.hpp"
-#include "Player.hpp"
-#include "Room.hpp"
 #include "Result.hpp"
+#include "Player.hpp"
+
+// forward class declarations
+class Room;
+class Item;
+class Command;
 
 class World
 {
@@ -39,14 +41,15 @@ private:
         unsigned rm;        // room ID that exit leads to
     };
     
-    Room::RoomMap rooms;    // all rooms in the game world
-    Item::ItemMap items;    // all items in the game world
+    std::map<unsigned, Room *> rooms;    // all rooms in the game world
+    std::map<unsigned, Item *> items;    // all items in the game world
     time_t startTime;       // time that gameplay started
     time_t timeLimit;       // gameplay time limit in seconds
     Player user;            // player info
     bool editMode;          // edit mode flag
     Room *start;            // starting point
     Room *endpoint;         // exit
+    std::string intro;      // game introduction text
     
     /******************************************************
     *             Private Member Functions                *
@@ -68,12 +71,15 @@ private:
     
     // finds the ID of the first item that matches the specified name or 0
     unsigned findItemId(std::string);
-
+    
     // lists all of the items in the game world with IDs
     void listItems();
     
     // lists all of the rooms in the game world with IDs
     void listRooms();
+    
+    // prompts user for the introductory text displayed when game first starts
+    Result setIntro();
     
     // sets time limit to the specified number of seconds and resets the timer
     void setTimeLimit(time_t);
@@ -88,6 +94,12 @@ public:
     /******************************************************
     *              Public Member Functions                *
     ******************************************************/
+    // returns a pointer to the Item with the specified ID or NULL
+    Item *findItem(unsigned);
+    
+    // returns a pointer to the Room with the specified ID or NULL
+    Room *findRoom(unsigned);
+    
     // loads the game data from the specified fstream
     Result load(std::ifstream &);
     

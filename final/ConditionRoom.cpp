@@ -12,7 +12,7 @@
 #include "ConditionRoom.hpp"
 
 // constructor
-ConditionRoom::ConditionRoom()
+ConditionRoom::ConditionRoom(World *w) : Room(w)
 {
     description = "A new conditional room that switches between two states.\n";
 }

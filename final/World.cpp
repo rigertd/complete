@@ -9,13 +9,17 @@
  * Overview:
  *     Implementation for World class.
  ************************************************************************/
+#include "World.hpp"
+
 #include <cstdlib>  // atoi
 #include <queue>
 #include <set>
 #include <typeinfo> // typeid
 #include <sstream>  // osringstream
 
-#include "World.hpp"
+#include "Command.hpp"
+#include "Item.hpp"
+#include "Room.hpp"
 #include "BasicRoom.hpp"
 #include "ConditionRoom.hpp"
 #include "SwitchRoom.hpp"
@@ -43,7 +47,7 @@ Result World::addExit(Direction d, std::string arg)
     // create BasicRoom if arg is blank
     if (arg.empty())
     {
-        rm = new BasicRoom();
+        rm = new BasicRoom(this);
         res = user.getCurrentRoom()->setExit(d, rm);
         res.message = "Created new basic room.";
     }
@@ -58,14 +62,14 @@ Result World::addExit(Direction d, std::string arg)
             // check for ConditionRoom argument
             if (arg == "cond")
             {
-                rm = new ConditionRoom();
+                rm = new ConditionRoom(this);
                 res = user.getCurrentRoom()->setExit(d, rm);
                 res.message = "Created new condition room.";
             }
             // check for SwitchRoom argument
             else if (arg == "switch")
             {
-                rm = new SwitchRoom();
+                rm = new SwitchRoom(this);
                 res = user.getCurrentRoom()->setExit(d, rm);
                 res.message = "Created new switch room.";
             }
@@ -81,7 +85,7 @@ Result World::addExit(Direction d, std::string arg)
         else
         {
             // see if id is a valid room ID
-            Room::RoomMap::iterator it = rooms.find(id);
+            std::map<unsigned, Room *>::iterator it = rooms.find(id);
             if (it == rooms.end())
             {
                 res.type = Result::FAILURE;
@@ -203,7 +207,7 @@ Result World::cleanUpOrphans()
     std::set<Room *> roomLinks;     // stores all pointers to all rooms
     
     // go through all rooms and save all pointers to rooms
-    Room::RoomMap::iterator roomIt = rooms.begin();
+    std::map<unsigned, Room *>::iterator roomIt = rooms.begin();
     while (roomIt != rooms.end())
     {
         // save all room links
@@ -221,7 +225,7 @@ Result World::cleanUpOrphans()
     
     
     // now go through unorphaned rooms and save all links to items
-    Item::ItemMap::iterator itemIt;
+    std::map<unsigned, Item *>::iterator itemIt;
     std::set<Room *>::iterator keepRoomIt = roomLinks.begin();
     while (keepRoomIt != roomLinks.end())
     {
@@ -295,7 +299,7 @@ Result World::deleteItem(unsigned id)
     std::ostringstream oss;         // message builder
     
     // check if item exists
-    Item::ItemMap::iterator itemIt = items.find(id);
+    std::map<unsigned, Item *>::iterator itemIt = items.find(id);
     if (itemIt == items.end())
     {
         res.type = Result::FAILURE;
@@ -307,7 +311,7 @@ Result World::deleteItem(unsigned id)
     user.dropItem(itemIt->second->getId());
     
     // remove any links to item in rooms
-    Room::RoomMap::iterator roomIt = rooms.begin();
+    std::map<unsigned, Room *>::iterator roomIt = rooms.begin();
     while (roomIt != rooms.end())
     {
         roomIt->second->removeItem(itemIt->second->getId());
@@ -331,7 +335,7 @@ Result World::deleteRoom(unsigned id)
     std::ostringstream oss;         // message builder
     
     // check if room ID exists
-    Room::RoomMap::iterator it = rooms.find(id);
+    std::map<unsigned, Room *>::iterator it = rooms.find(id);
     if (it == rooms.end())
     {
         res.type = Result::FAILURE;
@@ -340,7 +344,7 @@ Result World::deleteRoom(unsigned id)
     }
     
     // remove any exits to room from other rooms
-    Room::RoomMap::iterator it2 = rooms.begin();
+    std::map<unsigned, Room *>::iterator it2 = rooms.begin();
     while (it2 != rooms.end())
     {
         // we could just remove exits from the room being deleted,
@@ -368,7 +372,7 @@ Result World::deleteRoom(unsigned id)
 // finds the ID of the first item that matches the specified name or 0
 unsigned World::findItemId(std::string name)
 {
-    Item::ItemMap::iterator it = items.begin();
+    std::map<unsigned, Item *>::iterator it = items.begin();
 
     // check every Item in items
     while (it != items.end())
@@ -381,10 +385,30 @@ unsigned World::findItemId(std::string name)
     return 0;
 }
 
+// returns a pointer to the Item with the specified ID or NULL
+Item *World::findItem(unsigned id)
+{
+    std::map<unsigned, Item *>::iterator it = items.find(id);
+    if (it != items.end())
+        return it->second;
+    else
+        return NULL;
+}
+
+// returns a pointer to the Room with the specified ID or NULL
+Room *World::findRoom(unsigned id)
+{
+    std::map<unsigned, Room *>::iterator it = rooms.find(id);
+    if (it != rooms.end())
+        return it->second;
+    else
+        return NULL;
+}
+
 // lists all of the items in the game world with IDs
 void World::listItems()
 {
-    Item::ItemMap::iterator it = items.begin();
+    std::map<unsigned, Item *>::iterator it = items.begin();
 
     if (items.size() > 0)
         std::cout << "The world currently contains the following items:" << std::endl;
@@ -404,7 +428,7 @@ void World::listItems()
 // lists all of the rooms in the game world with IDs
 void World::listRooms()
 {
-    Room::RoomMap::iterator it = rooms.begin();
+    std::map<unsigned, Room *>::iterator it = rooms.begin();
 
     if (rooms.size() > 0)
         std::cout << "The world currently contains the following rooms:" << std::endl;
@@ -423,6 +447,41 @@ void World::listRooms()
             std::cout << "switch)" << std::endl;
         it++;
     }
+}
+
+// prompts user for the introductory text displayed when game first starts
+Result World::setIntro()
+{
+    Result res(Result::SUCCESS);
+    std::string input;      // user input buffer
+    std::ostringstream oss; // intro string builder
+    
+    std::cout << "Enter a new introduction one line at a time.\n"
+              << "Press Enter with no input to keep the old one.\n"
+              << "When you are done, press Enter twice.\n";
+    
+    // get first line of input
+    std::getline(std::cin, input);
+    
+    // keep getting input until blank line entered
+    while (!input.empty())
+    {
+        oss << input << std::endl;
+        std::getline(std::cin, input);
+    }
+    
+    // check if anything was entered
+    if (oss.str().empty())
+    {
+        res.type = Result::ABORT;
+        res.message = "Keeping old introduction.";
+    }
+    else
+    {
+        intro = oss.str();
+        res.message = "Introduction updated.";
+    }
+    return res;
 }
 
 // sets time limit to the specified number of seconds and resets the timer
@@ -449,7 +508,7 @@ World::World()
 World::~World()
 {
     // delete all rooms
-    Room::RoomMap::iterator roomIt = rooms.begin();
+    std::map<unsigned, Room *>::iterator roomIt = rooms.begin();
     while (roomIt != rooms.end())
     {
         delete roomIt->second;
@@ -459,7 +518,7 @@ World::~World()
     rooms.clear();
 
     // delete all items
-    Item::ItemMap::iterator itemIt = items.begin();
+    std::map<unsigned, Item *>::iterator itemIt = items.begin();
     while (itemIt != items.end())
     {
         delete itemIt->second;
@@ -670,7 +729,7 @@ Result World::parse(Command cmd)
             if (value <= 0)
                 value = findItemId(cmd.getArgument());
             // make sure ID is valid
-            Item::ItemMap::iterator it = items.find(value);
+            std::map<unsigned, Item *>::iterator it = items.find(value);
             if (it != items.end())
             {
                 res = user.getCurrentRoom()->setRequired(it->second);
@@ -692,7 +751,7 @@ Result World::parse(Command cmd)
         else
         {
             // make sure ID is valid
-            Room::RoomMap::iterator it = rooms.find(value);
+            std::map<unsigned, Room *>::iterator it = rooms.find(value);
             if (it != rooms.end())
             {
                 res = user.getCurrentRoom()->setTarget(it->second);
@@ -753,9 +812,14 @@ Result World::parse(Command cmd)
         // use default filename if none specified
         if (cmd.getArgument().empty())
             input = DEFAULT_FILENAME;
+        else
+            input = cmd.getArgument();
         ofs.open(input.c_str());
         res = save(ofs);
         ofs.close();
+        break;
+    case Command::WORLD_SET_INTRO:     // set the introduction text
+        res = setIntro();
         break;
     case Command::WORLD_SET_END:       // set end point
         endpoint = user.getCurrentRoom();
@@ -799,7 +863,7 @@ void World::run()
     // create initial room if none exist
     if (rooms.size() == 0)
     {
-        start = new BasicRoom();
+        start = new BasicRoom(this);
         rooms[start->getRoomId()] = start;
     }
     
@@ -810,7 +874,7 @@ void World::run()
     }
     
     // initialize Player object
-    user = Player(start);
+    user = Player(this, start);
     
     // game loop
     do
@@ -849,6 +913,63 @@ void World::run()
 Result World::save(std::ofstream &out)
 {
     Result res(Result::SUCCESS);
-    
+    if (out)
+    {
+        // item section heading
+        out << "##ITEMS##" << std::endl;
+        // write all items
+        std::map<unsigned, Item *>::iterator it = items.begin();
+        while (it != items.end())
+        {
+            out << *it->second;
+            ++it;
+        }
+        out << "##ENDITEMS##" << std::endl;
+        
+        // room section heading
+        out << "##ROOMS##" << std::endl;
+        // write room info
+        std::map<unsigned, Room *>::iterator rmIt = rooms.begin();
+        while (rmIt != rooms.end())
+        {
+            rmIt->second->serialize(out);
+            ++rmIt;
+        }
+        out << "##ENDROOMS##" << std::endl;
+        
+        // room exits section heading
+        out << "##ROOMEXITS##" << std::endl;
+        // write room info
+        rmIt = rooms.begin();
+        while (rmIt != rooms.end())
+        {
+            rmIt->second->serializeExits(out);
+            ++rmIt;
+        }
+        out << "##ENDROOMEXITS##" << std::endl;
+        
+        // player section heading
+        out << "##PLAYER##" << std::endl;
+        out << user;
+        
+        // world settings
+        // intro text
+        out << "##INTRO##" << std::endl;
+        out << intro << std::endl;
+        out << "##ENDINTRO##" << std::endl;
+        // time limit
+        out << timeLimit << std::endl;
+        // start room ID
+        out << start->getRoomId() << std::endl;
+        // end room ID or 0 if NULL
+        out << (endpoint ? endpoint->getRoomId() : 0) << std::endl;
+        
+        res.message = "Game data saved.";
+    }
+    else
+    {
+        res.type = Result::FAILURE;
+        res.message = "Cannot open file for writing.";
+    }
     return res;
 }
