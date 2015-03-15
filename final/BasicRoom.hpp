@@ -26,7 +26,7 @@ public:
     virtual ~BasicRoom()
     {
         // memory leak check
-        std::cout << "Room ID " << id << " is being destroyed.\n";
+        // std::cout << "Room ID " << id << " is being destroyed.\n";
     }
 };
 #endif  // end of BASICROOM_HPP definition

@@ -11,8 +11,9 @@
  ************************************************************************/
 #include <cstdlib>  // atoi
 #include <queue>
+#include <set>
 #include <typeinfo> // typeid
-#include <sstream>
+#include <sstream>  // osringstream
 
 #include "World.hpp"
 #include "BasicRoom.hpp"
@@ -91,15 +92,20 @@ Result World::addExit(Direction d, std::string arg)
             {
                 rm = it->second;
                 res = user.getCurrentRoom()->setExit(d, rm);
-                oss << "Linked to room ID " << rm->getRoomId() << ".";
-                res.message = oss.str();
+                // only update message if operation was successful
+                if (res.type == Result::SUCCESS)
+                {
+                    oss << "Linked to room ID " << rm->getRoomId() << ".";
+                    res.message = oss.str();
+                }
             }
         }
         
-        // add to master room list if successful
-        if (res.type == Result::SUCCESS)
-            rooms[rm->getRoomId()] = rm;
     }
+    // add to master room list if successful
+    if (res.type == Result::SUCCESS)
+        rooms[rm->getRoomId()] = rm;
+    
     return res;
 }
 
@@ -191,7 +197,93 @@ Result World::addItem()
 
 Result World::cleanUpOrphans()
 {
-    Result res(Result::FAILURE);
+    Result res(Result::SUCCESS);
+    std::ostringstream oss;         // message builder
+    std::set<Item *> itemLinks;     // stores all pointers to all items
+    std::set<Room *> roomLinks;     // stores all pointers to all rooms
+    
+    // go through all rooms and save all pointers to rooms
+    Room::RoomMap::iterator roomIt = rooms.begin();
+    while (roomIt != rooms.end())
+    {
+        // save all room links
+        roomLinks.insert(roomIt->second->getExit(NORTH));
+        roomLinks.insert(roomIt->second->getExit(EAST));
+        roomLinks.insert(roomIt->second->getExit(SOUTH));
+        roomLinks.insert(roomIt->second->getExit(WEST));
+        ++roomIt;
+    }
+    
+    // add player location and start/end points
+    roomLinks.insert(user.getCurrentRoom());
+    roomLinks.insert(start);
+    roomLinks.insert(endpoint);
+    
+    
+    // now go through unorphaned rooms and save all links to items
+    Item::ItemMap::iterator itemIt;
+    std::set<Room *>::iterator keepRoomIt = roomLinks.begin();
+    while (keepRoomIt != roomLinks.end())
+    {
+        // save all item links
+        Room *pRoom = *keepRoomIt;
+        // test for NULL pointer
+        if (pRoom) 
+        {
+            itemIt = pRoom->getItems().begin();
+            while (itemIt != pRoom->getItems().end())
+            {
+                itemLinks.insert(itemIt->second);
+                ++itemIt;
+            }
+        }
+        ++keepRoomIt;
+    }
+    
+    // add player inventory
+    itemIt = user.getItems().begin();
+    while (itemIt != user.getItems().end())
+    {
+        itemLinks.insert(itemIt->second);
+        itemIt++;
+    }
+    
+    // remove any unlinked items from master list
+    itemIt = items.begin();
+    std::cout << "Removing item IDs: ";
+    while (itemIt != items.end())
+    {
+        if (itemLinks.count(itemIt->second) == 0)
+        {
+            std::cout << itemIt->second->getId() << " ";
+            delete itemIt->second;
+            items.erase(itemIt++);
+        }
+        else
+        {
+            ++itemIt;
+        }
+    }
+    std::cout << std::endl;
+
+    // remove any unlinked rooms from master list
+    roomIt = rooms.begin();
+    std::cout << "Removing room IDs: ";
+    while (roomIt != rooms.end())
+    {
+        if (roomLinks.count(roomIt->second) == 0)
+        {
+            std::cout << roomIt->second->getRoomId() << " ";
+            delete roomIt->second;
+            rooms.erase(roomIt++);
+        }
+        else
+        {
+            ++roomIt;
+        }
+    }
+    std::cout << std::endl;
+    
     return res;
 }
 
@@ -350,6 +442,8 @@ World::World()
     startTime = std::time(0);   // set start time to now
     timeLimit = 600;            // default time limit of 10 minutes
     editMode = false;           // edit mode off by default
+    start = NULL;
+    endpoint = NULL;
 }
 
 World::~World()
@@ -579,10 +673,7 @@ Result World::parse(Command cmd)
             Item::ItemMap::iterator it = items.find(value);
             if (it != items.end())
             {
-                user.getCurrentRoom()->setRequired(it->second);
-                oss << "This room requires item ID " << it->second->getId() 
-                    << " to toggle.";
-                res.message = oss.str();
+                res = user.getCurrentRoom()->setRequired(it->second);
             }
             else
             {
@@ -604,10 +695,7 @@ Result World::parse(Command cmd)
             Room::RoomMap::iterator it = rooms.find(value);
             if (it != rooms.end())
             {
-                user.getCurrentRoom()->setTarget(it->second);
-                oss << "Using the required item here toggles room ID " 
-                    << it->second->getRoomId() << ".";
-                res.message = oss.str();
+                res = user.getCurrentRoom()->setTarget(it->second);
             }
             else
             {
@@ -670,7 +758,7 @@ Result World::parse(Command cmd)
         ofs.close();
         break;
     case Command::WORLD_SET_END:       // set end point
-        end = user.getCurrentRoom();
+        endpoint = user.getCurrentRoom();
         res.message = "Updated goal to current room.";
         break;
     case Command::WORLD_SET_START:     // set start point
@@ -728,8 +816,8 @@ void World::run()
     do
     {
         // display time left starting at 3 minutes.
-        int timeLeft = timeLimit + startTime - time(0);
-        int minsLeft = timeLeft / 60;
+        time_t timeLeft = timeLimit + startTime - time(0);
+        time_t minsLeft = timeLeft / 60;
         if (minsLeft <= 3)
             std::cout << "You only have " << minsLeft
                       << " minutes left to reach the goal!\n\n";
@@ -749,7 +837,11 @@ void World::run()
         res = parse(cmd);
         
         // display command message
-        std::cout << res.message << std::endl;
+        std::cout << std::endl << res.message;
+        if (!res.message.empty())
+        {
+            std::cout << std::endl << std::endl;
+        }
     } while (res.type != Result::EXIT);
 }
 

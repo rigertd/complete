@@ -154,6 +154,7 @@ Room *Room::getExit(Direction d) const
     case WEST:
         return west;
     }
+    return NULL;
 }
 
 // removes an item with the specified id from the room

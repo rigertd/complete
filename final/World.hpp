@@ -46,7 +46,7 @@ private:
     Player user;            // player info
     bool editMode;          // edit mode flag
     Room *start;            // starting point
-    Room *end;              // exit
+    Room *endpoint;         // exit
     
     /******************************************************
     *             Private Member Functions                *

@@ -33,14 +33,17 @@ public:
     Player()    { location = NULL; }
     Player(Room *, unsigned = 100, unsigned = 10, unsigned = 5);
     
-    // drop the item with the specified ID in inventory
+    // drops the item with the specified ID in inventory
     Result dropItem(unsigned);
     
-    // get a pointer to the current location of the player
+    // gets a pointer to the current location of the player
     Room *getCurrentRoom() const    { return location; }
     
-    // get the combined weight of all items in inventory
+    // gets the combined weight of all items in inventory
     int getInventoryWeight();
+    
+    // gets a list of items held in inventory
+    Item::ItemMap &getItems()       { return inventory; }
     
     // gets the maximum item size that can be held in inventory
     unsigned getMaxSize() const     { return maxSize; }

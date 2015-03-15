@@ -54,6 +54,9 @@ public:
     // gets a pointer to the specified direction
     virtual Room *getExit(Direction d) const;
     
+    // gets the ItemMap of the room
+    Item::ItemMap &getItems()   { return items; }
+    
     // gets the room ID
     unsigned getRoomId() const  { return id; }
     
