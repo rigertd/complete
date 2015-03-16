@@ -1188,7 +1188,7 @@ Result World::save(std::ofstream &out)
             out << rmIt->first << " ";
             // output target room ID or 0 for NULL
             if (rmIt->second->getTarget())
-                out << rmIt->second->getTarget()->getRoomId());
+                out << rmIt->second->getTarget()->getRoomId();
             else
                 out << 0;
             out << std::endl;
