@@ -28,17 +28,28 @@ SwitchRoom::SwitchRoom(World *w) : Room(w)
     target = NULL;
 }
 
-// clears the item required to use the room
+/*************************************************************************
+ *  Function:       Result SwitchRoom::clearRequired()
+ *  Description:    Clears the item required to use the room.
+ *  Preconditions:  None.
+ *  Postconditions: required is NULL.
+ ************************************************************************/
 Result SwitchRoom::clearRequired()
 {
     Result res(Result::SUCCESS);
     
     required = NULL;
+    
     res.message = "Cleared the item required to operate this room.";
     return res;
 }
 
-// clears the target room of the room
+/*************************************************************************
+ *  Function:       Result SwitchRoom::clearTarget()
+ *  Description:    Clears the target room of the room.
+ *  Preconditions:  None.
+ *  Postconditions: target is NULL.
+ ************************************************************************/
 Result SwitchRoom::clearTarget()
 {
     Result res(Result::SUCCESS);
@@ -49,7 +60,13 @@ Result SwitchRoom::clearTarget()
     return res;
 }
 
-// serializes the room data into the save file format
+/*************************************************************************
+ *  Function:       void SwitchRoom::serialize(std::ostream &out)
+ *  Description:    Serializes the room data into the save file format.
+ *  Parameters:     out     ostream to save room data to.
+ *  Preconditions:  ostream is writable.
+ *  Postconditions: Room data is output to ostream.
+ ************************************************************************/
 void SwitchRoom::serialize(std::ostream &out)
 {
     // output room type
@@ -84,7 +101,13 @@ void SwitchRoom::serialize(std::ostream &out)
     out << std::endl;
 }
 
-// deserializes the room data and configures the Room object
+/*************************************************************************
+ *  Function:       void SwitchRoom::deserialize(std::istream &in)
+ *  Description:    Deserializes the room data and configures the Room object.
+ *  Parameters:     in  Reference to istream.
+ *  Preconditions:  istream contains valid SwitchRoom data.
+ *  Postconditions: Room is configured to data from istream.
+ ************************************************************************/
 void SwitchRoom::deserialize(std::istream &in)
 {
     std::string input;      // input buffer
@@ -139,7 +162,13 @@ void SwitchRoom::deserialize(std::istream &in)
     }
 }
 
-// prompts the user to set the room description
+/*************************************************************************
+ *  Function:       Result SwitchRoom::setDescription(std::string desc)
+ *  Description:    Prompts the user to set the room description.
+ *  Parameters:     desc    Optional description string to set.
+ *  Preconditions:  None.
+ *  Postconditions: Description of current state is updated.
+ ************************************************************************/
 Result SwitchRoom::setDescription(std::string desc)
 {
     Result res(Result::SUCCESS);
@@ -196,7 +225,13 @@ Result SwitchRoom::setDescription(std::string desc)
     return res;
 }
 
-// sets the item required to use the room
+/*************************************************************************
+ *  Function:       Result SwitchRoom::setRequired(Item *itm)
+ *  Description:    Sets the item required to use the room.
+ *  Parameters:     itm     Pointer to item required to toggle the room.
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: target is set to itm.
+ ************************************************************************/
 Result SwitchRoom::setRequired(Item *itm)
 {
     Result res(Result::SUCCESS);
@@ -214,7 +249,13 @@ Result SwitchRoom::setRequired(Item *itm)
     return res;
 }
 
-// sets the target room affected by this room
+/*************************************************************************
+ *  Function:       Result SwitchRoom::setTarget(Room *rm)
+ *  Description:    Sets the target room affected by this room.
+ *  Parameters:     rm  Pointer to target room.
+ *  Preconditions:  None.
+ *  Postconditions: target is set to rm.
+ ************************************************************************/
 Result SwitchRoom::setTarget(Room *rm)
 {
     Result res(Result::SUCCESS);
@@ -225,7 +266,12 @@ Result SwitchRoom::setTarget(Room *rm)
     return res;
 }
 
-// toggles the state of a room with multiple states
+/*************************************************************************
+ *  Function:       Result SwitchRoom::toggle()
+ *  Description:    Toggles the state of a room with multiple states.
+ *  Preconditions:  None.
+ *  Postconditions: This room and target room (if any) are in opposite state.
+ ************************************************************************/
 Result SwitchRoom::toggle()
 {
     Result res(Result::SUCCESS);
@@ -243,7 +289,13 @@ Result SwitchRoom::toggle()
     return res;
 }
 
-// attempts to use the specified Item in this room
+/*************************************************************************
+ *  Function:       Result SwitchRoom::useItem(Item *itm)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     itm     Pointer to item to use
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result SwitchRoom::useItem(Item *itm)
 {
     Result res(Result::FAILURE);
@@ -258,6 +310,14 @@ Result SwitchRoom::useItem(Item *itm)
     
     return res;
 }
+
+/*************************************************************************
+ *  Function:       Result SwitchRoom::useItem(unsigned id)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     id  ID of item to use.
+ *  Preconditions:  Item is in room.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result SwitchRoom::useItem(unsigned id)
 {
     Result res(Result::FAILURE);
@@ -273,7 +333,13 @@ Result SwitchRoom::useItem(unsigned id)
     return useItem(it->second);
 }
 
-// displays the current room info in the terminal window
+/*************************************************************************
+ *  Function:       void SwitchRoom::view(bool editMode)
+ *  Description:    Displays the current room info in the terminal window.
+ *  Parameters:     editMode    Whether edit mode is enabled
+ *  Preconditions:  None.
+ *  Postconditions: Current room is displayed.
+ ************************************************************************/
 void SwitchRoom::view(bool editMode)
 {
     // display extra info in edit mode

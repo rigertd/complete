@@ -31,7 +31,12 @@ ConditionRoom::ConditionRoom(World *w) : Room(w)
     required = NULL;
 }
 
-// clears the item required to use the room
+/*************************************************************************
+ *  Function:       Result ConditionRoom::clearRequired()
+ *  Description:    Clears the item required to use the room.
+ *  Preconditions:  None.
+ *  Postconditions: required is NULL.
+ ************************************************************************/
 Result ConditionRoom::clearRequired()
 {
     Result res(Result::SUCCESS);
@@ -41,7 +46,14 @@ Result ConditionRoom::clearRequired()
     return res;
 }
 
-// gets a pointer to the specified direction
+/*************************************************************************
+ *  Function:       Room *ConditionRoom::getExit(Direction d) const
+ *  Description:    Gets a pointer to the exit in the specified direction.
+ *                  Returns NULL if toggled exit and room is disabled.
+ *  Parameters:     d   Direction of exit to get.
+ *  Preconditions:  None.
+ *  Postconditions: Returns pointer to exit room or NULL.
+ ************************************************************************/
 Room *ConditionRoom::getExit(Direction d) const
 {
     // return NULL for enabled exits if room is in disabled state
@@ -64,7 +76,13 @@ Room *ConditionRoom::getExit(Direction d) const
         return Room::getExit(d);
 }
 
-// serializes the room data into the save file format
+/*************************************************************************
+ *  Function:       void ConditionRoom::serialize(std::ostream &out)
+ *  Description:    Serializes the room data into the save file format.
+ *  Parameters:     out     ostream to save room data to.
+ *  Preconditions:  ostream is writable.
+ *  Postconditions: Room data is output to ostream.
+ ************************************************************************/
 void ConditionRoom::serialize(std::ostream &out)
 {
     // output room type
@@ -105,7 +123,13 @@ void ConditionRoom::serialize(std::ostream &out)
     out << std::endl;
 }
 
-// deserializes the room data and configures the Room object
+/*************************************************************************
+ *  Function:       void ConditionRoom::deserialize(std::istream &in)
+ *  Description:    Deserializes the room data and configures the Room object.
+ *  Parameters:     in  Reference to istream.
+ *  Preconditions:  istream contains valid ConditionRoom data.
+ *  Postconditions: Room is configured to data from istream.
+ ************************************************************************/
 void ConditionRoom::deserialize(std::istream &in)
 {
     std::string input;      // input buffer
@@ -174,7 +198,13 @@ void ConditionRoom::deserialize(std::istream &in)
     }
 }
 
-// prompts the user to set the room description
+/*************************************************************************
+ *  Function:       Result ConditionRoom::setDescription(std::string desc)
+ *  Description:    Prompts the user to set the room description.
+ *  Parameters:     desc    Optional description string to set.
+ *  Preconditions:  None.
+ *  Postconditions: Description of current state is updated.
+ ************************************************************************/
 Result ConditionRoom::setDescription(std::string desc)
 {
     Result res(Result::SUCCESS);
@@ -231,7 +261,13 @@ Result ConditionRoom::setDescription(std::string desc)
     return res;
 }
 
-// sets the item required to use the room
+/*************************************************************************
+ *  Function:       Result ConditionRoom::setRequired(Item *itm)
+ *  Description:    Sets the item required to use the room.
+ *  Parameters:     itm     Pointer to item required to toggle the room.
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: target is set to itm.
+ ************************************************************************/
 Result ConditionRoom::setRequired(Item *itm)
 {
     Result res(Result::SUCCESS);
@@ -249,7 +285,12 @@ Result ConditionRoom::setRequired(Item *itm)
     return res;
 }
 
-// toggles the state of a room with multiple states
+/*************************************************************************
+ *  Function:       Result ConditionRoom::toggle()
+ *  Description:    Toggles the state of the room.
+ *  Preconditions:  None.
+ *  Postconditions: This room and is in opposite state.
+ ************************************************************************/
 Result ConditionRoom::toggle()
 {
     Result res(Result::SUCCESS);
@@ -263,7 +304,13 @@ Result ConditionRoom::toggle()
     return res;
 }
 
-// enables toggling in the specified direction
+/*************************************************************************
+ *  Function:       Result ConditionRoom::toggleExit(Direction d)
+ *  Description:    Enables or disables toggling in the specified direction.
+ *  Parameters:     d   Direction to toggle.
+ *  Preconditions:  None.
+ *  Postconditions: 'd' is set to be toggled.
+ ************************************************************************/
 Result ConditionRoom::toggleExit(Direction d)
 {
     Result res(Result::SUCCESS);
@@ -304,7 +351,13 @@ Result ConditionRoom::toggleExit(Direction d)
     return res;
 }
 
-// attempts to use the specified Item in this room
+/*************************************************************************
+ *  Function:       Result ConditionRoom::useItem(Item *itm)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     itm     Pointer to item to use
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result ConditionRoom::useItem(Item *itm)
 {
     Result res(Result::FAILURE);
@@ -319,6 +372,14 @@ Result ConditionRoom::useItem(Item *itm)
     
     return res;
 }
+
+/*************************************************************************
+ *  Function:       Result ConditionRoom::useItem(unsigned id)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     id  ID of item to use.
+ *  Preconditions:  Item is in room.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result ConditionRoom::useItem(unsigned id)
 {
     Result res(Result::FAILURE);
@@ -334,7 +395,13 @@ Result ConditionRoom::useItem(unsigned id)
     return useItem(it->second);
 }
 
-// displays the current room info in the terminal window
+/*************************************************************************
+ *  Function:       void ConditionRoom::view(bool editMode)
+ *  Description:    Displays the current room info in the terminal window.
+ *  Parameters:     editMode    Whether edit mode is enabled
+ *  Preconditions:  None.
+ *  Postconditions: Current room is displayed.
+ ************************************************************************/
 void ConditionRoom::view(bool editMode)
 {
     // display extra info in edit mode

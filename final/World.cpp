@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           3/14/2015
- * Last Modification Date: 3/14/2015
+ * Last Modification Date: 3/15/2015
  * Course:                 CS162_400
  * Assignment:             Final Project
  * Filename:               World.cpp
@@ -29,7 +29,18 @@ const char* DEFAULT_FILENAME = "game.dat";
 /******************************************************
 *             Private Member Functions                *
 ******************************************************/
-// adds an exit to the specified direction based on the arg value
+/*************************************************************************
+ *  Function:       Result World::addExit(Direction d, std::string arg)
+ *  Description:    Adds an exit to the specified direction based on the 
+ *                  arg value.
+ *  Parameters:     d   Direction to create exit in.
+ *                  arg Nothing for BasicRoom, 'cond' for ConditionRoom,
+ *                      'switch' for SwitchRoom, or ## for link to existing
+ *                      room ID.
+ *  Preconditions:  Exit does not already exist in that direction, and target
+ *                  room does not already have an exit in the return direction.
+ *  Postconditions: Exit leads to new or existing room.
+ ************************************************************************/
 Result World::addExit(Direction d, std::string arg)
 {
     Result res(Result::SUCCESS);
@@ -113,7 +124,13 @@ Result World::addExit(Direction d, std::string arg)
     return res;
 }
 
-// prompts the user for Item info and adds an item to the current room
+/*************************************************************************
+ *  Function:       Result World::addItem()
+ *  Description:    Prompts the user for Item info and adds an item to 
+ *                  the current room.
+ *  Preconditions:  None.
+ *  Postconditions: Item is created and is on floor of current room.
+ ************************************************************************/
 Result World::addItem()
 {
     Result res(Result::SUCCESS);
@@ -199,6 +216,13 @@ Result World::addItem()
     return res;
 }
 
+/*************************************************************************
+ *  Function:       Result World::cleanUpOrphans()
+ *  Description:    Cleans up any items not in inventory or a room, and
+ *                  any rooms not linked to any other rooms.
+ *  Preconditions:  None.
+ *  Postconditions: Any orphaned objects are deleted from memory.
+ ************************************************************************/
 Result World::cleanUpOrphans()
 {
     Result res(Result::SUCCESS);
@@ -291,7 +315,15 @@ Result World::cleanUpOrphans()
     return res;
 }
 
-// Permanently removes the item with the specified ID from the world
+
+/*************************************************************************
+ *  Function:       Result World::deleteItem(unsigned id)
+ *  Description:    Permanently removes the item with the specified ID from 
+ *                  the world.
+ *  Parameters:     id  ID of item to delete.
+ *  Preconditions:  None.
+ *  Postconditions: Item with ID of 'id' no longer exists.
+ ************************************************************************/
 Result World::deleteItem(unsigned id)
 {
     Result res(Result::SUCCESS);
@@ -328,7 +360,14 @@ Result World::deleteItem(unsigned id)
     return res;
 }
 
-// Permanently removes the room with the specified ID from the world
+/*************************************************************************
+ *  Function:       Result World::deleteRoom(unsigned id)
+ *  Description:    Permanently removes the room with the specified ID from 
+ *                  the world.
+ *  Parameters:     id  ID of room to delete.
+ *  Preconditions:  Player is not currently in the specified room.
+ *  Postconditions: Room with ID of 'id' no longer exists.
+ ************************************************************************/
 Result World::deleteRoom(unsigned id)
 {
     Result res(Result::SUCCESS);
@@ -375,7 +414,14 @@ Result World::deleteRoom(unsigned id)
     return res;
 }
 
-// finds the ID of the first item that matches the specified name or 0
+/*************************************************************************
+ *  Function:       unsigned World::findItemId(std::string name)
+ *  Description:    Finds the ID of the first item that matches 
+ *                  the specified name or 0 if none found.
+ *  Parameters:     name    Name of item to find.
+ *  Preconditions:  None.
+ *  Postconditions: Returns the ID of the item if found.
+ ************************************************************************/
 unsigned World::findItemId(std::string name)
 {
     std::map<unsigned, Item *>::iterator it = items.begin();
@@ -391,7 +437,13 @@ unsigned World::findItemId(std::string name)
     return 0;
 }
 
-// returns a pointer to the Item with the specified ID or NULL
+/*************************************************************************
+ *  Function:       Item *World::findItem(unsigned id)
+ *  Description:    Gets a pointer to the Item with the specified ID or NULL.
+ *  Parameters:     id  ID of item to find.
+ *  Preconditions:  None.
+ *  Postconditions: Returns a pointer to the Item or NULL.
+ ************************************************************************/
 Item *World::findItem(unsigned id)
 {
     std::map<unsigned, Item *>::iterator it = items.find(id);
@@ -401,7 +453,15 @@ Item *World::findItem(unsigned id)
         return NULL;
 }
 
-// returns a pointer to the Room with the specified ID or NULL
+// 
+/*************************************************************************
+ *  Function:       Room *World::findRoom(unsigned id)
+ *  Description:    Gets a pointer to the Room with the specified ID or 
+ *                  NULL.
+ *  Parameters:     id  ID of room to find.
+ *  Preconditions:  None.
+ *  Postconditions: Returns a pointer to the Room or NULL.
+ ************************************************************************/
 Room *World::findRoom(unsigned id)
 {
     std::map<unsigned, Room *>::iterator it = rooms.find(id);
@@ -411,7 +471,12 @@ Room *World::findRoom(unsigned id)
         return NULL;
 }
 
-// lists all of the items in the game world with IDs
+/*************************************************************************
+ *  Function:       void World::listItems()
+ *  Description:    Lists all of the items in the game world with IDs.
+ *  Preconditions:  None.
+ *  Postconditions: All items and IDs are displayed.
+ ************************************************************************/
 void World::listItems()
 {
     std::map<unsigned, Item *>::iterator it = items.begin();
@@ -431,7 +496,12 @@ void World::listItems()
     }
 }
 
-// lists all of the rooms in the game world with IDs
+/*************************************************************************
+ *  Function:       void World::listRooms()
+ *  Description:    Lists all of the rooms in the game world with IDs.
+ *  Preconditions:  None.
+ *  Postconditions: All rooms and IDs are displayed.
+ ************************************************************************/
 void World::listRooms()
 {
     std::map<unsigned, Room *>::iterator it = rooms.begin();
@@ -455,7 +525,13 @@ void World::listRooms()
     }
 }
 
-// prompts user for the introductory text displayed when game first starts
+/*************************************************************************
+ *  Function:       Result World::setIntro()
+ *  Description:    Prompts user for the introductory text to display when
+ *                  the game first starts.
+ *  Preconditions:  None.
+ *  Postconditions: Introductory text is set to specified value.
+ ************************************************************************/
 Result World::setIntro()
 {
     Result res(Result::SUCCESS);
@@ -490,7 +566,15 @@ Result World::setIntro()
     return res;
 }
 
-// sets time limit to the specified number of seconds and resets the timer
+/*************************************************************************
+ *  Function:       void World::setTimeLimit(time_t seconds)
+ *  Description:    Sets the time limit to the specified number of seconds 
+ *                  and resets the timer.
+ *  Parameters:     seconds     Time limit in seconds.
+ *  Preconditions:  None.
+ *  Postconditions: Time limit is set to specified number of seconds and 
+ *                  timer has full amount of time left.
+ ************************************************************************/
 void World::setTimeLimit(time_t seconds)
 {
     // Reset startTime to now
@@ -539,7 +623,13 @@ World::~World()
 /******************************************************
 *              Public Member Functions                *
 ******************************************************/
-// loads the game data from the specified fstream
+/*************************************************************************
+ *  Function:       Result World::load(std::ifstream &in)
+ *  Description:    Loads the game data from the specified fstream.
+ *  Parameters:     in  fstream to load the data from.
+ *  Preconditions:  'in' contains valid game data.
+ *  Postconditions: World is initialized to data from 'in'.
+ ************************************************************************/
 Result World::load(std::ifstream &in)
 {
     Result res(Result::FAILURE);
@@ -705,7 +795,14 @@ Result World::load(std::ifstream &in)
     return res;
 }
 
-// Parses and runs the specified Command object
+/*************************************************************************
+ *  Function:       Result World::parse(Command cmd)
+ *  Description:    Parses and runs the specified Command object.
+ *  Parameters:     cmd     Command object to execute.
+ *  Preconditions:  None.
+ *  Postconditions: Specified Command object is executed and the result is
+ *                  displayed.
+ ************************************************************************/
 Result World::parse(Command cmd)
 {
     Result res(Result::SUCCESS);
@@ -1037,7 +1134,12 @@ Result World::parse(Command cmd)
     return res;
 }
 
-// starts the game loop
+/*************************************************************************
+ *  Function:       void World::run()
+ *  Description:    Initializes the game data and starts the game loop.
+ *  Preconditions:  None.
+ *  Postconditions: Game is initialized and gameplay begins.
+ ************************************************************************/
 void World::run()
 {
     Result res(Result::FAILURE);
@@ -1140,7 +1242,13 @@ void World::run()
     } while (res.type != Result::EXIT);
 }
 
-// saves the current game data to the specified fstream
+/*************************************************************************
+ *  Function:       Result World::save(std::ofstream &out)
+ *  Description:    Saves the current game data to the specified fstream.
+ *  Parameters:     out     fstream to save data to.
+ *  Preconditions:  fstream is available for writing.
+ *  Postconditions: World data is output to fstream.
+ ************************************************************************/
 Result World::save(std::ofstream &out)
 {
     Result res(Result::SUCCESS);

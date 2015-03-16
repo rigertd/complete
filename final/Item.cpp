@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           3/13/2015
- * Last Modification Date: 3/13/2015
+ * Last Modification Date: 3/15/2015
  * Course:                 CS162_400
  * Assignment:             Final Project
  * Filename:               Item.cpp
@@ -75,6 +75,7 @@ bool Item::hasName(std::string name)
     return it != names.end();
 }
 
+// overloaded stream insertion for serialization
 std::ostream &operator<<(std::ostream &out, Item &itm)
 {
     // output item ID

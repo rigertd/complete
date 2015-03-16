@@ -1,7 +1,7 @@
 /*************************************************************************
  * Author:                 David Rigert
  * Date Created:           3/13/2015
- * Last Modification Date: 3/14/2015
+ * Last Modification Date: 3/15/2015
  * Course:                 CS162_400
  * Assignment:             Final Project
  * Filename:               Room.hpp
@@ -36,7 +36,13 @@ Room::~Room()
 {
 }
 
-// adds an item to the room
+/*************************************************************************
+ *  Function:       Result Room::addItem(Item *itm)
+ *  Description:    Adds an item to the room.
+ *  Parameters:     itm     Pointer to item to add.
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: itm is added to Room items.
+ ************************************************************************/
 Result Room::addItem(Item *itm)
 {
     Result res(Result::SUCCESS);
@@ -60,7 +66,13 @@ Result Room::addItem(Item *itm)
     return res;
 }
 
-// removes the exit in the specified direction
+/*************************************************************************
+ *  Function:       Result Room::clearExit(Direction d)
+ *  Description:    Removes the exit in the specified direction.
+ *  Parameters:     d   Direction of exit to clear.
+ *  Preconditions:  None.
+ *  Postconditions: Exit in 'd' direction and return exit are NULL.
+ ************************************************************************/
 Result Room::clearExit(Direction d)
 {
     Result res(Result::SUCCESS);
@@ -133,7 +145,12 @@ Result Room::clearExit(Direction d)
     return res;
 }
     
-// clears the item required to use the room
+/*************************************************************************
+ *  Function:       Result Room::clearRequired()
+ *  Description:    Clears the item required to use the room.
+ *  Preconditions:  None.
+ *  Postconditions: required is NULL.
+ ************************************************************************/
 Result Room::clearRequired()
 {
     Result res(Result::FAILURE);
@@ -141,7 +158,12 @@ Result Room::clearRequired()
     return res;
 }
 
-// clears the target room of a SwitchRoom
+/*************************************************************************
+ *  Function:       Result Room::clearTarget()
+ *  Description:    Clears the target room of the room.
+ *  Preconditions:  None.
+ *  Postconditions: target is NULL.
+ ************************************************************************/
 Result Room::clearTarget()
 {
     Result res(Result::FAILURE);
@@ -149,7 +171,14 @@ Result Room::clearTarget()
     return res;
 }
 
-// finds an item with the specified id in the room or returns NULL
+/*************************************************************************
+ *  Function:       Item *Room::findItem(unsigned id)
+ *  Description:    Finds an item with the specified id in the room or 
+ *                  returns NULL.
+ *  Parameters:     id  ID of item to find.
+ *  Preconditions:  None.
+ *  Postconditions: Returns a pointer to the item or NULL.
+ ************************************************************************/
 Item *Room::findItem(unsigned id)
 {
     Item *pItem = NULL; // stores return value
@@ -161,7 +190,13 @@ Item *Room::findItem(unsigned id)
     return pItem;
 }
 
-// gets a pointer to the specified direction
+/*************************************************************************
+ *  Function:       Room *Room::getExit(Direction d) const
+ *  Description:    Gets a pointer to the exit in the specified direction.
+ *  Parameters:     d   Direction of exit to get.
+ *  Preconditions:  None.
+ *  Postconditions: Returns pointer to exit room or NULL.
+ ************************************************************************/
 Room *Room::getExit(Direction d) const
 {
     switch (d)
@@ -178,7 +213,13 @@ Room *Room::getExit(Direction d) const
     return NULL;
 }
 
-// removes an item with the specified id from the room
+/*************************************************************************
+ *  Function:       Result Room::removeItem(unsigned id)
+ *  Description:    Removes an item with the specified id from the room.
+ *  Parameters:     id  ID of item to remove.
+ *  Preconditions:  None.
+ *  Postconditions: 'id' is no longer in Room items.
+ ************************************************************************/
 Result Room::removeItem(unsigned id)
 {
     Result res(Result::SUCCESS);
@@ -196,7 +237,13 @@ Result Room::removeItem(unsigned id)
     return res;
 }
 
-// prompts the user to set the room description
+/*************************************************************************
+ *  Function:       Result Room::setDescription(std::string desc)
+ *  Description:    Prompts the user to set the room description.
+ *  Parameters:     desc    Optional description string to set.
+ *  Preconditions:  None.
+ *  Postconditions: Description of current state is updated.
+ ************************************************************************/
 Result Room::setDescription(std::string desc)
 {
     Result res(Result::SUCCESS);
@@ -239,7 +286,16 @@ Result Room::setDescription(std::string desc)
     return res;
 }
 
-// sets the exit in the specified direction to the specified room
+// 
+/*************************************************************************
+ *  Function:       Result Room::setExit(Direction d, Room *rm)
+ *  Description:    Sets the exit in the specified direction to the 
+ *                  specified room.
+ *  Parameters:     d       Direction of exit to set.
+ *                  rm      Pointer to room to set.
+ *  Preconditions:  'rm' is not NULL and return direction is NULL.
+ *  Postconditions: Exit points to 'rm' and 'rm' points back to this room.
+ ************************************************************************/
 Result Room::setExit(Direction d, Room *rm)
 {
     Result res(Result::SUCCESS);
@@ -349,7 +405,13 @@ Result Room::setExit(Direction d, Room *rm)
     return res;
 }
 
-// sets the item required to use the room
+/*************************************************************************
+ *  Function:       Result Room::setRequired(Item *itm)
+ *  Description:    Sets the item required to use the room.
+ *  Parameters:     itm     Pointer to item required to toggle the room.
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: target is set to itm.
+ ************************************************************************/
 Result Room::setRequired(Item *itm)
 {
     Result res(Result::FAILURE);
@@ -357,7 +419,13 @@ Result Room::setRequired(Item *itm)
     return res;
 }
 
-// sets the target room affected by a SwitchRoom
+/*************************************************************************
+ *  Function:       Result Room::setTarget(Room *rm)
+ *  Description:    Sets the target room affected by a SwitchRoom.
+ *  Parameters:     rm  Pointer to target room.
+ *  Preconditions:  None.
+ *  Postconditions: target is set to rm.
+ ************************************************************************/
 Result Room::setTarget(Room *rm)
 {
     Result res(Result::FAILURE);
@@ -365,7 +433,12 @@ Result Room::setTarget(Room *rm)
     return res;
 }
 
-// toggles the state of a room with multiple states
+/*************************************************************************
+ *  Function:       Result Room::toggle()
+ *  Description:    Toggles the state of a room with multiple states.
+ *  Preconditions:  None.
+ *  Postconditions: This room and target room (if any) are in opposite state.
+ ************************************************************************/
 Result Room::toggle()
 {
     Result res(Result::FAILURE);
@@ -373,7 +446,13 @@ Result Room::toggle()
     return res;
 }
 
-// enables toggling in the specified direction
+/*************************************************************************
+ *  Function:       Result Room::toggleExit(Direction d)
+ *  Description:    Enables or disables toggling in the specified direction.
+ *  Parameters:     d   Direction to toggle.
+ *  Preconditions:  None.
+ *  Postconditions: 'd' is set to be toggled.
+ ************************************************************************/
 Result Room::toggleExit(Direction d)
 {
     Result res(Result::FAILURE);
@@ -381,7 +460,13 @@ Result Room::toggleExit(Direction d)
     return res;
 }
 
-// attempts to use the specified Item in this room
+/*************************************************************************
+ *  Function:       Result Room::useItem(Item *itm)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     itm     Pointer to item to use
+ *  Preconditions:  itm is not NULL.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result Room::useItem(Item *itm)
 {
     Result res(Result::FAILURE);
@@ -389,6 +474,13 @@ Result Room::useItem(Item *itm)
     return res;
 }
 
+/*************************************************************************
+ *  Function:       Result Room::useItem(unsigned id)
+ *  Description:    Attempts to use the specified Item in this room.
+ *  Parameters:     id  ID of item to use.
+ *  Preconditions:  Item is in room.
+ *  Postconditions: Room is toggled if correct item.
+ ************************************************************************/
 Result Room::useItem(unsigned id)
 {
     Result res(Result::FAILURE);
@@ -396,7 +488,13 @@ Result Room::useItem(unsigned id)
     return res;
 }
 
-// displays the current room info in the terminal window
+/*************************************************************************
+ *  Function:       void Room::view(bool editMode)
+ *  Description:    Displays the current room info in the terminal window.
+ *  Parameters:     editMode    Whether edit mode is enabled
+ *  Preconditions:  None.
+ *  Postconditions: Current room is displayed.
+ ************************************************************************/
 void Room::view(bool editMode)
 {
     // display extra info in edit mode
@@ -423,7 +521,13 @@ void Room::view(bool editMode)
     }
 }
 
-// deserializes the room data and configures the Room object
+/*************************************************************************
+ *  Function:       void Room::deserialize(std::istream &in)
+ *  Description:    Deserializes the room data and configures the Room object.
+ *  Parameters:     in  Reference to istream.
+ *  Preconditions:  istream contains valid SwitchRoom data.
+ *  Postconditions: Room is configured to data from istream.
+ ************************************************************************/
 void Room::deserialize(std::istream &in)
 {
     std::string input;      // input buffer
@@ -456,7 +560,13 @@ void Room::deserialize(std::istream &in)
     }
 }
 
-// deserializes the exits of the room
+/*************************************************************************
+ *  Function:       void Room::deserializeExits(std::istream &in)
+ *  Description:    Deserializes the exits of the room.
+ *  Parameters:     in  Reference to istream.
+ *  Preconditions:  istream contains valid exit data.
+ *  Postconditions: Room is configured to data from istream.
+ ************************************************************************/
 void Room::deserializeExits(std::istream &in)
 {
     unsigned val;
@@ -476,7 +586,13 @@ void Room::deserializeExits(std::istream &in)
     setExit(WEST, target);
 }
 
-// serializes the exits of the room
+/*************************************************************************
+ *  Function:       void Room::serializeExits(std::ostream &out)
+ *  Description:    Serializes the exits into the save file format.
+ *  Parameters:     out     ostream to save exit data to.
+ *  Preconditions:  ostream is writable.
+ *  Postconditions: Exit data is output to ostream.
+ ************************************************************************/
 void Room::serializeExits(std::ostream &out)
 {
     // output room ID
@@ -495,7 +611,13 @@ void Room::serializeExits(std::ostream &out)
     out << (west ? west->id : 0) << std::endl;
 }
 
-// converts Room data to save data
+/*************************************************************************
+ *  Function:       void Room::serialize(std::ostream &out)
+ *  Description:    Serializes the room data into the save file format.
+ *  Parameters:     out     ostream to save room data to.
+ *  Preconditions:  ostream is writable.
+ *  Postconditions: Room data is output to ostream.
+ ************************************************************************/
 void Room::serialize(std::ostream &out)
 {
     // output room type
