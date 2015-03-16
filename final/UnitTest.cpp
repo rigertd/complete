@@ -27,7 +27,7 @@ void UnitTest::test_Room()
     Room *pRoom2 = new BasicRoom();
     assert(pRoom1->id == 1);
     assert(pRoom2->id == 2);
-    assert(pRoom1->description == "A new basic room with no interactivity.");
+    assert(pRoom1->description == "A new basic room with no interactivity.\n");
     assert(pRoom1->items.size() == 0);
     assert(pRoom1->north == NULL);
     assert(pRoom1->south == NULL);
