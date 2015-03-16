@@ -134,6 +134,8 @@ Command::CommandMap Command::populateCommands()
                         "Make exit to west. Optional arg of room ID, 'cond' or 'switch'.", true);
     result["setrequired"] = Command(ROOM_SET_REQUIRED, "Set item required to toggle room.", true);
     result["settarget"] = Command(ROOM_SET_TARGET, "Set room to toggle when item is used.", true);
+    result["clearreq"] = Command(ROOM_CLEAR_REQUIRED, "Clear item required to toggle room.", true);
+    result["cleartar"] = Command(ROOM_CLEAR_TARGET, "Clear room to toggle when item is used.", true);
     result["toggle"] = Command(ROOM_TOGGLE, "Toggle state of current room.", true);
     result["tn"] = Command(ROOM_ENABLE_NORTH, "Enable toggle to north.", true);
     result["te"] = Command(ROOM_ENABLE_EAST, "Enable toggle to east.", true);

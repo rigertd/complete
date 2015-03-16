@@ -31,6 +31,16 @@ ConditionRoom::ConditionRoom(World *w) : Room(w)
     required = NULL;
 }
 
+// clears the item required to use the room
+Result ConditionRoom::clearRequired()
+{
+    Result res(Result::SUCCESS);
+    
+    required = NULL;
+    res.message = "Cleared the item required to operate this room.";
+    return res;
+}
+
 // gets a pointer to the specified direction
 Room *ConditionRoom::getExit(Direction d) const
 {
@@ -302,6 +312,7 @@ Result ConditionRoom::useItem(Item *itm)
     {
         res.message = "You hear a rumbling noise.";
         res.type = Result::SUCCESS;
+        toggle();
     }
     else
         res.message = "You cannot use that here.";

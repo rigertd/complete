@@ -49,6 +49,12 @@ public:
     // removes the exit in the specified direction
     virtual Result clearExit(Direction);
     
+    // clears the item required to use the room
+    virtual Result clearRequired();
+    
+    // clears the target room of a SwitchRoom
+    virtual Result clearTarget();
+    
     // finds an item with the specified id in the room or returns NULL
     Item *findItem(unsigned);
     

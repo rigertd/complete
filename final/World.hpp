@@ -47,6 +47,7 @@ private:
     time_t timeLimit;       // gameplay time limit in seconds
     Player user;            // player info
     bool editMode;          // edit mode flag
+    bool wonGame;           // whether end was reached in time
     Room *start;            // starting point
     Room *endpoint;         // exit
     std::string intro;      // game introduction text

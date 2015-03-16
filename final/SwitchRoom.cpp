@@ -28,6 +28,27 @@ SwitchRoom::SwitchRoom(World *w) : Room(w)
     target = NULL;
 }
 
+// clears the item required to use the room
+Result SwitchRoom::clearRequired()
+{
+    Result res(Result::SUCCESS);
+    
+    required = NULL;
+    res.message = "Cleared the item required to operate this room.";
+    return res;
+}
+
+// clears the target room of the room
+Result SwitchRoom::clearTarget()
+{
+    Result res(Result::SUCCESS);
+    
+    target = NULL;
+    
+    res.message = "Cleared target room.";
+    return res;
+}
+
 // serializes the room data into the save file format
 void SwitchRoom::serialize(std::ostream &out)
 {
@@ -238,6 +259,7 @@ Result SwitchRoom::useItem(Item *itm)
     {
         res.message = "You hear a distant rumbling noise.";
         res.type = Result::SUCCESS;
+        toggle();
     }
     else
         res.message = "You cannot use that here.";

@@ -507,6 +507,7 @@ World::World()
     startTime = std::time(0);   // set start time to now
     timeLimit = 600;            // default time limit of 10 minutes
     editMode = false;           // edit mode off by default
+    wonGame = false;
     start = NULL;
     endpoint = NULL;
     user = Player(this);
@@ -627,16 +628,6 @@ Result World::load(std::ifstream &in)
             std::getline(in, input);
         }
         
-        // load player info
-        std::getline(in, input);
-        if (input != "##PLAYER##")
-        {
-            res.message = "Invalid save data.";
-            return res;
-        }
-        
-        user.deserialize(in);
-        
         // load world info
         
         // introduction
@@ -669,6 +660,17 @@ Result World::load(std::ifstream &in)
         std::getline(in, input);
         val = std::atoi(input.c_str());
         endpoint = findRoom(val);
+        
+        // load player info
+        user = Player(this, start);
+        std::getline(in, input);
+        if (input != "##PLAYER##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        user.deserialize(in);
         
         res.type = Result::SUCCESS;
         res.message = "World data successfully loaded.";
@@ -916,6 +918,12 @@ Result World::parse(Command cmd)
             }
         }
         break;
+    case Command::ROOM_CLEAR_REQUIRED: // clear required item
+        res = user.getCurrentRoom()->clearRequired();
+        break;
+    case Command::ROOM_CLEAR_TARGET:   // clear target room
+        res = user.getCurrentRoom()->clearTarget();
+        break;
     case Command::ROOM_TOGGLE:         // toggles room state
         res = user.getCurrentRoom()->toggle();
         break;
@@ -1009,7 +1017,7 @@ Result World::parse(Command cmd)
 // starts the game loop
 void World::run()
 {
-    Result res;
+    Result res(Result::FAILURE);
     Command cmd;
     std::string input;
     
@@ -1017,7 +1025,7 @@ void World::run()
     std::ifstream ifs(DEFAULT_FILENAME);
     if (ifs)
     {
-        load(ifs);
+        res = load(ifs);
     }
     ifs.close();
     
@@ -1034,8 +1042,12 @@ void World::run()
         start = rooms.begin()->second;
     }
     
-    // initialize Player object
-    user = Player(this, start);
+    // only initialize player data if load was unsuccessful
+    if (res.type == Result::FAILURE)
+    {
+        // initialize Player object
+        user = Player(this, start);
+    }
     
     // display intro
     std::cout << intro << std::endl;
@@ -1067,13 +1079,23 @@ void World::run()
         std::cout << std::endl;
         
         // display end message if endpoint is reached
-        if (endpoint == user.getCurrentRoom())
+        if (!wonGame && minsLeft > 0 && endpoint == user.getCurrentRoom())
         {
             std::cout << "Congratulations!\nYou reached the end with "
                       << minsLeft << " minutes and " << (timeLeft % 60)
                       << " seconds left to spare!\n"
                       << "Type 'exit' to quit or you can continue to explore.\n\n";
-            timeLimit = 1000000;
+            wonGame = true;
+        }
+        else if (!wonGame)
+        {
+            std::cout << "You reached the end, but it was too late.\n"
+                      << "Type 'exit' to quit or you can continue to explore.\n\n";
+        }
+        else
+        {
+            std::cout << "This is the end of the game.\n"
+                      << "Type 'exit' to quit or you can continue to explore.\n\n";
         }
         
         // get user input
@@ -1134,10 +1156,6 @@ Result World::save(std::ofstream &out)
         }
         out << "##ENDROOMEXITS##" << std::endl;
         
-        // player section heading
-        out << "##PLAYER##" << std::endl;
-        out << user;
-        
         // world settings
         // intro text
         out << "##INTRO##" << std::endl;
@@ -1149,6 +1167,10 @@ Result World::save(std::ofstream &out)
         out << start->getRoomId() << std::endl;
         // end room ID or 0 if NULL
         out << (endpoint ? endpoint->getRoomId() : 0) << std::endl;
+        
+        // player section heading
+        out << "##PLAYER##" << std::endl;
+        out << user;
         
         res.message = "Game data saved.";
     }

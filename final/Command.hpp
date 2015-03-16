@@ -33,6 +33,8 @@ public:
         PLAYER_MAX_QUANTITY,// set player maxQuantity
         PLAYER_MAX_SIZE,    // set player maxSize
         PLAYER_MAX_WEIGHT,  // set player maxWeight
+        ROOM_CLEAR_REQUIRED,// clear required item
+        ROOM_CLEAR_TARGET,  // clear target room
 		ROOM_DELETE_NORTH,  // delete exit to north
 		ROOM_DELETE_EAST,   // delete exit to east
 		ROOM_DELETE_SOUTH,  // delete exit to south

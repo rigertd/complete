@@ -41,6 +41,9 @@ public:
         //std::cout << "Room ID " << id << " is being destroyed.\n";
     }
     
+    // clears the item required to use the room
+    virtual Result clearRequired();
+    
     // gets a pointer to the specified direction
     virtual Room *getExit(Direction d) const;
     

@@ -1,109 +1,27 @@
 ##ITEMS##
-1
-##ITEMNAMES##
-key
-##ENDITEMNAMES##
-There is a small key on the floor
-1
-1
-2
-##ITEMNAMES##
-chair
-wooden chair
-##ENDITEMNAMES##
-There is a small wooden chair in the middle of the room.
-12
-20
 ##ENDITEMS##
 ##ROOMS##
 basic
 1
 ##ROOMDESCRIPTION##
-A new basic room with no interactivity.
-
+You are deep in the inner chamber of an ancient temple. You managed to get past
+countless traps and creatures on your way down, but it took way longer than you
+expected. The entrance of the temple locks itself shut in only 10 more minutes. 
+Hurry up and get out while you still can!
+The room has only one exit to the north.
 ##ENDROOMDESCRIPTION##
-
-basic
-2
-##ROOMDESCRIPTION##
-This room is big and wide.
-It has many exits.
-
-##ENDROOMDESCRIPTION##
-
-basic
-3
-##ROOMDESCRIPTION##
-A new basic room with no interactivity.
-
-##ENDROOMDESCRIPTION##
-2 
-basic
-4
-##ROOMDESCRIPTION##
-A new basic room with no interactivity.
-
-
-
-##ENDROOMDESCRIPTION##
-
-condition
-5
-0
-0
-0
-1
-0
-0
-##ROOMDESCRIPTION##
-A new conditional room that can disable certain exits.
-
-##ENDROOMDESCRIPTION##
-##ROOMALTDESCRIPTION##
-The description when toggled exits are disabled.
-
-##ENDROOMALTDESCRIPTION##
-
-basic
-6
-##ROOMDESCRIPTION##
-A new basic room with no interactivity.
-
-##ENDROOMDESCRIPTION##
-
-switch
-7
-0
-5
-1
-##ROOMDESCRIPTION##
-A room that switches the state of a different room.
-##ENDROOMDESCRIPTION##
-##ROOMALTDESCRIPTION##
-The description when the switch is flipped.
-##ENDROOMALTDESCRIPTION##
 
 ##ENDROOMS##
 ##ROOMEXITS##
-1 2 0 0 0
-2 4 3 1 0
-3 0 5 0 2
-4 0 0 2 0
-5 0 6 7 3
-6 0 0 0 5
-7 5 0 0 0
+1 0 0 0 0
 ##ENDROOMEXITS##
+##INTRO##
+##ENDINTRO##
+600
+1
+0
 ##PLAYER##
 100
 10
 5
 
-##INTRO##
-Welcome to a world of discovery!
-You are in your room.
-Type 'help' for a list of available commands.
-
-##ENDINTRO##
-1000000
-1
-4

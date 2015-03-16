@@ -132,6 +132,22 @@ Result Room::clearExit(Direction d)
     }
     return res;
 }
+    
+// clears the item required to use the room
+Result Room::clearRequired()
+{
+    Result res(Result::FAILURE);
+    res.message = "Items can only be used in switch and condition rooms.";
+    return res;
+}
+
+// clears the target room of a SwitchRoom
+Result Room::clearTarget()
+{
+    Result res(Result::FAILURE);
+    res.message = "Only switch rooms have a target.";
+    return res;
+}
 
 // finds an item with the specified id in the room or returns NULL
 Item *Room::findItem(unsigned id)

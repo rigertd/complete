@@ -36,6 +36,12 @@ public:
         //std::cout << "Room ID " << id << " is being destroyed.\n";
     }
     
+    // clears the item required to use the room
+    virtual Result clearRequired();
+    
+    // clears the target room of the room
+    virtual Result clearTarget();
+    
     // serializes the room data into the save file format
     virtual void serialize(std::ostream &);
     
