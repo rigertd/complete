@@ -43,26 +43,54 @@ basic
 ##ROOMDESCRIPTION##
 A new basic room with no interactivity.
 
+
+
+##ENDROOMDESCRIPTION##
+
+condition
+5
+0
+0
+0
+1
+0
+0
+##ROOMDESCRIPTION##
+A new conditional room that can disable certain exits.
+
+##ENDROOMDESCRIPTION##
+##ROOMALTDESCRIPTION##
+The description when toggled exits are disabled.
+
+##ENDROOMALTDESCRIPTION##
+
+basic
+6
+##ROOMDESCRIPTION##
+A new basic room with no interactivity.
+
 ##ENDROOMDESCRIPTION##
 
 ##ENDROOMS##
 ##ROOMEXITS##
 1 2 0 0 0
 2 4 3 1 0
-3 0 0 0 2
+3 0 5 0 2
 4 0 0 2 0
+5 0 6 0 3
+6 0 0 0 5
 ##ENDROOMEXITS##
 ##PLAYER##
 100
 10
 5
-1 
+
 ##INTRO##
-This is the introduction.
-It can be many lines
-or just one.
+Welcome to a world of discovery!
+You are in your room.
+Type 'help' for a list of available commands.
 
 ##ENDINTRO##
-600
+1000000
 1
 4

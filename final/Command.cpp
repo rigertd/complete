@@ -135,6 +135,10 @@ Command::CommandMap Command::populateCommands()
     result["setrequired"] = Command(ROOM_SET_REQUIRED, "Set item required to toggle room.", true);
     result["settarget"] = Command(ROOM_SET_TARGET, "Set room to toggle when item is used.", true);
     result["toggle"] = Command(ROOM_TOGGLE, "Toggle state of current room.", true);
+    result["tn"] = Command(ROOM_ENABLE_NORTH, "Enable toggle to north.", true);
+    result["te"] = Command(ROOM_ENABLE_EAST, "Enable toggle to east.", true);
+    result["ts"] = Command(ROOM_ENABLE_SOUTH, "Enable toggle to south.", true);
+    result["tw"] = Command(ROOM_ENABLE_WEST, "Enable toggle to west.", true);
     result["clean"] = Command(WORLD_CLEAN, "Clean up unused rooms and items.", true);
     result["delroom"] = Command(WORLD_DELETE_ROOM, "Delete specified room ID.", true);
     result["edit"] = Command(WORLD_EDIT, "Toggle edit mode.", true);

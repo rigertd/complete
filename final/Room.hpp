@@ -37,7 +37,7 @@ protected:
     static int nextId;          // ID of next Room to be created
     
 public:
-    // constructor
+    // constructors
     Room(World *);
     
     // destructor
@@ -70,6 +70,9 @@ public:
     // serializes the exits of the room
     virtual void serializeExits(std::ostream &);
     
+    // deserializes the exits of the room
+    virtual void deserializeExits(std::istream &);
+    
     // deserializes the room data and configures the Room object
     virtual void deserialize(std::istream &);
     
@@ -87,6 +90,9 @@ public:
     
     // toggles the state of a room with multiple states
     virtual Result toggle();
+    
+    // enables toggling in the specified direction
+    virtual Result toggleExit(Direction);
     
     // attempts to use the specified Item in this room
     virtual Result useItem(Item *);

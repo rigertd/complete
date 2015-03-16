@@ -231,4 +231,6 @@ std::ostream &operator<<(std::ostream &out, Player &plr)
         ++it;
     }
     out << std::endl;
+    
+    return out;
 }

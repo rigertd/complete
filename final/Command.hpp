@@ -49,6 +49,10 @@ public:
 		ROOM_SET_REQUIRED,  // set item required to toggle room
 		ROOM_SET_TARGET,    // set target of SwitchRoom
 		ROOM_TOGGLE,        // toggles room state
+        ROOM_ENABLE_NORTH,  // enable toggle on north exit
+        ROOM_ENABLE_EAST,   // enable toggle on east exit
+        ROOM_ENABLE_SOUTH,  // enable toggle on south exit
+        ROOM_ENABLE_WEST,   // enable toggle on west exit
 		WORLD_CLEAN,        // delete unused rooms and items
         WORLD_DELETE_ITEM,  // delete existing item
 		WORLD_DELETE_ROOM,  // delete existing room

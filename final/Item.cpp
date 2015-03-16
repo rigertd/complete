@@ -11,6 +11,8 @@
  ************************************************************************/
 #include "Item.hpp"
 
+#include <cstdlib>
+
 // starting value for Item ID
 unsigned Item::nextId = 1;
 
@@ -23,6 +25,11 @@ Item::Item(std::string name, int size, int weight)
     this->size = size;
     this->weight = weight;
 }
+Item::Item(unsigned id)
+{
+    this->id = id;
+    nextId = id < nextId ? nextId : (id + 1);
+}
 
 // adds a name to the list of acceptable names
 void Item::addName(std::string name)
@@ -32,6 +39,33 @@ void Item::addName(std::string name)
         realName = name;
     // add to list of acceptable names
     names.insert(name);
+}
+
+// for configuring object with save data
+void Item::deserialize(std::istream &in)
+{
+    std::string input;          // input buffer
+    
+    // get names
+    std::getline(in, input);    // heading
+    std::getline(in, input);    // realName
+    while (input != "##ENDITEMNAMES##")
+    {
+        addName(input);
+        std::getline(in, input);
+    }
+    
+    // get description
+    std::getline(in, input);
+    desc = input;
+    
+    // get size
+    std::getline(in, input);
+    size = std::atoi(input.c_str());
+    
+    // get weight
+    std::getline(in, input);
+    weight = std::atoi(input.c_str());
 }
 
 // determines whether a string is an acceptable name
@@ -64,4 +98,6 @@ std::ostream &operator<<(std::ostream &out, Item &itm)
     
     // output weight
     out << itm.weight << std::endl;
+    
+    return out;
 }

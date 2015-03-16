@@ -13,14 +13,14 @@
 #include <sstream>
 #include <cstdlib>
 
+#include "Room.hpp"
 #include "Item.hpp"
 #include "World.hpp"
-#include "Room.hpp"
 
 // static member variable for unique ID
 int Room::nextId = 1;
 
-// constructor
+// constructors
 Room::Room(World *w)
 {
     id = nextId++;
@@ -228,6 +228,14 @@ Result Room::setExit(Direction d, Room *rm)
 {
     Result res(Result::SUCCESS);
     
+    // null pointer check
+    if (!rm)
+    {
+        res.type = Result::FAILURE;
+        res.message = "Pointer not an instance of an object.";
+        return res;
+    }
+
     switch (d)
     {
     case NORTH:
@@ -349,6 +357,14 @@ Result Room::toggle()
     return res;
 }
 
+// enables toggling in the specified direction
+Result Room::toggleExit(Direction d)
+{
+    Result res(Result::FAILURE);
+    res.message = "This command only works on a condition room.";
+    return res;
+}
+
 // attempts to use the specified Item in this room
 Result Room::useItem(Item *itm)
 {
@@ -424,6 +440,26 @@ void Room::deserialize(std::istream &in)
     }
 }
 
+// deserializes the exits of the room
+void Room::deserializeExits(std::istream &in)
+{
+    unsigned val;
+    Room *target = NULL;
+    
+    in >> val;             // north
+    target = global->findRoom(val);
+    setExit(NORTH, target);
+    in >> val;             // east
+    target = global->findRoom(val);
+    setExit(EAST, target);
+    in >> val;             // south
+    target = global->findRoom(val);
+    setExit(SOUTH, target);
+    in >> val;             // west
+    target = global->findRoom(val);
+    setExit(WEST, target);
+}
+
 // serializes the exits of the room
 void Room::serializeExits(std::ostream &out)
 {
@@ -454,7 +490,7 @@ void Room::serialize(std::ostream &out)
     
     // output description
     out << "##ROOMDESCRIPTION##" << std::endl;
-    out << description << std::endl;
+    out << description;
     out << "##ENDROOMDESCRIPTION##" << std::endl;
     
     // output item IDs on one line

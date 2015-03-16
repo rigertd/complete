@@ -342,6 +342,12 @@ Result World::deleteRoom(unsigned id)
         res.message = "Room not found.";
         return res;
     }
+    else if (it->second == user.getCurrentRoom())
+    {
+        res.type = Result::FAILURE;
+        res.message = "You cannot delete the room you are in.";
+        return res;
+    }
     
     // remove any exits to room from other rooms
     std::map<unsigned, Room *>::iterator it2 = rooms.begin();
@@ -503,6 +509,7 @@ World::World()
     editMode = false;           // edit mode off by default
     start = NULL;
     endpoint = NULL;
+    user = Player(this);
 }
 
 World::~World()
@@ -534,8 +541,142 @@ World::~World()
 // loads the game data from the specified fstream
 Result World::load(std::ifstream &in)
 {
-    Result res(Result::SUCCESS);
+    Result res(Result::FAILURE);
+    std::string input;      // user input buffer
+    unsigned val = 0;       // numeric input buffer
+    std::ostringstream oss; // intro builder
     
+    if (in)
+    {
+        // load items first
+        std::getline(in, input);
+        if (input != "##ITEMS##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        // get ID of first Item entry
+        std::getline(in, input);
+        
+        // keep reading until end marker is found
+        while (input != "##ENDITEMS##")
+        {
+            val = std::atoi(input.c_str());     // item ID
+            Item *itm = new Item(val);  // new Item object
+            itm->deserialize(in);       // configure object
+            items[val] = itm;           // add to master list
+            std::getline(in, input);    // read next line
+        }
+        
+        // load rooms next
+        std::getline(in, input);
+        if (input != "##ROOMS##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        // load first room type
+        std::getline(in, input);
+        Room *rm = NULL;
+        
+        // keep reading until end marker is found
+        while (input != "##ENDROOMS##")
+        {
+            if (input == "basic")
+                rm = new BasicRoom(this);
+            else if (input == "switch")
+                rm = new SwitchRoom(this);
+            else if (input == "condition")
+                rm = new ConditionRoom(this);
+            else
+            {
+                res.message = "Unknown room type encountered.";
+                return res;
+            }
+            
+            // configure room
+            rm->deserialize(in);
+            
+            // add to master list
+            val = rm->getRoomId();
+            rooms[val] = rm;
+            
+            // read next room type
+            std::getline(in, input);
+        }
+        
+        // load room exits
+        std::getline(in, input);
+        if (input != "##ROOMEXITS##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        // load exits of first room
+        std::getline(in, input);
+        while (input != "##ENDROOMEXITS##")
+        {
+            std::istringstream iss(input);
+            iss >> val;             // room ID
+            rm = findRoom(val);     // pointer to room
+            rm->deserializeExits(iss);
+            // get next line
+            std::getline(in, input);
+        }
+        
+        // load player info
+        std::getline(in, input);
+        if (input != "##PLAYER##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        user.deserialize(in);
+        
+        // load world info
+        
+        // introduction
+        std::getline(in, input);
+        if (input != "##INTRO##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        // get first line of intro
+        std::getline(in, input);
+        while (input != "##ENDINTRO##")
+        {
+            oss << input << std::endl;
+            std::getline(in, input);
+        }
+        intro = oss.str();
+        
+        // read time limit
+        std::getline(in, input);
+        timeLimit = std::atoi(input.c_str());
+        
+        // read start room ID
+        std::getline(in, input);
+        val = std::atoi(input.c_str());
+        start = findRoom(val);
+        
+        // read end room ID
+        std::getline(in, input);
+        val = std::atoi(input.c_str());
+        endpoint = findRoom(val);
+        
+        res.type = Result::SUCCESS;
+        res.message = "World data successfully loaded.";
+    }
+    else
+    {
+        res.message = "Cannot read save data file.";
+    }
     return res;
 }
 
@@ -690,6 +831,18 @@ Result World::parse(Command cmd)
         break;
     case Command::ROOM_EDIT_DESC:      // edit room description
         res = user.getCurrentRoom()->setDescription(cmd.getArgument());
+        break;
+    case Command::ROOM_ENABLE_NORTH:   // enable toggle on north exit
+        res = user.getCurrentRoom()->toggleExit(NORTH);
+        break;
+    case Command::ROOM_ENABLE_EAST:    // enable toggle on east exit
+        res = user.getCurrentRoom()->toggleExit(EAST);
+        break;
+    case Command::ROOM_ENABLE_SOUTH:   // enable toggle on south exit
+        res = user.getCurrentRoom()->toggleExit(SOUTH);
+        break;
+    case Command::ROOM_ENABLE_WEST:    // enable toggle on west exit
+        res = user.getCurrentRoom()->toggleExit(WEST);
         break;
     case Command::ROOM_MAKE_NORTH:     // make exit to north
         res = addExit(NORTH, cmd.getArgument());
@@ -847,7 +1000,7 @@ Result World::parse(Command cmd)
         break;
     case Command::INVALID_COMMAND:     // invalid command
         if (res.message.empty())
-            res.message = "That command is invalid. Try a different one.";
+            res.message = "That command is invalid. Type 'help' for a list of commands.";
     }
     
     return res;
@@ -859,6 +1012,14 @@ void World::run()
     Result res;
     Command cmd;
     std::string input;
+    
+    // try to load game data
+    std::ifstream ifs(DEFAULT_FILENAME);
+    if (ifs)
+    {
+        load(ifs);
+    }
+    ifs.close();
     
     // create initial room if none exist
     if (rooms.size() == 0)
@@ -876,19 +1037,44 @@ void World::run()
     // initialize Player object
     user = Player(this, start);
     
+    // display intro
+    std::cout << intro << std::endl;
+    
     // game loop
     do
     {
-        // display time left starting at 3 minutes.
         time_t timeLeft = timeLimit + startTime - time(0);
         time_t minsLeft = timeLeft / 60;
-        if (minsLeft <= 3)
-            std::cout << "You only have " << minsLeft
-                      << " minutes left to reach the goal!\n\n";
+        
+        // suppress time warning while in edit mode
+        if (!editMode)
+        {
+            // display time left starting at 3 minutes.
+            if (minsLeft <= 0)
+            {
+                std::cout << "Sorry, you are out of time. Type 'exit' to quit "
+                          << "or you can continue to explore.\n";
+            }
+            else if (minsLeft <= 3)
+            {
+                std::cout << "You only have " << minsLeft << " minutes and "
+                          << (timeLeft % 60) << " seconds left to reach the goal!\n\n";
+            }
+        }
         
         // display current room
         user.getCurrentRoom()->view(editMode);
         std::cout << std::endl;
+        
+        // display end message if endpoint is reached
+        if (endpoint == user.getCurrentRoom())
+        {
+            std::cout << "Congratulations!\nYou reached the end with "
+                      << minsLeft << " minutes and " << (timeLeft % 60)
+                      << " seconds left to spare!\n"
+                      << "Type 'exit' to quit or you can continue to explore.\n\n";
+            timeLimit = 1000000;
+        }
         
         // get user input
         std::cout << "What do you want to do? ";
@@ -955,7 +1141,7 @@ Result World::save(std::ofstream &out)
         // world settings
         // intro text
         out << "##INTRO##" << std::endl;
-        out << intro << std::endl;
+        out << intro;
         out << "##ENDINTRO##" << std::endl;
         // time limit
         out << timeLimit << std::endl;
