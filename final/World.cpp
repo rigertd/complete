@@ -1087,12 +1087,12 @@ void World::run()
                       << "Type 'exit' to quit or you can continue to explore.\n\n";
             wonGame = true;
         }
-        else if (!wonGame)
+        else if (!wonGame && minsLeft <= 0 && endpoint == user.getCurrentRoom())
         {
             std::cout << "You reached the end, but it was too late.\n"
                       << "Type 'exit' to quit or you can continue to explore.\n\n";
         }
-        else
+        else if (endpoint == user.getCurrentRoom())
         {
             std::cout << "This is the end of the game.\n"
                       << "Type 'exit' to quit or you can continue to explore.\n\n";
