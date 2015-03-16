@@ -280,6 +280,12 @@ void SwitchRoom::view(bool editMode)
             std::cout << target->getRoomId();
         else
             std::cout << "None";
+        std::cout << std::endl
+                  << "Required Item ID: ";
+        if (required)
+            std::cout << required->getId();
+        else
+            std::cout << "None";
         std::cout << std::endl << std::endl;
     }
     

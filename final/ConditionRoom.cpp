@@ -344,7 +344,13 @@ void ConditionRoom::view(bool editMode)
                   << (eastEnabled ? "East " : "")
                   << (southEnabled ? "South " : "")
                   << (westEnabled ? "West" : "")
-                  << std::endl << std::endl;
+                  << std::endl
+                  << "Required Item ID: ";
+        if (required)
+            std::cout << required->getId();
+        else
+            std::cout << "None";
+        std::cout << std::endl << std::endl;
     }
     
     // show room description
