@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 // populate command map
 Command::CommandMap Command::commands = Command::populateCommands();
@@ -57,8 +58,9 @@ Result Command::read(const std::string &input, bool editMode)
         res.type = Result::FAILURE;
         return res;
     }
-    
-    std::istringstream iss(input);  // for tokenizing input
+    std::string lower = input;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    std::istringstream iss(lower);  // for tokenizing input
     std::string cmd;                // token buffer
     std::map<std::string, Command>::iterator it;    // iterator for map
     
