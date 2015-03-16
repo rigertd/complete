@@ -82,6 +82,7 @@ std::ostream &operator<<(std::ostream &out, Item &itm)
     
     // output real name followed by alternate names
     out << "##ITEMNAMES##" << std::endl;
+    out << itm.realName << std::endl;
     std::set<std::string>::iterator it = itm.names.begin();
     while (it != itm.names.end())
     {
