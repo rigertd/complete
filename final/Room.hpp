@@ -61,6 +61,9 @@ public:
     // gets a pointer to the specified direction
     virtual Room *getExit(Direction d) const;
     
+    // gets a pointer to the target of a SwitchRoom
+    virtual Room *getTarget() const { return NULL; }
+    
     // gets the ItemMap of the room
     std::map<unsigned, Item *> &getItems()   { return items; }
     

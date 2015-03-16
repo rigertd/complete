@@ -61,9 +61,6 @@ void SwitchRoom::serialize(std::ostream &out)
     // output required item ID or 0 for NULL
     out << (required == NULL ? 0 : required->getId()) << std::endl;
     
-    // output target room ID or 0 for NULL
-    out << (target == NULL ? 0 : target->getRoomId()) << std::endl;
-    
     // output enabled state
     out << (enabled ? 1 : 0) << std::endl;
     
@@ -102,11 +99,6 @@ void SwitchRoom::deserialize(std::istream &in)
     std::getline(in, input);
     unsigned val = std::atoi(input.c_str());
     required = global->findItem(val);
-    
-    // get target room ID or 0 for NULL
-    std::getline(in, input);
-    val = std::atoi(input.c_str());
-    target = global->findRoom(val);
     
     // get enabled state
     std::getline(in, input);

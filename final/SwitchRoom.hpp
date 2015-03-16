@@ -42,6 +42,9 @@ public:
     // clears the target room of the room
     virtual Result clearTarget();
     
+    // gets a pointer to the target of the room
+    virtual Room *getTarget() const { return target; };
+    
     // serializes the room data into the save file format
     virtual void serialize(std::ostream &);
     

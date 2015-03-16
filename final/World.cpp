@@ -628,6 +628,29 @@ Result World::load(std::ifstream &in)
             std::getline(in, input);
         }
         
+        // load switch room targets
+        std::getline(in, input);
+        if (input != "##ROOMTARGETS##")
+        {
+            res.message = "Invalid save data.";
+            return res;
+        }
+        
+        // load target of first room
+        std::getline(in, input);
+        while (input != "##ENDROOMTARGETS##")
+        {
+            Room *t = NULL;
+            std::istringstream iss(input);
+            iss >> val;             // room ID
+            rm = findRoom(val);     // pointer to room
+            iss >> val;             // target room ID
+            t = findRoom(val);      // pointer to target
+            rm->setTarget(t);
+            // get next line
+            std::getline(in, input);
+        }
+        
         // load world info
         
         // introduction
@@ -1155,6 +1178,23 @@ Result World::save(std::ofstream &out)
             ++rmIt;
         }
         out << "##ENDROOMEXITS##" << std::endl;
+        
+        // room targets section heading
+        out << "##ROOMTARGETS##" << std::endl;
+        rmIt = rooms.begin();
+        while (rmIt != rooms.end())
+        {
+            // output source room ID
+            out << rmIt->first << " ";
+            // output target room ID or 0 for NULL
+            if (rmIt->getTarget())
+                out << rmIt->getTarget()->getRoomId());
+            else
+                out << 0;
+            out << std::endl;
+            ++rmIt;
+        }
+        out << "##ENDROOMTARGETS##" << std::endl;
         
         // world settings
         // intro text
