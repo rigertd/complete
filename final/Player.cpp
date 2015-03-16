@@ -12,9 +12,9 @@
 #include "Player.hpp"
 
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <string>
 
 #include "Item.hpp"
 #include "Room.hpp"

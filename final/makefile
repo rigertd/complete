@@ -17,8 +17,8 @@ all: $(PROGS)
 final: $(FINALOBJS) final.o
 	$(CXX) $(CXXFLAGS) $(FINALOBJS) final.o -o $@
 
-test: $(TESTOBJS) test.o
-	$(CCX) $(CXXFLAGS) $(TESTOBJS) test.o -o $@
+test: $(FINALOBJS) $(TESTOBJS) test.o
+	$(CXX) $(CXXFLAGS) $(FINALOBJS) $(TESTOBJS) test.o -o $@
 
 $(OBJS): $(@:.o=.cpp)
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)

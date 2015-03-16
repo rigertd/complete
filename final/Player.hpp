@@ -14,6 +14,7 @@
 #define PLAYER_HPP
 
 #include <map>
+#include <iostream>
 
 #include "Result.hpp"
 #include "Direction.hpp"
