@@ -1088,7 +1088,7 @@ void World::run()
             if (minsLeft <= 0)
             {
                 std::cout << "Sorry, you are out of time. Type 'exit' to quit "
-                          << "or you can continue to explore.\n";
+                          << "or you can continue to explore.\n\n";
             }
             else if (minsLeft <= 3)
             {
