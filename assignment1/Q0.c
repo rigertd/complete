@@ -1,8 +1,10 @@
 /* CS261- Assignment 1 - Q. 0*/
 /* Name: David Rigert
  * Date: 03/31/2015
- * Solution description: 
- * 
+ * Solution description: Declares an integer value, prints the memory address,
+ *                       passes it to a function by address, prints the value,
+ *                       the address, and the pointer address in the function,
+ *                       and then prints the value back in main.
  */
  
 #include <stdio.h>
