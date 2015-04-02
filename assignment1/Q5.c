@@ -58,7 +58,10 @@ int main(){
     sticky(word);
     
     /*Print the new word*/
-    printf("Sticky caps: %s", word);
+    printf("Sticky caps: %s\n", word);
     
+    /* free buffer memory */
+    free(word);
+    word = NULL;
     return 0;
 }
