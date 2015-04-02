@@ -58,7 +58,7 @@ int main(){
     /*Print the contents of the array.*/
     printf("Unsorted array:\n");
     for (i = 0; i < n; ++i) {
-        printf("%5d   ", pArray[i]);
+        printf("%16d", pArray[i]);
     }
 
     /*Pass this array along with n to the sort() function of part a.*/
@@ -67,7 +67,7 @@ int main(){
     /*Print the contents of the array.*/    
     printf("\nSorted array:\n");
     for (i = 0; i < n; ++i) {
-        printf("%5d   ", pArray[i]);
+        printf("%16d", pArray[i]);
     }
     
     return 0;
