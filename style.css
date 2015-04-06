@@ -42,9 +42,7 @@ dt:hover + dd {
 /* nested div style definitions */
 div.outer-content {
   background-color: #fcc;
-  display: block;
   margin-top: 20px;
-  padding: 1.35em; /* same as line height */
   width: 75%;
 }
 
