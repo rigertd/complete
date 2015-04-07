@@ -1,18 +1,4 @@
-/* base style definition for text */
-html {
-  font: 100%/1.35 helvetica, calibri, sans-serif;
-}
-
 /* table-related style definitions */
-table {
-  border: 1px solid #888;
-}
-
-th, td {
-  border: 1px solid #888;
-  padding: 0 5px;
-}
-
 tbody th {
   font-style: italic;
   font-weight: normal;
@@ -58,11 +44,3 @@ img {
   float: left;
 }
 
-/* form-related style definitions */
-fieldset {
-  padding: 10px;
-}
-
-button {
-  margin-top: 10px;
-}
