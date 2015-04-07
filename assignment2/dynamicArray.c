@@ -212,9 +212,9 @@ void swapDynArr(DynArr *v, int i, int  j)
     /* assign first value to temp variable */
     TYPE temp = getDynArr(v, i);
     /* assign first value to second */
-    putDynArr(v, i) = getDynArr(v, j);
+    putDynArr(v, i, getDynArr(v, j));
     /* assign second value to first (in temp) */
-    putDynArr(v, j) = temp;
+    putDynArr(v, j, temp);
 }
 
 /*	Remove the element at the specified location from the array,
@@ -238,7 +238,7 @@ void removeAtDynArr(DynArr *v, int idx)
     /* shift every element from idx+1 until end of array to left by 1*/
     int i;
     for (i = idx + 1; i < v->size; ++i) {
-        v->data[i - 1] = v->data[i];
+        putDynArr(v, i - 1, getDynArr(v, i));
     }
     
     /* decrement size by 1 */
