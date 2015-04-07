@@ -208,15 +208,13 @@ void swapDynArr(DynArr *v, int i, int  j)
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
     assert(v->size > 0);                /* v is not empty */
-    assert(i >= 0 && i < v->size);       /* i is valid index */
-    assert(j >= 0 && j < v->size);       /* j is valid index */
     
     /* assign first value to temp variable */
-    TYPE temp = v->data[i];
+    TYPE temp = getDynArr(v, i);
     /* assign first value to second */
-    v->data[i] = v->data[j];
+    putDynArr(v, i) = getDynArr(v, j);
     /* assign second value to first (in temp) */
-    v->data[j] = temp;
+    putDynArr(v, j) = temp;
 }
 
 /*	Remove the element at the specified location from the array,
@@ -299,10 +297,9 @@ TYPE topDynArr(DynArr *v)
 {
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
 	
 	/* return last value in array */
-	return v->data[v->size - 1];
+	return getDynArr(v, v->size - 1);
 }
 
 /* Removes the element on top of the stack 
@@ -347,7 +344,7 @@ int containsDynArr(DynArr *v, TYPE val)
 	/* loop through array until value is found (or not) */
     int i;
     for (i = 0; i < v->size; ++i) {
-        if (v->data[i] == val) {
+        if (getDynArr(v, i) == val) {
             return 1;
         }
     }
@@ -375,7 +372,7 @@ void removeDynArr(DynArr *v, TYPE val)
     /* loop through array from start and remove first value if found */
     int i;
     for (i = 0; i < v->size; ++i) {
-        if (v->data[i] == val) {
+        if (getDynArr(v, i) == val) {
             removeAtDynArr(v, i);
             /* exit loop after removing first occurrence */
             break;
