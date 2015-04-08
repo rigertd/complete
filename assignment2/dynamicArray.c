@@ -344,7 +344,7 @@ int containsDynArr(DynArr *v, TYPE val)
 	/* loop through array until value is found (or not) */
     int i;
     for (i = 0; i < v->size; ++i) {
-        if (getDynArr(v, i) == val) {
+        if (EQ(getDynArr(v, i), val)) {
             return 1;
         }
     }
@@ -372,7 +372,7 @@ void removeDynArr(DynArr *v, TYPE val)
     /* loop through array from start and remove first value if found */
     int i;
     for (i = 0; i < v->size; ++i) {
-        if (getDynArr(v, i) == val) {
+        if (EQ(getDynArr(v, i), val)) {
             removeAtDynArr(v, i);
             /* exit loop after removing first occurrence */
             break;
