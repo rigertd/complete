@@ -164,9 +164,9 @@ void addDynArr(DynArr *v, TYPE val)
 TYPE getDynArr(DynArr *v, int pos)
 {
 	/* verify preconditions */
-    assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
-    assert(pos >= 0 && pos < v->size);   /* pos is valid index */
+    assert(v != 0);                           /* v is not null */
+    assert(sizeDynArr(v) > 0);                /* v is not empty */
+    assert(pos >= 0 && pos < sizeDynArr(v));  /* pos is valid index */
 
 	/* return value in specified position */
 	return v->data[pos]; 
@@ -186,9 +186,9 @@ TYPE getDynArr(DynArr *v, int pos)
 void putDynArr(DynArr *v, int pos, TYPE val)
 {
 	/* verify preconditions */
-    assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
-    assert(pos >= 0 && pos < v->size);   /* pos is valid index */
+    assert(v != 0);                           /* v is not null */
+    assert(sizeDynArr(v) > 0);                /* v is not empty */
+    assert(pos >= 0 && pos < sizeDynArr(v));  /* pos is valid index */
     
     /* set element with index of 'pos' to 'val' */
     v->data[pos] = val;
@@ -207,7 +207,7 @@ void swapDynArr(DynArr *v, int i, int  j)
 {
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
+    assert(sizeDynArr(v) > 0);          /* v is not empty */
     
     /* assign first value to temp variable */
     TYPE temp = getDynArr(v, i);
@@ -265,7 +265,7 @@ int isEmptyDynArr(DynArr *v)
     assert (v != 0);
     
 	/* return whether size equals 0*/
-	return v->size == 0;
+	return sizeDynArr(v) == 0;
 }
 
 /* 	Push an element onto the top of the stack
@@ -299,7 +299,7 @@ TYPE topDynArr(DynArr *v)
     assert(v != 0);                     /* v is not null */
 	
 	/* return last value in array */
-	return getDynArr(v, v->size - 1);
+	return getDynArr(v, sizeDynArr(v) - 1);
 }
 
 /* Removes the element on top of the stack 
@@ -314,10 +314,10 @@ void popDynArr(DynArr *v)
 {
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
+    assert(sizeDynArr(v) > 0);          /* v is not empty */
     
     /* remove last element in array */
-    removeAtDynArr(v, v->size - 1);
+    removeAtDynArr(v, sizeDynArr(v) - 1);
 }
 
 /* ************************************************************************
@@ -339,11 +339,11 @@ int containsDynArr(DynArr *v, TYPE val)
 {
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
+    assert(sizeDynArr(v) > 0);          /* v is not empty */
 	
 	/* loop through array until value is found (or not) */
     int i;
-    for (i = 0; i < v->size; ++i) {
+    for (i = 0; i < sizeDynArr(v); ++i) {
         if (EQ(getDynArr(v, i), val)) {
             return 1;
         }
@@ -367,11 +367,11 @@ void removeDynArr(DynArr *v, TYPE val)
 {
 	/* verify preconditions */
     assert(v != 0);                     /* v is not null */
-    assert(v->size > 0);                /* v is not empty */
+    assert(sizeDynArr(v) > 0);          /* v is not empty */
     
     /* loop through array from start and remove first value if found */
     int i;
-    for (i = 0; i < v->size; ++i) {
+    for (i = 0; i < sizeDynArr(v); ++i) {
         if (EQ(getDynArr(v, i), val)) {
             removeAtDynArr(v, i);
             /* exit loop after removing first occurrence */
