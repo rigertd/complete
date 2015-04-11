@@ -1,8 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
+#include <math.h>
 #include "dynamicArray.h"
 
+/* define pi and e */
+#define PI 3.1415926535897932384626433832795
+#define E 2.7182818284590452353602874713527
 
 /* param: s the string
    param: num a pointer to double
@@ -40,7 +45,28 @@ int isNumber(char *s, double *num)
 */
 void add (struct DynArr *stack)
 {
-	/* FIXME: You will write this function */
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operands found for + operator");
+        exit(1);
+    }
+    
+    /* pop right-hand value from stack */
+    TYPE rhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: Second operand not found for + operator");
+        exit(1);
+    }
+
+    /* pop left-hand value from stack */
+    TYPE lhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* add values and push result onto stack */
+    pushDynArr(stack, lhs + rhs);
 }
 
 /*	param: stack the stack being manipulated
@@ -50,7 +76,28 @@ void add (struct DynArr *stack)
 */
 void subtract(struct DynArr *stack)
 {
-	/* FIXME: You will write this function */
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operands found for - operator");
+        exit(1);
+    }
+    
+    /* pop right-hand value from stack */
+    TYPE rhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: Second operand not found for - operator");
+        exit(1);
+    }
+
+    /* pop left-hand value from stack */
+    TYPE lhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* subtract values and push result onto stack */
+    pushDynArr(stack, lhs - rhs);
 }
 
 /*	param: stack the stack being manipulated
@@ -60,7 +107,265 @@ void subtract(struct DynArr *stack)
 */
 void divide(struct DynArr *stack)
 {
-	/* FIXME: You will write this function */
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operands found for / operator");
+        exit(1);
+    }
+    
+    /* pop right-hand value from stack */
+    TYPE rhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: Second operand not found for / operator");
+        exit(1);
+    }
+    
+    /* pop left-hand value from stack */
+    TYPE lhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for divide by 0 error */
+    if (rhs == 0) {
+        printf("Invalid operand: Cannot divide %f by 0", lhs);
+        exit(1);
+    }
+    
+    /* divide values and push result onto stack */
+    pushDynArr(stack, lhs / rhs);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void multiply(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operands found for x operator");
+        exit(1);
+    }
+    
+    /* pop right-hand value from stack */
+    TYPE rhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: Second operand not found for x operator");
+        exit(1);
+    }
+    
+    /* pop left-hand value from stack */
+    TYPE lhs = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* multiply values and push result onto stack */
+    pushDynArr(stack, lhs * rhs);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void power(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operands found for ^ operator");
+        exit(1);
+    }
+    
+    /* pop exponent value from stack */
+    TYPE ex = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: Second operand not found for ^ operator");
+        exit(1);
+    }
+    
+    /* pop base value from stack */
+    TYPE base = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* raise base to the exponent and push result onto stack */
+    pushDynArr(stack, pow(base, ex));
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void squared(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for ^2 operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* square the value and push result onto stack */
+    pushDynArr(stack, val * val);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void cubed(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for ^3 operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* cube the value and push result onto stack */
+    pushDynArr(stack, val * val * val);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void absolute(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for abs operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* multiply value by -1 if negative and push result onto stack */
+    pushDynArr(stack, val < 0 ? -1 * val : val);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void squareroot(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for sqrt operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for negative number */
+    if (val < 0) {
+        printf("Invalid operand: Cannot find square root of negative number %f", val);
+        exit(1);
+    }
+    
+    /* find square root and push result onto stack */
+    pushDynArr(stack, sqrt(val));
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void exponent(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for exp operator");
+        exit(1);
+    }
+    
+    /* pop exponent from stack */
+    TYPE ex = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* push E and exponent on stack */
+    pushDynArr(stack, E);
+    pushDynArr(stack, ex);
+    
+    /* call power function */
+    power(stack);
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void log_n(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for ln operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for negative value */
+    if (val < 0) {
+        printf("Invalid operand: Cannot find natural log of negative number %f", val);
+        exit(1);
+    }
+    
+    /* find natural log and push result onto stack */
+    pushDynArr(stack, log(val));
+}
+
+/*	param: stack the stack being manipulated
+	pre: the stack contains at least two elements
+	post: the top two elements are popped and 
+	their quotient is pushed back onto the stack.
+*/
+void log_10(struct DynArr *stack)
+{
+    /* test for empty stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Invalid input: No operand found for log operator");
+        exit(1);
+    }
+    
+    /* pop value from stack */
+    TYPE val = topDynArr(stack);
+    popDynArr(stack);
+    
+    /* test for negative value */
+    if (val < 0) {
+        printf("Invalid operand: Cannot find base-10 log of negative number %f", val);
+        exit(1);
+    }
+    
+    /* divide values and push result onto stack */
+    pushDynArr(stack, log10(val));
 }
 
 double calculate(int numInputTokens, char **inputString)
@@ -92,45 +397,62 @@ double calculate(int numInputTokens, char **inputString)
 		else if(strcmp(s, "/") == 0)
 			divide(stack);
 		else if(strcmp(s, "x") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Multiplying\n");
-		else if(strcmp(s, "^") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Power\n");
+			multiply(stack);
 		else if(strcmp(s, "^2") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Squaring\n");
+            squared(stack);
 		else if(strcmp(s, "^3") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Cubing\n");
+            cubed(stack);
+		else if(strcmp(s, "^") == 0)
+            power(stack);
 		else if(strcmp(s, "abs") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Absolute value\n");
+            absolute(stack);
 		else if(strcmp(s, "sqrt") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Square root\n");
+            squareroot(stack);
 		else if(strcmp(s, "exp") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Exponential\n");
+			exponent(stack);
 		else if(strcmp(s, "ln") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Natural Log\n");
+			log_n(stack);
 		else if(strcmp(s, "log") == 0)
-			/* FIXME: replace printf with your own function */
-			printf("Log\n");
+			log_10(stack);
 		else 
 		{
+            if (strcmp(s, "e") == 0) {
+                /* found e */
+                pushDynArr(stack, E);
+            } else if (strcmp(s, "pi") == 0) {
+                /* found pi */
+                pushDynArr(stack, PI);
+            } else if (isNumber(s, &result)) {
+                /* found a number */
+                pushDynArr(stack, result);
+            } else {
+                /* invalid input */
+                printf("Invalid input: %s is not a valid number or operator", s);
+                exit(1);
+            }
 			// FIXME: You need to develop the code here (when s is not an operator)
 			// Remember to deal with special values ("pi" and "e")
 			
 		}
 	}	//end for 
 
-	/* FIXME: You will write this part of the function (2 steps below) 
-	 * (1) Check if everything looks OK and produce an error if needed.
-	 * (2) Store the final value in result and print it out.
-	 */
-	
+	/* check for result in stack */
+    if (isEmptyDynArr(stack)) {
+        printf("Error: Result not found");
+        exit(1);
+    }
+    result = topDynArr(stack);
+    
+    /* pop result from stack and make sure stack is empty */
+    popDynArr(stack);
+    if (!isEmptyDynArr(stack)) {
+        /* stack is not empty, get remaining value and display error */
+        result = topDynArr(stack);
+        printf("Error: Found %f still on the stack", result);
+        exit(1);
+    }
+    
+    /* stack is empty; return the result */
 	return result;
 }
 
@@ -141,6 +463,6 @@ int main(int argc , char** argv)
 	if (argc == 1)
 		return 0;
 
-	calculate(argc,argv);
+	printf("%f", calculate(argc,argv));
 	return 0;
 }
