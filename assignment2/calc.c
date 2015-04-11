@@ -140,7 +140,7 @@ void divide(struct DynArr *stack)
 /*	param: stack the stack being manipulated
 	pre: the stack contains at least two elements
 	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	their product is pushed back onto the stack.
 */
 void multiply(struct DynArr *stack)
 {
@@ -171,7 +171,7 @@ void multiply(struct DynArr *stack)
 /*	param: stack the stack being manipulated
 	pre: the stack contains at least two elements
 	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	the second raised to the first is pushed back onto the stack.
 */
 void power(struct DynArr *stack)
 {
@@ -200,9 +200,9 @@ void power(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one element
+	post: the top element is popped and 
+	the value squared is pushed back onto the stack.
 */
 void squared(struct DynArr *stack)
 {
@@ -221,9 +221,9 @@ void squared(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one element
+	post: the top element is popped and 
+	the value cubed is pushed back onto the stack.
 */
 void cubed(struct DynArr *stack)
 {
@@ -242,9 +242,9 @@ void cubed(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one element
+	post: the top element is popped and 
+	the absolute value is pushed back onto the stack.
 */
 void absolute(struct DynArr *stack)
 {
@@ -263,9 +263,9 @@ void absolute(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one non-negative element
+	post: the top element is popped and 
+	the square root is pushed back onto the stack.
 */
 void squareroot(struct DynArr *stack)
 {
@@ -290,9 +290,9 @@ void squareroot(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one element
+	post: the top element is popped and 
+	e raised to the value is pushed back onto the stack.
 */
 void exponent(struct DynArr *stack)
 {
@@ -315,9 +315,9 @@ void exponent(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one non-negative element
+	post: the top element is popped and 
+	the natural log is pushed back onto the stack.
 */
 void log_n(struct DynArr *stack)
 {
@@ -342,9 +342,9 @@ void log_n(struct DynArr *stack)
 }
 
 /*	param: stack the stack being manipulated
-	pre: the stack contains at least two elements
-	post: the top two elements are popped and 
-	their quotient is pushed back onto the stack.
+	pre: the stack contains at least one non-negative element
+	post: the top element is popped and 
+	the base-10 log is pushed back onto the stack.
 */
 void log_10(struct DynArr *stack)
 {
