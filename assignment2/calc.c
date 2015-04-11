@@ -47,7 +47,7 @@ void add (struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operands found for + operator");
+        printf("Invalid input: No operands found for + operator\n");
         exit(1);
     }
     
@@ -57,7 +57,7 @@ void add (struct DynArr *stack)
     
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: Second operand not found for + operator");
+        printf("Invalid input: Second operand not found for + operator\n");
         exit(1);
     }
 
@@ -78,7 +78,7 @@ void subtract(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operands found for - operator");
+        printf("Invalid input: No operands found for - operator\n");
         exit(1);
     }
     
@@ -88,7 +88,7 @@ void subtract(struct DynArr *stack)
     
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: Second operand not found for - operator");
+        printf("Invalid input: Second operand not found for - operator\n");
         exit(1);
     }
 
@@ -109,7 +109,7 @@ void divide(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operands found for / operator");
+        printf("Invalid input: No operands found for / operator\n");
         exit(1);
     }
     
@@ -119,7 +119,7 @@ void divide(struct DynArr *stack)
     
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: Second operand not found for / operator");
+        printf("Invalid input: Second operand not found for / operator\n");
         exit(1);
     }
     
@@ -129,7 +129,7 @@ void divide(struct DynArr *stack)
     
     /* test for divide by 0 error */
     if (rhs == 0) {
-        printf("Invalid operand: Cannot divide %f by 0", lhs);
+        printf("Invalid operand: Cannot divide %f by 0\n", lhs);
         exit(1);
     }
     
@@ -146,7 +146,7 @@ void multiply(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operands found for x operator");
+        printf("Invalid input: No operands found for x operator\n");
         exit(1);
     }
     
@@ -156,7 +156,7 @@ void multiply(struct DynArr *stack)
     
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: Second operand not found for x operator");
+        printf("Invalid input: Second operand not found for x operator\n");
         exit(1);
     }
     
@@ -177,7 +177,7 @@ void power(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operands found for ^ operator");
+        printf("Invalid input: No operands found for ^ operator\n");
         exit(1);
     }
     
@@ -187,7 +187,7 @@ void power(struct DynArr *stack)
     
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: Second operand not found for ^ operator");
+        printf("Invalid input: Second operand not found for ^ operator\n");
         exit(1);
     }
     
@@ -208,7 +208,7 @@ void squared(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for ^2 operator");
+        printf("Invalid input: No operand found for ^2 operator\n");
         exit(1);
     }
     
@@ -229,7 +229,7 @@ void cubed(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for ^3 operator");
+        printf("Invalid input: No operand found for ^3 operator\n");
         exit(1);
     }
     
@@ -250,7 +250,7 @@ void absolute(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for abs operator");
+        printf("Invalid input: No operand found for abs operator\n");
         exit(1);
     }
     
@@ -271,7 +271,7 @@ void squareroot(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for sqrt operator");
+        printf("Invalid input: No operand found for sqrt operator\n");
         exit(1);
     }
     
@@ -281,7 +281,7 @@ void squareroot(struct DynArr *stack)
     
     /* test for negative number */
     if (val < 0) {
-        printf("Invalid operand: Cannot find square root of negative number %f", val);
+        printf("Invalid operand: Cannot find square root of negative number %f\n", val);
         exit(1);
     }
     
@@ -298,7 +298,7 @@ void exponent(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for exp operator");
+        printf("Invalid input: No operand found for exp operator\n");
         exit(1);
     }
     
@@ -323,7 +323,7 @@ void log_n(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for ln operator");
+        printf("Invalid input: No operand found for ln operator\n");
         exit(1);
     }
     
@@ -333,7 +333,7 @@ void log_n(struct DynArr *stack)
     
     /* test for negative value */
     if (val < 0) {
-        printf("Invalid operand: Cannot find natural log of negative number %f", val);
+        printf("Invalid operand: Cannot find natural log of negative number %f\n", val);
         exit(1);
     }
     
@@ -350,7 +350,7 @@ void log_10(struct DynArr *stack)
 {
     /* test for empty stack */
     if (isEmptyDynArr(stack)) {
-        printf("Invalid input: No operand found for log operator");
+        printf("Invalid input: No operand found for log operator\n");
         exit(1);
     }
     
@@ -360,7 +360,7 @@ void log_10(struct DynArr *stack)
     
     /* test for negative value */
     if (val < 0) {
-        printf("Invalid operand: Cannot find base-10 log of negative number %f", val);
+        printf("Invalid operand: Cannot find base-10 log of negative number %f\n", val);
         exit(1);
     }
     
@@ -427,7 +427,7 @@ double calculate(int numInputTokens, char **inputString)
                 pushDynArr(stack, result);
             } else {
                 /* invalid input */
-                printf("Invalid input: %s is not a valid number or operator", s);
+                printf("Invalid input: %s is not a valid number or operator\n", s);
                 exit(1);
             }
 			// FIXME: You need to develop the code here (when s is not an operator)
@@ -438,7 +438,7 @@ double calculate(int numInputTokens, char **inputString)
 
 	/* check for result in stack */
     if (isEmptyDynArr(stack)) {
-        printf("Error: Result not found");
+        printf("Error: Result not found\n");
         exit(1);
     }
     result = topDynArr(stack);
@@ -448,7 +448,7 @@ double calculate(int numInputTokens, char **inputString)
     if (!isEmptyDynArr(stack)) {
         /* stack is not empty, get remaining value and display error */
         result = topDynArr(stack);
-        printf("Error: Found %f still on the stack", result);
+        printf("Error: Found %f still on the stack\n", result);
         exit(1);
     }
     
@@ -463,6 +463,6 @@ int main(int argc , char** argv)
 	if (argc == 1)
 		return 0;
 
-	printf("%f", calculate(argc,argv));
+	printf("%f\n", calculate(argc,argv));
 	return 0;
 }
