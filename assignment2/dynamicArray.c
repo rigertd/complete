@@ -1,4 +1,7 @@
-/*	dynamicArray.c: Dynamic Array implementation. */
+/* CS261- Assignment 2 - dynamicArray.c
+ * Name:        David Rigert
+ * Description: Implementation of a dynamically-resized array structure
+ */
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
