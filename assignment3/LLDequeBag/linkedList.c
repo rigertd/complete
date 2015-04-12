@@ -30,6 +30,9 @@ struct linkedList{
     post: lst size is 0
 */
 void _initList (struct linkedList *lst) {
+    /* verify precondition */
+    assert(lst != 0);
+    
     /* Allocate memory for head and tail sentinels */
     struct DLink *head = malloc(sizeof(struct DLink));
     struct DLink *tail = malloc(sizeof(struct DLink));
