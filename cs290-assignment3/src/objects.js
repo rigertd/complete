@@ -10,7 +10,7 @@
 
 function returnObjectLiteral() {
   //your code here
-  return { type: 'Goldfish', brand: 'Pepperidge Farm', flavor: 'Cheddar', count: 2000 }; //Modify ONLY this line
+  return {type: 'Goldfish', brand: 'Pepperidge Farm', flavor: 'Cheddar', count: 2000}; //Modify ONLY this line
   //end your code
 }
 
@@ -39,6 +39,48 @@ function returnObjectLiteral() {
 
 //your code here
 
+// initialize all properties in the constructor
+function MessageLog(user) {
+  this.user = user;
+  this.sentCount = 0;         // total number of messages sent
+  this.receivedCount = 0;     // total number of messages received
+  this.sentMessages = [];     // stores sent messages (up to 5)
+  this.receivedMessages = []; // stores received messages (up to 5)
+}  
+
+// attach methods to the prototype, per the Google JS style guide
+// logMessage method definition
+MessageLog.prototype.logMessage = function(messageText, direction) {
+  if (direction === 0) {
+    // add message to end of sentMessages
+    this.sentMessages.push(messageText);
+    this.sentCount++;
+    // remove first element if > 5 elements in array
+    if (this.sentMessages.length > 5) {
+      this.sentMessages.shift();
+    }
+  } else if (direction === 1) {
+    // add message to end of receivedMessages
+    this.receivedMessages.push(messageText);
+    this.receivedCount++;
+    // remove first element if > 5 elements in array
+    if (this.receivedMessages.length > 5) {
+      this.receivedMessages.shift();
+    }
+  }
+}
+
+// getSentMessage method definition
+MessageLog.prototype.getSentMessage = function(n) {
+  // make sure the message actually exists
+  if (this.sentMessages.length >= n) {
+    return String(this.sentMessages[this.sentMessages.length - n - 1]);
+  }
+}
+
+// accessor functions
+MessageLog.prototype.totalSent = function() { return this.sentCount; }
+MessageLog.prototype.totalReceived = function() { return this.receivedCount; }
 //end your code
 
 /**
@@ -47,7 +89,12 @@ function returnObjectLiteral() {
 * received.
 */
 //your code here
-
+MessageLog.prototype.lastReceivedMessage = function() {
+  // make sure there are received messages to return
+  if (this.receivedMessages.length > 0) {
+    return String(this.receivedMessages[this.receivedMessages.length - 1]);
+  }
+}
 //end your code
 
 /**
