@@ -40,17 +40,17 @@ bar = function(doubleArray) {
     // double the element
     doubleArray[i] *= 2;
   }
-  
+
   return true;
-}
+};
 //end your code
 
 /**
 * Creates a new GitLog
-* @class
-* @property {string} hash - the hash of the commit
-* @property {Date} date - the date of the commit as a JS Date object
-* @property {string} message - the commit message
+* @constructor
+* @param {string} hash - the hash of the commit
+* @param {Date} date - the date of the commit as a JS Date object
+* @param {string} message - the commit message
 */
 function GitLog(hash, date, message) {
     this.hash = hash;
@@ -82,14 +82,14 @@ function parseGit(logArray) {
   var log = [];  // stores the converted GitLog objects
   // regex pattern: (non-whitespace) (non-double quote) "(non-double quote)"
   var regex = /(\S+)\s([^"]+)\s"([^"]+)"/;
-  
+
   for (var i = 0; i < logArray.length; i++) {
     // match the log entry using regular expressions
     var result = logArray[i].match(regex);
     // create a new GitLog object and push it into the array
     log.push(new GitLog(result[1], new Date(result[2]), result[3]));
   }
-  
+
   return log;
 }
 //end your code

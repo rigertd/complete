@@ -10,7 +10,10 @@
 
 function returnObjectLiteral() {
   //your code here
-  return {type: 'Goldfish', brand: 'Pepperidge Farm', flavor: 'Cheddar', count: 2000}; //Modify ONLY this line
+  return {type: 'Goldfish',
+          brand: 'Pepperidge Farm',
+          flavor: 'Cheddar',
+          count: 2000};
   //end your code
 }
 
@@ -46,10 +49,14 @@ function MessageLog(user) {
   this.receivedCount = 0;     // total number of messages received
   this.sentMessages = [];     // stores sent messages (up to 5)
   this.receivedMessages = []; // stores received messages (up to 5)
-}  
+}
 
 // attach methods to the prototype, per the Google JS style guide
-// logMessage method definition
+/**
+* Logs a message in the MessageLog instance.
+* @param {string} messageText - text of message to log
+* @param {number} direction - 0 for sent message, 1 for received message
+*/
 MessageLog.prototype.logMessage = function(messageText, direction) {
   if (direction === 0) {
     // add message to end of sentMessages
@@ -68,19 +75,31 @@ MessageLog.prototype.logMessage = function(messageText, direction) {
       this.receivedMessages.shift();
     }
   }
-}
+};
 
-// getSentMessage method definition
+/**
+* Gets the nth most recent message from the MessageLog instance.
+* @param {number} n - n=0 most recent n=4 least recent
+* @return {string} - text of nth most recent sent message
+*/
 MessageLog.prototype.getSentMessage = function(n) {
   // make sure the message actually exists
   if (this.sentMessages.length >= n) {
     return String(this.sentMessages[this.sentMessages.length - n - 1]);
   }
-}
+};
 
-// accessor functions
-MessageLog.prototype.totalSent = function() { return this.sentCount; }
-MessageLog.prototype.totalReceived = function() { return this.receivedCount; }
+/**
+* Gets the total number of sent messages logged in the MessageLog object.
+* @return {number} - total number of sent messages logged
+*/
+MessageLog.prototype.totalSent = function() { return this.sentCount; };
+
+/**
+* Gets the total number of received messages logged in the MessageLog object.
+* @return {number} - total number of received messages logged
+*/
+MessageLog.prototype.totalReceived = function() { return this.receivedCount; };
 //end your code
 
 /**
@@ -89,12 +108,16 @@ MessageLog.prototype.totalReceived = function() { return this.receivedCount; }
 * received.
 */
 //your code here
+/**
+* Gets the most recent received message logged in the MessageLog object.
+* @return {string} - the most recent message or 'undefined' if empty
+*/
 MessageLog.prototype.lastReceivedMessage = function() {
   // make sure there are received messages to return
   if (this.receivedMessages.length > 0) {
     return String(this.receivedMessages[this.receivedMessages.length - 1]);
   }
-}
+};
 //end your code
 
 /**
