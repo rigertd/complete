@@ -34,7 +34,7 @@ false otherwise
 */
 function isString(b) {
   //your code here
-  return undefined;
+  return typeof b === 'string';
   //end your code
 }
 
