@@ -127,7 +127,7 @@ MessageLog.prototype.lastReceivedMessage = function() {
 */
 
 //your code here
-myLog = new MessageLog('BlackHatGuy');
+var myLog = new MessageLog('BlackHatGuy');
 myLog.logMessage('foo', 1);
 myLog.logMessage('bar', 1);
 myLog.logMessage('baz', 1);
