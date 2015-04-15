@@ -18,7 +18,5 @@ int main(){
 	reverseCirListDeque(q);
 	printCirListDeque(q);
     freeCirListDeque(q);
-    addFrontCirListDeque(q, (TYPE)42);
-    printCirListDeque(q);
 	return 0;
 }

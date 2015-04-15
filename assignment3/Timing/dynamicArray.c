@@ -347,7 +347,7 @@ int containsDynArr(DynArr *v, TYPE val)
 	/* loop through array until value is found (or not) */
     int i;
     for (i = 0; i < sizeDynArr(v); ++i) {
-        if (EQ(getDynArr(v, i), val)) {
+        if (EQ(v->data[i], val)) {
             return 1;
         }
     }
