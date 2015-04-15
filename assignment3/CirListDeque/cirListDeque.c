@@ -196,7 +196,6 @@ void _removeLink(struct cirListDeque *q, struct DLink *lnk)
     /* verify preconditions */
     assert(q != 0);
     assert(!isEmptyCirListDeque(q));
-    assert(q->Sentinel != lnk);
     
     /* remove lnk from list */
     lnk->prev->next = lnk->next;
@@ -254,6 +253,10 @@ void freeCirListDeque(struct cirListDeque *q)
     while (q->Sentinel->next != q->Sentinel) {
         _removeLink(q, q->Sentinel->next);
     }
+    
+    /* remove the sentinel */
+    free(q->Sentinel);
+    q->Sentinel = 0;
 }
 
 /* Check whether the deque is empty
