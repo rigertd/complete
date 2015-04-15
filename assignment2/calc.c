@@ -129,7 +129,7 @@ void divide(struct DynArr *stack)
     
     /* test for divide by 0 error */
     if (rhs == 0) {
-        printf("Invalid operand: Cannot divide %f by 0\n", lhs);
+        printf("Invalid operand: Cannot divide %g by 0\n", lhs);
         exit(1);
     }
     
@@ -281,7 +281,7 @@ void squareroot(struct DynArr *stack)
     
     /* test for negative number */
     if (val < 0) {
-        printf("Invalid operand: Cannot find square root of negative number %f\n", val);
+        printf("Invalid operand: Cannot find square root of negative number %g\n", val);
         exit(1);
     }
     
@@ -333,7 +333,7 @@ void log_n(struct DynArr *stack)
     
     /* test for negative value */
     if (val < 0) {
-        printf("Invalid operand: Cannot find natural log of negative number %f\n", val);
+        printf("Invalid operand: Cannot find natural log of negative number %g\n", val);
         exit(1);
     }
     
@@ -360,7 +360,7 @@ void log_10(struct DynArr *stack)
     
     /* test for negative value */
     if (val < 0) {
-        printf("Invalid operand: Cannot find base-10 log of negative number %f\n", val);
+        printf("Invalid operand: Cannot find base-10 log of negative number %g\n", val);
         exit(1);
     }
     
@@ -448,7 +448,7 @@ double calculate(int numInputTokens, char **inputString)
     if (!isEmptyDynArr(stack)) {
         /* stack is not empty, get remaining value and display error */
         result = topDynArr(stack);
-        printf("Error: Found %f still on the stack\n", result);
+        printf("Error: Found %g still on the stack\n", result);
         exit(1);
     }
     
@@ -463,6 +463,6 @@ int main(int argc , char** argv)
 	if (argc == 1)
 		return 0;
 
-	printf("%f\n", calculate(argc,argv));
+	printf("%g\n", calculate(argc,argv));
 	return 0;
 }
