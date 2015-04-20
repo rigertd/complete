@@ -1,0 +1,23 @@
+body {
+  min-width: 600px;
+}
+
+.favorites {
+  border: 1px solid black;
+  float: right;
+  min-width: 200px;
+  width: 30%;
+}
+
+.options label {
+  margin-right: 1em;
+}
+
+.pagecount {
+  text-align: center;
+  width: 2em;
+}
+
+footer {
+  clear: both;
+}

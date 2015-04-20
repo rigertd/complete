@@ -3,8 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title>My Gist List</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    
+    <header></header>
+    <section class="favorites">
+      <h1>Favorites</h1>
+      <ul id="favorites"></ul>
+    </section>
+    <section>
+      <form class="options" action="#">
+        <fieldset>
+          <legend>Filter Results by Language</legend>
+          <label><input name="py" type="checkbox"> Python</label>
+          <label><input name="json" type="checkbox"> JSON</label>
+          <label><input name="js" type="checkbox"> JavaScript</label>
+          <label><input name="sql" type="checkbox"> SQL</label>
+        </fieldset>
+        <p>Get <input name="pages" class="pagecount" type="number" max="5" min="1"> pages worth of gists.</p>
+        <p><button type="submit">Search</button></p>
+      </form>
+      <div class="results">
+        <ul id="results"></ul>
+      </div>
+    </section>
+    <footer>Copyright © David Rigert. All rights reserved.</footer>
   </body>
 </html>
