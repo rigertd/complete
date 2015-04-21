@@ -4,25 +4,34 @@
     <meta charset="utf-8">
     <title>My Gist List</title>
     <link rel="stylesheet" href="style.css">
+    <script src="mygist.js"></script>
   </head>
   <body>
-    <header></header>
+    <header><h1>My Gist List</h1></header>
     <section class="favorites">
       <h1>Favorites</h1>
       <ul id="favorites"></ul>
     </section>
     <section>
-      <form class="options" action="#">
-        <fieldset>
+      <div class="options">
+        <fieldset id="languages">
           <legend>Filter Results by Language</legend>
           <label><input name="py" type="checkbox"> Python</label>
           <label><input name="json" type="checkbox"> JSON</label>
           <label><input name="js" type="checkbox"> JavaScript</label>
           <label><input name="sql" type="checkbox"> SQL</label>
         </fieldset>
-        <p>Get <input name="pages" class="pagecount" type="number" max="5" min="1"> pages worth of gists.</p>
-        <p><button type="submit">Search</button></p>
-      </form>
+        <p><label>Gists to Download:
+          <select name="count" class="gistcount">
+            <option value="30">30
+            <option value="60">60
+            <option value="90">90
+            <option value="120">120
+            <option value="150">150
+          </select>
+        </p>
+        <p><button type="submit" onclick="getGists()">Search</button></p>
+      </div>
       <div class="results">
         <ul id="results"></ul>
       </div>
