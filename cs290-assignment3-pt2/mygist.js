@@ -130,16 +130,31 @@ function filterResults(gists) {
   }
 }
 
+function runQuery() {
+  var params = new RequestParams();
+  
+  // continue to requests gists until required number is obtained
+  while (params.currentPage <= params.totalPages()) {
+    getGists(params);
+    params.currentPage++;
+  }
+  
+  // sort the results and update mostRecent to reflect new data
+  cache.sortGists();
+  if (cache.gists.length > 0)
+    cache.mostRecent = cache.gists[0].updated_at;
+}
+
 /**
 * Gets gists from GitHub based on the number of gists specified in the HTML.
 */
-function getGists() {
+function getGists(params) {
+  // need to create multiple XMLHttpRequests for concurrent data retrieval
   // try to create XMLHttpRequest
   var req = new XMLHttpRequest();
   if (!req) {
     throw 'Cannot create HttpRequest.';
   }
-  var params = new RequestParams();
   
   // add gists to cache when retrieved
   req.onreadystatechange = function() {
@@ -151,16 +166,6 @@ function getGists() {
         alert('Failed to retrieve gists from GitHub.');
     }
   };
-  
-  // continue to requests gists until required number is obtained
-  while (params.currentPage <= params.totalPages()) {
-    req.open('GET', params.getUrl());
-    req.send();
-    params.currentPage++;
-  }
-  
-  // sort the results and update mostRecent to reflect new data
-  cache.sortGists();
-  if (cache.gists.length > 0)
-    cache.mostRecent = cache.gists[0].updated_at;
+  req.open('GET', params.getUrl());
+  req.send();
 }
