@@ -17,12 +17,19 @@ function RequestParams() {
     return Math.ceil(this.count / 100);
   };
   
+  this.perRequest = function() {
+    if (this.count <= 100)
+        return this.count;
+    else
+        return Math.ceil(this.count/2);
+  }
+  
   this.getUrl = function() {
     var newUrl = this.url + '?page=';
     if (this.totalPages() === 1) {
       newUrl = newUrl + '1&per_page=' + this.count;
     } else {
-      newUrl = newUrl + this.currentPage + '&per_page=100';
+      newUrl = newUrl + this.currentPage + '&per_page=' + this.perRequest();
     }
     // add since parameter if cache already contains gists
     if (cache.mostRecent !== undefined) {
@@ -86,21 +93,20 @@ GistCache.prototype.addGists = function(gistArray) {
         this.gists[i] = g;
       }
     }, this);
-    this.saveCache();
   } else {
     throw 'Operation failed: Argument is not an array of gists.';
   }
 }
 
 /**
-* Compares two Gist objects in an array based on update date.
+* Compares two Gist objects in an array based on update date. Sorts from newest to oldest
 * Logic taken from http://stackoverflow.com/questions/1129216/sorting-objects-in-an-array-by-a-field-value-in-javascript
 */
 function compareGists(a,b) {
   if (a.updated_at < b.updated_at)
-    return -1;
-  if (a.updated_at > b.updated_at)
     return 1;
+  if (a.updated_at > b.updated_at)
+    return -1;
   return 0;
 }
 
@@ -132,17 +138,7 @@ function filterResults(gists) {
 
 function runQuery() {
   var params = new RequestParams();
-  
-  // continue to requests gists until required number is obtained
-  while (params.currentPage <= params.totalPages()) {
-    getGists(params);
-    params.currentPage++;
-  }
-  
-  // sort the results and update mostRecent to reflect new data
-  cache.sortGists();
-  if (cache.gists.length > 0)
-    cache.mostRecent = cache.gists[0].updated_at;
+  getGists(params);
 }
 
 /**
@@ -160,10 +156,24 @@ function getGists(params) {
   req.onreadystatechange = function() {
     if (this.readyState === 4) {
       var results = JSON.parse(this.responseText);
-      if (results !== null)
+      if (results !== null) {
         cache.addGists(results);
-      else
+        // get more gists if there are still gists left to get
+        if (results.length == params.perRequest() 
+          && params.currentPage < params.totalPages()) {
+          params.currentPage++;
+          getGists(params);
+        } else {
+          // sort and save the cache
+          cache.sortGists();
+          cache.saveCache();
+          // update mostRecent with new data
+          if (cache.gists.length > 0)
+            cache.mostRecent = cache.gists[0].updated_at;
+        }
+      } else {
         alert('Failed to retrieve gists from GitHub.');
+      }
     }
   };
   req.open('GET', params.getUrl());
