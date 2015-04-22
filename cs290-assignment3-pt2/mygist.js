@@ -1,43 +1,68 @@
 window.onload = function() {
   cache = new GistCache();
-}
+};
 
 /**
-* Creates valid request parameters based on the HTML elements.
+* This object is used to create a valid request URL based on the settings
+* specified in the HTML document.
 */
 function RequestParams() {
   this.url = 'https://api.github.com/gists';
   this.count = Number.parseInt(document.getElementsByName('count')[0].value);
-  // validate count argument and set to 30 if less than 30
+  this.currentPage = 1;
+  
+  // validate count value and set to 30 if less than 30
   if (typeof this.count !== 'number' || this.count < 30) {
     this.count = 30;
   }
-  this.currentPage = 1;
-  this.totalPages = function() {
-    return Math.ceil(this.count / 100);
-  };
-  
-  this.perRequest = function() {
-    if (this.count <= 100)
-        return this.count;
-    else
-        return Math.ceil(this.count/2);
-  }
-  
-  this.getUrl = function() {
-    var newUrl = this.url + '?page=';
-    if (this.totalPages() === 1) {
-      newUrl = newUrl + '1&per_page=' + this.count;
-    } else {
-      newUrl = newUrl + this.currentPage + '&per_page=' + this.perRequest();
-    }
-    // add since parameter if cache already contains gists
-    if (cache.mostRecent !== undefined) {
-      newUrl = newUrl + '&since=' + cache.mostRecent;
-    }
-    return newUrl;
-  };
 }
+
+/**
+* Advances to the next page and returns true if one is available.
+*/
+RequestParams.prototype.nextPage = function() {
+  if (this.currentPage < this.totalPages()) {
+    this.currentPage++;
+    return true;
+  } else {
+    return false;
+  }
+};
+
+/**
+* Gets the total number of pages required to download the specified count
+*/
+RequestParams.prototype.totalPages = function() {
+  return Math.ceil(this.count / 100);
+};
+
+/**
+* Gets the number of gists to download per page.
+*/
+RequestParams.prototype.perRequest = function() {
+  if (this.count <= 100) {
+      return this.count;
+  } else {
+      return Math.ceil(this.count/this.totalPages());
+  }
+};
+
+/**
+* Gets the URL string for the current page to download.
+*/
+RequestParams.prototype.getUrl = function() {
+  var newUrl = this.url + '?page=';
+  if (this.totalPages() === 1) {
+    newUrl = newUrl + '1&per_page=' + this.count;
+  } else {
+    newUrl = newUrl + this.currentPage + '&per_page=' + this.perRequest();
+  }
+  // add since parameter if cache already contains gists
+  if (cache.mostRecent !== undefined) {
+    newUrl = newUrl + '&since=' + cache.mostRecent;
+  }
+  return newUrl;
+};
 
 /**
 * This object maintains a list of downloaded gists 
@@ -96,7 +121,7 @@ GistCache.prototype.addGists = function(gistArray) {
   } else {
     throw 'Operation failed: Argument is not an array of gists.';
   }
-}
+};
 
 /**
 * Compares two Gist objects in an array based on update date. Sorts from newest to oldest
@@ -136,13 +161,16 @@ function filterResults(gists) {
   }
 }
 
+/**
+* Creates the request parameters and initiates the request.
+*/
 function runQuery() {
   var params = new RequestParams();
   getGists(params);
 }
 
 /**
-* Gets gists from GitHub based on the number of gists specified in the HTML.
+* Gets gists from GitHub based on the specified request parameters.
 */
 function getGists(params) {
   // need to create multiple XMLHttpRequests for concurrent data retrieval
@@ -158,10 +186,9 @@ function getGists(params) {
       var results = JSON.parse(this.responseText);
       if (results !== null) {
         cache.addGists(results);
-        // get more gists if there are still gists left to get
+        // recursively get more gists if there are more pages
         if (results.length == params.perRequest() 
-          && params.currentPage < params.totalPages()) {
-          params.currentPage++;
+          && params.nextPage()) {
           getGists(params);
         } else {
           // sort and save the cache
