@@ -57,8 +57,8 @@ RequestParams.prototype.getUrl = function() {
   } else {
     newUrl = newUrl + this.currentPage + '&per_page=' + this.perRequest();
   }
-  // add since parameter if cache already contains gists
-  if (cache.mostRecent !== undefined) {
+  // add since parameter if cache already contains gists unless count was increased
+  if (cache.mostRecent !== undefined && cache.gists.length >= this.count) {
     newUrl = newUrl + '&since=' + cache.mostRecent;
   }
   return newUrl;
@@ -86,6 +86,17 @@ function GistCache() {
 }
 
 /**
+* Removes Gists in excess of the current count from the cache.
+* Sets the known gists to undefined to avoid performance hit of delete.
+*/
+GistCache.prototype.trimGists = function(count) {
+  var removed = this.gists.splice(count, this.gists.length - count);
+  removed.forEach(function(g) {
+    this.known[g.id] = undefined;
+  }, this);
+};
+
+/**
 * Saves the gist cache settings to sessionStorage.
 */
 GistCache.prototype.saveCache = function() {
@@ -108,7 +119,7 @@ GistCache.prototype.sortGists = function() {
 GistCache.prototype.addGists = function(gistArray) {
   if (Array.isArray(gistArray)) {
     gistArray.forEach(function(g) {
-      if (!this.known.hasOwnProperty(g.id)) {
+      if (this.known[g.id] === undefined) {
         // not found, add gist to cache
         this.gists.push(g);
         this.known[g.id] = g.updated_at;
@@ -197,6 +208,9 @@ function getGists(params) {
           // update mostRecent with new data
           if (cache.gists.length > 0)
             cache.mostRecent = cache.gists[0].updated_at;
+          
+          // write to DOM
+          createGistList(cache.gists, params.count);
         }
       } else {
         alert('Failed to retrieve gists from GitHub.');
@@ -205,4 +219,30 @@ function getGists(params) {
   };
   req.open('GET', params.getUrl());
   req.send();
+}
+
+function createGistList(gists, count) {
+  var list = document.getElementById('results');
+  // clear old values
+  while (list.lastChild) {
+    list.removeChild(list.lastChild);
+  }
+  
+  // populate unordered list based on cache
+  var i = 0;
+  cache.gists.some(function(g) {
+    var li = document.createElement('li'),
+        anchor = document.createElement('a');
+    anchor.href = g.url;
+    anchor.textContent = (g.description === ''
+                       || g.description === null
+                        ? '(No description)'
+                        : g.description);
+    li.appendChild(anchor);
+    list.appendChild(li);
+    // break after displaying specified number of gists
+    if (i++ >= count) {
+      return true;
+    }
+  });
 }
