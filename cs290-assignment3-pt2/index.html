@@ -9,18 +9,16 @@
   <body>
     <header><h1>My Gist List</h1></header>
     <section class="favorites">
-      <h1>Favorites</h1>
+      <h2>Favorites</h2>
       <ul id="favorites"></ul>
     </section>
     <section>
       <div class="options">
-        <fieldset id="languages">
-          <legend>Filter Results by Language</legend>
-          <label><input name="py" type="checkbox"> Python</label>
-          <label><input name="json" type="checkbox"> JSON</label>
-          <label><input name="js" type="checkbox"> JavaScript</label>
-          <label><input name="sql" type="checkbox"> SQL</label>
-        </fieldset>
+        <h2>Filter by Language</h2>
+        <label><input name="py" type="checkbox"> Python</label>
+        <label><input name="json" type="checkbox"> JSON</label>
+        <label><input name="js" type="checkbox"> JavaScript</label>
+        <label><input name="sql" type="checkbox"> SQL</label>
         <p><label>Gists to Download:
           <select name="count" class="gistcount">
             <option value="30">30
@@ -29,7 +27,7 @@
             <option value="120">120
             <option value="150">150
           </select>
-        </p>
+        </label></p>
         <p><button type="submit" onclick="runQuery()">Search</button></p>
       </div>
       <div class="results">
