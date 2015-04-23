@@ -15,10 +15,12 @@
     <section>
       <div class="options">
         <h2>Filter by Language</h2>
-        <label><input name="py" type="checkbox"> Python</label>
-        <label><input name="json" type="checkbox"> JSON</label>
-        <label><input name="js" type="checkbox"> JavaScript</label>
-        <label><input name="sql" type="checkbox"> SQL</label>
+        <ul id="languages">
+          <li><label><input name="JavaScript" type="checkbox"> JavaScript</label>
+          <li><label><input name="JSON" type="checkbox"> JSON</label>
+          <li><label><input name="Python" type="checkbox"> Python</label>
+          <li><label><input name="SQL" type="checkbox"> SQL</label>
+        </ul>
         <p><label>Gists to Download:
           <select name="count" class="gistcount">
             <option value="30">30

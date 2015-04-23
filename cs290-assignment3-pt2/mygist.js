@@ -154,17 +154,22 @@ function compareGists(a,b) {
 function filterResults(gists) {
   var selections = {};
   var results = [];
-  var inputs = document.getElementById('languages').getElementsByName('input');
-  inputs.forEach(function(el) {
-    if (el.checked)
-      selections[el.name] = true;
-  });
+  var inputs = document.getElementById('languages').getElementsByTagName('input');
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i] && inputs[i].checked) {
+      selections[inputs[i].name] = true;
+    }
+  }
   
   // only apply filter if at least one checkbox is selected
-  if (Object.keys(selections).length) {
+  if (Object.keys(selections).length > 0) {
     gists.forEach(function(g) {
-      if (selections.hasOwnProperty(g.files[0].language))
+      for (f in g.files) {
+        if (selections.hasOwnProperty(g.files[f].language)) {
         results.push(g);
+        return;
+        }
+      }
     });
     return results;
   } else {
@@ -195,7 +200,7 @@ function getGists(params) {
   req.onreadystatechange = function() {
     if (this.readyState === 4) {
       var results = JSON.parse(this.responseText);
-      if (results !== null) {
+      if (this.status === 200 && results !== null) {
         cache.addGists(results);
         // recursively get more gists if there are more pages
         if (results.length == params.perRequest() 
@@ -213,9 +218,9 @@ function getGists(params) {
           createGistList(cache.gists, params.count);
         }
       } else {
-        alert('Failed to retrieve gists from GitHub.');
+      alert('Unable to download Gists from GitHub.');
       }
-    }
+    } 
   };
   req.open('GET', params.getUrl());
   req.send();
@@ -230,19 +235,62 @@ function createGistList(gists, count) {
   
   // populate unordered list based on cache
   var i = 0;
-  cache.gists.some(function(g) {
-    var li = document.createElement('li'),
-        anchor = document.createElement('a');
-    anchor.href = g.html_url;
-    anchor.textContent = (g.description === ''
-                       || g.description === null
-                        ? '(No description)'
-                        : g.description);
-    li.appendChild(anchor);
+  var filtered = filterResults(cache.gists);
+  filtered.some(function(g) {
+    var li = document.createElement('li');
+    li.appendChild(createGistEntry(g));
     list.appendChild(li);
     // break after displaying specified number of gists
     if (i++ >= count) {
       return true;
     }
   });
+}
+
+function createGistEntry(gist) {
+  var ul = document.createElement('ul'),
+      liFav = document.createElement('li'),
+      img = document.createElement('img'),
+      liGist = document.createElement('li'),
+      aGist = document.createElement('a');
+  
+  img.src = 'star.png';
+  img.alt = img.title = 'Add to Favorites';
+  img.onclick = 'addToFavorites(\'' + gist.id + '\');';
+  liFav.appendChild(img);
+  
+  aGist.href = gist.html_url;
+  aGist.textContent = (gist.description === ''
+                    || gist.description === null
+                     ? '(No description)'
+                     : gist.description);
+  liGist.appendChild(aGist);
+  liGist.appendChild(createLangList(gist.files));
+  
+  // append add to favorites image
+  ul.appendChild(liFav);
+  // append Gist info
+  ul.appendChild(liGist);
+  
+  return ul;
+}
+
+/**
+* Creates an unordered list of unique languages in the files of a Gist.
+*/
+function createLangList(files) {
+  var ul = document.createElement('ul');
+  var fileTypes = {};
+  // we only want one label per file type
+  for (f in files) {
+    if (files[f].language) {
+      fileTypes[files[f].language] = true;
+    }
+  }
+  for (ft in fileTypes) {
+    var li = document.createElement('li');
+    li.textContent = ft;
+    ul.appendChild(li);
+  }
+  return ul;
 }

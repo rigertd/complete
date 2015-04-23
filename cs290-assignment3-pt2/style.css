@@ -18,6 +18,25 @@ body {
   width: 2em;
 }
 
+.results ul {
+  margin-left: 0;
+  padding-left: 0;
+  text-indent: 0;
+}
+.results > ul > li > ul > li {
+  display: inline-block;
+  vertical-align: top;
+  margin: .25em;
+}
+
+.results > ul > li > ul > li > ul > li {
+  display: inline-block;
+  border: 1px solid #999;
+  margin: .25em;
+  padding: .1em;
+  border-radius: 10%;
+}
+
 footer {
   clear: both;
 }
