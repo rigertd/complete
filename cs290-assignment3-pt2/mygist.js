@@ -233,7 +233,7 @@ function createGistList(gists, count) {
   cache.gists.some(function(g) {
     var li = document.createElement('li'),
         anchor = document.createElement('a');
-    anchor.href = g.url;
+    anchor.href = g.html_url;
     anchor.textContent = (g.description === ''
                        || g.description === null
                         ? '(No description)'
