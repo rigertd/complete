@@ -254,6 +254,7 @@ function createGistList(gists, count) {
   var filtered = filterResults(cache.gists);
   filtered.some(function(g) {
     var li = document.createElement('li');
+    li.id = g.id;
     li.appendChild(createGistEntry(g, true));
     list.appendChild(li);
     // break after displaying specified number of gists
@@ -359,9 +360,17 @@ FavoritesList.prototype.removeFavorite = function(favId) {
 function addToFavorites() {
   favList.favorites[this.value] = cache.findByGistId(this.value);
   favList.saveFavorites();
-  var params = new RequestParams();
-  createGistList(cache.gists, params.count);
-  createFavoritesList(favList.favorites);
+  removeFromResults(this.value);
+  var favs = document.getElementById('favorites');
+  var li = document.createElement('li');
+  li.id = this.value;
+  li.appendChild(createGistEntry(favList.favorites[this.value], false));
+  favs.appendChild(li);
+}
+
+function removeFromResults(gistId) {
+  var target = document.getElementById(gistId);
+  target.parentElement.removeChild(target);
 }
 
 function removeFromFavorites() {
@@ -369,8 +378,5 @@ function removeFromFavorites() {
   favList.removeFavorite(this.value);
   target.parentElement.removeChild(target);
   favList.saveFavorites();
-  var params = new RequestParams();
-  createGistList(cache.gists, params.count);
-  createFavoritesList(favList.favorites);
 }
 
