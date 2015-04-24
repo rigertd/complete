@@ -8,29 +8,31 @@
   </head>
   <body>
     <header><h1>My Gist List</h1></header>
-    <section class="favorites">
-      <h2>Favorites</h2>
-      <ul id="favorites"></ul>
-    </section>
     <section>
       <div class="options">
-        <h2>Filter by Language</h2>
         <ul id="languages">
+          <li>Languages to Display: </li>
           <li><label><input name="JavaScript" type="checkbox"> JavaScript</label>
           <li><label><input name="JSON" type="checkbox"> JSON</label>
           <li><label><input name="Python" type="checkbox"> Python</label>
           <li><label><input name="SQL" type="checkbox"> SQL</label>
         </ul>
-        <p><label>Gists to Download:
-          <select name="count" class="gistcount">
-            <option value="30">30
-            <option value="60">60
-            <option value="90">90
-            <option value="120">120
-            <option value="150">150
-          </select>
-        </label></p>
-        <p><button type="submit" onclick="runQuery()">Search</button></p>
+        <p>
+          <label>Gists to Download:
+            <select name="count" class="gistcount">
+              <option value="30">30
+              <option value="60">60
+              <option value="90">90
+              <option value="120">120
+              <option value="150">150
+            </select>
+          </label>
+          <button type="submit" onclick="runQuery()">Download</button>
+        </p>
+      </div>
+      <div class="favorites">
+        <h2>Favorites</h2>
+        <ul id="favorites"></ul>
       </div>
       <div class="results">
         <ul id="results"></ul>

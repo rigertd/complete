@@ -1,5 +1,7 @@
 window.onload = function() {
   cache = new GistCache();
+  favList = new FavoritesList();
+  createFavoritesList(favList.favorites);
 };
 
 /**
@@ -84,6 +86,20 @@ function GistCache() {
   if (this.gists.length > 0)
     this.mostRecent = this.gists[0].updated_at;
 }
+
+/**
+* Finds and returns a Gist in the cache by the Gist ID.
+*/
+GistCache.prototype.findByGistId = function(gistId) {
+  // first make sure it exists in the cache
+  if (this.known.hasOwnProperty(gistId)) {
+    for (var i = 0; i < this.gists.length; i++) {
+      if (this.gists[i].id === gistId) {
+        return this.gists[i];
+      }
+    }
+  }
+};
 
 /**
 * Removes Gists in excess of the current count from the cache.
@@ -238,7 +254,7 @@ function createGistList(gists, count) {
   var filtered = filterResults(cache.gists);
   filtered.some(function(g) {
     var li = document.createElement('li');
-    li.appendChild(createGistEntry(g));
+    li.appendChild(createGistEntry(g, true));
     list.appendChild(li);
     // break after displaying specified number of gists
     if (i++ >= count) {
@@ -247,17 +263,45 @@ function createGistList(gists, count) {
   });
 }
 
-function createGistEntry(gist) {
+function createFavoritesList(favs) {
+  var list = document.getElementById('favorites');
+  // clear old values
+  while (list.lastChild) {
+    list.removeChild(list.lastChild);
+  }
+
+  if (Object.keys(favs).length > 0) {
+    for (gist in favs) {
+      var li = document.createElement('li');
+      li.id = gist;
+      li.appendChild(createGistEntry(favs[gist], false));
+      list.appendChild(li);
+    }
+  } else {
+    var li = document.createElement('li');
+    li.textContent = 'You do not have any favorites';
+    list.appendChild(li);
+  }
+}
+
+function createGistEntry(gist, add) {
   var ul = document.createElement('ul'),
       liFav = document.createElement('li'),
-      img = document.createElement('img'),
+      btnFav = document.createElement('button'),
       liGist = document.createElement('li'),
       aGist = document.createElement('a');
   
-  img.src = 'star.png';
-  img.alt = img.title = 'Add to Favorites';
-  img.onclick = 'addToFavorites(\'' + gist.id + '\');';
-  liFav.appendChild(img);
+  if (add) {
+    btnFav.title = 'Add to Favorites';
+    btnFav.onclick = addToFavorites;
+    btnFav.className = 'add_fav';
+  } else {
+    btnFav.title = 'Remove from Favorites';
+    btnFav.onclick = removeFromFavorites;
+    btnFav.className = 'remove_fav';
+  }
+  btnFav.value = gist.id;
+  liFav.appendChild(btnFav);
   
   aGist.href = gist.html_url;
   aGist.textContent = (gist.description === ''
@@ -267,7 +311,7 @@ function createGistEntry(gist) {
   liGist.appendChild(aGist);
   liGist.appendChild(createLangList(gist.files));
   
-  // append add to favorites image
+  // append add to favorites button
   ul.appendChild(liFav);
   // append Gist info
   ul.appendChild(liGist);
@@ -294,3 +338,39 @@ function createLangList(files) {
   }
   return ul;
 }
+
+function FavoritesList() {
+  this.favorites = JSON.parse(localStorage.getItem('favoritesList'));
+  if (this.favorites === null) {
+    this.favorites = {};
+    localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+  }
+}
+
+FavoritesList.prototype.saveFavorites = function() {
+  localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+}
+
+FavoritesList.prototype.removeFavorite = function(favId) {
+  delete this.favorites[favId];
+  this.saveFavorites();
+}
+
+function addToFavorites() {
+  favList.favorites[this.value] = cache.findByGistId(this.value);
+  favList.saveFavorites();
+  var params = new RequestParams();
+  createGistList(cache.gists, params.count);
+  createFavoritesList(favList.favorites);
+}
+
+function removeFromFavorites() {
+  var target = document.getElementById(this.value);
+  favList.removeFavorite(this.value);
+  target.parentElement.removeChild(target);
+  favList.saveFavorites();
+  var params = new RequestParams();
+  createGistList(cache.gists, params.count);
+  createFavoritesList(favList.favorites);
+}
+
