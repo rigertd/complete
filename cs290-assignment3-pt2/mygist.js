@@ -5,12 +5,120 @@ window.onload = function() {
 };
 
 /**
+* This object stores the user's favorite gists in memory and in localStorage.
+* Favorites are retained as long as localStorage persists.
+* This object gets the favorites list from localStorage if it already exists
+* or creates a new one and saves it to localStorage if not.
+* @class
+*/
+function FavoritesList() {
+  this.favorites = JSON.parse(localStorage.getItem('favoritesList'));
+  if (this.favorites === null) {
+    this.favorites = {};
+    localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+  }
+}
+
+/**
+* Saves the current list of favorites to localStorage.
+*/
+FavoritesList.prototype.saveFavorites = function() {
+  localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+}
+
+/**
+* Removes the favorite with the specified gist ID from memory and localStorage.
+* @param {string} gistId - ID of the gist to remove.
+*/
+FavoritesList.prototype.removeFavorite = function(gistId) {
+  delete this.favorites[gistId];
+  this.saveFavorites();
+}
+
+/**
+* This object maintains a list of downloaded gists 
+* and stores them in sessionStorage to reduce network usage.
+* @class
+*/
+function GistCache() {
+  // get list of gists from sessionStorage cache if available
+  // this.gists = JSON.parse(sessionStorage.getItem('gistCache'));
+  // this.known = JSON.parse(sessionStorage.getItem('knownGists'));
+  this.gists = [];
+  // sessionStorage.setItem('gistCache', JSON.stringify(this.gists));
+  this.known = {};
+  // sessionStorage.setItem('knownGists', JSON.stringify(this.known));
+  
+  // if (this.gists.length > 0)
+    // this.mostRecent = this.gists[0].updated_at;
+}
+
+/**
+* Finds and returns a Gist in the cache by the Gist ID.
+* @param {string} gistId - ID of the gist to find.
+* @returns {Object|undefined} The gist object if it is found in the cache.
+*/
+GistCache.prototype.findByGistId = function(gistId) {
+  // first make sure it exists in the cache
+  if (this.known.hasOwnProperty(gistId)) {
+    for (var i = 0; i < this.gists.length; i++) {
+      if (this.gists[i].id === gistId) {
+        return this.gists[i];
+      }
+    }
+  }
+};
+
+/**
+* Removes Gists in excess of the current count from the cache.
+* Sets the known gists to undefined to avoid performance hit of delete.
+* @param {number} count - Number of gists to leave in the cache.
+*/
+GistCache.prototype.trimGists = function(count) {
+  var removed = this.gists.splice(count, this.gists.length - count);
+  removed.forEach(function(g) {
+    this.known[g.id] = undefined;
+  }, this);
+};
+
+/**
+* Sorts the gist array in the cache based on the update date.
+*/
+GistCache.prototype.sortGists = function() {
+  this.gists.sort(compareGists);
+}
+
+/**
+* Adds an array of Gists to the GistCache object.
+* Only adds new and updated Gists.
+* @param {object[]} gistArray - An array of Gist objects.
+*/
+GistCache.prototype.addGists = function(gistArray) {
+  if (Array.isArray(gistArray)) {
+    gistArray.forEach(function(g) {
+      if (this.known[g.id] === undefined) {
+        // not found, add gist to cache
+        this.gists.push(g);
+        this.known[g.id] = g.updated_at;
+      } else if (this.known[g.id] < g.updated_at) {
+        // newer version of gist found; replace old one
+        var i = this.gists.map(function(x) { return x.id; }).indexOf(g.id);
+        this.gists[i] = g;
+      }
+    }, this);
+  } else {
+    throw 'Operation failed: Argument is not an array of gists.';
+  }
+};
+
+/**
 * This object is used to create a valid request URL based on the settings
 * specified in the HTML document.
+* @class
 */
 function RequestParams() {
   this.url = 'https://api.github.com/gists';
-  this.count = Number.parseInt(document.getElementsByName('count')[0].value);
+  this.count = Number.parseInt(document.getElementById('dlCount').value);
   this.currentPage = 1;
   
   // validate count value and set to 30 if less than 30
@@ -67,88 +175,15 @@ RequestParams.prototype.getUrl = function() {
 };
 
 /**
-* This object maintains a list of downloaded gists 
-* and stores them in sessionStorage to reduce network usage.
+* This is an event handler for adding a gist to the favorites list.
+* The clicked gist is removed from the results and added to the favorites list.
 */
-function GistCache() {
-  // get list of gists from sessionStorage cache if available
-  this.gists = JSON.parse(sessionStorage.getItem('gistCache'));
-  this.known = JSON.parse(sessionStorage.getItem('knownGists'));
-  if (this.gists === null) {
-    this.gists = [];
-    sessionStorage.setItem('gistCache', JSON.stringify(this.gists));
-  }
-  if (this.known === null) {
-    this.known = {};
-    sessionStorage.setItem('knownGists', JSON.stringify(this.known));
-  }
-  
-  if (this.gists.length > 0)
-    this.mostRecent = this.gists[0].updated_at;
+function addToFavorites() {
+  favList.favorites[this.value] = cache.findByGistId(this.value);
+  favList.saveFavorites();
+  removeFromResults(this.value);
+  createFavoritesList(favList.favorites);
 }
-
-/**
-* Finds and returns a Gist in the cache by the Gist ID.
-*/
-GistCache.prototype.findByGistId = function(gistId) {
-  // first make sure it exists in the cache
-  if (this.known.hasOwnProperty(gistId)) {
-    for (var i = 0; i < this.gists.length; i++) {
-      if (this.gists[i].id === gistId) {
-        return this.gists[i];
-      }
-    }
-  }
-};
-
-/**
-* Removes Gists in excess of the current count from the cache.
-* Sets the known gists to undefined to avoid performance hit of delete.
-*/
-GistCache.prototype.trimGists = function(count) {
-  var removed = this.gists.splice(count, this.gists.length - count);
-  removed.forEach(function(g) {
-    this.known[g.id] = undefined;
-  }, this);
-};
-
-/**
-* Saves the gist cache settings to sessionStorage.
-*/
-GistCache.prototype.saveCache = function() {
-  sessionStorage.setItem('gistCache', JSON.stringify(this.gists));
-  sessionStorage.setItem('knownGists', JSON.stringify(this.known));
-}
-
-/**
-* Sorts the gist array in the cache based on the update date.
-*/
-GistCache.prototype.sortGists = function() {
-  this.gists.sort(compareGists);
-}
-
-/**
-* Adds an array of Gists to the GistCache object.
-* Only adds new and updated Gists.
-* @param {object[]} gistArray   An array of Gist objects.
-*/
-GistCache.prototype.addGists = function(gistArray) {
-  if (Array.isArray(gistArray)) {
-    gistArray.forEach(function(g) {
-      if (this.known[g.id] === undefined) {
-        // not found, add gist to cache
-        this.gists.push(g);
-        this.known[g.id] = g.updated_at;
-      } else if (this.known[g.id] < g.updated_at) {
-        // newer version of gist found; replace old one
-        var i = this.gists.map(function(x) { return x.id; }).indexOf(g.id);
-        this.gists[i] = g;
-      }
-    }, this);
-  } else {
-    throw 'Operation failed: Argument is not an array of gists.';
-  }
-};
 
 /**
 * Compares two Gist objects in an array based on update date. Sorts from newest to oldest
@@ -163,107 +198,9 @@ function compareGists(a,b) {
 }
 
 /**
-* Filters the list of Gists based on the selected language filters.
-* @param {Object[]} gists   An array of Gist objects.
-* @return {Object[]} A filtered array of Gist objects.
+* Writes the specified list of favorites to the DOM.
+* @param {Object} favs - Object containing favorite gists.
 */
-function filterResults(gists) {
-  var selections = {};
-  var results = [];
-  var inputs = document.getElementById('languages').getElementsByTagName('input');
-  for (var i = 0; i < inputs.length; i++) {
-    if (inputs[i] && inputs[i].checked) {
-      selections[inputs[i].name] = true;
-    }
-  }
-  
-  // only apply filter if at least one checkbox is selected
-  if (Object.keys(selections).length > 0) {
-    gists.forEach(function(g) {
-      for (f in g.files) {
-        if (selections.hasOwnProperty(g.files[f].language)) {
-        results.push(g);
-        return;
-        }
-      }
-    });
-    return results;
-  } else {
-    return gists;
-  }
-}
-
-/**
-* Creates the request parameters and initiates the request.
-*/
-function runQuery() {
-  var params = new RequestParams();
-  getGists(params);
-}
-
-/**
-* Gets gists from GitHub based on the specified request parameters.
-*/
-function getGists(params) {
-  // need to create multiple XMLHttpRequests for concurrent data retrieval
-  // try to create XMLHttpRequest
-  var req = new XMLHttpRequest();
-  if (!req) {
-    throw 'Cannot create HttpRequest.';
-  }
-  
-  // add gists to cache when retrieved
-  req.onreadystatechange = function() {
-    if (this.readyState === 4) {
-      var results = JSON.parse(this.responseText);
-      if (this.status === 200 && results !== null) {
-        cache.addGists(results);
-        // recursively get more gists if there are more pages
-        if (results.length == params.perRequest() 
-          && params.nextPage()) {
-          getGists(params);
-        } else {
-          // sort and save the cache
-          cache.sortGists();
-          cache.saveCache();
-          // update mostRecent with new data
-          if (cache.gists.length > 0)
-            cache.mostRecent = cache.gists[0].updated_at;
-          
-          // write to DOM
-          createGistList(cache.gists, params.count);
-        }
-      } else {
-      alert('Unable to download Gists from GitHub.');
-      }
-    } 
-  };
-  req.open('GET', params.getUrl());
-  req.send();
-}
-
-function createGistList(gists, count) {
-  var list = document.getElementById('results');
-  // clear old values
-  while (list.lastChild) {
-    list.removeChild(list.lastChild);
-  }
-  
-  // populate unordered list based on cache
-  var i = 0;
-  var filtered = filterResults(cache.gists);
-  filtered.some(function(g) {
-    var li = document.createElement('li');
-    li.id = g.id;
-    li.appendChild(createGistEntry(g, true));
-    list.appendChild(li);
-    // break after displaying specified number of gists
-    if (i++ >= count) {
-      return true;
-    }
-  });
-}
-
 function createFavoritesList(favs) {
   var list = document.getElementById('favorites');
   // clear old values
@@ -271,20 +208,32 @@ function createFavoritesList(favs) {
     list.removeChild(list.lastChild);
   }
 
-  if (Object.keys(favs).length > 0) {
+  // display message if no favorites
+  if (Object.keys(favs).length == 0) {
+    var li = document.createElement('li');
+    li.textContent = 'You do not have any favorites';
+    list.appendChild(li);
+  } else {
     for (gist in favs) {
       var li = document.createElement('li');
       li.id = gist;
       li.appendChild(createGistEntry(favs[gist], false));
       list.appendChild(li);
     }
-  } else {
-    var li = document.createElement('li');
-    li.textContent = 'You do not have any favorites';
-    list.appendChild(li);
   }
 }
 
+/**
+* Creates an unordered list of the components of a Gist entry.
+* The components are in the following order:
+*   1. 'Add to Favorites' button if {boolean} add is true,
+*      'Remove from Favorites' button if false
+*   2. Gist description with link to the HTML URL for that gist
+*   3. Unordered list of languages included in the Gist entry
+* @param {Object} gist - Single Gist object returned by GitHub API.
+* @param {boolean} add - Whether the favorites button should be add or remove.
+* @returns {Object} UL element containing the components of a Gist entry.
+*/
 function createGistEntry(gist, add) {
   var ul = document.createElement('ul'),
       liFav = document.createElement('li'),
@@ -292,18 +241,21 @@ function createGistEntry(gist, add) {
       liGist = document.createElement('li'),
       aGist = document.createElement('a');
   
-  if (add) {
+  if (add) {  // result entry
     btnFav.title = 'Add to Favorites';
     btnFav.onclick = addToFavorites;
     btnFav.className = 'add_fav';
-  } else {
+  } else {    // favorite list entry
     btnFav.title = 'Remove from Favorites';
     btnFav.onclick = removeFromFavorites;
     btnFav.className = 'remove_fav';
   }
+  
+  // set button value to gist ID for future reference
   btnFav.value = gist.id;
   liFav.appendChild(btnFav);
   
+  // display '(No description)' if description is missing
   aGist.href = gist.html_url;
   aGist.textContent = (gist.description === ''
                     || gist.description === null
@@ -321,7 +273,36 @@ function createGistEntry(gist, add) {
 }
 
 /**
+* Writes the specified list of gist results to the DOM.
+* @param {Object[]} gists - Array of Gist objects from cache.
+* @param {number}   count - Max number of gists to display.
+*/
+function createGistList(gists, count) {
+  var list = document.getElementById('results');
+  // clear old values
+  while (list.lastChild) {
+    list.removeChild(list.lastChild);
+  }
+  
+  // populate unordered list based on cache
+  var i = 0;
+  var filtered = filterResults(cache.gists);
+  filtered.some(function(g) {
+    var li = document.createElement('li');
+    li.id = g.id;
+    li.appendChild(createGistEntry(g, true));
+    list.appendChild(li);
+    // break after displaying specified number of gists
+    if (i++ >= count - 1) {
+      return true;
+    }
+  });
+}
+
+/**
 * Creates an unordered list of unique languages in the files of a Gist.
+* @param {Object} files - Object in 'files' property of Gist JSON.
+* @returns {Object} UL element containing one LI element per language.
 */
 function createLangList(files) {
   var ul = document.createElement('ul');
@@ -340,43 +321,122 @@ function createLangList(files) {
   return ul;
 }
 
-function FavoritesList() {
-  this.favorites = JSON.parse(localStorage.getItem('favoritesList'));
-  if (this.favorites === null) {
-    this.favorites = {};
-    localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+/**
+* Filters the list of Gists based on the selected language filters.
+* Also filters gists that are in the favorites list.
+* @param {Object[]} gists - An array of Gist objects.
+* @return {Object[]} A filtered array of Gist objects.
+*/
+function filterResults(gists) {
+  var selections = {};
+  var results = [];
+  var inputs = document.getElementById('languages').getElementsByTagName('input');
+  
+  // populate map of checked languages
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i] && inputs[i].checked) {
+      selections[inputs[i].name] = true;
+    }
   }
+  
+  // loop through every gist
+  gists.forEach(function(g) {
+    // skip if in favorites
+    if (favList.favorites.hasOwnProperty(g.id)) {
+      return;
+    }
+    // only apply language filter if at least one checkbox is selected
+    if (Object.keys(selections).length > 0) {
+      // loop through each file
+      for (f in g.files) {
+        // add gist to filtered result list if language is found
+        if (selections.hasOwnProperty(g.files[f].language)) {
+          results.push(g);
+          // skip remaining files in current gist
+          return;
+        }
+      }
+    } else {
+      results.push(g);
+    }
+  });
+  return results;
 }
 
-FavoritesList.prototype.saveFavorites = function() {
-  localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
+/**
+* Gets gists from GitHub based on the specified request parameters.
+* @param {RequestParams} params - Request parameters to use for the request.
+*/
+function getGists(params) {
+  // try to create XMLHttpRequest
+  var req = new XMLHttpRequest();
+  if (!req) {
+    throw 'Cannot create HttpRequest.';
+  }
+  
+  req.onreadystatechange = function() {
+    if (this.readyState === 4) {  // request complete
+      var results = JSON.parse(this.responseText);
+      // check if request was successful
+      if (this.status === 200 && results !== null) {
+        // add results to cache
+        cache.addGists(results);
+        // recursively get more gists if there are more pages
+        if (results.length == params.perRequest() && params.nextPage()) {
+          getGists(params);
+        } else {
+          // sort the cache
+          cache.sortGists();
+          // update mostRecent with new data
+          if (cache.gists.length > 0)
+            cache.mostRecent = cache.gists[0].updated_at;
+          // write to DOM
+          createGistList(cache.gists, params.count);
+        }
+      } else {
+      alert('Unable to download Gists from GitHub.');
+      }
+    } 
+  };
+  req.open('GET', params.getUrl());
+  req.send();
 }
 
-FavoritesList.prototype.removeFavorite = function(favId) {
-  delete this.favorites[favId];
-  this.saveFavorites();
+/**
+* This is an event handler for removing a favorite from the favorites list.
+* The clicked gist is removed from memory and localStorage.
+*/
+function removeFromFavorites() {
+  favList.removeFavorite(this.value);
+  createFavoritesList(favList.favorites);
+  updateResults();
 }
 
-function addToFavorites() {
-  favList.favorites[this.value] = cache.findByGistId(this.value);
-  favList.saveFavorites();
-  removeFromResults(this.value);
-  var favs = document.getElementById('favorites');
-  var li = document.createElement('li');
-  li.id = this.value;
-  li.appendChild(createGistEntry(favList.favorites[this.value], false));
-  favs.appendChild(li);
-}
-
+/**
+* Removes the gist with the specified ID from the list of results.
+* This is used when adding a gist to the favorites list.
+* The gist is only removed from the DOM, not from the GistCache object.
+* @param {string} gistId - ID of the gist to remove.
+*/
 function removeFromResults(gistId) {
   var target = document.getElementById(gistId);
   target.parentElement.removeChild(target);
 }
 
-function removeFromFavorites() {
-  var target = document.getElementById(this.value);
-  favList.removeFavorite(this.value);
-  target.parentElement.removeChild(target);
-  favList.saveFavorites();
+/**
+* Creates the request parameters and initiates the request.
+*/
+function runQuery() {
+  var params = new RequestParams();
+  getGists(params);
+}
+
+/**
+* This is an event handler for refreshing the list of Gist results based on the latest
+* filter settings and favorites.
+*/
+function updateResults() {
+  var params = new RequestParams();
+  createGistList(cache.gists, params.count);
 }
 
