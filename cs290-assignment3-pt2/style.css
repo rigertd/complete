@@ -5,6 +5,11 @@ body {
   min-width: 600px;
 }
 
+select, input, button {
+  border: 1px solid #aaa;
+  border-radius: .25em/.25em;
+}
+
 header {
   background-color: #dfd;
   margin: 0;
@@ -16,36 +21,60 @@ header h1 {
   font-size: 1.5em;
 }
 
+footer {
+  clear: both;
+  color: #aaa;
+  text-align: center;
+  font-size: .75em;
+  margin: .5em;
+}
+
+/* favorites container formatting */
 .favorites {
   float: right;
-  margin: .5em 0 .5em .5em;
+  margin: 0 .5em .5em .5em;
   min-width: 200px;
+  overflow: hidden;
   padding: 0;
-  position:relative;
+  position: relative;
   width: 40%;
-  z-index: 1;
-}
-.favorites > ul {
-  border: 1px solid #999;
-  border-top: 0;
-  border-radius: 0 0 .5em .5em / 0 0 .5em .5em;
-  margin-top: 0;
-  padding: .5em;
+  z-index: 1; /* display on top of results */
 }
 
 .favorites h2 {
   background-color: #cef;
   border: 1px solid #999;
-  border-radius: .5em .5em 0 0 / .5em .5em 0 0;
+  border-radius: .25em .25em 0 0 / .25em .25em 0 0;
   font-size: 1.25em;
   margin: 0;
-  padding: .5em;
+  padding: .25em .5em;
 }
 
+.favorites > ul {
+  background-color: #fff;
+  border: 1px solid #999;
+  border-top: 0;
+  border-radius: 0 0 .25em .25em / 0 0 .25em .25em;
+  margin-top: 0;
+  padding: .25em;
+}
+
+/* options formatting */
 .options {
   border: 1px solid #999;
-  border-radius: .5em/.5em;
+  border-radius: .25em/.25em;
+  margin: .5em;
   padding: 0 .5em;
+}
+
+.options button {
+  margin-left: 1em;
+}
+
+.options > p > label, .options > ul > li:first-child {
+  font-weight: bold;
+  margin-right: 1em;
+  padding-right: 0;
 }
 
 .options ul {
@@ -60,11 +89,7 @@ header h1 {
   margin-right: 1em;
 }
 
-.pagecount {
-  text-align: center;
-  width: 2em;
-}
-
+/* favorites and result list formatting */
 .favorites > ul > li, .results > ul > li {
   padding-left: .5em;
 }
@@ -89,14 +114,16 @@ header h1 {
 }
 
 .favorites > ul > li > ul > li > ul > li, .results > ul > li > ul > li > ul > li {
-  display: inline-block;
-  border: 1px solid #999;
   background-color: #fac;
+  border: 1px solid #999;
+  border-radius: .25em/.25em;
+  display: inline-block;
+  font-size: .75em;
   margin: .25em;
   padding: .1em .25em;
-  border-radius: .25em/.25em;
 }
 
+/* favorites button formatting */
 .add_fav, .remove_fav {
   border-width: 0;
   cursor: pointer;
@@ -118,8 +145,4 @@ header h1 {
 
 .remove_fav:hover {
   background-position: left;
-}
-
-footer {
-  clear: both;
 }
