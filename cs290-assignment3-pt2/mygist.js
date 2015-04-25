@@ -118,7 +118,7 @@ GistCache.prototype.addGists = function(gistArray) {
 */
 function RequestParams() {
   this.url = 'https://api.github.com/gists';
-  this.count = Number.parseInt(document.getElementById('dlCount').value);
+  this.count = parseInt(document.getElementById('dlCount').value);
   this.currentPage = 1;
   
   // validate count value and set to 30 if less than 30
