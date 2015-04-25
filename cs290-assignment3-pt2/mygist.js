@@ -37,20 +37,14 @@ FavoritesList.prototype.removeFavorite = function(gistId) {
 
 /**
 * This object maintains a list of downloaded gists 
-* and stores them in sessionStorage to reduce network usage.
+* and stores them in memory to reduce network usage.
+* Known gist IDs are stored in {@link GistCache.known} for fast lookup.
+* An array of Gist objects is stored in {@link GistCache.gists}.
 * @class
 */
 function GistCache() {
-  // get list of gists from sessionStorage cache if available
-  // this.gists = JSON.parse(sessionStorage.getItem('gistCache'));
-  // this.known = JSON.parse(sessionStorage.getItem('knownGists'));
   this.gists = [];
-  // sessionStorage.setItem('gistCache', JSON.stringify(this.gists));
   this.known = {};
-  // sessionStorage.setItem('knownGists', JSON.stringify(this.known));
-  
-  // if (this.gists.length > 0)
-    // this.mostRecent = this.gists[0].updated_at;
 }
 
 /**
