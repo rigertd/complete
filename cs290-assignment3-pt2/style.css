@@ -1,17 +1,20 @@
-body {
-  font: 100%/1.35 helvetica, calibri, sans-serif;
-  margin: 0;
-  padding: 0;
-  min-width: 600px;
+/* general page formatting */
+html {
+  background: #ffffee;
 }
 
-select, input, button {
-  border: 1px solid #aaa;
-  border-radius: .25em/.25em;
+body {
+  font: 100%/1.35 arial, helvetica, sans-serif;
+  height: 100%;
+  margin: 0;
+  min-width: 800px;
+  padding: 0;
 }
 
 header {
-  background-color: #dfd;
+  background-color: #559;
+  border-bottom: .5em solid #337;
+  color: #fff;
   margin: 0;
   padding: .25em .5em;
 }
@@ -23,10 +26,50 @@ header h1 {
 
 footer {
   clear: both;
-  color: #aaa;
+  color: #444;
   text-align: center;
   font-size: .75em;
   margin: .5em;
+}
+
+/* link formatting */
+
+a {
+  color: #441;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #772;
+  text-decoration: underline;
+}
+
+/* form formatting */
+
+select, input, button {
+  border: 1px solid #aaa;
+  border-radius: .25em/.25em;
+}
+
+select {
+  height: 1.5em;
+  width: 3em;
+}
+
+button {
+  height: 1.5em;
+}
+
+/* result container formatting */
+.results > ul {
+  margin: 0 .5em;
+}
+
+.results > ul > li > ul > li:first-child {
+  background: #fff;
+  border-radius: .25em/.25em;
+  border: 1px solid black;
+  padding: .25em .25em .15em .25em;
 }
 
 /* favorites container formatting */
@@ -42,9 +85,11 @@ footer {
 }
 
 .favorites h2 {
-  background-color: #cef;
-  border: 1px solid #999;
+  background-color: #337;
+  border: 1px solid #446;
+  border-bottom-width: 0;
   border-radius: .25em .25em 0 0 / .25em .25em 0 0;
+  color: #fcffff;
   font-size: 1.25em;
   margin: 0;
   padding: .25em .5em;
@@ -52,8 +97,8 @@ footer {
 
 .favorites > ul {
   background-color: #fff;
-  border: 1px solid #999;
-  border-top: 0;
+  border: 1px solid #446;
+  border-top-width: 0;
   border-radius: 0 0 .25em .25em / 0 0 .25em .25em;
   margin-top: 0;
   padding: .25em;
@@ -61,7 +106,8 @@ footer {
 
 /* options formatting */
 .options {
-  border: 1px solid #999;
+  background: #fff;
+  border: 1px solid #446;
   border-radius: .25em/.25em;
   margin: .5em;
   padding: 0 .5em;
@@ -109,16 +155,17 @@ footer {
 
 .favorites > ul > li > ul > li, .results > ul > li > ul > li {
   display: inline-block;
-  vertical-align: top;
   margin: .25em;
+  vertical-align: top;
 }
 
 .favorites > ul > li > ul > li > ul > li, .results > ul > li > ul > li > ul > li {
-  background-color: #fac;
-  border: 1px solid #999;
+  background-color: #55a;
+  border: 1px solid #446;
   border-radius: .25em/.25em;
+  color: #fcffff;
   display: inline-block;
-  font-size: .75em;
+  font: .8em/1 calibri;
   margin: .25em;
   padding: .1em .25em;
 }
