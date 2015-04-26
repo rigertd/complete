@@ -1,3 +1,10 @@
+/**
+* @file This implements a custom gist listing service that
+*       downloads gists from the GitHub API and filters them by language.
+*       The user can optionally maintain a list of favorite gists.
+* @author David Rigert [rigertd@onid.oregonstate.edu]
+*/
+
 window.onload = function() {
   cache = new GistCache();
   favList = new FavoritesList();
@@ -21,6 +28,7 @@ function FavoritesList() {
 
 /**
 * Saves the current list of favorites to localStorage.
+* @method
 */
 FavoritesList.prototype.saveFavorites = function() {
   localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
@@ -29,6 +37,7 @@ FavoritesList.prototype.saveFavorites = function() {
 /**
 * Removes the favorite with the specified gist ID from memory and localStorage.
 * @param {string} gistId - ID of the gist to remove.
+* @method
 */
 FavoritesList.prototype.removeFavorite = function(gistId) {
   delete this.favorites[gistId];
@@ -51,6 +60,7 @@ function GistCache() {
 * Finds and returns a Gist in the cache by the Gist ID.
 * @param {string} gistId - ID of the gist to find.
 * @returns {Object|undefined} The gist object if it is found in the cache.
+* @method
 */
 GistCache.prototype.findByGistId = function(gistId) {
   // first make sure it exists in the cache
@@ -67,6 +77,7 @@ GistCache.prototype.findByGistId = function(gistId) {
 * Removes Gists in excess of the current count from the cache.
 * Sets the known gists to undefined to avoid performance hit of delete.
 * @param {number} count - Number of gists to leave in the cache.
+* @method
 */
 GistCache.prototype.trimGists = function(count) {
   var removed = this.gists.splice(count, this.gists.length - count);
@@ -77,6 +88,7 @@ GistCache.prototype.trimGists = function(count) {
 
 /**
 * Sorts the gist array in the cache based on the update date.
+* @method
 */
 GistCache.prototype.sortGists = function() {
   this.gists.sort(compareGists);
@@ -86,6 +98,7 @@ GistCache.prototype.sortGists = function() {
 * Adds an array of Gists to the GistCache object.
 * Only adds new and updated Gists.
 * @param {object[]} gistArray - An array of Gist objects.
+* @method
 */
 GistCache.prototype.addGists = function(gistArray) {
   if (Array.isArray(gistArray)) {
@@ -123,6 +136,7 @@ function RequestParams() {
 
 /**
 * Advances to the next page and returns true if one is available.
+* @method
 */
 RequestParams.prototype.nextPage = function() {
   if (this.currentPage < this.totalPages()) {
@@ -135,6 +149,7 @@ RequestParams.prototype.nextPage = function() {
 
 /**
 * Gets the total number of pages required to download the specified count
+* @method
 */
 RequestParams.prototype.totalPages = function() {
   return Math.ceil(this.count / 100);
@@ -142,6 +157,7 @@ RequestParams.prototype.totalPages = function() {
 
 /**
 * Gets the number of gists to download per page.
+* @method
 */
 RequestParams.prototype.perRequest = function() {
   if (this.count <= 100) {
@@ -153,6 +169,7 @@ RequestParams.prototype.perRequest = function() {
 
 /**
 * Gets the URL string for the current page to download.
+* @method
 */
 RequestParams.prototype.getUrl = function() {
   var newUrl = this.url + '?page=';
@@ -169,7 +186,7 @@ RequestParams.prototype.getUrl = function() {
 };
 
 /**
-* This is an event handler for adding a gist to the favorites list.
+* This is a callback function for adding a gist to the favorites list.
 * The clicked gist is removed from the results and added to the favorites list.
 */
 function addToFavorites() {
@@ -397,7 +414,7 @@ function getGists(params) {
 }
 
 /**
-* This is an event handler for removing a favorite from the favorites list.
+* This is a callback function for removing a favorite from the favorites list.
 * The clicked gist is removed from memory and localStorage.
 */
 function removeFromFavorites() {
@@ -426,7 +443,7 @@ function runQuery() {
 }
 
 /**
-* This is an event handler for refreshing the list of Gist results based on the latest
+* This is a callback function for refreshing the list of Gist results based on the latest
 * filter settings and favorites.
 */
 function updateResults() {
