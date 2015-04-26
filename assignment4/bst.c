@@ -530,13 +530,13 @@ int main(int argc, char *argv[]){
 
    //After implementing your code, please uncommnet the following calls to the test functions and test your code 
 
-   // testAddNode();
+    testAddNode();
     
     printf("\n");
-   //   testContainsBSTree();
+    testContainsBSTree();
     
     printf("\n");
-    //testLeftMost();
+    testLeftMost();
     
     printf("\n");
     //testRemoveLeftMost();
