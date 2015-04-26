@@ -125,10 +125,14 @@ int sizeBSTree(struct BSTree *tree) { return tree->cnt; }
 struct Node *_addNode(struct Node *cur, TYPE val)
 {
     /*write this*/
+    assert(val != 0);
+    
     if (cur == 0) {
         // base case: reached null node. Create a new one and return it
         struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
         newNode->val = val;
+        newNode->left = 0;
+        newNode->right = 0;
         return newNode;
     } else if (compare(val, cur->val) == 0) {
         // base case: value already in tree; return current node
