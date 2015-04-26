@@ -5,6 +5,9 @@
 * @author David Rigert [rigertd@onid.oregonstate.edu]
 */
 
+/**
+* Callback to create global cache objects and write favorites to DOM.
+*/
 window.onload = function() {
   cache = new GistCache();
   favList = new FavoritesList();
@@ -16,7 +19,7 @@ window.onload = function() {
 * Favorites are retained as long as localStorage persists.
 * This object gets the favorites list from localStorage if it already exists
 * or creates a new one and saves it to localStorage if not.
-* @class
+* @constructor
 */
 function FavoritesList() {
   this.favorites = JSON.parse(localStorage.getItem('favoritesList'));
@@ -28,28 +31,26 @@ function FavoritesList() {
 
 /**
 * Saves the current list of favorites to localStorage.
-* @method
 */
 FavoritesList.prototype.saveFavorites = function() {
   localStorage.setItem('favoritesList', JSON.stringify(this.favorites));
-}
+};
 
 /**
 * Removes the favorite with the specified gist ID from memory and localStorage.
 * @param {string} gistId - ID of the gist to remove.
-* @method
 */
 FavoritesList.prototype.removeFavorite = function(gistId) {
   delete this.favorites[gistId];
   this.saveFavorites();
-}
+};
 
 /**
-* This object maintains a list of downloaded gists 
+* This object maintains a list of downloaded gists
 * and stores them in memory to reduce network usage.
 * Known gist IDs are stored in {@link GistCache.known} for fast lookup.
 * An array of Gist objects is stored in {@link GistCache.gists}.
-* @class
+* @constructor
 */
 function GistCache() {
   this.gists = [];
@@ -59,8 +60,7 @@ function GistCache() {
 /**
 * Finds and returns a Gist in the cache by the Gist ID.
 * @param {string} gistId - ID of the gist to find.
-* @returns {Object|undefined} The gist object if it is found in the cache.
-* @method
+* @return {Object|undefined} The gist object if it is found in the cache.
 */
 GistCache.prototype.findByGistId = function(gistId) {
   // first make sure it exists in the cache
@@ -77,7 +77,6 @@ GistCache.prototype.findByGistId = function(gistId) {
 * Removes Gists in excess of the current count from the cache.
 * Sets the known gists to undefined to avoid performance hit of delete.
 * @param {number} count - Number of gists to leave in the cache.
-* @method
 */
 GistCache.prototype.trimGists = function(count) {
   var removed = this.gists.splice(count, this.gists.length - count);
@@ -88,17 +87,15 @@ GistCache.prototype.trimGists = function(count) {
 
 /**
 * Sorts the gist array in the cache based on the update date.
-* @method
 */
 GistCache.prototype.sortGists = function() {
   this.gists.sort(compareGists);
-}
+};
 
 /**
 * Adds an array of Gists to the GistCache object.
 * Only adds new and updated Gists.
 * @param {object[]} gistArray - An array of Gist objects.
-* @method
 */
 GistCache.prototype.addGists = function(gistArray) {
   if (Array.isArray(gistArray)) {
@@ -121,13 +118,13 @@ GistCache.prototype.addGists = function(gistArray) {
 /**
 * This object is used to create a valid request URL based on the settings
 * specified in the HTML document.
-* @class
+* @constructor
 */
 function RequestParams() {
   this.url = 'https://api.github.com/gists';
   this.count = parseInt(document.getElementById('dlCount').value);
   this.currentPage = 1;
-  
+
   // validate count value and set to 30 if less than 30
   if (typeof this.count !== 'number' || this.count < 30) {
     this.count = 30;
@@ -136,7 +133,7 @@ function RequestParams() {
 
 /**
 * Advances to the next page and returns true if one is available.
-* @method
+* @return {boolean} Returns whether another page needs to be retrieved.
 */
 RequestParams.prototype.nextPage = function() {
   if (this.currentPage < this.totalPages()) {
@@ -148,8 +145,8 @@ RequestParams.prototype.nextPage = function() {
 };
 
 /**
-* Gets the total number of pages required to download the specified count
-* @method
+* Gets the total number of pages required to download the specified count.
+* @return {number} Returns the total number of pages to be requested.
 */
 RequestParams.prototype.totalPages = function() {
   return Math.ceil(this.count / 100);
@@ -157,19 +154,19 @@ RequestParams.prototype.totalPages = function() {
 
 /**
 * Gets the number of gists to download per page.
-* @method
+* @return {number} Returns the number of gists to request for each page.
 */
 RequestParams.prototype.perRequest = function() {
   if (this.count <= 100) {
       return this.count;
   } else {
-      return Math.ceil(this.count/this.totalPages());
+      return Math.ceil(this.count / this.totalPages());
   }
 };
 
 /**
 * Gets the URL string for the current page to download.
-* @method
+* @return {string} Returns the request URL for the current page.
 */
 RequestParams.prototype.getUrl = function() {
   var newUrl = this.url + '?page=';
@@ -178,7 +175,8 @@ RequestParams.prototype.getUrl = function() {
   } else {
     newUrl = newUrl + this.currentPage + '&per_page=' + this.perRequest();
   }
-  // add since parameter if cache already contains gists unless count was increased
+  // add 'since' parameter if cache already contains gists
+  // unless count was increased
   if (cache.mostRecent !== undefined && cache.gists.length >= this.count) {
     newUrl = newUrl + '&since=' + cache.mostRecent;
   }
@@ -188,6 +186,7 @@ RequestParams.prototype.getUrl = function() {
 /**
 * This is a callback function for adding a gist to the favorites list.
 * The clicked gist is removed from the results and added to the favorites list.
+* @this {Button}
 */
 function addToFavorites() {
   favList.favorites[this.value] = cache.findByGistId(this.value);
@@ -197,10 +196,15 @@ function addToFavorites() {
 }
 
 /**
-* Compares two Gist objects in an array based on update date. Sorts from newest to oldest
-* Logic taken from http://stackoverflow.com/questions/1129216/sorting-objects-in-an-array-by-a-field-value-in-javascript
+* Compares two Gist objects in an array based on update date.
+* Sorts from newest to oldest. Logic taken from:
+* http://stackoverflow.com/questions/1129216/sorting-objects-in-an-array-by-a-field-value-in-javascript
+* @param {Object} a - Left object to compare.
+* @param {Object} b - Right object to compare.
+* @return {number} Returns 1 if a is less than b,
+*                  -1 if b is less than a, and 0 if a and b are equal.
 */
-function compareGists(a,b) {
+function compareGists(a, b) {
   if (a.updated_at < b.updated_at)
     return 1;
   if (a.updated_at > b.updated_at)
@@ -243,7 +247,7 @@ function createFavoritesList(favs) {
 *   3. Unordered list of languages included in the Gist entry
 * @param {Object} gist - Single Gist object returned by GitHub API.
 * @param {boolean} add - Whether the favorites button should be add or remove.
-* @returns {Object} UL element containing the components of a Gist entry.
+* @return {Object} UL element containing the components of a Gist entry.
 */
 function createGistEntry(gist, add) {
   var ul = document.createElement('ul'),
@@ -251,7 +255,7 @@ function createGistEntry(gist, add) {
       btnFav = document.createElement('button'),
       liGist = document.createElement('li'),
       aGist = document.createElement('a');
-  
+
   if (add) {  // result entry
     btnFav.title = 'Add to Favorites';
     btnFav.onclick = addToFavorites;
@@ -261,25 +265,22 @@ function createGistEntry(gist, add) {
     btnFav.onclick = removeFromFavorites;
     btnFav.className = 'remove_fav';
   }
-  
+
   // set button value to gist ID for future reference
   btnFav.value = gist.id;
   liFav.appendChild(btnFav);
-  
   // display '(No description)' if description is missing
   aGist.href = gist.html_url;
-  aGist.textContent = (gist.description === ''
-                    || gist.description === null
-                     ? '(No description)'
-                     : gist.description);
+  aGist.textContent = (gist.description === '' ||
+                       gist.description === null ?
+                       '(No description)' :
+                       gist.description);
   liGist.appendChild(aGist);
   liGist.appendChild(createLangList(gist.files));
-  
   // append add to favorites button
   ul.appendChild(liFav);
   // append Gist info
   ul.appendChild(liGist);
-  
   return ul;
 }
 
@@ -294,7 +295,7 @@ function createGistList(gists, count) {
   while (list.lastChild) {
     list.removeChild(list.lastChild);
   }
-  
+
   // populate unordered list based on cache
   var i = 0;
   var filtered = filterResults(cache.gists);
@@ -313,7 +314,7 @@ function createGistList(gists, count) {
 /**
 * Creates an unordered list of unique languages in the files of a Gist.
 * @param {Object} files - Object in 'files' property of Gist JSON.
-* @returns {Object} UL element containing one LI element per language.
+* @return {Object} UL element containing one LI element per language.
 */
 function createLangList(files) {
   var ul = document.createElement('ul');
@@ -341,15 +342,15 @@ function createLangList(files) {
 function filterResults(gists) {
   var selections = {};
   var results = [];
-  var inputs = document.getElementById('languages').getElementsByTagName('input');
-  
+  var inputs = document.getElementById('langs').getElementsByTagName('input');
+
   // populate map of checked languages
   for (var i = 0; i < inputs.length; i++) {
     if (inputs[i] && inputs[i].checked) {
       selections[inputs[i].name] = true;
     }
   }
-  
+
   // loop through every gist
   gists.forEach(function(g) {
     // skip if in favorites
@@ -384,7 +385,7 @@ function getGists(params) {
   if (!req) {
     throw 'Cannot create HttpRequest.';
   }
-  
+
   req.onreadystatechange = function() {
     if (this.readyState === 4) {  // request complete
       var results = JSON.parse(this.responseText);
@@ -407,7 +408,7 @@ function getGists(params) {
       } else {
       alert('Unable to download Gists from GitHub.');
       }
-    } 
+    }
   };
   req.open('GET', params.getUrl());
   req.send();
@@ -416,6 +417,7 @@ function getGists(params) {
 /**
 * This is a callback function for removing a favorite from the favorites list.
 * The clicked gist is removed from memory and localStorage.
+* @this {Button}
 */
 function removeFromFavorites() {
   favList.removeFavorite(this.value);
@@ -443,8 +445,8 @@ function runQuery() {
 }
 
 /**
-* This is a callback function for refreshing the list of Gist results based on the latest
-* filter settings and favorites.
+* This is a callback function for refreshing the list of Gist results
+* based on the latest filter settings and favorites.
 */
 function updateResults() {
   var params = new RequestParams();
