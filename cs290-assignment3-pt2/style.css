@@ -68,7 +68,7 @@ button {
 .results > ul > li > ul > li:first-child {
   background: #fff;
   border-radius: .25em/.25em;
-  border: 1px solid black;
+  border: 1px solid #446;
   padding: .25em .25em .15em .25em;
 }
 
