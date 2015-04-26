@@ -9,7 +9,6 @@
 #include "bst.h"
 #include "structs.h"
 
-
 struct Node {
     TYPE         val;
     struct Node *left;
@@ -235,7 +234,16 @@ Note:  If you do this iteratively, the above hint does not apply.
 struct Node *_removeLeftMost(struct Node *cur)
 {
     /*write this*/
-    return NULL;
+    assert(cur != 0);
+
+    if (cur->left != 0) {
+        cur->left = _removeLeftMost(cur->left);
+        return cur;
+    } else {
+        struct Node *tmp = cur->right;
+        free(cur);
+        return tmp;
+    }
 }
 /*
  recursive helper function to remove a node from the tree
@@ -250,7 +258,25 @@ struct Node *_removeLeftMost(struct Node *cur)
 struct Node *_removeNode(struct Node *cur, TYPE val)
 {
     /*write this*/
-        return NULL;
+    assert(cur != 0);
+    assert(val != 0);
+
+    if (compare(val, cur->val) == 0) {
+        // replace current value with leftmost value
+        cur->val = _leftMost(cur);
+        // remove leftmost value
+        cur = _removeLeftMost(cur);
+    } else if (compare(val, cur->val) < 0) {
+        // value is smaller than current
+        assert(cur->left != 0);
+        cur->left = _removeNode(cur->left, val);
+    } else {
+        // value is greater than current
+        assert(cur->right != 0);
+        cur->right = _removeNode(cur->right, val);
+    }
+
+    return cur;
 
 }
 /*
@@ -543,10 +569,10 @@ int main(int argc, char *argv[]){
     testLeftMost();
     
     printf("\n");
-    //testRemoveLeftMost();
+    testRemoveLeftMost();
     
     printf("\n");
-    //testRemoveNode();
+    testRemoveNode();
     
     
     return 0;
