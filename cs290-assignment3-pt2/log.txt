@@ -1,0 +1,43 @@
+Start: Sun, 12 Apr 2015 10:05:00 -0700
+End: Sun, 12 Apr 2015 12:50:36 -0700
+Tasks: Set up assignment files. Completed everything in variables.js and functions.js. Completed MessageLog constructor and prototype functions.
+
+Start: Sun, 12 Apr 2015 13:30:36 -0700
+End: Sun, 12 Apr 2015 14:30:58 -0700
+Tasks: Installed Python and gjslint, added JsDoc comment blocks and fixed style issues. Completed objects.js and filling out log.txt.
+
+Start: Sun, 19 Apr 2015 21:15:00 -0700
+End: Sun, 19 Apr 2015 22:15:40 -0700
+Tasks: Created HTML skeleton and finished initial version of static HTML and CSS content.
+
+Start: Mon, 20 Apr 2015 20:48:00 -0700
+End: Tue, 21 Apr 2015 0:35:28 -0700
+Tasks: Changed number input to drop-down list for number of results. Completed basic logic for XMLHttpRequest and caching functionality.
+
+Start: Tue, 21 Apr 2015 12:00:19 -0700
+End: Tue, 21 Apr 2015 12:10:04 -0700
+Tasks: Changed the getGists function into a recursive solution to ensure previous request is complete. Fixed sorting logic so that it is newest first.
+
+Start: Wed, 22 Apr 2015 15:05:19 -0700
+End: Wed, 22 Apr 2015 16:49:58 -0700
+Tasks: Fixed syntax errors and refactored code to use prototype methods. Fixed a bug where not enough gists were downloaded when count was increased. Added function to remove gists from the cache. Added function to generate the HTML list.
+
+Start: Wed, 22 Apr 2015 18:32:00 -0700
+End: Wed, 22 Apr 2015 18:58:37 -0700
+Tasks: Changed href to HTML URL instead of JSON URL. Added missing tag and changed heading levels.
+
+Start: Thu, 23 Apr 2015 15:00:00 -0700
+End: Thu, 23 Apr 2015 16:59:40 -0700
+Tasks: Implemented filter functionality and updated list structure and styling. Created 'add to favorites' icon.
+
+Start: Fri, 23 Apr 2015 10:05:00 -0700
+End: Fri, 24 Apr 2015 01:26:57 -0700
+Tasks: Completed main favorites functionality. Still need to filter favorites from results list. Updated style.
+
+Start: Fri, 24 Apr 2015 19:30:00 -0700
+End: Fri, 24 Apr 2015 21:26:33 -0700
+Tasks: Refactored code, removed unneeded functions, simplified logic, and completed comment blocks. Added new languages to filter and changed from gist count to page count. Updated and commented CSS styles.
+
+Start: Sat, 25 Apr 2015 17:42:00 -0700
+End: Sat, 25 Apr 2015 20:12:20 -0700
+Tasks: Updated comments, finished CSS styling, and fixed gjslint errors.
