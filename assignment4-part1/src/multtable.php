@@ -34,21 +34,21 @@ if ($errorCount > 0) {
     $minMultiplier = $_GET['min-multiplier'];
     $maxMultiplier = $_GET['max-multiplier'];
 }
-/* make sure each value is an integer */
+/* make sure each value is a non-negative integer (contains only digits) */
 if (!ctype_digit($minMultiplicand)) {
-    echo "<p>min-multiplicand is not an integer.</p>";
+    echo "<p>min-multiplicand must be a non-negative integer.</p>";
     $errorCount++;
 }
 if (!ctype_digit($maxMultiplicand)) {
-    echo "<p>max-multiplicand is not an integer.</p>";
+    echo "<p>max-multiplicand must be a non-negative integer.</p>";
     $errorCount++;
 }
 if (!ctype_digit($minMultiplier)) {
-    echo "<p>min-multiplier is not an integer.</p>";
+    echo "<p>min-multiplier must be a non-negative integer.</p>";
     $errorCount++;
 }
 if (!ctype_digit($maxMultiplier)) {
-    echo "<p>max-multiplier is not an integer.</p>";
+    echo "<p>max-multiplier must be a non-negative integer.</p>";
     $errorCount++;
 }
 /* stop script if any variables are non-integers */
