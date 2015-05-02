@@ -13,8 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo "Invalid Request Type";
     die();
 }
-/* set content type */
-header('Content-Type: application/json');
 
 /* create nested array to hold parameters or null if no parameters*/
 if (count($request) == 0)
@@ -24,6 +22,9 @@ else
 foreach ($request as $key => $val) {
     $json['parameters'][$key] = $val;
 }
+
+/* set content type */
+header('Content-Type: application/json');
 
 /* convert the array to JSON and output it */
 echo json_encode($json);
