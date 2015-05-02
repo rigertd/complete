@@ -6,10 +6,15 @@ $json = array();
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $request = &$_GET;
     $json['Type'] = 'GET';
-} else {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $request = &$_POST;
     $json['Type'] = 'POST';
+} else {
+    echo "Invalid Request Type";
+    die();
 }
+/* set content type */
+header('Content-Type: application/json');
 
 /* create nested array to hold parameters or null if no parameters*/
 if (count($request) == 0)
