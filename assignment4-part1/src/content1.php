@@ -11,13 +11,20 @@ $message = "";      // stores output page text
 $count = 0;         // stores number of page visits
 
 /* redirect to login.php if not a POST and there is no session or the session username is not set */
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && (session_status() != PHP_SESSION_ACTIVE || !isset($_SESSION['username']))) {
-    /* for building URL to current path */
-    $host = $_SERVER['HTTP_HOST'];
-    $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
-    /* no username or session--redirect to login.php */
-    header("Location: http://{$host}{$url}/login.php");
-    die();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    if (session_status() != PHP_SESSION_ACTIVE || !isset($_SESSION['username'])){
+        /* for building URL to current path */
+        $host = $_SERVER['HTTP_HOST'];
+        $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
+        /* no username or session--redirect to login.php */
+        header("Location: http://{$host}{$url}/login.php");
+        die();
+    }
+} else {
+    /* POST request--try to get username if set */
+    if (isset($_POST['username'])) {
+        $username = $_POST['username'];
+    }
 }
 
 /* try to get username and count from session if one exists */
@@ -28,11 +35,6 @@ if (session_status() == PHP_SESSION_ACTIVE) {
     if (isset($_SESSION['count'])) {
         $count = $_SESSION['count'];
     }
-}
-
-/* try to get username if POST request */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
-    $username = $_POST['username'];
 }
 
 if (empty($username) && empty($s_username)) {
