@@ -10,8 +10,8 @@ $title = "";        // stores output page title
 $message = "";      // stores output page text
 $count = 0;         // stores number of page visits
 
-/* redirect to login.php if not a POST and there is no session */
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && session_status() != PHP_SESSION_ACTIVE) {
+/* redirect to login.php if not a POST and there is no session or the session username is not set */
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && (session_status() != PHP_SESSION_ACTIVE || !isset($_SESSION['username']))) {
     /* for building URL to current path */
     $host = $_SERVER['HTTP_HOST'];
     $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
