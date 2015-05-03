@@ -26,8 +26,8 @@ foreach ($request as $key => $val) {
     $json['parameters'][$key] = $val;
 }
 
-/* set content type */
-header('Content-Type: application/json');
+/* set content type--usually this would be application/json */
+header('Content-Type: text/plain');
 
 /* convert the array to JSON and output it */
 echo json_encode($json);
