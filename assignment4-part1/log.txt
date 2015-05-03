@@ -1,3 +1,7 @@
+Start: Sat, 2 May 2015 19:25:00 -0700
+End: Sat, 2 May 2015 19:40:36 -0700
+Tasks: Fixed bug where content1.php would not redirect after logout. Refactored session and request logic for clarity. Changed content type to prevent JSON from being downloaded in IE.
+
 Start: Sat, 2 May 2015 14:30:00 -0700
 End: Sat, 2 May 2015 18:13:17 -0700
 Tasks: Refactored error handling code to avoid invalid HTML output when an error occurs. Reorganized code to keep content and logic separate. Finished all pages. Added logic to display a logout message for previous user when new user logs in before old user logs out. Added automatic redirect to content1.php if user is already logged in.
