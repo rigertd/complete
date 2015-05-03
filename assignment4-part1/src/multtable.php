@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+header('Content-Type: text/html');
+
 $errorCount = 0; /* for keeping track of failed preconditions */
 $bodyText = "";  /* for storing the contents of the body element */
 /* check for preconditions */
