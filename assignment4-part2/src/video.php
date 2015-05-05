@@ -12,8 +12,55 @@ if ($mysqli->connect_errno) {
 /* for storing any error messages when attempting to add a title */
 $err_msg = "";
 
+/* for storing the category to filter on--defaults to All Movies */
+$filter = "All Movies";
+
 /* query database for title information */
-$inventory = $mysqli->query("SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC");
+$inv_query = "SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC";
+
+/* check if request is a postback and perform the appropriate action */
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+  switch ($_POST['action']) {
+    case "add":
+
+      break;
+    case "filter":
+      $filter = $_POST['category_list'];
+      if ($filter != "All Movies")
+        $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = '?' ORDER BY name ASC";
+      break;
+    case "delete":
+      break;
+    case "check_out":
+      break;
+    case "delete_all":
+      break;
+    default:
+      $err_msg .= "Invalid POST request.";
+  }
+
+}
+
+/* prepared statement to list videos in inventory */
+if (!($inv_stmt = $mysqli->prepare($inv_query))) {
+  echo "Database query error (" . $mysqli->errno . ") " . $mysqli->error;
+  die();
+}
+/* bind parameter to inventory query if filter is set to a category */
+if ($filter != "All Movies") {
+  if (!$inv_stmt->bind_param("s", $filter)) {
+    echo "Database binding error (" . $inv_stmt->errno . ") " . $inv_stmt->error;
+    die();
+  }
+}
+/* execute query */
+if (!$inv_stmt->execute()) {
+  echo "Error retrieving data from database (". $inv_stmt->errno . ") " . $inv_stmt->error;
+  die();
+}
+/* get results */
+$inventory = $inv_stmt->get_result();
+
 /* query database for category information */
 $cat_result = $mysqli->query("SELECT DISTINCT category FROM Inventory WHERE category IS NOT NULL ORDER BY category ASC");
 
@@ -60,7 +107,7 @@ while ($row = $cat_result->fetch_assoc()) {
         <select id="category_list">
           <option value="All Movies">All Movies</option>
 <?php foreach ($categories as $category): ?>
-          <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
+          <option value="<?php echo htmlspecialchars($category); ?>"<?php echo ($filter == $category ? ' selected="selected"' : ''); ?>><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </select>
         <button type="submit" name="action" value="filter">Filter</button>
