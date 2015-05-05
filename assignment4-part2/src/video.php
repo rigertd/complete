@@ -8,8 +8,10 @@ if ($mysqli->connect_errno) {
     echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
 }
 
-/* query database for information */
+/* query database for title information */
 $inventory = $mysqli->query("SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC");
+/* query database for category information */
+$categories = $mysqli->query("SELECT DISTINCT category FROM Inventory ORDER BY category ASC");
 
 /* close the connection after results are retrieved */
 $mysqli->close();
@@ -29,7 +31,9 @@ $mysqli->close();
         <label>Title <input type="text" name="name"></label>
         <label>Category <input type="text" name="category" list="categories"></label>
         <datalist id="categories">
-          <option value="Action">Action</option>
+<?php while($row = $categories->fetch_assoc()): ?>
+          <option value="<?php $row['category'] ?>"><?php $row['category'] ?></option>
+<?php endwhile ?>
         </datalist>
         <label>Runtime <input type="number" name="length"></label>
         <button type="submit" name="action" value="add">Add</button>
@@ -41,12 +45,15 @@ $mysqli->close();
         <label for="category_list">Filter by Category: </label>
         <select id="category_list">
           <option value="All Movies">All Movies</option>
+<?php while($row = $categories->fetch_assoc()): ?>
+          <option value="<?php $row['category'] ?>"><?php $row['category'] ?></option>
+<?php endwhile ?>
         </select>
         <button type="submit" name="action" value="filter">Filter</button>
       </form>
       <table>
         <tr><th>ID <th>Title <th>Category <th>Runtime <th>Checked Out <th>Action </tr>
-        <?php while($row = $inventory->fetch_assoc()): ?>
+<?php while($row = $inventory->fetch_assoc()): ?>
         <tr>
           <td><?php echo $row['id']; ?>
           <td><?php echo htmlspecialchars($row['name']); ?>
@@ -60,7 +67,7 @@ $mysqli->close();
               <button type="submit" name="action" value="check_out">Check Out</button>
             </form>
         </tr>
-        <?php endwhile ?>
+<?php endwhile ?>
       </table>
       <form method="POST" action="video.php">
         <button type="submit" name="action" value="delete_all">Delete All Videos</button>
