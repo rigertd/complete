@@ -9,7 +9,7 @@ if ($mysqli->connect_errno) {
 }
 
 /* query database for information */
-$inventory = $mysqli->query("SELECT id, name, category, length FROM Inventory ORDER BY name ASC");
+$inventory = $mysqli->query("SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC");
 
 /* close the connection after results are retrieved */
 $mysqli->close();
@@ -51,7 +51,7 @@ $mysqli->close();
           <td><?php echo $row['id']; ?>
           <td><?php echo htmlspecialchars($row['name']); ?>
           <td><?php echo htmlspecialchars($row['category']); ?>
-          <td><?php echo (!empty($row[length]) ? "$row[length] minutes" : ""); ?>
+          <td><?php echo (!empty($row['length']) ? "$row[length] minutes" : ""); ?>
           <td><?php echo ($row['rented'] ? "Yes" : "No"); ?>
           <td>
             <form method="POST" action="video.php">
