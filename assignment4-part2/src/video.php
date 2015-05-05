@@ -104,7 +104,7 @@ while ($row = $cat_result->fetch_assoc()) {
       <h2>Current Inventory</h2>
       <form method="POST" action="video.php">
         <label for="category_list">Filter by Category: </label>
-        <select id="category_list">
+        <select id="category_list" name="category_list">
           <option value="All Movies">All Movies</option>
 <?php foreach ($categories as $category): ?>
           <option value="<?php echo htmlspecialchars($category); ?>"<?php echo ($filter == $category ? ' selected="selected"' : ''); ?>><?php echo htmlspecialchars($category); ?></option>
