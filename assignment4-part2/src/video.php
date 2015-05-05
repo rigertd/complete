@@ -1,4 +1,18 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+
+/* Establish database connection */
+$mysqli = new mysqli("oniddb.cws.oregonstate.edu", "rigertd-db", "7UIl485kmwS6rujQ", "rigertd-db");
+if ($mysqli->connect_errno) {
+    echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+}
+
+/* query database for information */
+$inventory = $mysqli->query("SELECT id, name, category, length FROM Inventory ORDER BY name ASC");
+
+/* close the connection after results are retrieved */
+$mysqli->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -10,15 +24,15 @@
   <body>
     <header><h1>Bob's Video Emporium</h1></header>
     <section>
-      <h2>Add Video to Inventory</h2>
       <form method="POST" action="video.php">
+        <h2>Add Video to Inventory</h2>
         <label>Title <input type="text" name="name"></label>
         <label>Category <input type="text" name="category" list="categories"></label>
         <datalist id="categories">
-          <option value="Action">
+          <option value="Action">Action</option>
         </datalist>
         <label>Runtime <input type="number" name="length"></label>
-        <button type="submit">Add</button>
+        <button type="submit" name="action" value="add">Add</button>
       </form>
     </section>
     <section>
@@ -28,20 +42,29 @@
         <select id="category_list">
           <option value="All Movies">All Movies</option>
         </select>
-        <button type="submit">Filter</button>
+        <button type="submit" name="action" value="filter">Filter</button>
       </form>
       <table>
         <tr><th>ID <th>Title <th>Category <th>Runtime <th>Checked Out <th>Action </tr>
+        <?php while($row = $inventory->fetch_assoc()): ?>
         <tr>
-          <td><?php echo $videoId ?>
-          <td><?php echo $videoName ?>
-          <td><?php echo $videoCategory ?>
-          <td><?php echo $videoLength ?>
-          <td><?php echo ($videoCheckedOut ? "Yes" : "No") ?>
-          <td><!-- buttons! -->
+          <td><?php echo $row['id']; ?>
+          <td><?php echo htmlspecialchars($row['name']); ?>
+          <td><?php echo htmlspecialchars($row['category']); ?>
+          <td><?php echo (!empty($row[length]) ? "$row[length] minutes" : ""); ?>
+          <td><?php echo ($row['rented'] ? "Yes" : "No"); ?>
+          <td>
+            <form method="POST" action="video.php">
+              <input type="hidden" name="id" value="<?php echo $videoId; ?>">
+              <button type="submit" name="action" value="delete">Delete</button>
+              <button type="submit" name="action" value="check_out">Check Out</button>
+            </form>
         </tr>
+        <?php endwhile ?>
       </table>
-      <form method="POST" action="video.php"><button type="submit">Delete All Videos</button></form>
+      <form method="POST" action="video.php">
+        <button type="submit" name="action" value="delete_all">Delete All Videos</button>
+      </form>
     </section>
   </body>
 </html>
