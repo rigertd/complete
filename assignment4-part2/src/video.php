@@ -37,7 +37,7 @@ $mysqli->close();
         <datalist id="categories">
 <?php foreach ($categories as $category): ?>
           <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
-<?php endwhile ?>
+<?php endforeach ?>
         </datalist>
         <label>Runtime <input type="number" name="length"></label>
         <button type="submit" name="action" value="add">Add</button>
@@ -51,7 +51,7 @@ $mysqli->close();
           <option value="All Movies">All Movies</option>
 <?php foreach ($categories as $category): ?>
           <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
-<?php endwhile ?>
+<?php endforeach ?>
         </select>
         <button type="submit" name="action" value="filter">Filter</button>
       </form>
