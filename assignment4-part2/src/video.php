@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     case "filter":
       $filter = $_POST['category_list'];
       if ($filter != "All Movies")
-        $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = '?' ORDER BY name ASC";
+        $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
       break;
     case "delete":
       break;
