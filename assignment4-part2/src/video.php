@@ -11,7 +11,11 @@ if ($mysqli->connect_errno) {
 /* query database for title information */
 $inventory = $mysqli->query("SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC");
 /* query database for category information */
-$categories = $mysqli->query("SELECT DISTINCT category FROM Inventory ORDER BY category ASC");
+$cat_result = $mysqli->query("SELECT DISTINCT category FROM Inventory WHERE category IS NOT NULL ORDER BY category ASC");
+$categories = array();
+while ($row = $cat_result->fetch_assoc()) {
+    $categories[] = $row['category'];
+}
 
 /* close the connection after results are retrieved */
 $mysqli->close();
@@ -31,8 +35,8 @@ $mysqli->close();
         <label>Title <input type="text" name="name"></label>
         <label>Category <input type="text" name="category" list="categories"></label>
         <datalist id="categories">
-<?php while($row = $categories->fetch_assoc()): ?>
-          <option value="<?php $row['category'] ?>"><?php $row['category'] ?></option>
+<?php foreach ($categories as $category): ?>
+          <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
 <?php endwhile ?>
         </datalist>
         <label>Runtime <input type="number" name="length"></label>
@@ -45,8 +49,8 @@ $mysqli->close();
         <label for="category_list">Filter by Category: </label>
         <select id="category_list">
           <option value="All Movies">All Movies</option>
-<?php while($row = $categories->fetch_assoc()): ?>
-          <option value="<?php $row['category'] ?>"><?php $row['category'] ?></option>
+<?php foreach ($categories as $category): ?>
+          <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
 <?php endwhile ?>
         </select>
         <button type="submit" name="action" value="filter">Filter</button>
@@ -62,7 +66,7 @@ $mysqli->close();
           <td><?php echo ($row['rented'] ? "Yes" : "No"); ?>
           <td>
             <form method="POST" action="video.php">
-              <input type="hidden" name="id" value="<?php echo $videoId; ?>">
+              <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
               <button type="submit" name="action" value="delete">Delete</button>
               <button type="submit" name="action" value="check_out">Check Out</button>
             </form>
