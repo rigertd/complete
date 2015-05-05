@@ -6,19 +6,26 @@ ini_set('display_errors', 'On');
 $mysqli = new mysqli("oniddb.cws.oregonstate.edu", "rigertd-db", "7UIl485kmwS6rujQ", "rigertd-db");
 if ($mysqli->connect_errno) {
     echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+    die();
 }
+
+/* for storing any error messages when attempting to add a title */
+$err_msg = "";
 
 /* query database for title information */
 $inventory = $mysqli->query("SELECT id, name, category, length, rented FROM Inventory ORDER BY name ASC");
 /* query database for category information */
 $cat_result = $mysqli->query("SELECT DISTINCT category FROM Inventory WHERE category IS NOT NULL ORDER BY category ASC");
+
+/* close the connection after results are retrieved */
+$mysqli->close();
+
+/* build an array of categories */
 $categories = array();
 while ($row = $cat_result->fetch_assoc()) {
     $categories[] = $row['category'];
 }
 
-/* close the connection after results are retrieved */
-$mysqli->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -40,6 +47,9 @@ $mysqli->close();
 <?php endforeach ?>
         </datalist>
         <label>Runtime <input type="number" name="length"></label>
+<?php if (!empty($err_msg)): ?>
+        <p class="error"><?php echo htmlspecialchars($err_msg); ?>
+<?php endif ?>
         <button type="submit" name="action" value="add">Add</button>
       </form>
     </section>
