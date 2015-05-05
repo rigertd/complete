@@ -151,7 +151,7 @@ while ($row = $cat_result->fetch_assoc()) {
             <form method="POST" action="video.php">
               <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
               <button type="submit" name="action" value="delete">Delete</button>
-              <button type="submit" name="action" value="check_out">Check Out</button>
+              <button type="submit" name="action" value="check_out"><?php echo ($row['rented'] ? "Return" : "Check Out"); ?>Check Out</button>
             </form>
         </tr>
 <?php endwhile ?>
