@@ -2,6 +2,22 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
+/* Executes the specified query in a prepared statement bound to the specified value */
+function preparedQuery($db, $query, $val) {
+  if (!($stmt = $db->prepare($query))) {
+    echo "Database query error (" . $db->errno . ") " . $db->error;
+    die();
+  }
+  if (!$stmt->bind_param("i", $val)) {
+    echo "Database binding error (" . $stmt->errno . ") " . $stmt->error;
+    die();
+  }
+  if (!$stmt->execute()) {
+    echo "Error executing operation (". $stmt->errno . ") " . $stmt->error;
+    die();
+  }
+}
+
 /* Establish database connection */
 $mysqli = new mysqli("oniddb.cws.oregonstate.edu", "rigertd-db", "7UIl485kmwS6rujQ", "rigertd-db");
 if ($mysqli->connect_errno) {
@@ -30,13 +46,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
       break;
     case "delete":
+      $del_id = $_POST['id'];
+      $del_query = "DELETE FROM Inventory WHERE id = ?";
+      preparedQuery($mysqli, $del_query, $del_id);
       break;
     case "check_out":
+      $co_id = $_POST['id'];
+      $co_query = "UPDATE Inventory SET rented = IF(rented, 0, 1) WHERE id = ?";
+      preparedQuery($mysqli, $co_query, $co_id);
       break;
     case "delete_all":
+      if (!$mysqli->query("DELETE FROM Inventory")) {
+        echo "Deletion failed (" . $mysqli->errno . ") " . $mysqli->error;
+        die();
+      }
       break;
     default:
-      $err_msg .= "Invalid POST request.";
+      $err_msg .= "Invalid action in POST request.";
   }
 
 }
