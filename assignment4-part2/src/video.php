@@ -49,13 +49,13 @@ function addMovie() {
             $add_query_1 .= ",category";
             $add_query_2 .= ",?";
             $bind_call_1 .= "s";
-            $bind_call_2 .= ", $category";
+            $bind_call_2 .= ', $category';
         }
         if (!empty($length)) {
             $add_query_1 .= ",length";
             $add_query_2 .= ",?";
             $bind_call_1 .= "i";
-            $bind_call_2 .= ", $length";
+            $bind_call_2 .= ', $length';
         }
         $add_query = $add_query_1 . ")" . $add_query_2 . ")";
         $bind_call = $bind_call_1 . '", ' . $bind_call_2 .');';
