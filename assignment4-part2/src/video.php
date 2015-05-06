@@ -12,17 +12,8 @@ function prepareQuery($db, $query) {
 }
 
 /* Binds the specified parameter to the specified prepared statement */
-function bindParam($stmt, $val) {
-    if (is_float($val))
-        $type = "d";
-    else if (is_int($val))
-        $type = "i";
-    else if (is_string($val))
-        $type = "s";
-    else
-        $type = "b";
-
-    if (!$stmt->bind_param("i", $val)) {
+function bindParam($stmt, $type, $val) {
+    if (!$stmt->bind_param($type, $val)) {
         echo "Database binding error (" . $stmt->errno . ") " . $stmt->error;
         die();
     }
@@ -67,14 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
       $del_id = (int)$_POST['id'];
       $del_query = "DELETE FROM Inventory WHERE id = ?";
       $del_stmt = prepareQuery($mysqli, $del_query);
-      bindParam($del_stmt, $del_id);
+      bindParam($del_stmt, "i", $del_id);
       executeStatement($del_stmt);
       break;
     case "check_out":
       $co_id = (int)$_POST['id'];
       $co_query = "UPDATE Inventory SET rented = IF(rented, 0, 1) WHERE id = ?";
       $co_stmt = prepareQuery($mysqli, $co_query);
-      bindParam($co_stmt, $co_id);
+      bindParam($co_stmt, "i", $co_id);
       executeStatement($co_stmt);
       break;
     case "delete_all":
@@ -92,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 /* Prepare, bind, and execute inventory list query */
 $inv_stmt = prepareQuery($mysqli, $inv_query);
 if ($filter != "All Movies")
-  bindParam($inv_stmt, $filter);
+  bindParam($inv_stmt, "s", $filter);
 executeStatement($inv_stmt);
 
 /* get results */
