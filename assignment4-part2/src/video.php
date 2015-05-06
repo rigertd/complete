@@ -46,14 +46,14 @@ function addMovie() {
         $bind_call_1 = '$add_stmt->bind_param("s';
         $bind_call_2 = '$name';
         if (!empty($category)) {
-            $add_query_1 .= ",category";
-            $add_query_2 .= ",?";
+            $add_query_1 .= ", category";
+            $add_query_2 .= ", ?";
             $bind_call_1 .= "s";
             $bind_call_2 .= ', $category';
         }
         if (!empty($length)) {
-            $add_query_1 .= ",length";
-            $add_query_2 .= ",?";
+            $add_query_1 .= ", length";
+            $add_query_2 .= ", ?";
             $bind_call_1 .= "i";
             $bind_call_2 .= ', $length';
         }
@@ -62,11 +62,7 @@ function addMovie() {
 
         /* prepare statement, bind parameters, and execute */
         $add_stmt = prepareQuery($mysqli, $add_query);
-        if (!eval($bind_call)) {
-            echo "$add_query / $bind_call ";
-            echo "Failed to add record (" . $mysqli->errno . ") " . $mysqli->error;
-            die();
-        }
+        eval($bind_call);
         executeStatement($add_stmt);
     }
 }
