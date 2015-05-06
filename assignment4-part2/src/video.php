@@ -63,6 +63,7 @@ function addMovie() {
         /* prepare statement, bind parameters, and execute */
         $add_stmt = prepareQuery($mysqli, $add_query);
         if (!eval($bind_call)) {
+            echo "$bind_call \n";
             echo "Failed to add record (" . $mysqli->errno . ") " . $mysqli->error;
             die();
         }
