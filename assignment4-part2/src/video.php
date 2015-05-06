@@ -67,29 +67,30 @@ $inv_query = "SELECT id, name, category, length, rented FROM Inventory ORDER BY 
 /* check if request is a postback and perform the appropriate action */
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
   switch ($_POST['action']) {
-    case "add":
+    case "Add":
       addMovie();
       break;
-    case "filter":
+    case "Filter":
       $filter = $_POST['category_list'];
       if ($filter != "All Movies")
         $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
       break;
-    case "delete":
+    case "Delete":
       $del_id = (int)$_POST['id'];
       $del_query = "DELETE FROM Inventory WHERE id = ?";
       $del_stmt = prepareQuery($mysqli, $del_query);
       bindParam($del_stmt, "i", $del_id);
       executeStatement($del_stmt);
       break;
-    case "check_out":
+    case "Check Out":
+    case "Return":
       $co_id = (int)$_POST['id'];
       $co_query = "UPDATE Inventory SET rented = IF(rented, 0, 1) WHERE id = ?";
       $co_stmt = prepareQuery($mysqli, $co_query);
       bindParam($co_stmt, "i", $co_id);
       executeStatement($co_stmt);
       break;
-    case "delete_all":
+    case "Delete All Videos":
       if (!$mysqli->query("DELETE FROM Inventory")) {
         echo "Deletion failed (" . $mysqli->errno . ") " . $mysqli->error;
         die();
@@ -142,7 +143,7 @@ while ($row = $cat_result->fetch_assoc()) {
 <?php endforeach ?>
         </datalist>
         <label>Runtime <input type="number" name="length" min="0"></label>
-        <button type="submit" name="action" value="add">Add</button>
+        <input type="submit" name="action" value="Add">
 <?php if (!empty($err_msg)): ?>
         <p class="error"><?php echo htmlspecialchars($err_msg); ?>
 <?php endif ?>
@@ -158,7 +159,7 @@ while ($row = $cat_result->fetch_assoc()) {
           <option value="<?php echo htmlspecialchars($category); ?>"<?php echo ($filter == $category ? ' selected="selected"' : ''); ?>><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </select>
-        <button type="submit" name="action" value="filter">Filter</button>
+        <input type="submit" name="action" value="Filter">
       </form>
       <table>
         <tr><th>ID <th>Title <th>Category <th>Runtime <th>Checked Out <th>Action </tr>
@@ -172,14 +173,14 @@ while ($row = $cat_result->fetch_assoc()) {
           <td>
             <form method="POST" action="video.php">
               <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-              <button type="submit" name="action" value="delete">Delete</button>
-              <button type="submit" name="action" value="check_out"><?php echo ($row['rented'] ? "Return" : "Check Out"); ?></button>
+              <input type="submit" name="action" value="Delete">
+              <input type="submit" name="action" value="<?php echo ($row['rented'] ? "Return" : "Check Out"); ?>">
             </form>
         </tr>
 <?php endwhile ?>
       </table>
       <form method="POST" action="video.php">
-        <button type="submit" name="action" value="delete_all">Delete All Videos</button>
+        <input type="submit" name="action" value="Delete All Videos">
       </form>
     </section>
   </body>
