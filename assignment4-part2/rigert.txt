@@ -1,3 +1,20 @@
 Start: Sun, 3 May 2015 21:15:00 -0700
-End: Sat, 2 May 2015 21:30:00 -0700
+End: Sun, 3 May 2015 21:30:00 -0700
 Tasks: Set up a MySQL database on ONID and created the Inventory table for assignment 4.
+
+Start: Mon, 4 May 2015 11:00:00 -0700
+End: Mon, 4 May 2015 11:58:21 -0700
+Tasks: Created the initial HTML template for the video inventory interface.
+
+Start: Mon, 4 May 2015 21:00:00 -0700
+End: Mon, 4 May 2015 22:06:09 -0700
+Tasks: Finished the HTML template and wrote the code to populate the page with database records.
+
+Start: Tue, 5 May 2015 15:30:00 -0700
+End: Tue, 5 May 2015 17:02:47 -0700
+Tasks: Implemented the category filter, delete, and check-out functionality.
+
+Start: Tue, 5 May 2015 19:30:00 -0700
+End: Tue, 5 May 2015 21:08:26 -0700
+Tasks: Refactored repetetive code into functions, implemented add functionality, and simplified the logic.
+
