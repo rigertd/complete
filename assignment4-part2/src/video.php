@@ -27,6 +27,49 @@ function executeStatement($stmt) {
     }
 }
 
+function addMovie() {
+    global $err_msg;
+    global $mysqli;
+
+    /* validate input (just in case) */
+    $name = $_POST['name'];
+    $category = $_POST['category'];
+    $length = $_POST['length'];
+    if (empty($name))
+        $err_msg .= "You must enter the title of the movie. ";
+    else if (!is_int($length))
+        $err_msg .= "The runtime must be a positive number.";
+    else {
+        /* input is valid--build query string based on available input */
+        $add_query_1 = "INSERT INTO Inventory (name";
+        $add_query_2 = " VALUES(?";
+        $bind_call_1 = '$add_stmt->bind_param("s';
+        $bind_call_2 = '$name';
+        if (!empty($category)) {
+            $add_query_1 .= ",category";
+            $add_query_2 .= ",?";
+            $bind_call_1 .= "s";
+            $bind_call_2 .= ", $category";
+        }
+        if (!empty($length)) {
+            $add_query_1 .= ",length";
+            $add_query_2 .= ",?";
+            $bind_call_1 .= "i";
+            $bind_call_2 .= ", $length";
+        }
+        $add_query = $add_query_1 . ")" . $add_query_2 . ")";
+        $bind_call = $bind_call_1 . '", ' . $bind_call_2 .');';
+
+        /* prepare statement, bind parameters, and execute */
+        $add_stmt = prepareQuery($mysqli, $add_query);
+        if (!eval($bind_call)) {
+            echo "Failed to add record (" . $mysqli->errno . ") " . $mysqli->error;
+            die();
+        }
+        executeStatement($add_stmt);
+    }
+}
+
 /* Establish database connection */
 $mysqli = new mysqli("oniddb.cws.oregonstate.edu", "rigertd-db", "7UIl485kmwS6rujQ", "rigertd-db");
 if ($mysqli->connect_errno) {
@@ -47,7 +90,7 @@ $inv_query = "SELECT id, name, category, length, rented FROM Inventory ORDER BY 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
   switch ($_POST['action']) {
     case "add":
-
+      addMovie();
       break;
     case "filter":
       $filter = $_POST['category_list'];
@@ -77,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     default:
       $err_msg .= "Invalid action in POST request.";
   }
-
 }
 
 /* Prepare, bind, and execute inventory list query */
@@ -121,11 +163,11 @@ while ($row = $cat_result->fetch_assoc()) {
           <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </datalist>
-        <label>Runtime <input type="number" name="length"></label>
+        <label>Runtime <input type="number" name="length" min="0"></label>
+        <button type="submit" name="action" value="add">Add</button>
 <?php if (!empty($err_msg)): ?>
         <p class="error"><?php echo htmlspecialchars($err_msg); ?>
 <?php endif ?>
-        <button type="submit" name="action" value="add">Add</button>
       </form>
     </section>
     <section>
