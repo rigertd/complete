@@ -31,38 +31,19 @@ function addMovie() {
     global $err_msg;
     global $mysqli;
 
-    /* validate input (just in case) */
     $name = $_POST['name'];
-    $category = $_POST['category'];
-    $length = $_POST['length'];
+    $category = isset($_POST['category']) ? $_POST['category'] : null;
+    $length = isset($_POST['length']) ? $_POST['length'] : null;
+    /* validate input (just in case) */
     if (empty($name))
         $err_msg .= "You must enter the title of the movie. ";
     else if (!ctype_digit($length))
         $err_msg .= "The runtime must be a positive number.";
     else {
-        /* input is valid--build query string based on available input */
-        $add_query_1 = "INSERT INTO Inventory (name";
-        $add_query_2 = " VALUES(?";
-        $bind_call_1 = '$add_stmt->bind_param("s';
-        $bind_call_2 = '$name';
-        if (!empty($category)) {
-            $add_query_1 .= ", category";
-            $add_query_2 .= ", ?";
-            $bind_call_1 .= "s";
-            $bind_call_2 .= ', $category';
-        }
-        if (!empty($length)) {
-            $add_query_1 .= ", length";
-            $add_query_2 .= ", ?";
-            $bind_call_1 .= "i";
-            $bind_call_2 .= ', $length';
-        }
-        $add_query = $add_query_1 . ")" . $add_query_2 . ")";
-        $bind_call = $bind_call_1 . '", ' . $bind_call_2 .');';
-
+        $add_query = "INSERT INTO Inventory (name, category, length) VALUES(?, ?, ?)";
         /* prepare statement, bind parameters, and execute */
         $add_stmt = prepareQuery($mysqli, $add_query);
-        eval($bind_call);
+        $add_stmt->bind_param("ssi", $name, $category, $length);
         executeStatement($add_stmt);
     }
 }
