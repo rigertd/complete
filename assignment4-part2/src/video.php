@@ -37,7 +37,7 @@ function addMovie() {
     $length = $_POST['length'];
     if (empty($name))
         $err_msg .= "You must enter the title of the movie. ";
-    else if (!is_int($length))
+    else if (!ctype_digit($length))
         $err_msg .= "The runtime must be a positive number.";
     else {
         /* input is valid--build query string based on available input */
