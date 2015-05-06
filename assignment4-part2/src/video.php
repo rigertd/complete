@@ -2,20 +2,38 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-/* Executes the specified query in a prepared statement bound to the specified value */
-function preparedQuery($db, $query, $val) {
+/* Prepares the specified query in a prepared statement */
+function prepareQuery($db, $query) {
   if (!($stmt = $db->prepare($query))) {
     echo "Database query error (" . $db->errno . ") " . $db->error;
     die();
   }
-  if (!$stmt->bind_param("i", $val)) {
-    echo "Database binding error (" . $stmt->errno . ") " . $stmt->error;
-    die();
-  }
-  if (!$stmt->execute()) {
-    echo "Error executing operation (". $stmt->errno . ") " . $stmt->error;
-    die();
-  }
+  return $stmt;
+}
+
+/* Binds the specified parameter to the specified prepared statement */
+function bindParam($stmt, $val) {
+    if (is_float($val))
+        $type = "d";
+    else if (is_int($val))
+        $type = "i";
+    else if (is_string($val))
+        $type = "s";
+    else
+        $type = "b";
+
+    if (!$stmt->bind_param("i", $val)) {
+        echo "Database binding error (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
+}
+
+/* Executes the specified prepared statement */
+function executeStatement($stmt) {
+    if (!$stmt->execute()) {
+        echo "Error executing operation (". $stmt->errno . ") " . $stmt->error;
+        die();
+    }
 }
 
 /* Establish database connection */
@@ -46,14 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
       break;
     case "delete":
-      $del_id = $_POST['id'];
+      $del_id = (int)$_POST['id'];
       $del_query = "DELETE FROM Inventory WHERE id = ?";
-      preparedQuery($mysqli, $del_query, $del_id);
+      $del_stmt = prepareQuery($mysqli, $del_query);
+      bindParam($del_stmt, $del_id);
+      executeStatement($del_stmt);
       break;
     case "check_out":
-      $co_id = $_POST['id'];
+      $co_id = (int)$_POST['id'];
       $co_query = "UPDATE Inventory SET rented = IF(rented, 0, 1) WHERE id = ?";
-      preparedQuery($mysqli, $co_query, $co_id);
+      $co_stmt = prepareQuery($mysqli, $co_query);
+      bindParam($co_stmt, $co_id);
+      executeStatement($co_stmt);
       break;
     case "delete_all":
       if (!$mysqli->query("DELETE FROM Inventory")) {
@@ -67,23 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 
 }
 
-/* prepared statement to list videos in inventory */
-if (!($inv_stmt = $mysqli->prepare($inv_query))) {
-  echo "Database query error (" . $mysqli->errno . ") " . $mysqli->error;
-  die();
-}
-/* bind parameter to inventory query if filter is set to a category */
-if ($filter != "All Movies") {
-  if (!$inv_stmt->bind_param("s", $filter)) {
-    echo "Database binding error (" . $inv_stmt->errno . ") " . $inv_stmt->error;
-    die();
-  }
-}
-/* execute query */
-if (!$inv_stmt->execute()) {
-  echo "Error retrieving data from database (". $inv_stmt->errno . ") " . $inv_stmt->error;
-  die();
-}
+/* Prepare, bind, and execute inventory list query */
+$inv_stmt = prepareQuery($mysqli, $inv_query);
+if ($filter != "All Movies")
+  bindParam($inv_stmt, $filter);
+executeStatement($inv_stmt);
+
 /* get results */
 $inventory = $inv_stmt->get_result();
 
