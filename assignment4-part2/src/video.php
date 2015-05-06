@@ -32,8 +32,8 @@ function addMovie() {
     global $mysqli;
 
     $name = $_POST['name'];
-    $category = isset($_POST['category']) ? $_POST['category'] : null;
-    $length = isset($_POST['length']) ? $_POST['length'] : null;
+    $category = (isset($_POST['category']) && !empty($_POST['category'])) ? $_POST['category'] : null;
+    $length = (isset($_POST['length']) && !empty($_POST['length'])) ? $_POST['length'] : null;
     /* validate input (just in case) */
     if (empty($name))
         $err_msg .= "You must enter the title of the movie. ";
