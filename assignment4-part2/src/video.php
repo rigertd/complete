@@ -71,11 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     case "Add":
       addMovie();
       break;
-    case "Filter":
-      $filter = $_POST['category_list'];
-      if ($filter != "All Movies")
-        $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
-      break;
     case "Delete":
       $del_id = (int)$_POST['id'];
       $del_query = "DELETE FROM Inventory WHERE id = ?";
@@ -100,6 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     default:
       $err_msg .= "Invalid action in POST request.";
   }
+}
+/* check if request is a GET for the Filter action */
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['category_list'])) {
+    if ($filter != "All Movies")
+        $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
 }
 
 /* Prepare, bind, and execute inventory list query */
@@ -152,7 +152,7 @@ while ($row = $cat_result->fetch_assoc()) {
     </section>
     <section>
       <h2>Current Inventory</h2>
-      <form method="POST" action="video.php">
+      <form method="GET" action="video.php">
         <label for="category_list">Filter by Category: </label>
         <select id="category_list" name="category_list">
           <option value="All Movies">All Movies</option>
