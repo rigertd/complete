@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
-include 'dbinfo.php';
+require_once('dbinfo.php');
 
 /* Prepares the specified query in a prepared statement */
 function prepareQuery($db, $query) {
@@ -50,7 +50,7 @@ function addMovie() {
 }
 
 /* Establish database connection */
-$mysqli = new mysqli(DB_ADDR, DB_USER, DB_PW, DB_HOST);
+$mysqli = new mysqli(DB_ADDR, DB_USER, DB_PW, DB_NAME);
 if ($mysqli->connect_errno) {
     echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
     die();
