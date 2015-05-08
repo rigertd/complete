@@ -25,3 +25,7 @@ Tasks: Replaced button elements with imput elements for IE10 compatibility.
 Start: Thu, 7 May 2015 21:45:55 -0700
 End: Fri, 8 May 2015 00:09:54 -0700
 Tasks: Moved DB info to separate file, changed filter action to a GET request, and finished the CSS stylesheet.
+
+Start: Fri, 8 May 2015 14:10:00 -0700
+End: Fri, 8 May 2015 14:45:49 -0700
+Tasks: Spent time troubleshooting and fixing IE's nonstandard behavior with number input fields. Ended up changing to <input type="text">.
