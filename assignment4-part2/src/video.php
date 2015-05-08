@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 }
 /* check if request is a GET for the Filter action */
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['category_list'])) {
+    $filter = $_GET['category_list'];
     if ($filter != "All Movies")
         $inv_query = "SELECT id, name, category, length, rented FROM Inventory WHERE category = ? ORDER BY name ASC";
 }
@@ -160,7 +161,7 @@ while ($row = $cat_result->fetch_assoc()) {
           <option value="<?php echo htmlspecialchars($category); ?>"<?php echo ($filter == $category ? ' selected="selected"' : ''); ?>><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </select>
-        <input type="submit" name="action" value="Filter">
+        <input type="submit">
       </form>
       <table>
         <tr><th>ID <th>Title <th>Category <th>Runtime <th>Checked Out <th>Action </tr>
