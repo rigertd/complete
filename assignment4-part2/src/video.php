@@ -161,7 +161,7 @@ while ($row = $cat_result->fetch_assoc()) {
           <option value="<?php echo htmlspecialchars($category); ?>"<?php echo ($filter == $category ? ' selected="selected"' : ''); ?>><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </select>
-        <input type="submit">
+        <input type="submit" value="Filter">
       </form>
       <table>
         <tr><th>ID <th>Title <th>Category <th>Runtime <th>Checked Out <th>Action </tr>
