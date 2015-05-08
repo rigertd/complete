@@ -18,3 +18,10 @@ Start: Tue, 5 May 2015 19:30:00 -0700
 End: Tue, 5 May 2015 21:08:26 -0700
 Tasks: Refactored repetetive code into functions, implemented add functionality, and simplified the logic.
 
+Start: Wed, 6 May 2015 16:00:00 -0700
+End: Wed, 6 May 2015 16:16:13 -0700
+Tasks: Replaced button elements with imput elements for IE10 compatibility.
+
+Start: Thu, 7 May 2015 21:45:55 -0700
+End: Fri, 8 May 2015 00:09:54 -0700
+Tasks: Moved DB info to separate file, changed filter action to a GET request, and finished the CSS stylesheet.
