@@ -38,7 +38,7 @@ function addMovie() {
     /* validate input (just in case) */
     if (empty($name))
         $err_msg .= "You must enter the title of the movie. ";
-    else if (!empty($length) && !ctype_digit($_POST['length']))
+    else if (!is_null($length) && !ctype_digit($_POST['length']))
         $err_msg .= "The runtime must be a positive number.";
     else {
         $add_query = "INSERT INTO Inventory (name, category, length) VALUES(?, ?, ?)";
