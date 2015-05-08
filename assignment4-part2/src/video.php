@@ -144,7 +144,7 @@ while ($row = $cat_result->fetch_assoc()) {
           <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
 <?php endforeach ?>
         </datalist>
-        <label>Runtime <input type="number" name="length" min="0"></label>
+        <label>Runtime <input type="text" name="length"></label>
         <input type="submit" name="action" value="Add">
 <?php if (!empty($err_msg)): ?>
         <p class="error"><?php echo htmlspecialchars($err_msg); ?>
