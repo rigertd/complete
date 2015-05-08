@@ -135,8 +135,8 @@ while ($row = $cat_result->fetch_assoc()) {
   <body>
     <header><h1>Bob's Video Emporium</h1></header>
     <section>
+      <h2>Add Video to Inventory</h2>
       <form method="POST" action="video.php">
-        <h2>Add Video to Inventory</h2>
         <label>Title <input type="text" name="name" required></label>
         <label>Category <input type="text" name="category" list="categories"></label>
         <datalist id="categories">
