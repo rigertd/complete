@@ -4,6 +4,7 @@
 #include <string.h>
 #include "dynamicArray.h"
 #include "toDoList.h"
+#include "type.h"
 
 #define TESTSORT
 int main(int argc, const char * argv[])
@@ -39,14 +40,19 @@ int main(int argc, const char * argv[])
 
 #ifdef TESTHEAP
 	for(i = 0; i < sizeDynArr(mainList);i++)
-		printf("DynArr[%d] = %d\n", i, getDynArr(mainList,i).priority);
+	{
+		Task *t = (Task *)getDynArr(mainList, i);
+		printf("DynArr[%d] = %d\n", i, t->priority);
+	}
+		
 
 
 	while(!isEmptyDynArr(mainList))
 	{
 		TYPE v;
 		v = getMinHeap(mainList);
-		printf("Val = %s ___%d\n", v->description, v->priority);
+		Task *t = (Task *)v;
+		printf("Val = %s ___%d\n", t->description, t->priority);
 		removeMinHeap(mainList);
 	}
 #endif
