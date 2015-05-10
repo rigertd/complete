@@ -406,7 +406,18 @@ void copyDynArr(DynArr *source, DynArr *destination)
 {
   	int i;
 	assert(source->size > 0);
-	_initDynArr(destination, source->capacity);
+	
+	/* check if dest is already initialized with sufficient capacity */
+	if (destination->data == 0)
+		/* not initialized yet */
+		_initDynArr(destination, source->capacity);
+	else if (destination->capacity < source->size) {
+		/* too small--remove old array and initialize with same capacity as source */
+		freeDynArr(destination);
+		_initDynArr(destination, source->capacity);
+	} /* else already initialized with the correct capacity */
+	
+	
 	/* copy elements to destination array */
 	for(i = 0; i < source->size; i++)
 		destination->data[i] = source->data[i];
@@ -433,8 +444,13 @@ void _adjustHeap(DynArr *heap, int max, int pos);
 */
 int _smallerIndexHeap(DynArr *heap, int i, int j)
 {
-  /* FIXME */
-  return 0;
+	/* test preconditions */
+	assert(heap != 0);
+	assert(i >= 0 && i < sizeDynArr(heap));
+	assert(j >= 0 && j < sizeDynArr(heap));
+	
+	/* return index with smaller value */
+	return compare(getDynArr(heap, i), getDynArr(heap, j)) < 0 ? i : j;
 }
 
 /*	Get the first node, which has the min priority, from the heap
@@ -445,10 +461,12 @@ int _smallerIndexHeap(DynArr *heap, int i, int j)
 */
 TYPE getMinHeap(DynArr *heap)
 {
-  /* FIXME */
-
-  /* Temporary returning NULL */
-  return NULL;
+  /* test preconditions */
+  assert(heap != 0);
+  assert(!isEmptyDynArr(heap));
+  
+  /* return first index (0) */
+  return getDynArr(heap, 0);
 }
 
 /*	Add a node to the heap
@@ -460,7 +478,28 @@ TYPE getMinHeap(DynArr *heap)
 */
 void addHeap(DynArr *heap, TYPE val)
 {
-    /* FIXME */
+	/* test preconditions */
+	assert(heap != 0);
+	
+    /* first, get the position where the value will be inserted */
+	int pos = sizeDynArr(heap);
+	int parentPos;
+	
+	/* next, add value to end of DynArr */
+	addDynArr(heap, val);
+	
+	/* find the position of the parent if pos > 0, otherwise only 1 node */
+	while (pos > 0) {
+		parentPos = (pos - 1) / 2;
+		if (compare(getDynArr(heap, pos), getDynArr(heap, parentPos)) < 0) {
+			/* child is less than parent--swap them */
+			swapDynArr(heap, pos, parentPos);
+			pos = parentPos;
+		} else {
+			/* child is greater or equal--done with heap property */
+			return;
+		}
+	}
 
 }
 
@@ -474,7 +513,30 @@ void addHeap(DynArr *heap, TYPE val)
 */
 void _adjustHeap(DynArr *heap, int max, int pos)
 {
-   /* FIXME */
+	/* test preconditions */
+	assert(heap != 0);
+	assert(max <= sizeDynArr(heap));
+	
+	int left = 2 * pos + 1;
+	int right = 2 * pos + 2;
+	int minPos;
+	
+	/* because this is a complete tree, if right < max, then there is a left and right 
+	   and if both left and right are less than max, then this is a leaf node */
+	if (right < max) {
+		minPos = _smallerIndexHeap(heap, left, right);
+	} else if (left < max) {
+		minPos = left;
+	} else {
+		/* leaf node--we're done */
+		return;
+	}
+	
+	/* if min child is less than current, swap and call recursively starting from child*/
+	if (compare(getDynArr(heap, minPos), getDynArr(heap, pos)) < 0) {
+		swapDynArr(heap, minPos, pos);
+		_adjustHeap(heap, max, minPos);
+	}
 }
 
 /*	Remove the first node, which has the min priority, from the heap
@@ -485,8 +547,19 @@ void _adjustHeap(DynArr *heap, int max, int pos)
 */
 void removeMinHeap(DynArr *heap)
 {
-   /* FIXME */
-
+	/* test preconditions */
+	assert(heap != 0);
+	assert(!isEmptyDynArr(heap));
+	
+	/* swap first node with last */
+	int last = sizeDynArr(heap) - 1;
+	swapDynArr(heap, 0, last);
+	
+	/* remove last value */
+	removeAtDynArr(heap, last);
+	
+	/* call _adjustHeap to maintain heap ordering */
+	_adjustHeap(heap, last, 0);
 }
 
 /* builds a heap from an arbitrary dynArray
@@ -498,7 +571,19 @@ void removeMinHeap(DynArr *heap)
 
 void _buildHeap(DynArr *heap)
 {
-    /* FIXME */
+    /* test preconditions */
+	assert(heap != 0);
+	
+	/* find last interior node */
+	int size = sizeDynArr(heap);
+	int startFrom = (size / 2) - 1;
+	
+	/* reorder everything from the last interior up to the last leaf node 
+	   and repeat until we reach the root */
+	while (startFrom >= 0) {
+		_adjustHeap(heap, size, startFrom--);
+	}
+	
 }
 /*
     In-place sort of the heap
@@ -510,7 +595,18 @@ void _buildHeap(DynArr *heap)
 
 void sortHeap(DynArr *heap)
 {
-   /* FIXME */
+   	/* test preconditions */
+   	assert(heap != 0);
 
+	int last = sizeDynArr(heap) - 1;
+	
+	/* swap first and last values and decrement last by 1 each iteration */
+	while (last > 0) {
+		/* swap first and last elements */
+		swapDynArr(heap, 0, last);
+		
+		/* reorder values up to, but not including, last */
+		_adjustHeap(heap, last--, 0);
+	}
 }
 

@@ -15,8 +15,10 @@
 */
 Task* createTask (int priority, char *desc)
 {
-		/* FIXME */
-
+	Task *t = (Task *)malloc(sizeof(Task));
+	t->priority = priority;
+	strcpy(t->description, desc);
+	return t;
 }
 
 /*  Save the list to a file
@@ -96,7 +98,23 @@ void loadList(DynArr *heap, FILE *filePtr)
 */
 void printList(DynArr *heap)
 {
-    /* FIXME: Write this */
+	/* test preconditions */
+	assert(heap != 0);
+    
+	/* create a temporary array for sorting and printing the values */
+	int size = sizeDynArr(heap);
+	DynArr *sorted = createDynArr(size);
+	/* we have to free the newly created dynamic array to stop a memory leak.
+	   ideally copyDynArr would not initialize the destination array */
+	copyDynArr(heap, sorted);
+	sortHeap(sorted);
+	
+	for (int i = size - 1; i >= 0; --i) {
+		print_type(getDynArr(sorted, i));
+	}
+	
+	/* free temp array */
+	deleteDynArr(sorted);
 }
 
 /*  Delete the list
@@ -143,7 +161,15 @@ void deleteList(DynArr *heap)
  */
 int compare(TYPE left, TYPE right)
 {
-    /*FIXME: write this*/
+    Task *l = (Task *)left;
+	Task *r = (Task *)right;
+	
+	if (l->priority < r->priority)
+		return -1;
+	else if (l->priority > r->priority)
+		return 1;
+	else
+		return 0;
 }
 
 /*Define this function, type casting the value of void * to the desired type*/
