@@ -49,9 +49,7 @@ int main(int argc, const char * argv[])
 
 	while(!isEmptyDynArr(mainList))
 	{
-		TYPE v;
-		v = getMinHeap(mainList);
-		Task *t = (Task *)v;
+		Task *t = (Task *)getMinHeap(mainList);
 		printf("Val = %s ___%d\n", t->description, t->priority);
 		removeMinHeap(mainList);
 	}
