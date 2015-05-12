@@ -1,4 +1,4 @@
-all: prog1 prog2
+all: prog1 prog2 progxc
 
 prog1: dynamicArray.o main.o toDoList.o
 	gcc -g -Wall -std=c99 -o prog1 dynamicArray.o toDoList.o main.o
