@@ -59,13 +59,16 @@ void loadList(DynArr *heap, FILE *filePtr)
 {
 	Task* task;
 	char line[100];  /* Assume lines < 100 */
-	char desc[TASK_DESC_SIZE], *nlptr;
+	char desc[TASK_DESC_SIZE];
 	int priority;
-
+	
 	/* Read the priority first, then the description.
 	 * fgets() is used to read string with spaces
 	 */
 #ifdef NOTDEF
+	/* put variable declaration here to get rid of unused variable warning */
+	char *nlptr;
+
 	while (fscanf(filePtr, "%d\t", &priority) != EOF)
 	{
 	  /* fgets() stops reading at \n character */
