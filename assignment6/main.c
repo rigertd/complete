@@ -51,6 +51,8 @@ int main (int argc, const char * argv[]) {
         if (containsKey(hashTable, word)) {
             /* map already contains this word--increment it */
             (*atMap(hashTable, word))++;
+            /* deallocate word because we didn't save it */
+            free(word);
         } else {
             /* map does not contain this word--add it with a count of 1 */
             insertMap(hashTable, word, 1);
