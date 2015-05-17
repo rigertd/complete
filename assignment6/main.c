@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "hashMap.h"
 
 /*
@@ -42,7 +43,18 @@ int main (int argc, const char * argv[]) {
 	hashTable = createMap(tableSize);	   
 	
     /*... concordance code goes here ...*/
-		
+	fileptr = fopen(filename, "r");
+    char *word = getWord(fileptr);
+    while (word != 0) {
+        if (containsKey(hashTable, word)) {
+            /* map already contains this word--increment it */
+            (*atMap(hashTable, word))++;
+        } else {
+            /* map does not contain this word--add it with a count of 1 */
+            insertMap(hashTable, word, 1);
+        }
+        word = getWord(fileptr);
+    }
 	/*... concordance code ends here ...*/
 
 	printMap(hashTable);
