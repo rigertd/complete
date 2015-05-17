@@ -25,11 +25,12 @@ void loadDictionary(FILE* file, struct hashMap* ht);
 int main (int argc, const char * argv[]) {
   clock_t timer;
   struct hashMap* hashTable;
+  hashTable = NULL; /* to get rid of uninitialized variable warning */
   int tableSize = 1000;
   timer = clock();
   initMap(hashTable,tableSize);
   
-  FILE* dictionary;
+  FILE* dictionary = fopen("dictionary.txt", "r");
   
   loadDictionary(dictionary,hashTable);
   timer = clock() - timer;
@@ -44,7 +45,9 @@ int main (int argc, const char * argv[]) {
       ... spell checker code goes here ...
       ... You write this               ...
     */
-    
+    if (!containsKey(hashTable, word)) {
+      printf("%s is misspelled.\n", word);
+    }
     /* Don't remove this. It is used for grading*/
     if(strcmp(word,"quit")==0)
       quit=!quit;
@@ -56,7 +59,11 @@ int main (int argc, const char * argv[]) {
 
 void loadDictionary(FILE* file, struct hashMap* ht)
 {
-  /* You will write this*/
+  char *word = getWord(file);
+  while (word != 0) {
+    insertMap(ht, word, 0);
+    word = getWord(file);
+  } 
 }
 
 char* getWord(FILE *file)
