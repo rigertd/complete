@@ -251,7 +251,7 @@ int containsKey(struct hashMap * ht, KeyType k)
     lnk = ht->table[hash % capacity(ht)];
     while (lnk != 0) {
         if (strcmp(lnk->key, k) == 0)
-        return 1;
+            return 1;
         lnk = lnk->next;
     }
 
@@ -267,8 +267,39 @@ int containsKey(struct hashMap * ht, KeyType k)
  */
 void removeKey(struct hashMap * ht, KeyType k)
 {
-    /* test for valid hashMap */
+    /* test for valid hashMap and key */
     assert(ht != 0);
+    assert(k != 0);
+    assert(strlen(k) > 0);
+
+    int hash, bucket;
+    hashLink *lnk, *prev;
+
+    /* conditional hashing based on HASHING_FUNCTION macro value */
+#if HASHING_FUNCTION == 1
+    hash = stringHash1(k);
+#elif HASHING_FUNCTION == 2
+    hash = stringHash2(k);
+#endif
+
+    /* check bucket for key */
+    bucket = hash % capacity(ht);
+    lnk = ht->table[bucket];
+    prev = 0;
+    while (lnk != 0) {
+        if (strcmp(lnk->key, k) == 0) {
+            /* found key--remove the link from the bucket */
+            if (prev == 0) {
+                ht->table[bucket] = lnk->next;
+            } else {
+                prev->next = lnk->next;
+            }
+            free(lnk);
+            return;
+        }
+        prev = lnk;
+        lnk = lnk->next;
+    }
 }
 
 /*
