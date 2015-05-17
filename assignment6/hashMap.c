@@ -337,3 +337,7 @@ void printMap(struct hashMap * ht) {
         }
     }
 }
+
+void printValue(ValueType val) {
+    printf("%d", val);
+}
