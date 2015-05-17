@@ -56,7 +56,7 @@ void _freeMap(struct hashMap * ht) {
     hashLink *next;
 
     /* loop through each bucket or until size is 0 */
-    for (bucket = 0; /*ht->count > 0 &&*/ bucket < ht->tableSize; ++bucket) {
+    for (bucket = 0; ht->count > 0 && bucket < ht->tableSize; ++bucket) {
         /* delete each link in this bucket */
         while (ht->table[bucket] != 0) {
             next = ht->table[bucket]->next;
@@ -105,7 +105,7 @@ void _setTableSize(struct hashMap * ht, int newTableSize) {
 
     /* loop through each bucket of old table, re-hash the keys, and move the 
      links to a bucket in the new table */
-    for (bucket = 0; /*remaining > 0 &&*/ bucket < ht->tableSize; ++bucket) {
+    for (bucket = 0; remaining > 0 && bucket < ht->tableSize; ++bucket) {
         while (ht->table[bucket] != 0) {
             /* conditional hashing based on HASHING_FUNCTION macro value */
 #if HASHING_FUNCTION == 1
