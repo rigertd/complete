@@ -104,3 +104,7 @@ char* getWord(FILE *file)
 	word[length] = '\0';
 	return word;
 }
+
+void printValue(ValueType val) {
+    printf("%d", val);
+}
