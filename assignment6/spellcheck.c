@@ -25,10 +25,10 @@ void loadDictionary(FILE* file, struct hashMap* ht);
 int main (int argc, const char * argv[]) {
   clock_t timer;
   struct hashMap* hashTable;
-  hashTable = NULL; /* to get rid of uninitialized variable warning */
   int tableSize = 1000;
   timer = clock();
-  initMap(hashTable,tableSize);
+
+  hashTable = createMap(tableSize);
   
   FILE* dictionary = fopen("dictionary.txt", "r");
   
@@ -46,7 +46,9 @@ int main (int argc, const char * argv[]) {
       ... You write this               ...
     */
     if (!containsKey(hashTable, word)) {
-      printf("%s is misspelled.\n", word);
+      printf("You misspelled '%s'.\n", word);
+    } else {
+      printf("You spelled '%s' correctly.\n", word);
     }
     /* Don't remove this. It is used for grading*/
     if(strcmp(word,"quit")==0)
