@@ -47,7 +47,7 @@ int main (int argc, const char * argv[]) {
     */
     if (!containsKey(hashTable, word)) {
       printf("You misspelled '%s'.\n", word);
-    } else {
+    } else if (strcmp(word, "quit") != 0) {
       printf("You spelled '%s' correctly.\n", word);
     }
     /* Don't remove this. It is used for grading*/
