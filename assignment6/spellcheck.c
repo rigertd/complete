@@ -31,10 +31,12 @@ int main (int argc, const char * argv[]) {
   hashTable = createMap(tableSize);
   
   FILE* dictionary = fopen("dictionary.txt", "r");
+  assert(dictionary != 0);
   
   loadDictionary(dictionary,hashTable);
   timer = clock() - timer;
 	printf("Dictionary loaded in %f seconds\n", (float)timer / (float)CLOCKS_PER_SEC);
+  fclose(dictionary);
   
   char* word = (char*)malloc(256*sizeof(char));
   int quit=0;
@@ -55,6 +57,7 @@ int main (int argc, const char * argv[]) {
       quit=!quit;
   }
   free(word);
+  deleteMap(hashTable);
      
   return 0;
 }

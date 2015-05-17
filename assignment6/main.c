@@ -44,6 +44,8 @@ int main (int argc, const char * argv[]) {
 	
     /*... concordance code goes here ...*/
 	fileptr = fopen(filename, "r");
+    assert(fileptr != 0);
+    
     char *word = getWord(fileptr);
     while (word != 0) {
         if (containsKey(hashTable, word)) {
@@ -55,6 +57,7 @@ int main (int argc, const char * argv[]) {
         }
         word = getWord(fileptr);
     }
+    fclose(fileptr);
 	/*... concordance code ends here ...*/
 
 	printMap(hashTable);
