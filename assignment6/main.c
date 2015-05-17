@@ -78,7 +78,7 @@ int main (int argc, const char * argv[]) {
 }
 
 void printValue(ValueType v) {
-	printf("Value:%d",(int *)v);
+	printf("Value:%d",v);
 }
 
 char* getWord(FILE *file)
