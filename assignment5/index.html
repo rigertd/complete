@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Getting Started with JSDoc 3</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>Getting Started with JSDoc 3</h1>
+        <p class="lead">by David Rigert</p>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-9 main">
+          <h2>A Case for Documenting Your Code</h2>
+          <p>The importance of code documentation is easy to overlook. Having well-written documentation not only helps other people understand the code you wrote, but also helps you understand what each part does and how it fits into the overall structure of the program. You probably have experienced a situation where your code made perfect sense when you were writing it, but when you go back and try to fix a bug several months (or weeks) later, you have no idea what the code is doing anymore. A small amount of effort documenting your code up front can pay big dividends down the road in terms of maintainability and code reuse.
+          <h2>About JSDoc</h2>
+          <p>JSDoc is a markup language used for documenting JavaScript code in multiline comment blocks. It uses a syntax similar to Javadoc, where annotation tags, or words preceded by an at-mark (<samp>@</samp>), are used to specify the documentation for specific parts of the code. A JSDoc comment starts with <code>/**</code> and ends with <code>*/</code>.
+          <p>You can also include HTML tags within JSDoc descriptions to create constructs such as bullet lists. Note that whitespace in description text is handled the same way as whitespace in HTML. If you want to have a bullet list, you must use the HTML <code>&lt;ul&gt;&lt;li&gt;…&lt;/ul&gt;</code> notation.
+          <h2>Block Tags and Inline Tags</h2>
+          <p>JSDoc has two types of tags: block tags that must be the first word to appear after the comment marker on any given line, and inline tags that appear in a description and are surrounded by braces (<samp>{}</samp>). Some tags take one or more arguments, each of which has a certain range. Some arguments must be a single word, while others continue until the next block tag or the end of the comment block. A list of all JSDoc block and inline tags is available on the <a href="http://usejsdoc.org/" target="_blank">@use JSDoc</a> website. View the reference page for each tag to see syntax details. An optional argument is denoted by brackets (<samp>[]</samp>).
+          <p>Unlike block tags, inline tags can appear in the middle of descriptions. JSDoc 3 includes only two inline tags: the <a href="http://usejsdoc.org/tags-inline-link.html" target="_blank"><code>{@link}</code></a> tag for creating a hyperlink to other items in the documentation, and the <a href="http://usejsdoc.org/tags-inline-tutorial.html" target="_blank"><code>{@tutorial}</code></a> tag for creating a hyperlink to a tutorial created in a compatible format. Tutorials are beyond the scope of this guide. See the <a href="http://usejsdoc.org/about-tutorials.html" target="_blank">Tutorials</a> section on the @use JSDoc website for more information.
+          <h2>Types</h2>
+          <p>Some block tags optionally take a type as one of the arguments. The <a href="http://usejsdoc.org/tags-param.html" target="_blank"><code>@param</code></a> tag, for example, takes up to three arguments: the parameter name, the parameter type, and a description of the parameter. The type is surrounded by braces (<samp>{}</samp>) and can either be a native JavaScript type or a custom type. See the <a href="http://usejsdoc.org/tags-type.html" target="_blank"><code>@type</code></a> reference page for a complete list of the available type expression formats. Types are covered in greater detail in the <a href="types.html">Built-In and Custom Types</a> section of this guide.
+          <h2>Sample Documentation</h2>
+          <p>The final version of the HTML documentation generated from the samples in this guide is available <a href="reference/index.html">here</a>. See the corresponding section for a description of each component.
+          <h2>Required Software</h2>
+          <p>The only software you need to get started writing comments with JSDoc is a text editor. If you want to provide HTML documentation for your code, however, you will need an API documentation generator. This guide uses the excellent JSDoc 3 toolkit with Node.js to generate the HTML examples. The easiest way to get started with JSDoc 3 is to install Node.js and use the NPM package manager. <a href="https://nodejs.org/download/" target="_blank">Download the installer</a> for your operating system on the Node.js website.
+          <p>&nbsp;
+          <p><a href="setup.html" class="btn btn-lg btn-default">Get Started</a>
+        </div>
+        <div class="col-xs-12 col-md-3 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="index.html">First Steps</a>
+            <li><a href="setup.html">Setting Up Your Environment</a>
+            <li><a href="files.html">Documenting Files</a>
+            <li><a href="classes.html">Documenting Classes</a>
+            <li><a href="functions.html">Documenting Functions</a>
+            <li><a href="access.html">Controlling Visibility</a>
+            <li><a href="inheritance.html">Documenting Inheritance</a>
+            <li><a href="types.html">Built-In and Custom Types</a>
+            <li><a href="namespaces.html">Documenting Namespaces</a>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; 2014 David Rigert</p>
+      </footer>
+    </div>
+  </body>
+</html>

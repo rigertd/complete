@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documenting Files</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>Documenting Files</h1>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-9 main">
+          <h2>File Header Block</h2>
+          <p>Every source code file should begin with a header block that provides an overview of what the file contains and the author of the file. You can also optionally include information such as a copyright notice, the file version, and license information.
+          <p>Suppose you wrote a JavaScript front end for a company payroll system. One of the files might be a collection of classes and functions related to managing the various employees in the system. We will write the following comment block at the beginning of a new file and save it to our hard disk as <samp>employee.js</samp>.
+          <pre class="prettyprint"><code class="language-js">/**
+ * @file A collection of functions and classes for managing employees in 
+ *       a company payroll system.
+ * @author David Rigert
+ * @version 1.0.0
+ * @copyright 2015 David Rigert
+ * @license The MIT License (MIT)
+ */</code></pre>
+          <h2>Generating the HTML</h2>
+          <p>Open a command prompt window in the directory where you saved the <samp>employee.js</samp> file and type <kbd>jsdoc employee.js</kbd> to convert the file to HTML. By default, the JSDoc 3 toolkit generates the HTML documentation in an <samp>out</samp> directory off of the current working directory. Open the <samp>index.html</samp> file in your web browser to view the documentation.
+          <h2>HTML Output</h2>
+          <p>As you can see below, a formatted line was added for each of the block tags included in the comment. Notice that the order of the information in the HTML does not necessarily match the order of the block tags in the comment. You can click the filename link under Source to view the source code that was used to generate that part of the documentation. The layout, style, and content of the HTML can be customized by <a href="http://usejsdoc.org/about-configuring-jsdoc.html" target="_blank">creating a JSDoc configuration file</a> or by creating a custom template, but this is beyond the scope of this tutorial.
+          <p><img class="img-responsive" src="img/files_output.png" alt="Screenshot of the documentation generated from the file header block">
+          <p>&nbsp;
+          <p><a href="setup.html" class="btn btn-lg btn-default">Back</a> <a href="classes.html" class="btn btn-lg btn-default">Next</a>
+        </div>
+        <div class="col-xs-12 col-md-3 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="index.html">First Steps</a>
+            <li><a href="setup.html">Setting Up Your Environment</a>
+            <li class="active"><a href="files.html">Documenting Files</a>
+            <li><a href="classes.html">Documenting Classes</a>
+            <li><a href="functions.html">Documenting Functions</a>
+            <li><a href="access.html">Controlling Visibility</a>
+            <li><a href="inheritance.html">Documenting Inheritance</a>
+            <li><a href="types.html">Built-In and Custom Types</a>
+            <li><a href="namespaces.html">Documenting Namespaces</a>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; 2014 David Rigert</p>
+      </footer>
+    </div>
+  </body>
+</html>
