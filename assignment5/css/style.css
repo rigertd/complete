@@ -18,3 +18,9 @@ pre.prettyprint {
 .nav > li.active {
   background-color: #def;
 }
+
+footer > p {
+  color: #aaa;
+  font-size:.8em;
+  text-align: center;
+}
