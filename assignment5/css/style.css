@@ -16,7 +16,10 @@ pre.prettyprint {
   border-radius: 0 0 4px 4px;
 }
 .nav > li.active {
-  background-color: #def;
+  background-color: #eee;
+}
+.nav > li.active > a {
+  color: #23527c;
 }
 
 footer > p {
