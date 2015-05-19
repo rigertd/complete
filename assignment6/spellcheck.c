@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 #include <string.h>
 #include "hashMap.h"
 
@@ -21,6 +22,7 @@ char* getWord(FILE *file);
  Load the contents of file into hashmap ht
  */
 void loadDictionary(FILE* file, struct hashMap* ht);
+void wordToLower(char *);
 
 int main (int argc, const char * argv[]) {
   clock_t timer;
@@ -47,6 +49,9 @@ int main (int argc, const char * argv[]) {
       ... spell checker code goes here ...
       ... You write this               ...
     */
+    /* convert to lowercase */
+    wordToLower(word);
+    
     if (!containsKey(hashTable, word)) {
       printf("You misspelled '%s'.\n", word);
     } else if (strcmp(word, "quit") != 0) {
@@ -62,10 +67,20 @@ int main (int argc, const char * argv[]) {
   return 0;
 }
 
+/* converts an entire word to lowercase */
+void wordToLower(char *str) {
+  int i, len = strlen(str);
+  
+  for (i = 0; i < len; ++i) {
+    str[i] = tolower(str[i]);
+  }
+}
+
 void loadDictionary(FILE* file, struct hashMap* ht)
 {
   char *word = getWord(file);
   while (word != 0) {
+    wordToLower(word);
     insertMap(ht, word, 0);
     word = getWord(file);
   } 
