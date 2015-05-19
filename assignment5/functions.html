@@ -41,9 +41,20 @@ function addEmployee(emp) {}</code></pre>
 Employee.prototype.getFullName = function(includeMiddle) {};</code></pre>
           <h2>Description</h2>
           <p>There are two ways to write the description of a function: you can write it before any other JSDoc tags, or you can use the <a href="http://usejsdoc.org/tags-description.html" target="_blank"><code>@description</code></a> tag to place the description anywhere in the comment block. In this guide, we write the description at the beginning of the comment block because it is cleaner and shorter.
+          <h2>Parameters</h2>
+          <p>It is always a good idea to describe the purpose of each of the parameters and the type of value it is expecting. For this, we use the <a href="http://usejsdoc.org/tags-param.html" target="_blank"><code>@param</code></a> block tag. This tag uses the following syntax:
+          <pre>@param [&lt;expected type&gt;] &lt;parameter name&gt; [-] &lt;parameter description&gt;</pre>
+          <p>Note the optional hyphen (<samp>-</samp>) after the parameter name. This provides a visual separation between the parameter name and the parameter description to improve readability. The hyphen is not included in the HTML output. If the function takes more than one parameter, it helps to align the starting column of all of the descriptions.
+          <h2>Return Value</h2>
+          <p>The <a href="http://usejsdoc.org/tags-returns.html" target="_blank"><code>@returns</code></a> block tag indicates the type that is returned by the function and, optionally, a description of the value.
+          <h2>Reference Location</h2>
+          <p>Global functions and class methods have their references in different parts of the documentation. Global functions are included with all other global objects on the <strong>Global</strong> page, while methods are included with the other members of the class that they belong to.
           <h2>HTML Output</h2>
-          <p>This comment block generates the following HTML. Notice how the object is identified as a class and the new keyword is included in the description. In addition, the properties are turned into a table. Note that the <strong>Type</strong> column will remain even if you omit the type definitions from the comment block.
-          <p><img class="img-responsive" src="img/classes_output.png" alt="Screenshot of the documentation generated from the class header block">
+          <p>A function or method reference begins with the function signature and the return value if one was specified. This is followed by the brief summary (if any), and then the full description. The parameters are listed in a table similar to the one used for the class properties. Notice that when you set the type to a custom class, it creates a link to the class reference. The description of the return value and the return type are listed last.
+          <h3>Global Function</h3>
+          <p><img class="img-responsive" src="img/functions_global.png" alt="Screenshot of the documentation generated from a global function header block">
+          <h3>Class Method</h3>
+          <p><img class="img-responsive" src="img/functions_classMethod.png" alt="Screenshot of the documentation generated from a class method header block">
           <p>&nbsp;
           <p><a href="classes.html" class="btn btn-lg btn-default">Back</a> <a href="access.html" class="btn btn-lg btn-default">Next</a>
         </div>
