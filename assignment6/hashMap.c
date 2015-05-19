@@ -354,9 +354,9 @@ float tableLoad(struct hashMap *ht) {
 }
 
 void printMap(struct hashMap * ht) {
-    int i;
+    int i, cap;
     struct hashLink *temp;
-    for (i = 0; i < capacity(ht); i++) {
+    for (i = 0, cap = capacity(ht); i < cap; i++) {
         temp = ht->table[i];
         if (temp != 0) {
             printf("\nBucket Index %d -> ", i);
