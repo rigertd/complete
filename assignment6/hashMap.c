@@ -296,6 +296,7 @@ void removeKey(struct hashMap * ht, KeyType k)
             }
             free(lnk->key);
             free(lnk);
+            --ht->count;
             return;
         }
         prev = lnk;
