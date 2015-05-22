@@ -166,6 +166,7 @@ void insertMap(struct hashMap * ht, KeyType k, ValueType v)
 
     /* get current link (if any) in the bucket */
     bucket = hash % capacity(ht);
+    if (bucket < 0) bucket = bucket + capacity(ht);
     lnk = ht->table[bucket];
     while (lnk != 0) {
         if (strcmp(lnk->key, k) == 0) {
