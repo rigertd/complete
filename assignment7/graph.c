@@ -222,6 +222,7 @@ int DFSRecursive(Graph* g, Vertex* source, Vertex* destination)
  */
 int DFS(Graph* g, Vertex* source, Vertex* destination)
 {
+    clearVisited(g);
     int found = 0; /* set if destination is found during DFS */
     Vertex *current; /* keeps track of current vertex being analyzed */
     
@@ -241,12 +242,13 @@ int DFS(Graph* g, Vertex* source, Vertex* destination)
         /* set current to visited */
         current->isVisited = 1;
         
+        /* test if path was found */
+        if (current == destination)
+            found = 1;
+        
         /* add neighbors to stack */
         for (int i = 0; i < current->numNeighbors && !found; ++i) {
-            if (current->neighbors[i] == destination) {
-                /* found path to destination, set found to true */
-                found = 1;
-            } else if (!current->neighbors[i]->isVisited) {
+            if (!current->neighbors[i]->isVisited) {
                 /* only add to stack if not already visited */
                 addBackCirListDeque(stack, current->neighbors[i]);
             }
@@ -269,6 +271,7 @@ int DFS(Graph* g, Vertex* source, Vertex* destination)
  */
 int BFS(Graph* g, Vertex* source, Vertex* destination)
 {
+    clearVisited(g);
     int found = 0; /* set if destination is found during DFS */
     Vertex *current; /* keeps track of current vertex being analyzed */
     
@@ -288,12 +291,13 @@ int BFS(Graph* g, Vertex* source, Vertex* destination)
         /* set current to visited */
         current->isVisited = 1;
         
+        /* test if path was found */
+        if (current == destination)
+            found = 1;
+
         /* add neighbors to queue */
         for (int i = 0; i < current->numNeighbors && !found; ++i) {
-            if (current->neighbors[i] == destination) {
-                /* found path to destination, set found to true */
-                found = 1;
-            } else if (!current->neighbors[i]->isVisited) {
+            if (!current->neighbors[i]->isVisited) {
                 /* only add to queue if not already visited */
                 addBackCirListDeque(queue, current->neighbors[i]);
             }
