@@ -1,12 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "graph.h"
 
-int main () 
+#ifndef BDFS
+#define BDFS 1
+#endif
+
+int main (int argc, char **argv) 
 {
-	/* change this number to generate different graphs */
-	int graphTestNumber = 3; /* permissible values are 1-5 */
-	/* switch this to 0 to use BFS */
-	int useDFS = 1;
+    /* change this number to generate different graphs */
+    int graphTestNumber = 3;
+    if (argc > 1)
+        graphTestNumber = atoi(argv[1]);
+    /* switch this to 0 to use BFS */
+    int useDFS = BDFS;
 	
 	int i, j;
 	Graph g;
