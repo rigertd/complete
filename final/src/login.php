@@ -92,10 +92,6 @@ if (isset($_GET['action'])) {
         $email = $_GET['signup_email'];
         echo isEmailInUse($mysqli, $email) ? 'true' : 'false';
         die();
-    } else if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['email'])) {
-        /* user already logged in--redirect to index.php */
-        header("Location: http://{$host}{$url}/index.php");
-        die();
     }
 } else if (isset($_POST['action'])) {
     if ($_POST['action'] === 'auth') {
@@ -107,11 +103,14 @@ if (isset($_GET['action'])) {
         die();
     } else if ($_POST['action'] === 'signin') {
         /* For HTTP POST sign-in requests.
-           Redirects to index.php if auth succeeds. */
+           Redirects to index.php or callback URL if auth succeeds. */
         $email = $_POST['email'];
         $pass = $_POST['password'];
+        $callback = isset($_REQUEST['callback']) ?
+            "http://{$host}{$_REQUEST['callback']}" :
+            "http://{$host}{$url}/index.php";
         if (authenticate($mysqli, $email, $pass)) {
-            header("Location: http://{$host}{$url}/index.php");
+            header("Location: $callback");
             die();
         }
     } else if ($_POST['action'] === 'signup') {
@@ -146,6 +145,10 @@ if (isset($_GET['action'])) {
             }
         }
     }
+} else if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['email'])) {
+    /* user already logged in--redirect to index.php */
+    header("Location: http://{$host}{$url}/index.php");
+    die();
 }
 
 header('Content-Type: text/html');
@@ -170,7 +173,7 @@ header('Content-Type: text/html');
       <header class="page-header clearfix">
         <h2 class="col-sm-6">Baby Growth Tracker</h2>
         <div class="col-sm-6">
-          <form id="login" method="post" action="login.php" style="padding-right:15px;" class="form-horizontal" role="form">
+          <form id="login" method="post" action="login.php<?php echo (isset($_REQUEST['callback']) ? "?callback=$_REQUEST[callback]" : ""); ?>" style="padding-right:15px;" class="form-horizontal" role="form">
             <input type="hidden" name="action" value="signin">
             <div class="form-group">
               <div style="display:table-cell; padding-left:1em;">

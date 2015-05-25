@@ -154,7 +154,7 @@ GrowthTracker.Login.authenticate = function() {
       var result = this.responseText;
       if (result === 'true') {
         /* authentication succeeded */
-        window.location = 'index.php';
+        form.submit();
       } else {
         /* authentication failed */
         alert('Invalid login credentials');
