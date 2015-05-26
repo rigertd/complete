@@ -36,7 +36,7 @@ if ($mysqli->connect_errno) {
  * @return array An array of profile {id, name, dob}
  */
 function getProfiles($db, $user_email) {
-    $stmt = prepareQuery($db, 'SELECT p.id, p.name, p.dob ' .
+    $stmt = prepareQuery($db, 'SELECT p.id, p.name, p.gender, p.dob ' .
                               'FROM Users as u ' .
                               'INNER JOIN Profiles as p ON u.id = p.parent_id ' .
                               'WHERE u.email = ? ' .
