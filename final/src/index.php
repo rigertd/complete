@@ -13,7 +13,7 @@ if (session_status() != PHP_SESSION_ACTIVE || !isset($_SESSION['email'])){
     $host = $_SERVER['HTTP_HOST'];
     $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
     /* no username or session--redirect to login.php */
-    header("Location: http://{$host}{$url}/login.php");
+    header("Location: https://{$host}{$url}/login.php");
     die();
 }
 

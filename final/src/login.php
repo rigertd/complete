@@ -5,6 +5,15 @@ require_once('dbinfo.php');
 
 include 'dbfuncs.php';
 
+/* Redirect to HTTPS if using HTTP.
+   Code taken from http://stackoverflow.com/questions/5106313/ */
+if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == ""){
+    $redirect = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    header("HTTP/1.1 301 Moved Permanently");
+    header("Location: $redirect");
+    die();
+}
+
 session_start();
 
 /* for building URL to current path */
@@ -85,7 +94,7 @@ if (isset($_GET['action'])) {
         /* close DB connection on logout */
         $mysqli->close();
         /* redirect without logout action to avoid accidental logout */
-        header("Location: http://{$host}{$url}/login.php");
+        header("Location: https://{$host}{$url}/login.php");
         die();
     } else if ($_GET['action'] === 'email') {
         /* check if email is already in use */
@@ -107,8 +116,8 @@ if (isset($_GET['action'])) {
         $email = $_POST['email'];
         $pass = $_POST['password'];
         $callback = isset($_REQUEST['callback']) ?
-            "http://{$host}{$_REQUEST['callback']}" :
-            "http://{$host}{$url}/index.php";
+            "https://{$host}{$_REQUEST['callback']}" :
+            "https://{$host}{$url}/index.php";
         if (authenticate($mysqli, $email, $pass)) {
             header("Location: $callback");
             die();
@@ -137,7 +146,7 @@ if (isset($_GET['action'])) {
             /* authenticate and login the user */
             if (authenticate($mysqli, $email, $pw1)) {
                 /* account successfully created--redirect to index.php */
-                header("Location: http://{$host}{$url}/index.php");
+                header("Location: https://{$host}{$url}/index.php");
                 die();
             }
             else {
@@ -147,7 +156,7 @@ if (isset($_GET['action'])) {
     }
 } else if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['email'])) {
     /* user already logged in--redirect to index.php */
-    header("Location: http://{$host}{$url}/index.php");
+    header("Location: https://{$host}{$url}/index.php");
     die();
 }
 
