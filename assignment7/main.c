@@ -3,6 +3,7 @@
 #include "graph.h"
 
 #ifndef BDFS
+/* switch this to 0 to use BFS */
 #define BDFS 1
 #endif
 
@@ -12,7 +13,6 @@ int main (int argc, char **argv)
     int graphTestNumber = 3;
     if (argc > 1)
         graphTestNumber = atoi(argv[1]);
-    /* switch this to 0 to use BFS */
     int useDFS = BDFS;
 	
 	int i, j;
