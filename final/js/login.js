@@ -226,7 +226,7 @@ GrowthTracker.validateForm = function(formId) {
 GrowthTracker.validateElement = function() {
   if (this.validity && !this.validity.valid) {
     GrowthTracker.showError(this);
-    GrowthTracker.addValidationMessage(this.id + '_msg', 'Required information is missing or invalid.');
+    GrowthTracker.addValidationMessage(this.id + '_msg', this.title + ' is missing or invalid.');
   } else {
     GrowthTracker.hideError(this);
     GrowthTracker.removeValidationMessage(this.id + '_msg');

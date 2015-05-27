@@ -211,31 +211,31 @@ header('Content-Type: text/html');
           <div class="form-group">
             <label for="signup_first" class="col-sm-2 control-label">First Name</label>
             <div class="col-sm-10">
-              <input type="text" id="signup_first" class="form-control" name="signup_first" required>
+              <input type="text" id="signup_first" title="First Name" class="form-control" name="signup_first" required>
             </div>
           </div>
           <div class="form-group">
             <label for="signup_last" class="col-sm-2 control-label">Last Name</label>
             <div class="col-sm-10">
-              <input type="text" id="signup_last" class="col-sm-10 form-control" name="signup_last" required>
+              <input type="text" id="signup_last" title="Last Name" class="col-sm-10 form-control" name="signup_last" required>
             </div>
           </div>
           <div class="form-group">
             <label for="signup_email" class="col-sm-2 control-label">E-mail Address</label>
             <div class="col-sm-10">
-              <input type="email" id="signup_email" class="col-sm-10 form-control" name="signup_email" required>
+              <input type="email" id="signup_email" title="E-mail Address" class="col-sm-10 form-control" name="signup_email" required>
             </div>
           </div>
           <div class="form-group">
             <label for="signup_password1" class="col-sm-2 control-label">Password</label>
             <div class="col-sm-10">
-                <input type="password" id="signup_password1" class="col-sm-10 form-control" name="signup_password1" required>
+                <input type="password" id="signup_password1" title="Password" class="col-sm-10 form-control" name="signup_password1" required>
             </div>
           </div>
           <div class="form-group">
             <label for="signup_password2" class="col-sm-2 control-label">Confirm Password</label>
             <div class="col-sm-10">
-                <input type="password" id="signup_password2" class="col-sm-10 form-control" name="signup_password2" required>
+                <input type="password" id="signup_password2" title="Confirm Password" class="col-sm-10 form-control" name="signup_password2" required>
             </div>
           </div>
           <div class="form-group">
