@@ -97,6 +97,8 @@ if (isset($_GET['action'])) {
         header("Location: https://{$host}{$url}/login.php");
         die();
     } else if ($_GET['action'] === 'email') {
+        /* set content type to plain text */
+        header('Content-Type: text/plain');
         /* check if email is already in use */
         $email = $_GET['signup_email'];
         echo isEmailInUse($mysqli, $email) ? 'true' : 'false';
@@ -104,6 +106,8 @@ if (isset($_GET['action'])) {
     }
 } else if (isset($_POST['action'])) {
     if ($_POST['action'] === 'auth') {
+        /* set content type to plain text */
+        header('Content-Type: text/plain');
         /* For authentication ajax requests.
            Returns 'true' if auth succeeds, 'false' otherwise. */
         $email = $_POST['email'];
