@@ -44,25 +44,30 @@ if (typeof GrowthTracker == 'undefined') {
    * and functions required for the Baby Growth Tracker website.
    * @namespace
    */
-  var GrowthTracker = {
+  var GrowthTracker = { };
+}
+
+if (typeof GrowthTracker.SignUp == 'undefined') {
+  /**
+   * The <code>SignUp</code> namespace contains the functions specific to
+   * the account creation form.
+   * @namespace
+   */
+  GrowthTracker.SignUp = {
     /**
-     * The <code>SignUp</code> namespace contains the functions specific to
-     * the account creation form.
-     * @namespace
+     * Indicates whether the current email address is available or in use.
      */
-    SignUp: {
-      /**
-       * Indicates whether the current email address is available or in use.
-       */
-      emailAvailable: true
-    },
-    /**
-     * The <code>Login</code> namespace contains functions specific to
-     * the login form.
-     * @namespace
-     */
-    Login: {}
+    emailAvailable: true
   };
+}
+
+if (typeof GrowthTracker.Login == 'undefined') {
+  /**
+   * The <code>Login</code> namespace contains functions specific to
+   * the login form.
+   * @namespace
+   */
+  GrowthTracker.Login = {};
 }
 
 /**
