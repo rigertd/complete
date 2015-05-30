@@ -56,31 +56,69 @@ $profiles = getProfiles($mysqli, $email);
 
 ?>
 <!DOCTYPE html>
-<meta charset="utf-8">
-<meta http-equiv="x-ua-compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Baby Growth Tracker - Dashboard</title>
-<link href="../css/bootstrap.min.css" rel="stylesheet">
-<!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
-<link href="../css/style.css" rel="stylesheet">
-<script src="../js/login.js"></script>
-</head>
-<body>
-  <div class="container">
-    <header class="page-header clearfix">
-      <h2 class="col-sm-9">Baby Growth Tracker</h2>
-      <div class="col-sm-3"><a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
-    </header>
-    <select name="profile">
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Baby Growth Tracker - Dashboard</title>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/Chart.min.js"></script>
+    <script src="../js/draw.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="page-header clearfix">
+        <h2 class="col-sm-9">Baby Growth Tracker</h2>
+        <div class="col-sm-3"><?php echo htmlspecialchars("$first $last"); ?> <a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
+      </header>
+      <div class="col-sm-3">
+        <form id="profileForm" action="chart.php">
+          <input type="hidden" id="gender">
+          <div class="form-group">
+            <select id="profile" name="profile" class="form-control">
+              <option value="" disabled selected>Select Profile</option>
 <?php foreach ($profiles as $profile): ?>
-      <option value="<?php echo $profile['id']; ?>"><?php echo htmlspecialchars($profile['name'].' ('.$profile['dob'].')') ?></option>
+              <option value="<?php echo $profile['id']; ?>"><?php echo htmlspecialchars($profile['name'].' ('.$profile['dob'].')') ?></option>
 <?php endforeach ?>
-    </select>
-    <p>Hello <?php echo $first ?>, welcome to the dashboard.</p>
-    <footer>&copy; David Rigert</footer>
-  </div>
-</body>
+            </select>
+          </div>
+          <div class="form-group">
+            <select id="chartType" name="type" class="form-control">
+              <option value="" disabled selected>Select Chart Type</option>
+              <option value="length">Length (Height)</option>
+              <option value="weight">Weight</option>
+              <option value="head">Head Circumference</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="button" id="profileButton" class="btn btn-default">Load Chart</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-sm-9 clearfix">
+        <div class="col-sm-10">
+          <h4 id="chartTitle">Length (Height) Percentiles</h4>
+          <canvas id="chart"></canvas>
+        </div>
+        <div class="col-sm-2">
+          <h4>Legend</h4>
+            <ul class="legend">
+              <li class="legend p97">97th
+              <li class="legend p85">85th
+              <li class="legend p50">50th
+              <li class="legend p15">15th
+              <li class="legend p03">3rd
+            </ul>
+          </fieldset>
+        </div>
+      </div>
+      <footer>&copy; David Rigert</footer>
+    </div>
+  </body>
 </html>

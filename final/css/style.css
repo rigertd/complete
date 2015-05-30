@@ -2,3 +2,39 @@
     font-size: 1em;
     line-height: 1.2em;
 }
+
+ul.legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li.legend {
+    padding-left: 1em;
+    text-indent: -.7em;
+}
+
+li.legend:before {
+    content: "■";
+    padding-right: .3em;
+}
+
+li.p97:before {
+    color: #88f;
+}
+
+li.p85:before {
+    color: #8bf;
+}
+
+li.p50:before {
+    color: #8f8;
+}
+
+li.p15:before {
+    color: #fb8;
+}
+
+li.p03:before {
+    color: #f88;
+}

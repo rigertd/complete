@@ -6,7 +6,12 @@
  * Time: 1:16 PM
  */
 
-/* Creates and returns a prepared statement based on the specified mysqli and query */
+/**
+ * Creates and returns a prepared statement based on the specified mysqli and query.
+ * @param mysqli $db    The mysqli instance.
+ * @param String $query The SQL query string.
+ * @return mysqli_stmt  The resulting mysqli statement.
+ */
 function prepareQuery($db, $query) {
     if (!($stmt = $db->prepare($query))) {
         echo "Database query error.";
@@ -15,7 +20,16 @@ function prepareQuery($db, $query) {
     return $stmt;
 }
 
-/* Binds the specified parameters to the specified prepared statement */
+/**
+ * Binds the specified parameters to the specified prepared statement.
+ * @param mysqli_stmt $stmt The mysqli statement.
+ * @param String $type      The data type of each argument. i=integer, d=double, s=string.
+ * @param mixed $arg1       The first argument (required).
+ * @param mixed|null $arg2  The second argument (optional).
+ * @param mixed|null $arg3  The third argument (optional).
+ * @param mixed|null $arg4  The fourth argument (optional).
+ * @param mixed|null $arg5  The fifth argument (optional).
+ */
 function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL) {
     $numargs = func_num_args();
     $numtypes = strlen($type);
@@ -66,7 +80,10 @@ function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL
     }
 }
 
-/* Executes the specified prepared statement */
+/**
+ * Executes the specified prepared statement.
+ * @param mysqli_stmt $stmt The statement to execute.
+ */
 function executeStatement($stmt) {
     if (!$stmt->execute()) {
         echo "Error executing operation.";
@@ -74,6 +91,11 @@ function executeStatement($stmt) {
     }
 }
 
+/**
+ * Gets the first row of results from a mysqli statement.
+ * @param mysqli_stmt $stmt The executed statement to get the result from.
+ * @return array|null The row of results (if any).
+ */
 function getSingleResult($stmt) {
     $result = $stmt->get_result();
     return mysqli_fetch_assoc($result);
