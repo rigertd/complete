@@ -100,6 +100,7 @@ $profiles = getProfiles($mysqli, $email);
             <button type="button" id="profileButton" class="btn btn-default">Load Chart</button>
           </div>
         </form>
+        <form id=""
       </div>
       <div class="col-sm-9 clearfix">
         <div id="chartDiv"></div>

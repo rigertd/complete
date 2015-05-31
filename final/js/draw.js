@@ -33,6 +33,7 @@ window.onload = function() {
 window.onresize = function() {
   GrowthTracker.Chart.options.width = GrowthTracker.Chart.calculateWidth();
   GrowthTracker.Chart.options.height = GrowthTracker.Chart.options.width * 0.8;
+  GrowthTracker.Chart.options.chartArea.width = GrowthTracker.Chart.options.width * 0.9 - 80;
   GrowthTracker.Chart.chart.draw(GrowthTracker.Chart.view, GrowthTracker.Chart.options);
 };
 
@@ -59,10 +60,8 @@ GrowthTracker.Chart.prepareData = function(arr) {
   for (i = 0; i < arr.length; ++i) {
     arr[i][0] = String(arr[i][0]);
     for (j = 1; j < arr[i].length; ++j) {
-      arr[i][j] = parseFloat(arr[i][j]);
+      arr[i][j] = parseFloat(arr[i][j]) || null;
     }
-    if (i % 3 == 0) arr[i].push(20.2);
-    else arr[i].push(null);
   }
   data.addRows(arr);
   return data;
@@ -72,10 +71,12 @@ GrowthTracker.Chart.prepareData = function(arr) {
  * Gets the percentile data for the selected chart type from the database.
  */
 GrowthTracker.Chart.getPercentileData = function() {
-  /* get drop-down value */
+  /* get drop-down values */
   var selector = document.getElementById('chartType');
   var chartType = selector.options[selector.selectedIndex].value;
   var chartName = selector.options[selector.selectedIndex].text;
+  var profile = document.getElementById('profile');
+  var pid = profile.options[profile.selectedIndex].value;
   var chartDiv = document.getElementById('chartDiv');
   var width = GrowthTracker.Chart.calculateWidth();
   var unit = chartType == 'weight' ? 'Kilograms' : 'Centimeters';
@@ -83,7 +84,7 @@ GrowthTracker.Chart.getPercentileData = function() {
   /* determine size */
 
   /* XMLHttpRequest params */
-  var url = 'chart.php?action=chart&gender=f&type=' + chartType;
+  var url = 'chart.php?action=chart&profile=' + pid + '&type=' + chartType;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
@@ -99,7 +100,7 @@ GrowthTracker.Chart.getPercentileData = function() {
         width: width,
         height: width * 0.8,
         chartArea: {
-          left:25,top:20,width:'80%', height:'80%'
+          left:50,top:20,width:width * 0.9 - 80,height:'80%'
         },
         series: {
           0: {targetAxisIndex: 0, lineWidth: 1},
