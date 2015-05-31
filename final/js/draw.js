@@ -22,67 +22,50 @@ if (typeof GrowthTracker.Chart == 'undefined') {
   GrowthTracker.Chart = { };
 }
 
+google.load('visualization', '1', {packages: ['corechart']});
+google.setOnLoadCallback(function() {GrowthTracker.Chart.loaded = true;});
+
 window.onload = function() {
   var profileBtn = document.getElementById('profileButton');
   profileBtn.onclick = GrowthTracker.Chart.getPercentileData;
-  var canvas = document.getElementById('chart');
-  canvas.width = canvas.parentNode.clientWidth * .8;
-  canvas.height = canvas.width * .8;
 };
 
-/**
- * The options for the current chart.
- * @type {{bezierCurveTension: number, datasetFill: boolean, pointDot: boolean, pointHitDetectionRadius: number, showTooltips: boolean, responsive: boolean}}
- */
-GrowthTracker.Chart.options = {
-  bezierCurveTension: 0,
-  datasetFill: false,
-  datasetStrokeWidth: 1,
-  pointDot: false,
-  pointHitDetectionRadius: 5,
-  scaleShowLabels: true,
-  showTooltips: true,
-  responsive: true,
-  multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>"
+window.onresize = function() {
+  GrowthTracker.Chart.options.width = GrowthTracker.Chart.calculateWidth();
+  GrowthTracker.Chart.options.height = GrowthTracker.Chart.options.width * 0.8;
+  GrowthTracker.Chart.chart.draw(GrowthTracker.Chart.view, GrowthTracker.Chart.options);
 };
 
-/**
- * The data object for the current chart.
- * @type {{labels: string[], datasets: Array}}
- */
-GrowthTracker.Chart.data = {
-  labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'],
-  datasets: []
-};
-
-/**
- *
- * @param label
- * @param color
- * @param data
- * @returns {{label: *, strokeColor: *, data: *}}
- */
-GrowthTracker.Chart.createDataset = function(label, color, data) {
-  return {
-    label: label,
-    strokeColor: color,
-    data: data
-  };
-};
-
-/**
- *
- * @param rawData
- * @returns {Array}
- */
-GrowthTracker.Chart.createDatasets = function(rawData) {
-  var result = [];
-  result.push(GrowthTracker.Chart.createDataset('3rd', '#f88', rawData['3']));
-  result.push(GrowthTracker.Chart.createDataset('15th', '#fb8', rawData['15']));
-  result.push(GrowthTracker.Chart.createDataset('50th', '#8f8', rawData['50']));
-  result.push(GrowthTracker.Chart.createDataset('85th', '#8bf', rawData['85']));
-  result.push(GrowthTracker.Chart.createDataset('97th', '#88f', rawData['97']));
-  return result;
+GrowthTracker.Chart.prepareData = function(arr) {
+  var i, j;
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Age in Months');
+  data.addColumn('number', '99.9th')
+  data.addColumn('number', '99th');
+  data.addColumn('number', '97th');
+  data.addColumn('number', '95th');
+  data.addColumn('number', '90th');
+  data.addColumn('number', '85th');
+  data.addColumn('number', '75th');
+  data.addColumn('number', '50th');
+  data.addColumn('number', '25th');
+  data.addColumn('number', '15th');
+  data.addColumn('number', '10th');
+  data.addColumn('number', '5th');
+  data.addColumn('number', '3rd');
+  data.addColumn('number', '1st');
+  data.addColumn('number', '0.1th');
+  data.addColumn('number', 'Actual')
+  for (i = 0; i < arr.length; ++i) {
+    arr[i][0] = String(arr[i][0]);
+    for (j = 1; j < arr[i].length; ++j) {
+      arr[i][j] = parseFloat(arr[i][j]);
+    }
+    if (i % 3 == 0) arr[i].push(20.2);
+    else arr[i].push(null);
+  }
+  data.addRows(arr);
+  return data;
 };
 
 /**
@@ -92,21 +75,57 @@ GrowthTracker.Chart.getPercentileData = function() {
   /* get drop-down value */
   var selector = document.getElementById('chartType');
   var chartType = selector.options[selector.selectedIndex].value;
-  /* get canvas context */
-  var canvas = document.getElementById('chart');
-  var ctx = canvas.getContext('2d');
+  var chartName = selector.options[selector.selectedIndex].text;
+  var chartDiv = document.getElementById('chartDiv');
+  var width = GrowthTracker.Chart.calculateWidth();
+  var unit = chartType == 'weight' ? 'Kilograms' : 'Centimeters';
+
+  /* determine size */
 
   /* XMLHttpRequest params */
-  var url = 'chart.php?action=percentile&gender=f&type=' + chartType;
+  var url = 'chart.php?action=chart&gender=f&type=' + chartType;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
       var result = JSON.parse(this.responseText);
-      GrowthTracker.Chart.data.datasets = GrowthTracker.Chart.createDatasets(result);
-      GrowthTracker.Chart.chart = new Chart(ctx).Line(GrowthTracker.Chart.data, GrowthTracker.Chart.options);
+      GrowthTracker.Chart.data = GrowthTracker.Chart.prepareData(result);
+      /* stop if there was a problem loading google library */
+      if (!GrowthTracker.Chart.loaded) return;
+      GrowthTracker.Chart.view = new google.visualization.DataView(GrowthTracker.Chart.data);
+      GrowthTracker.Chart.view.hideColumns([1,2,4,5,7,9,11,12,14,15]);
+      GrowthTracker.Chart.options = {
+        title: chartName + ' Percentiles',
+        curveType: 'function',
+        width: width,
+        height: width * 0.8,
+        chartArea: {
+          left:25,top:20,width:'80%', height:'80%'
+        },
+        series: {
+          0: {targetAxisIndex: 0, lineWidth: 1},
+          1: {targetAxisIndex: 0, lineWidth: 1},
+          2: {targetAxisIndex: 0, lineWidth: 1},
+          3: {targetAxisIndex: 0, lineWidth: 1},
+          4: {targetAxisIndex: 0, lineWidth: 1},
+          5: {targetAxisIndex: 0, pointShape: 'circle', pointSize: 5, color: 'black'}
+        },
+        hAxis: {
+          showTextEvery: 3
+        },
+        vAxes: {
+          0: {title: chartName + ' in ' + unit}
+        }
+      };
+      GrowthTracker.Chart.chart = new google.visualization.LineChart(chartDiv);
+      GrowthTracker.Chart.chart.draw(GrowthTracker.Chart.view, GrowthTracker.Chart.options);
     }
   };
 
   xhr.open('GET', url);
   xhr.send();
+};
+
+GrowthTracker.Chart.calculateWidth = function() {
+  var chartDiv = document.getElementById('chartDiv');
+  return chartDiv.parentNode.clientWidth * 0.99;
 };

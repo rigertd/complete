@@ -68,7 +68,7 @@ $profiles = getProfiles($mysqli, $email);
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
-    <script src="../js/Chart.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
     <script src="../js/draw.js"></script>
   </head>
   <body>
@@ -102,23 +102,9 @@ $profiles = getProfiles($mysqli, $email);
         </form>
       </div>
       <div class="col-sm-9 clearfix">
-        <div class="col-sm-10">
-          <h4 id="chartTitle">Length (Height) Percentiles</h4>
-          <canvas id="chart"></canvas>
-        </div>
-        <div class="col-sm-2">
-          <h4>Legend</h4>
-            <ul class="legend">
-              <li class="legend p97">97th
-              <li class="legend p85">85th
-              <li class="legend p50">50th
-              <li class="legend p15">15th
-              <li class="legend p03">3rd
-            </ul>
-          </fieldset>
-        </div>
+        <div id="chartDiv"></div>
       </div>
-      <footer>&copy; David Rigert</footer>
+      <footer class="col-sm-12">&copy; David Rigert</footer>
     </div>
   </body>
 </html>

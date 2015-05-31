@@ -29,9 +29,24 @@ if ($mysqli->connect_errno) {
     die();
 }
 
+function getUserData($db, $type, $pid, $email) {
+    $stmt = prepareQuery($db, "SELECT months, val FROM Entries ".
+                              "INNER JOIN Profiles AS p ON e.profile_id = p.id ".
+                              "INNER JOIN Users AS u ON p.parent_id = u.id ".
+                              "WHERE e.type = ? ".
+                              "AND p.id = ? AND u.email = ? ".
+                              "ORDER BY e.months ASC");
+    bindParam($stmt, "sis", $type, $pid, $email);
+    executeStatement($stmt);
+    $result = $stmt->get_result();
+    $arr = array();
+    while ($row = $result->fetch_assoc()) {
+        $arr[$row['months']] = number_format($row["val"], 1, '.', '');
+    }
+    return $arr;
+}
 
-
-function getPercentileData($db, $type, $gender) {
+function getChartPercentileData($db, $type, $gender) {
     $stmt = prepareQuery($db, "SELECT months, percentile, val " .
                               "FROM WHOMaster " .
                               "WHERE type = ? AND gender = ? " .
@@ -45,18 +60,21 @@ function getPercentileData($db, $type, $gender) {
         /* get percentile as a string with minimum required significant digits */
         $p = rtrim(number_format($row["percentile"], 1, '.', ''), "0");
         $p = rtrim($p, ".");
-        $arr[$p][$row["months"]] = number_format($row["val"], 1, '.', '');
+        if (!isset($arr[$row["months"]])) {
+            $arr[$row["months"]] = array($row["months"]);
+        }
+        $arr[$row["months"]][] = number_format($row["val"], 1, '.', '');
     }
     return $arr;
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action'])) {
     switch($_GET['action']) {
-        case "percentile":
+        case "chart":
             $type = isset($_GET['type']) ? $_GET['type'] : '';
             $gender = isset($_GET['gender']) ? $_GET['gender'] : '';
             header('Content-Type: application/json');
-            echo json_encode(getPercentileData($mysqli, $type, $gender));
+            echo json_encode(getChartPercentileData($mysqli, $type, $gender));
     }
 }
 
