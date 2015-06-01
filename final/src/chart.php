@@ -90,13 +90,103 @@ function getChartData($db, $type, $pid, $email) {
     return $arr;
 }
 
+function validateDate($date) {
+    $arr = explode('-', $date);
+    return count($arr) == 3 && checkdate($arr[0], $arr[1], $arr[2]);
+}
+
+function removeProfile($db, $email, $pid) {
+    $obj = array('message' => '');
+    /* validate data and return error message if invalid */
+    if (empty($email)) {
+        $obj['message'] = $obj['message'] . 'Invalid user. Try logging in again. ';
+    }
+    /* validate data and return error message if invalid */
+    if (empty($pid)) {
+        $obj['message'] = $obj['message'] . 'You must select the profile to remove. ';
+    }
+    if (!empty($obj['message'])) {
+        $obj['success'] = 'false';
+        return $obj;
+    }
+
+    $query = "DELETE p FROM Profiles AS p ".
+             "INNER JOIN Users AS u ON p.parent_id = u.id ".
+             "AND p.id = ? AND u.email = ?";
+
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "is", $pid, $email);
+    executeStatement($stmt);
+
+    if ($stmt->affected_rows > 0) {
+        $obj['message'] = 'Profile successfully deleted.';
+        $obj['success'] = 'true';
+    } else {
+        $obj['message'] = 'Failed to delete the profile.';
+        $obj['success'] = 'false';
+    }
+    return $obj;
+}
+
+function addNewProfile($db, $email, $name, $dob, $gender) {
+    $obj = array('message' => '');
+
+    /* validate data and return error message if invalid */
+    if (empty($email)) {
+        $obj['message'] = $obj['message'] . 'Invalid user. Try logging in again. ';
+    }
+    if (empty($name)) {
+        $obj['message'] = $obj['message'] . 'The baby name cannot be blank. ';
+    }
+    if (empty($dob) || !validateDate($dob)) {
+        $obj['message'] = $obj['message'] . 'You must enter a valid date of birth in the YYYY-MM-DD format. ';
+    }
+    if (empty($gender) || ($gender != 'm' && $gender != 'f')) {
+        $obj['message'] = $obj['message'] . 'Invalid gender specified. ';
+    }
+    if (!empty($obj['message'])) {
+        $obj['success'] = 'false';
+        return $obj;
+    }
+    $query = "INSERT INTO Profiles (parent_id, name, gender, dob) ".
+             "SELECT id, ?, ?, ? ".
+             "FROM Users WHERE email = ?";
+
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "ssss", $name, $gender, $dob, $email);
+    executeStatement($stmt);
+
+    if ($stmt->affected_rows > 0) {
+        $obj['message'] = 'Created a new profile for '.$name.'.';
+        $obj['success'] = 'true';
+    } else {
+        $obj['message'] = 'Failed to create a profile for '.$name.'.';
+        $obj['success'] = 'false';
+    }
+    return $obj;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action'])) {
     switch($_GET['action']) {
         case "chart":
-            $type = isset($_GET['type']) ? $_GET['type'] : '';
-            $pid = isset($_GET['profile']) ? $_GET['profile'] : '';
+            $type = isset($_GET['type']) ? $_GET['type'] : null;
+            $pid = isset($_GET['profile']) ? $_GET['profile'] : null;
             header('Content-Type: application/json');
             echo json_encode(getChartData($mysqli, $type, $pid, $email));
+            break;
+        case "new":
+            $name = isset($_GET['profileName']) ? $_GET['profileName'] : null;
+            $dob = isset($_GET['profileDob']) ? $_GET['profileDob'] : null;
+            $gender = isset($_GET['profileGender']) ? $_GET['profileGender'] : null;
+            header('Content-Type: application/json');
+            echo json_encode(addNewProfile($mysqli, $email, $name, $dob, $gender));
+            break;
+        case "delete":
+            $pid = isset($_GET['profile']) ? $_GET['profile'] : null;
+            header('Content-Type: application/json');
+            echo json_encode(removeProfile($mysqli, $email, $pid));
+            break;
+
     }
 }
 

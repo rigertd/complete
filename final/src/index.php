@@ -69,6 +69,7 @@ $profiles = getProfiles($mysqli, $email);
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
     <script src="https://www.google.com/jsapi"></script>
+    <script src="../js/tracker.js"></script>
     <script src="../js/draw.js"></script>
   </head>
   <body>
@@ -97,10 +98,42 @@ $profiles = getProfiles($mysqli, $email);
             </select>
           </div>
           <div class="form-group">
-            <button type="button" id="profileButton" class="btn btn-default">Load Chart</button>
+            <button type="button" id="profileButton" class="btn btn-default btn-block">Load Chart</button>
+          </div>
+          <div class="form-group">
+            <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
+          </div>
+          <div class="form-group">
+            <div id="validation_message"></div>
           </div>
         </form>
-        <form id=""
+        <form id="addProfile" action="chart.php">
+          <div class="form-group">
+            <button type="button" id="newButton" class="btn btn-default btn-block">Add New Profile</button>
+          </div>
+          <div id="createNew">
+            <h4>New Profile</h4>
+            <div class="form-group">
+              <input type="text" id="profileName" class="form-control" title="Baby's Name" placeholder="Baby's Name" required>
+            </div>
+            <div class="form-group">
+              <input type="text" id="profileDob" class="form-control" pattern="[12][01]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
+            </div>
+            <div class="form-group">
+              <select id="profileGender" class="form-control">
+                <option value="" disabled selected>Gender</option>
+                <option value="m">Boy</option>
+                <option value="f">Girl</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="button" id="addButton" class="btn btn-default btn-block">Save</button>
+            </div>
+            <div class="form-group">
+              <button type="reset" id="cancelButton" class="btn btn-default btn-block">Cancel</button>
+            </div>
+          </div>
+        </form>
       </div>
       <div class="col-sm-9 clearfix">
         <div id="chartDiv"></div>

@@ -1,6 +1,6 @@
 /**
  * @file This file contains the functions and symbols required by the login
- *       and sign-up forms for the Child Growth Tracker website.
+ *       and sign-up forms for the Baby Growth Tracker website.
  * @author David Rigert [rigertd@onid.oregonstate.edu]
  * @copyright 2015 David Rigert
  */
@@ -69,37 +69,6 @@ if (typeof GrowthTracker.Login == 'undefined') {
    */
   GrowthTracker.Login = {};
 }
-
-/**
- * Adds a validation message to the validation div if it does not already exist.
- * @param {string} text - The text of the message to display.
- * @param {string} id   - The ID to assign to the message.
- */
-GrowthTracker.addValidationMessage = function(id, text) {
-  var valDiv = document.getElementById('validation_message');
-  var msg = document.createElement('p');
-  valDiv.className = 'alert alert-danger';
-  msg.id = id;
-  msg.textContent = text;
-  if (!document.getElementById(id)) {
-    valDiv.appendChild(msg);
-  }
-};
-
-/**
- * Removes a validation message from the validation div.
- * @param {string} id - The ID of the validation message to remove.
- */
-GrowthTracker.removeValidationMessage = function(id) {
-  var valDiv = document.getElementById('validation_message');
-  var msg = document.getElementById(id);
-  if (msg) {
-    valDiv.removeChild(msg);
-  }
-  if (!valDiv.hasChildNodes()) {
-    valDiv.className = '';
-  }
-};
 
 /**
  * Checks whether the sign-up email address is already in use.
@@ -179,63 +148,6 @@ GrowthTracker.Login.authenticate = function() {
 
   /* stop form submission */
   return false;
-};
-
-/**
- * Applies error formatting to the parent of the specified element.
- * @param {object} el - The child of the parent to apply the formatting to.
- */
-GrowthTracker.showError = function(el) {
-  var parent = el.parentNode;
-  if (parent.className.indexOf('has-error') == -1) {
-    parent.className += ' has-error';
-  }
-};
-
-/**
- * Removes error formatting from the parent of the specified element.
- * @param {object} el - The child of the parent to remove the formatting from.
- */
-GrowthTracker.hideError = function(el) {
-  var parent = el.parentNode;
-  if (parent.className.indexOf('has-error') != -1) {
-    var re = /\s?\bhas-error\b/;
-    parent.className = parent.className.replace(re, '');
-  }
-};
-
-/**
- * Verifies the validity state of all of elements in the specified <var>formId</var>.
- * Applies error formatting if invalid, removes it if valid.
- * @param {string} formId - The <code>id</code> of the form to validate.
- * @returns {boolean} Whether all elements on the form are valid.
- */
-GrowthTracker.validateForm = function(formId) {
-  var elements = document.getElementById(formId).elements;
-  var valid = true;
-  for (var i = 0, len = elements.length; i < len; i++) {
-    if (elements[i].validity && !elements[i].validity.valid) {
-      valid = false;
-      GrowthTracker.showError(elements[i]);
-    } else {
-      GrowthTracker.hideError(elements[i]);
-    }
-  }
-  return valid;
-};
-
-/**
- * Verifies the validity state of the calling form element.
- * Applies error formatting if invalid, removes it if valid.
- */
-GrowthTracker.validateElement = function() {
-  if (this.validity && !this.validity.valid) {
-    GrowthTracker.showError(this);
-    GrowthTracker.addValidationMessage(this.id + '_msg', this.title + ' is missing or invalid.');
-  } else {
-    GrowthTracker.hideError(this);
-    GrowthTracker.removeValidationMessage(this.id + '_msg');
-  }
 };
 
 /**

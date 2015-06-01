@@ -14,7 +14,7 @@
  */
 function prepareQuery($db, $query) {
     if (!($stmt = $db->prepare($query))) {
-        echo "Database query error.";
+        echo "Database query error (".$db->errno."). ".$db->error;
         die();
     }
     return $stmt;
