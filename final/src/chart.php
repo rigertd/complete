@@ -29,17 +29,6 @@ if ($mysqli->connect_errno) {
     die();
 }
 
-function getGender($db, $pid, $email) {
-    $stmt = prepareQuery($db, "SELECT p.gender ".
-                              "FROM Profiles AS p ".
-                              "INNER JOIN Users AS u ON p.parent_id = u.id ".
-                              "WHERE p.id = ? AND u.email = ?");
-    bindParam($stmt, "is", $pid, $email);
-    executeStatement($stmt);
-    $result = getSingleResult($stmt);
-    return isset($result['gender']) ? $result['gender'] : '';
-}
-
 function getUserData($db, $type, $pid, $email) {
     $stmt = prepareQuery($db, "SELECT months, val FROM Entries ".
                               "INNER JOIN Profiles AS p ON profile_id = p.id ".
@@ -57,21 +46,20 @@ function getUserData($db, $type, $pid, $email) {
     return $arr;
 }
 
-function getWhoResults($db, $type, $gender) {
-    $stmt = prepareQuery($db, "SELECT months, val " .
-                              "FROM WHOMaster " .
-                              "WHERE type = ? AND gender = ? " .
-                              "ORDER BY months ASC, percentile DESC, val ASC");
-    bindParam($stmt, "ss", $type, $gender);
+function getWhoResults($db, $type, $pid) {
+    $stmt = prepareQuery($db, "SELECT w.months, w.val " .
+                              "FROM WHOMaster AS w INNER JOIN Profiles AS p " .
+                              "ON w.gender = p.gender AND w.type = ? AND p.id = ? " .
+                              "ORDER BY w.months ASC, w.percentile DESC, w.val ASC");
+    bindParam($stmt, "si", $type, $pid);
     executeStatement($stmt);
     return $stmt->get_result();
 
 }
 
 function getChartData($db, $type, $pid, $email) {
-    $gender = getGender($db, $pid, $email);
     $userArr = getUserData($db, $type, $pid, $email);
-    $whoResults = getWhoResults($db, $type, $gender);
+    $whoResults = getWhoResults($db, $type, $pid);
 
     /* store WHO results by month */
     /* Columns: Months, 99.9th, 99th, 97th, ..., 3rd, 1st, 0.1th*/
