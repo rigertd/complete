@@ -31,6 +31,8 @@ window.onload = function() {
   var cancelButton = document.getElementById('cancelButton');
   var deleteButton = document.getElementById('deleteButton');
   var addDataButton = document.getElementById('addDataButton');
+  var saveDataButton = document.getElementById('saveDataButton');
+  var cancelDataButton = document.getElementById('cancelDataButton');
   var newProfileForm = document.getElementById('newProfileForm');
   var addDataForm = document.getElementById('addDataForm');
   var profileSelector = document.getElementById('profile');
@@ -53,6 +55,13 @@ window.onload = function() {
     }
     else return false;
   };
+
+  cancelDataButton.onclick = function() {
+    addDataForm.style.display = 'none';
+    addDataForm.reset();
+  };
+
+  GrowthTracker.Chart.setUnitSelectors();
 
   /* validate profile select elements */
   profileSelector.onchange = function() {
@@ -109,6 +118,34 @@ window.onload = function() {
     GrowthTracker.clearForm(newProfileForm);
     GrowthTracker.Chart.removeProfile();
   }
+};
+
+/**
+ * Sets the unit selectors in the add data form to the previous values
+ * and sets event handlers to save any changes to a cookie.
+ */
+GrowthTracker.Chart.setUnitSelectors = function() {
+  var lengthUnit = document.getElementById('lengthUnit');
+  var weightUnit = document.getElementById('weightUnit');
+  var headUnit = document.getElementById('headUnit');
+
+  var lengthSelected = docCookies.getItem('lengthUnit') || 'in';
+  var weightSelected = docCookies.getItem('weightUnit') || 'lb';
+  var headSelected = docCookies.getItem('headUnit') || 'in';
+
+  lengthUnit.value = lengthSelected;
+  weightUnit.value = weightSelected;
+  headUnit.value = headSelected;
+
+  lengthUnit.onchange = function() {
+    docCookies.setItem('lengthUnit', lengthUnit.value, Infinity);
+  };
+  weightUnit.onchange = function() {
+    docCookies.setItem('weightUnit', weightUnit.value, Infinity);
+  };
+  headUnit.onchange = function() {
+    docCookies.setItem('headUnit', headUnit.value, Infinity);
+  };
 };
 
 /**

@@ -47,6 +47,7 @@ $profiles = getProfiles($mysqli, $email);
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
     <script src="https://www.google.com/jsapi"></script>
+    <script src="../js/cookies.js"></script>
     <script src="../js/tracker.js"></script>
     <script src="../js/draw.js"></script>
   </head>
@@ -93,12 +94,15 @@ $profiles = getProfiles($mysqli, $email);
         <form id="newProfileForm" action="chart.php">
           <h4>New Profile</h4>
           <div class="form-group">
+            <label for="profileName" class="sr-only">Baby's Name</label>
             <input type="text" id="profileName" class="form-control" title="Baby's Name" placeholder="Baby's Name" required>
           </div>
           <div class="form-group">
+            <label for="profileDob" class="sr-only">Date of Birth</label>
             <input type="text" id="profileDob" class="form-control" pattern="[12][01]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
           </div>
           <div class="form-group">
+            <label for="profileGender" class="sr-only">Gender</label>
             <select id="profileGender" class="form-control">
               <option value="" disabled selected>Gender</option>
               <option value="m">Boy</option>
@@ -137,8 +141,8 @@ $profiles = getProfiles($mysqli, $email);
           <div class="col-sm-4"><input type="text" id="dataWeight" class="form-control" pattern="\d+\.?\d+" title="Weight"></div>
           <div class="col-sm-4">
             <select id="weightUnit" class="form-control">
-              <option value="in">Pounds</option>
-              <option value="cm">Kilograms</option>
+              <option value="lb">Pounds</option>
+              <option value="kg">Kilograms</option>
             </select>
           </div>
         </div>
