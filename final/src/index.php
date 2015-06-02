@@ -57,9 +57,10 @@ $profiles = getProfiles($mysqli, $email);
         <div class="col-sm-3"><?php echo htmlspecialchars("$first $last"); ?> <a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
       </header>
       <div class="col-sm-3">
-        <form id="profileForm" action="chart.php">
+        <form id="selectProfileForm" action="chart.php">
           <input type="hidden" id="gender">
           <div class="form-group">
+            <label for="profile" class="sr-only">Profile</label>
             <select id="profile" name="profile" class="form-control">
               <option value="" disabled selected>Select Profile</option>
 <?php foreach ($profiles as $profile): ?>
@@ -68,6 +69,7 @@ $profiles = getProfiles($mysqli, $email);
             </select>
           </div>
           <div class="form-group">
+            <label for="chartType" class="sr-only">Chart Type</label>
             <select id="chartType" name="type" class="form-control">
               <option value="" disabled selected>Select Chart Type</option>
               <option value="length">Length (Height)</option>
@@ -75,9 +77,9 @@ $profiles = getProfiles($mysqli, $email);
               <option value="head">Head Circumference</option>
             </select>
           </div>
-          <div class="form-group">
-            <button type="button" id="profileButton" class="btn btn-default btn-block">Load Chart</button>
-          </div>
+            <div class="form-group">
+              <button type="button" id="addDataButton" class="btn btn-default btn-block">Add Checkup Data</button>
+            </div>
           <div class="form-group">
             <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
           </div>
@@ -85,35 +87,78 @@ $profiles = getProfiles($mysqli, $email);
             <div id="validation_message"></div>
           </div>
         </form>
-        <form id="addProfile" action="chart.php">
+        <div class="form-group">
+          <button type="button" id="newButton" class="btn btn-default btn-block">Add New Profile</button>
+        </div>
+        <form id="newProfileForm" action="chart.php">
+          <h4>New Profile</h4>
           <div class="form-group">
-            <button type="button" id="newButton" class="btn btn-default btn-block">Add New Profile</button>
+            <input type="text" id="profileName" class="form-control" title="Baby's Name" placeholder="Baby's Name" required>
           </div>
-          <div id="createNew">
-            <h4>New Profile</h4>
-            <div class="form-group">
-              <input type="text" id="profileName" class="form-control" title="Baby's Name" placeholder="Baby's Name" required>
-            </div>
-            <div class="form-group">
-              <input type="text" id="profileDob" class="form-control" pattern="[12][01]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
-            </div>
-            <div class="form-group">
-              <select id="profileGender" class="form-control">
-                <option value="" disabled selected>Gender</option>
-                <option value="m">Boy</option>
-                <option value="f">Girl</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button type="button" id="addButton" class="btn btn-default btn-block">Save</button>
-            </div>
-            <div class="form-group">
-              <button type="reset" id="cancelButton" class="btn btn-default btn-block">Cancel</button>
-            </div>
+          <div class="form-group">
+            <input type="text" id="profileDob" class="form-control" pattern="[12][01]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
+          </div>
+          <div class="form-group">
+            <select id="profileGender" class="form-control">
+              <option value="" disabled selected>Gender</option>
+              <option value="m">Boy</option>
+              <option value="f">Girl</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="button" id="addButton" class="btn btn-default btn-block">Save</button>
+          </div>
+          <div class="form-group">
+            <button type="reset" id="cancelButton" class="btn btn-default btn-block">Cancel</button>
           </div>
         </form>
       </div>
       <div class="col-sm-9 clearfix">
+      <form id="addDataForm" action="chart.php" class="form-horizontal jumbotron">
+        <h3>Add Checkup Data for <span id="currentProfileName">Current Profile</span></h3>
+        <div class="form-group">
+          <label for="dataMonths" class="control-label col-sm-4">Age in Months</label>
+          <div class="col-sm-8">
+              <input type="text" id="dataMonths" class="form-control" title="Age in Months" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="dataLength" class="control-label col-sm-4">Body Length</label>
+          <div class="col-sm-4"><input type="text" id="dataLength" class="form-control" pattern="\d+\.?\d+" title="Length (Height)"></div>
+          <div class="col-sm-4">
+            <select id="lengthUnit" class="form-control">
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="dataWeight" class="control-label col-sm-4">Body Weight</label>
+          <div class="col-sm-4"><input type="text" id="dataWeight" class="form-control" pattern="\d+\.?\d+" title="Weight"></div>
+          <div class="col-sm-4">
+            <select id="weightUnit" class="form-control">
+              <option value="in">Pounds</option>
+              <option value="cm">Kilograms</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="dataHead" class="control-label col-sm-4">Head Circumference</label>
+          <div class="col-sm-4"><input type="text" id="dataHead" class="form-control" pattern="\d+\.?\d+" title="Head Circumference"></div>
+          <div class="col-sm-4">
+            <select id="headUnit" class="form-control">
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+            </select>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="btn-group form-inline">
+            <button id="saveDataButton" type="button" class="btn btn-default">Save Data</button>
+            <button id="cancelDataButton" type="reset" class="btn btn-default">Cancel</button>
+          </div>
+        </div>
+      </form>
         <div id="chartDiv"></div>
       </div>
       <footer class="col-sm-12">&copy; David Rigert</footer>

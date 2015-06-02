@@ -97,6 +97,18 @@ GrowthTracker.validateForm = function(formId) {
 };
 
 /**
+ * Clears all content, error formatting, and validation messages for the specified form.
+ * @param {object} form - The form to clear.
+ */
+GrowthTracker.clearForm = function(form) {
+  form.reset();
+  for (var i = 0, len = form.elements.length; i < len; i++) {
+    GrowthTracker.hideError(form.elements[i]);
+    GrowthTracker.removeValidationMessage(form.elements[i].id + '_msg');
+  }
+};
+
+/**
  * Verifies the validity state of the calling form element.
  * Applies error formatting if invalid, removes it if valid.
  */
@@ -138,4 +150,4 @@ GrowthTracker.validateSelect = function(obj, message) {
 GrowthTracker.toggleVisible = function(node) {
   if (node.style.display == 'none') node.style.display = '';
   else node.style.display = 'none';
-}
+};

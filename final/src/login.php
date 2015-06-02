@@ -192,7 +192,7 @@ header('Content-Type: text/html');
             <div class="form-group">
               <div style="display:table-cell; padding-left:1em;">
                 <label for="email" class="control-label">E-mail</label>
-                <input id="email" type="email" class="form-control" name="email" placeholder="E-mail address" required>
+                <input id="email" type="email" class="form-control" name="email" placeholder="name@email.com" required>
               </div>
               <div style="display:table-cell; padding-left:1em;">
                 <label for="password" class="control-label">Password</label>

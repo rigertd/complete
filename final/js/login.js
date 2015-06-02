@@ -5,6 +5,35 @@
  * @copyright 2015 David Rigert
  */
 
+if (typeof GrowthTracker == 'undefined') {
+  var GrowthTracker = { };
+}
+if (typeof GrowthTracker.SignUp == 'undefined') {
+  /**
+   * The <code>SignUp</code> namespace contains the functions specific to
+   * the account creation form.
+   * @namespace
+   */
+  GrowthTracker.SignUp = {
+    /**
+     * Indicates whether the current email address is available or in use.
+     */
+    emailAvailable: true
+  };
+}
+
+if (typeof GrowthTracker.Login == 'undefined') {
+  /**
+   * The <code>Login</code> namespace contains functions specific to
+   * the login form.
+   * @namespace
+   */
+  GrowthTracker.Login = {};
+}
+
+/**
+ * Sets the event handlers when the page is finished loading.
+ */
 window.onload = function() {
   /* sign up form elements */
   var suFirst = document.getElementById('signup_first');
@@ -38,38 +67,6 @@ window.onload = function() {
   };
 };
 
-if (typeof GrowthTracker == 'undefined') {
-  /**
-   * The <code>GrowthTracker</code> namespace contains all of the symbols
-   * and functions required for the Baby Growth Tracker website.
-   * @namespace
-   */
-  var GrowthTracker = { };
-}
-
-if (typeof GrowthTracker.SignUp == 'undefined') {
-  /**
-   * The <code>SignUp</code> namespace contains the functions specific to
-   * the account creation form.
-   * @namespace
-   */
-  GrowthTracker.SignUp = {
-    /**
-     * Indicates whether the current email address is available or in use.
-     */
-    emailAvailable: true
-  };
-}
-
-if (typeof GrowthTracker.Login == 'undefined') {
-  /**
-   * The <code>Login</code> namespace contains functions specific to
-   * the login form.
-   * @namespace
-   */
-  GrowthTracker.Login = {};
-}
-
 /**
  * Checks whether the sign-up email address is already in use.
  * Shows an error if the email is in use.
@@ -95,7 +92,6 @@ GrowthTracker.SignUp.checkEmail = function() {
       }
     }
   };
-
   xhr.open('GET', url);
   xhr.send();
 };
@@ -132,8 +128,7 @@ GrowthTracker.Login.authenticate = function() {
       } else {
         /* authentication failed */
         alert('Invalid login credentials');
-        email.value = '';
-        pw.value = '';
+        GrowthTracker.clearForm(form);
       }
     }
   };

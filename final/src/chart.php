@@ -80,7 +80,7 @@ function getChartData($db, $type, $pid, $email) {
 
 function validateDate($date) {
     $arr = explode('-', $date);
-    return count($arr) == 3 && checkdate($arr[0], $arr[1], $arr[2]);
+    return count($arr) == 3 && checkdate($arr[1], $arr[2], $arr[0]);
 }
 
 function removeProfile($db, $email, $pid) {

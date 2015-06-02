@@ -6,11 +6,6 @@
  */
 
 if (typeof GrowthTracker == 'undefined') {
-  /**
-   * The <code>GrowthTracker</code> namespace contains all of the symbols
-   * and functions required for the Baby Growth Tracker website.
-   * @namespace
-   */
   var GrowthTracker = { };
 }
 if (typeof GrowthTracker.Chart == 'undefined') {
@@ -22,55 +17,103 @@ if (typeof GrowthTracker.Chart == 'undefined') {
   GrowthTracker.Chart = { };
 }
 
+/* load google visualization library */
 google.load('visualization', '1', {packages: ['corechart']});
 google.setOnLoadCallback(function() {GrowthTracker.Chart.loaded = true;});
 
+/**
+ * Sets the event handlers when the page is finished loading.
+ */
 window.onload = function() {
-  var profileBtn = document.getElementById('profileButton');
-  profileBtn.onclick = GrowthTracker.Chart.getPercentileData;
-  var profileSelector = document.getElementById('profile');
-  profileSelector.onchange = function() {
-    GrowthTracker.validateSelect(this, 'You must select a profile.');
-  };
-  var chartTypeSelector = document.getElementById('chartType');
-  chartTypeSelector.onchange = function() {
-    GrowthTracker.validateSelect(this, 'You must select a chart type.');
-  };
-
-  var newForm = document.getElementById('createNew');
-  newForm.style.display = 'none';
+  /* page elements to set event handlers for */
   var newButton = document.getElementById('newButton');
-  newButton.onclick = function() {
-    GrowthTracker.toggleVisible(newForm);
-    GrowthTracker.toggleVisible(newButton);
-  };
   var saveButton = document.getElementById('addButton');
-  saveButton.onclick = GrowthTracker.Chart.addNewProfile;
-
+  var cancelButton = document.getElementById('cancelButton');
+  var deleteButton = document.getElementById('deleteButton');
+  var addDataButton = document.getElementById('addDataButton');
+  var newProfileForm = document.getElementById('newProfileForm');
+  var addDataForm = document.getElementById('addDataForm');
+  var profileSelector = document.getElementById('profile');
+  var chartTypeSelector = document.getElementById('chartType');
+  var chartDiv = document.getElementById('chartDiv');
   var profileName = document.getElementById('profileName');
   var profileDob = document.getElementById('profileDob');
   var profileGender = document.getElementById('profileGender');
+
+  /* Hide new profile form and add data form by default */
+  newProfileForm.style.display = 'none';
+  addDataForm.style.display = 'none';
+
+  addDataButton.onclick = function() {
+    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile')) {
+      addDataForm.style.display = '';
+      newProfileForm.style.display = 'none';
+      newButton.style.display = '';
+      GrowthTracker.clearForm(newProfileForm);
+    }
+    else return false;
+  };
+
+  /* validate profile select elements */
+  profileSelector.onchange = function() {
+    var currentProfile = document.getElementById('currentProfileName');
+    if (GrowthTracker.validateSelect(this, 'You must select a profile.')) {
+      currentProfile.textContent = this.options[this.selectedIndex].text;
+      if (chartTypeSelector.options[chartTypeSelector.selectedIndex].value) {
+        GrowthTracker.Chart.loadChart();
+      } else if (GrowthTracker.Chart.chart) {
+        GrowthTracker.Chart.chart.clearChart();
+      }
+    } else if (GrowthTracker.Chart.chart) {
+      GrowthTracker.Chart.chart.clearChart();
+    }
+  };
+  chartTypeSelector.onchange = function() {
+    if (GrowthTracker.validateSelect(this, 'You must select a chart type.') &&
+        profileSelector.options[profileSelector.selectedIndex].value) {
+      GrowthTracker.Chart.loadChart();
+    } else if (GrowthTracker.Chart.chart) {
+      GrowthTracker.Chart.chart.clearChart();
+    }
+  };
+
+  /* display form if Add New Profile button is clicked */
+  newButton.onclick = function() {
+    addDataForm.style.display = 'none';
+    GrowthTracker.clearForm(addDataForm);
+    GrowthTracker.toggleVisible(newProfileForm);
+    GrowthTracker.toggleVisible(newButton);
+  };
+
+  /* If user clicks Save, commit data to database */
+  saveButton.onclick = GrowthTracker.Chart.addNewProfile;
+
+  /* validate new profile input elements */
   profileName.onblur = GrowthTracker.validateElement;
   profileDob.onblur = GrowthTracker.validateElement;
   profileGender.onchange = function() {
     GrowthTracker.validateSelect(this, 'You must select a gender.')
   };
 
-  var cancelButton = document.getElementById('cancelButton');
+  /* If user clicks cancel, hide new profile form and remove any error messages */
   cancelButton.onclick = function() {
-    GrowthTracker.hideError(profileName);
-    GrowthTracker.removeValidationMessage(profileName.id + '_msg');
-    GrowthTracker.hideError(profileDob);
-    GrowthTracker.removeValidationMessage(profileDob.id + '_msg');
-    GrowthTracker.hideError(profileGender);
-    GrowthTracker.removeValidationMessage(profileGender.id + '_msg');
-    GrowthTracker.toggleVisible(newForm);
+    GrowthTracker.clearForm(newProfileForm);
+    GrowthTracker.toggleVisible(newProfileForm);
     GrowthTracker.toggleVisible(newButton);
+  };
+
+  /* delete selected profile */
+  deleteButton.onclick = function() {
+    newProfileForm.style.display = 'none';
+    newButton.style.display = '';
+    GrowthTracker.clearForm(newProfileForm);
+    GrowthTracker.Chart.removeProfile();
   }
-  var deleteButton = document.getElementById('deleteButton');
-  deleteButton.onclick = GrowthTracker.Chart.removeProfile;
 };
 
+/**
+ * Resizes the chart when the browser window is resized.
+ */
 window.onresize = function() {
   if (GrowthTracker.Chart.options) {
     GrowthTracker.Chart.options.width = GrowthTracker.Chart.calculateWidth();
@@ -80,39 +123,74 @@ window.onresize = function() {
   }
 };
 
+/**
+ * Loads the chart based on the selected profile and chart type.
+ * Hides the add new profile form.
+ */
+GrowthTracker.Chart.loadChart = function() {
+  var newProfileForm = document.getElementById('newProfileForm');
+  var newButton = document.getElementById('newButton');
+  newProfileForm.style.display = 'none';
+  newButton.style.display = '';
+  GrowthTracker.clearForm(newProfileForm);
+  GrowthTracker.Chart.getPercentileData();
+};
+
+/**
+ * Removes the currently selected profile from the database.
+ * Hides the add new profile form.
+ * @returns {boolean} Whether form validation succeeded.
+ */
 GrowthTracker.Chart.removeProfile = function() {
   var profile = document.getElementById('profile');
   var pid = profile.options[profile.selectedIndex].value;
-
   if (!GrowthTracker.validateSelect(profile, 'You must select a profile.')) {
     return false;
   }
-
   /* verify user wants to delete */
   if (!confirm('Are you sure you want to remove the profile ' +
                profile.options[profile.selectedIndex].text +
                '? This operation cannot be undone.')) {
     return false;
   }
-
   /* XMLHttpRequest params */
   var url = 'chart.php?action=delete&profile=' + pid;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
       var result = JSON.parse(this.responseText);
-
-      alert(result.message);
-      GrowthTracker.Chart.refreshProfiles();
+      if (result['success'] == 'true') {
+        var newProfileForm = document.getElementById('newProfileForm');
+        var newButton = document.getElementById('newButton');
+        newProfileForm.style.display = 'none';
+        newButton.style.display = '';
+        GrowthTracker.clearForm(newProfileForm);
+        GrowthTracker.Chart.refreshProfiles();
+      } else {
+        alert(result['message']);
+      }
     }
   };
-
   xhr.open('GET', url);
   xhr.send();
+  return true;
 };
 
+/**
+ * Adds height, weight, and head circumference data
+ * to the currently selected profile.
+ */
+GrowthTracker.Chart.addCheckupData = function() {
+
+};
+
+/**
+ * Refreshes the entries in the Select Profile select element.
+ * Hides chart and add new data form.
+ */
 GrowthTracker.Chart.refreshProfiles = function () {
   var profile = document.getElementById('profile');
+  var addDataForm = document.getElementById('addDataForm');
 
   /* XMLHttpRequest params */
   var url = 'chart.php?action=profiles';
@@ -126,41 +204,71 @@ GrowthTracker.Chart.refreshProfiles = function () {
         profile.removeChild(profile.lastChild);
       }
       result.forEach(function(p) {
-        var op = new Option('value', p.id);
-        op.textContent = p.name + ' (' + p.dob + ')';
+        var op = new Option('value', p['id']);
+        op.textContent = p['name'] + ' (' + p['dob'] + ')';
         profile.appendChild(op);
       });
+      if (GrowthTracker.Chart.chart) GrowthTracker.Chart.chart.clearChart();
+      addDataForm.style.display = 'none';
+      GrowthTracker.clearForm(addDataForm);
     }
   };
-
   xhr.open('GET', url);
   xhr.send();
 };
 
+/**
+ * Adds a new profile based on the data in the createNew form.
+ * @returns {boolean} Whether form validation succeeded.
+ */
 GrowthTracker.Chart.addNewProfile = function() {
   var name = document.getElementById('profileName');
   var dob = document.getElementById('profileDob');
   var gender = document.getElementById('profileGender');
-  var newForm = document.getElementById('createNew');
+  var newForm = document.getElementById('newProfileForm');
   var newButton = document.getElementById('newButton');
 
+  /* Validate user input */
   var valid = GrowthTracker.validateElement(name);
   valid = GrowthTracker.validateElement(dob) && valid;
   valid = GrowthTracker.validateSelect(gender, 'You must select a gender.') && valid;
-
   if (!valid) {
     return false;
   }
 
-  GrowthTracker.toggleVisible(newForm);
-  GrowthTracker.toggleVisible(newButton);
+  /* XMLHttpRequest params */
+  var url = 'chart.php?action=new&profileName=' + encodeURIComponent(name.value) +
+            '&profileDob=' + encodeURIComponent(dob.value) +
+            '&profileGender=' + gender.value;
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4) {
+      var result = JSON.parse(this.responseText);
+      if (result['success'] == 'true') {
+        GrowthTracker.Chart.refreshProfiles();
+        /* Hide form and show new button again */
+        GrowthTracker.toggleVisible(newForm);
+        GrowthTracker.toggleVisible(newButton);
+      } else {
+        alert(result['message']);
+      }
+    }
+  };
+  xhr.open('GET', url);
+  xhr.send();
+  return true;
 };
 
+/**
+ * Converts the specified javascript array from the server into a DataTable.
+ * @param {Array} arr - An array of rows returned from the database.
+ * @returns {google.visualization.DataTable} The DataTable to load in the line chart.
+ */
 GrowthTracker.Chart.prepareData = function(arr) {
   var i, j;
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Age in Months');
-  data.addColumn('number', '99.9th')
+  data.addColumn('number', '99.9th');
   data.addColumn('number', '99th');
   data.addColumn('number', '97th');
   data.addColumn('number', '95th');
@@ -175,7 +283,7 @@ GrowthTracker.Chart.prepareData = function(arr) {
   data.addColumn('number', '3rd');
   data.addColumn('number', '1st');
   data.addColumn('number', '0.1th');
-  data.addColumn('number', 'Actual')
+  data.addColumn('number', 'Actual');
   for (i = 0; i < arr.length; ++i) {
     arr[i][0] = String(arr[i][0]);
     for (j = 1; j < arr[i].length; ++j) {
@@ -186,6 +294,13 @@ GrowthTracker.Chart.prepareData = function(arr) {
   return data;
 };
 
+/**
+ * Validates the profile and chart type select elements.
+ * This is used to determine whether the placeholders are selected.
+ * @param {number} pid       - The profile ID value.
+ * @param {string} chartType - The chart type value.
+ * @returns {boolean} Whether both values are non-empty.
+ */
 GrowthTracker.Chart.validateProfile = function(pid, chartType) {
   var selector = document.getElementById('chartType');
   var profile = document.getElementById('profile');
@@ -228,6 +343,12 @@ GrowthTracker.Chart.getPercentileData = function() {
   xhr.send();
 };
 
+/**
+ * Builds the actual chart for the specified type
+ * based on the DataTable set in GrowthTracker.Chart.data.
+ * @param {string} chartType - The chart type ('length', 'weight', or 'head').
+ * @param {string} chartName - The name of the selected chart type.
+ */
 GrowthTracker.Chart.buildChart = function(chartType, chartName) {
   /* determine size */
   var chartDiv = document.getElementById('chartDiv');
@@ -270,6 +391,10 @@ GrowthTracker.Chart.buildChart = function(chartType, chartName) {
   GrowthTracker.Chart.chart.draw(GrowthTracker.Chart.view, GrowthTracker.Chart.options);
 };
 
+/**
+ * Calculates the width to use for the chart.
+ * @returns {number} Width to use for the chart.
+ */
 GrowthTracker.Chart.calculateWidth = function() {
   var chartDiv = document.getElementById('chartDiv');
   return chartDiv.parentNode.clientWidth * 0.99;
