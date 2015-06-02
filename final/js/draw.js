@@ -88,7 +88,54 @@ GrowthTracker.Chart.removeProfile = function() {
     return false;
   }
 
-}
+  /* verify user wants to delete */
+  if (!confirm('Are you sure you want to remove the profile ' +
+               profile.options[profile.selectedIndex].text +
+               '? This operation cannot be undone.')) {
+    return false;
+  }
+
+  /* XMLHttpRequest params */
+  var url = 'chart.php?action=delete&profile=' + pid;
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4) {
+      var result = JSON.parse(this.responseText);
+
+      alert(result.message);
+      GrowthTracker.Chart.refreshProfiles();
+    }
+  };
+
+  xhr.open('GET', url);
+  xhr.send();
+};
+
+GrowthTracker.Chart.refreshProfiles = function () {
+  var profile = document.getElementById('profile');
+
+  /* XMLHttpRequest params */
+  var url = 'chart.php?action=profiles';
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4) {
+      var result = JSON.parse(this.responseText);
+
+      /* remove all options except default placeholder */
+      while (profile.options.length > 1) {
+        profile.removeChild(profile.lastChild);
+      }
+      result.forEach(function(p) {
+        var op = new Option('value', p.id);
+        op.textContent = p.name + ' (' + p.dob + ')';
+        profile.appendChild(op);
+      });
+    }
+  };
+
+  xhr.open('GET', url);
+  xhr.send();
+};
 
 GrowthTracker.Chart.addNewProfile = function() {
   var name = document.getElementById('profileName');

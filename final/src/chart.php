@@ -174,7 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action'])) {
             header('Content-Type: application/json');
             echo json_encode(removeProfile($mysqli, $email, $pid));
             break;
-
+        case "profiles":
+            header('Content-Type: application/json');
+            echo json_encode(getProfiles($mysqli, $email));
+            break;
     }
 }
 

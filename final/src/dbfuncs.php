@@ -100,3 +100,26 @@ function getSingleResult($stmt) {
     $result = $stmt->get_result();
     return mysqli_fetch_assoc($result);
 }
+
+/**
+ * Gets an array of baby profiles associated with the account.
+ * @param mysqli $db         The mysqli database interface.
+ * @param String $user_email The logged in user's email address.
+ * @return array An array of profile {id, name, dob}
+ */
+function getProfiles($db, $user_email) {
+  $stmt = prepareQuery($db, 'SELECT p.id, p.name, p.gender, p.dob ' .
+    'FROM Users as u ' .
+    'INNER JOIN Profiles as p ON u.id = p.parent_id ' .
+    'WHERE u.email = ? ' .
+    'ORDER BY p.name ASC');
+  bindParam($stmt, "s", $user_email);
+  executeStatement($stmt);
+  $results = $stmt->get_result();
+  $profiles = array();
+  while ($row = $results->fetch_assoc()) {
+    $profiles[] = $row;
+  }
+  return $profiles;
+}
+
