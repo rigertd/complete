@@ -47,7 +47,7 @@ window.onload = function() {
   addDataForm.style.display = 'none';
 
   addDataButton.onclick = function() {
-    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile')) {
+    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile.')) {
       addDataForm.style.display = '';
       newProfileForm.style.display = 'none';
       newButton.style.display = '';
@@ -59,6 +59,13 @@ window.onload = function() {
   cancelDataButton.onclick = function() {
     addDataForm.style.display = 'none';
     addDataForm.reset();
+  };
+
+  saveDataButton.onclick = function() {
+    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile.')) {
+      GrowthTracker.Chart.addCheckupData();
+    }
+    else return false;
   };
 
   GrowthTracker.Chart.setUnitSelectors();
@@ -213,12 +220,94 @@ GrowthTracker.Chart.removeProfile = function() {
   return true;
 };
 
+GrowthTracker.Chart.clearAddDataForm = function() {
+  var addDataForm = document.getElementById('addDataForm');
+  var length = document.getElementById('dataLength');
+  var weight = document.getElementById('dataWeight');
+  var head = document.getElementById('dataHead');
+
+  GrowthTracker.hideError(length);
+  GrowthTracker.hideError(weight);
+  GrowthTracker.hideError(head);
+  GrowthTracker.removeValidationMessage('addDataForm_msg');
+  addDataForm.reset();
+};
+
 /**
  * Adds height, weight, and head circumference data
  * to the currently selected profile.
  */
 GrowthTracker.Chart.addCheckupData = function() {
+  var addDataForm = document.getElementById('addDataForm');
+  var profile = document.getElementById('profile');
+  var pid = profile.options[profile.selectedIndex].value;
+  var months = document.getElementById('dataMonths');
+  var length = document.getElementById('dataLength');
+  var lengthU = document.getElementById('lengthUnit');
+  var weight = document.getElementById('dataWeight');
+  var weightU = document.getElementById('weightUnit');
+  var head = document.getElementById('dataHead');
+  var headU = document.getElementById('headUnit');
 
+  /* Validate user input */
+  if (!GrowthTracker.Chart.validateDataForm()) {
+    return false;
+  }
+
+  /* XMLHttpRequest params */
+  var url = 'chart.php?action=data&profile=' + pid + '&mo=' + months.value;
+  if (length.value) url += '&l=' + length.value + '&lu=' + lengthU.value;
+  if (weight.value) url += '&w=' + weight.value + '&wu=' + weightU.value;
+  if (head.value)   url += '&h=' + head.value + '&hu=' + headU.value;
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (this.readyState === 4) {
+      var result = JSON.parse(this.responseText);
+
+      alert(result['message']);
+      if (result['success'] == 'false') {
+        return false;
+      }
+
+      GrowthTracker.Chart.clearAddDataForm();
+      addDataForm.style.display = 'none';
+      /* refresh chart data if chartType is selected */
+      var chartType = document.getElementById('chartType');
+      if (chartType.options[chartType.selectedIndex].value) GrowthTracker.Chart.getPercentileData();
+    }
+  };
+  xhr.open('GET', url);
+  xhr.send();
+};
+
+/**
+ * Validates the addDataForm form.
+ * At least one biometric field must contain data.
+ * @returns {boolean} Whether at least one field contains biometric data.
+ */
+GrowthTracker.Chart.validateDataForm = function() {
+  var profile = document.getElementById('profile');
+  var months = document.getElementById('dataMonths');
+  var length = document.getElementById('dataLength');
+  var weight = document.getElementById('dataWeight');
+  var head = document.getElementById('dataHead');
+
+  var valid = GrowthTracker.validateSelect(profile, 'You must select a profile.');
+  valid = GrowthTracker.validateElement(months) && valid;
+
+  if (!length.value && !weight.value && !head.value) {
+    GrowthTracker.showError(length);
+    GrowthTracker.showError(weight);
+    GrowthTracker.showError(head);
+    GrowthTracker.addValidationMessage('addDataForm_msg', 'You must enter at least one type of growth measurement.');
+    valid = false;
+  } else {
+    GrowthTracker.hideError(length);
+    GrowthTracker.hideError(weight);
+    GrowthTracker.hideError(head);
+    GrowthTracker.removeValidationMessage('addDataForm_msg');
+  }
+  return valid;
 };
 
 /**

@@ -119,7 +119,7 @@ $profiles = getProfiles($mysqli, $email);
       </div>
       <div class="col-sm-9 clearfix">
       <form id="addDataForm" action="chart.php" class="form-horizontal jumbotron">
-        <h3>Add Checkup Data for <span id="currentProfileName">Current Profile</span></h3>
+        <h3>Add or Update Data for <span id="currentProfileName">Current Profile</span></h3>
         <div class="form-group">
           <label for="dataMonths" class="control-label col-sm-4">Age in Months</label>
           <div class="col-sm-8">

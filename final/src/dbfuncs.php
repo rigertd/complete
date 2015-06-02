@@ -29,8 +29,9 @@ function prepareQuery($db, $query) {
  * @param mixed|null $arg3  The third argument (optional).
  * @param mixed|null $arg4  The fourth argument (optional).
  * @param mixed|null $arg5  The fifth argument (optional).
+ * @param mixed|null $arg6  The sixth argument (optional).
  */
-function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL) {
+function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL) {
     $numargs = func_num_args();
     $numtypes = strlen($type);
 
@@ -70,6 +71,12 @@ function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL
             break;
         case 7:
             if (!($stmt->bind_param($type, $arg1, $arg2, $arg3, $arg4, $arg5))) {
+                echo "Database binding error.";
+                die();
+            }
+            break;
+        case 8:
+            if (!($stmt->bind_param($type, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6))) {
                 echo "Database binding error.";
                 die();
             }

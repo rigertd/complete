@@ -5,6 +5,10 @@ require_once('dbinfo.php');
 
 include 'dbfuncs.php';
 
+/* conversion constants */
+define('IN_TO_CM', 2.54);
+define('LBS_TO_KG', 0.453592);
+
 session_start();
 
 /* Check if user is logged in */
@@ -116,6 +120,107 @@ function removeProfile($db, $email, $pid) {
     return $obj;
 }
 
+/**
+ * Adds or updates biometric data in the specified profile.
+ * @param mysqli $db          The mysqli database interface.
+ * @param String $email       The current user's email address.
+ * @param String $pid         The profile ID to add the data to.
+ * @param String $months      The child age in months.
+ * @param String $length      The child length (height).
+ * @param String $lengthUnit  The unit of the length value.
+ * @param String $weight      The child weight.
+ * @param String $weightUnit  The unit of the weight value.
+ * @param String $head        The child head circumference.
+ * @param String $headUnit    The unit of the head circumference value.
+ * @return mixed Whether the operation succeeded and relevant messages.
+ */
+function addOrUpdateData($db, $email, $pid, $months, $length, $lengthUnit, $weight, $weightUnit, $head, $headUnit) {
+    $obj = array('message' => '',
+                 'success' => 'true');
+
+    /* validate data and return error message if invalid */
+    if (empty($email)) {
+        $obj['message'] = $obj['message'] . 'Invalid user. Try logging in again. ';
+    }
+    if (empty($pid)) {
+        $obj['message'] = $obj['message'] . 'You must select a profile. ';
+    }
+    if (empty($months)) {
+        $obj['message'] = $obj['message'] . 'You must specify the age in months at the time the data was measured. ';
+    } else if (!ctype_digit($months) || $months < 0 || $months > 24) {
+        $obj['message'] = $obj['message'] . 'You must specify an age between 0 and 24 months. ';
+    }
+    if (empty($length) && empty($weight) && empty($head)) {
+        $obj['message'] = $obj['message'] . 'You must specify at least one measurement. ';
+    }
+    if (!empty($length) && (!is_numeric($length) || $length < 0 || empty($lengthUnit))) {
+        $obj['message'] = $obj['message'] . 'The length must be a positive numeric value. ';
+    }
+    if (!empty($weight) && (!is_numeric($weight) || $weight < 0 || empty($weightUnit))) {
+        $obj['message'] = $obj['message'] . 'The weight must be a positive numeric value. ';
+    }
+    if (!empty($head) && (!is_numeric($head) || $head < 0 || empty($headUnit))) {
+        $obj['message'] = $obj['message'] . 'The head circumference must be a positive numeric value. ';
+    }
+    if (!empty($obj['message'])) {
+      $obj['success'] = 'false';
+      return $obj;
+    }
+    $query = "INSERT INTO Entries (profile_id, type, months, val) ".
+             "SELECT p.id, ?, ?, ? FROM Profiles AS p ".
+             "INNER JOIN Users AS u ON u.id = p.parent_id AND u.email = ? AND p.id = ? ".
+             "ON DUPLICATE KEY UPDATE val = ?";
+
+    $stmt = prepareQuery($db, $query);
+    /* run query sequentially on all non-empty values */
+    if (!empty($length)) {
+        if ($lengthUnit == 'in') {
+            $length = $length * IN_TO_CM;
+        }
+        bindParam($stmt, "sidsid", "length", $months, $length, $email, $pid, $length);
+        executeStatement($stmt);
+        if ($stmt->affected_rows < 1) {
+            $obj['message'] .= $obj['message'] . "Unable to add length value. ";
+            $obj['success'] = "false";
+        } else if ($stmt->affected_rows == 1) {
+            $obj['message'] .= $obj['message'] . "Added a new length value. ";
+        } else {
+            $obj['message'] .= $obj['message'] . "Updated the existing length value. ";
+        }
+    }
+    if (!empty($weight)) {
+        if ($weightUnit == 'lb') {
+          $weight = $weight * LBS_TO_KG;
+        }
+        bindParam($stmt, "sidsid", "weight", $months, $weight, $email, $pid, $weight);
+        executeStatement($stmt);
+        if ($stmt->affected_rows < 1) {
+            $obj['message'] .= $obj['message'] . "Unable to add weight value. ";
+            $obj['success'] = "false";
+        } else if ($stmt->affected_rows == 1) {
+            $obj['message'] .= $obj['message'] . "Added a new weight value. ";
+        } else {
+            $obj['message'] .= $obj['message'] . "Updated the existing weight value. ";
+        }
+    }
+    if (!empty($head)) {
+        if ($headUnit == 'in') {
+          $head = $head * IN_TO_CM;
+        }
+        bindParam($stmt, "sidsid", "head", $months, $head, $email, $pid, $head);
+        executeStatement($stmt);
+        if ($stmt->affected_rows < 1) {
+            $obj['message'] .= $obj['message'] . "Unable to add head circumference value. ";
+            $obj['success'] = "false";
+        } else if ($stmt->affected_rows == 1) {
+            $obj['message'] .= $obj['message'] . "Added a new head circumference value. ";
+        } else {
+            $obj['message'] .= $obj['message'] . "Updated the existing head circumference value. ";
+        }
+    }
+    return $obj;
+}
+
 function addNewProfile($db, $email, $name, $dob, $gender) {
     $obj = array('message' => '');
 
@@ -178,6 +283,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action'])) {
             header('Content-Type: application/json');
             echo json_encode(getProfiles($mysqli, $email));
             break;
+        case "data":
+            $pid = isset($_GET['profile']) ? $_GET['profile'] : null;
+            $mo = isset($_GET['mo']) ? $_GET['mo'] : null;
+            $l = isset($_GET['l']) ? $_GET['l'] : null;
+            $lu = isset($_GET['lu']) ? $_GET['lu'] : null;
+            $w = isset($_GET['w']) ? $_GET['w'] : null;
+            $wu = isset($_GET['wu']) ? $_GET['wu'] : null;
+            $hc = isset($_GET['hc']) ? $_GET['hc'] : null;
+            $hcu = isset($_GET['hcu']) ? $_GET['hcu'] : null;
+            header('Content-Type: application/json');
+            echo json_encode(addOrUpdateData($mysqli, $email, $pid, $mo, $l, $lu, $w, $wu, $hc, $hcu));
+            break;
+        default:
+            echo "Unknown action.";
+            die();
     }
 }
 
