@@ -145,7 +145,7 @@ function addOrUpdateData($db, $email, $pid, $months, $length, $lengthUnit, $weig
     if (empty($pid)) {
         $obj['message'] = $obj['message'] . 'You must select a profile. ';
     }
-    if (empty($months)) {
+    if (empty($months) && $months != 0) {
         $obj['message'] = $obj['message'] . 'You must specify the age in months at the time the data was measured. ';
     } else if (!ctype_digit($months) || $months < 0 || $months > 24) {
         $obj['message'] = $obj['message'] . 'You must specify an age between 0 and 24 months. ';
