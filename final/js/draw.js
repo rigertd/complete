@@ -231,6 +231,7 @@ GrowthTracker.Chart.clearAddDataForm = function() {
   GrowthTracker.hideError(head);
   GrowthTracker.removeValidationMessage('addDataForm_msg');
   addDataForm.reset();
+  GrowthTracker.Chart.setUnitSelectors();
 };
 
 /**
@@ -258,7 +259,7 @@ GrowthTracker.Chart.addCheckupData = function() {
   var url = 'chart.php?action=data&profile=' + pid + '&mo=' + months.value;
   if (length.value) url += '&l=' + length.value + '&lu=' + lengthU.value;
   if (weight.value) url += '&w=' + weight.value + '&wu=' + weightU.value;
-  if (head.value)   url += '&h=' + head.value + '&hu=' + headU.value;
+  if (head.value)   url += '&hc=' + head.value + '&hcu=' + headU.value;
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
@@ -491,6 +492,7 @@ GrowthTracker.Chart.buildChart = function(chartType, chartName) {
     chartArea: {
       left:50,top:25,width:width * 0.9 - 80,height:'80%'
     },
+    interpolateNulls: true,
     series: {
       0: {targetAxisIndex: 0, lineWidth: 1},
       1: {targetAxisIndex: 0, lineWidth: 1},
