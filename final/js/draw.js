@@ -288,7 +288,7 @@ GrowthTracker.Chart.addCheckupData = function() {
   var dataType = document.getElementById('chartType').value;
   var months = document.getElementById('dataMonths');
   var data = document.getElementById('dataEntry');
-  var unit = document.getElementById('dataUnit').value;
+  var unit = document.getElementById('dataUnit');
 
   /* Validate user input */
   if (!GrowthTracker.Chart.validateDataForm()) {
