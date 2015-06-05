@@ -47,35 +47,29 @@ window.onload = function() {
   addDataForm.style.display = 'none';
 
   addDataButton.onclick = function() {
-    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile.')) {
-      addDataForm.style.display = '';
-      newProfileForm.style.display = 'none';
-      newButton.style.display = '';
-      GrowthTracker.clearForm(newProfileForm);
+    if (GrowthTracker.Chart.validateProfile()) {
+      GrowthTracker.Chart.setUnitSelector();
+      GrowthTracker.Chart.showForm(addDataForm, addDataButton);
+      GrowthTracker.Chart.hideForm(newProfileForm, newButton);
     }
     else return false;
   };
 
   cancelDataButton.onclick = function() {
-    addDataForm.style.display = 'none';
-    addDataForm.reset();
+    GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
   };
 
   saveDataButton.onclick = function() {
-    if (GrowthTracker.validateSelect(profileSelector, 'You must select a profile.')) {
+    if (GrowthTracker.Chart.validateProfile()) {
       GrowthTracker.Chart.addCheckupData();
     }
     else return false;
   };
 
-  GrowthTracker.Chart.setUnitSelectors();
-
   /* validate profile select elements */
   profileSelector.onchange = function() {
-    var currentProfile = document.getElementById('currentProfileName');
     if (GrowthTracker.validateSelect(this, 'You must select a profile.')) {
-      currentProfile.textContent = this.options[this.selectedIndex].text;
-      if (chartTypeSelector.options[chartTypeSelector.selectedIndex].value) {
+      if (chartTypeSelector.value) {
         GrowthTracker.Chart.loadChart();
       } else if (GrowthTracker.Chart.chart) {
         GrowthTracker.Chart.chart.clearChart();
@@ -85,9 +79,13 @@ window.onload = function() {
     }
   };
   chartTypeSelector.onchange = function() {
-    if (GrowthTracker.validateSelect(this, 'You must select a chart type.') &&
-        profileSelector.options[profileSelector.selectedIndex].value) {
-      GrowthTracker.Chart.loadChart();
+    if (GrowthTracker.validateSelect(this, 'You must select a chart type.')) {
+      GrowthTracker.Chart.setUnitSelector();
+      if (profileSelector.value) {
+        GrowthTracker.Chart.loadChart();
+      } else if (GrowthTracker.Chart.chart) {
+        GrowthTracker.Chart.chart.clearChart();
+      }
     } else if (GrowthTracker.Chart.chart) {
       GrowthTracker.Chart.chart.clearChart();
     }
@@ -95,10 +93,8 @@ window.onload = function() {
 
   /* display form if Add New Profile button is clicked */
   newButton.onclick = function() {
-    addDataForm.style.display = 'none';
-    GrowthTracker.clearForm(addDataForm);
-    GrowthTracker.toggleVisible(newProfileForm);
-    GrowthTracker.toggleVisible(newButton);
+    GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
+    GrowthTracker.Chart.showForm(newProfileForm, newButton);
   };
 
   /* If user clicks Save, commit data to database */
@@ -113,46 +109,107 @@ window.onload = function() {
 
   /* If user clicks cancel, hide new profile form and remove any error messages */
   cancelButton.onclick = function() {
-    GrowthTracker.clearForm(newProfileForm);
-    GrowthTracker.toggleVisible(newProfileForm);
-    GrowthTracker.toggleVisible(newButton);
+    GrowthTracker.Chart.hideForm(newProfileForm, newButton);
   };
 
   /* delete selected profile */
   deleteButton.onclick = function() {
-    newProfileForm.style.display = 'none';
-    newButton.style.display = '';
-    GrowthTracker.clearForm(newProfileForm);
-    GrowthTracker.Chart.removeProfile();
+    if (GrowthTracker.Chart.removeProfile()) {
+      GrowthTracker.Chart.hideForm(newProfileForm, newButton);
+    }
+    return false;
+  };
+};
+
+/**
+ * Hides the specified button and displays the specified form.
+ * @param {Node} form   - The form to display.
+ * @param {Node} button - The button to hide.
+ */
+GrowthTracker.Chart.showForm = function(form, button) {
+  form.style.display = '';
+  button.style.display = 'none';
+};
+
+/**
+ * Hides and clears the specified form and makes the specified button visible.
+ * @param {Node} form   - The form to hide and reset.
+ * @param {Node} button - The button to display.
+ */
+GrowthTracker.Chart.hideForm = function(form, button) {
+  form.style.display = 'none';
+  button.style.display = '';
+  GrowthTracker.clearForm(form);
+};
+
+/**
+ * Sets the specified selector to imperial and metric length units.
+ * @param {Node} selector - The select node to add the options to.
+ */
+GrowthTracker.Chart.setLengthUnits = function(selector) {
+  while (selector.hasChildNodes()) {
+    selector.removeChild(selector.lastChild);
   }
+  var op = new Option('value', 'in');
+  op.textContent = 'Inches';
+  selector.appendChild(op);
+  op = new Option('value', 'cm');
+  op.textContent = 'Centimeters';
+  selector.appendChild(op);
+
+};
+
+/**
+ * Sets the specified selector to imperial and metric weight units.
+ * @param {Node} selector - The select node to add the options to.
+ */
+GrowthTracker.Chart.setWeightUnits = function(selector) {
+  while (selector.hasChildNodes()) {
+    selector.removeChild(selector.lastChild);
+  }
+  var op = new Option('value', 'lb');
+  op.textContent = 'Pounds';
+  selector.appendChild(op);
+  op = new Option('value', 'kg');
+  op.textContent = 'Kilograms';
+  selector.appendChild(op);
 };
 
 /**
  * Sets the unit selectors in the add data form to the previous values
  * and sets event handlers to save any changes to a cookie.
  */
-GrowthTracker.Chart.setUnitSelectors = function() {
-  var lengthUnit = document.getElementById('lengthUnit');
-  var weightUnit = document.getElementById('weightUnit');
-  var headUnit = document.getElementById('headUnit');
+GrowthTracker.Chart.setUnitSelector = function() {
+  var unit = document.getElementById('dataUnit');
+  var entry = document.getElementById('dataEntry');
+  var chartType = document.getElementById('chartType');
 
-  var lengthSelected = docCookies.getItem('lengthUnit') || 'in';
-  var weightSelected = docCookies.getItem('weightUnit') || 'lb';
-  var headSelected = docCookies.getItem('headUnit') || 'in';
-
-  lengthUnit.value = lengthSelected;
-  weightUnit.value = weightSelected;
-  headUnit.value = headSelected;
-
-  lengthUnit.onchange = function() {
-    docCookies.setItem('lengthUnit', lengthUnit.value, Infinity);
-  };
-  weightUnit.onchange = function() {
-    docCookies.setItem('weightUnit', weightUnit.value, Infinity);
-  };
-  headUnit.onchange = function() {
-    docCookies.setItem('headUnit', headUnit.value, Infinity);
-  };
+  switch (chartType.options[chartType.selectedIndex].value) {
+    case 'length':
+      GrowthTracker.Chart.setLengthUnits(unit);
+      entry.placeholder = 'Body Length';
+      unit.value = docCookies.getItem('lengthUnit') || 'in';
+      unit.onchange = function() {
+        docCookies.setItem('lengthUnit', unit.value, Infinity);
+      };
+      break;
+    case 'weight':
+      GrowthTracker.Chart.setWeightUnits(unit);
+      entry.placeholder = 'Weight';
+      unit.value = docCookies.getItem('weightUnit') || 'lb';
+      unit.onchange = function() {
+        docCookies.setItem('weightUnit', unit.value, Infinity);
+      };
+      break;
+    case 'head':
+      GrowthTracker.Chart.setLengthUnits(unit);
+      entry.placeholder = 'Head Circumference';
+      unit.value = docCookies.getItem('headUnit') || 'in';
+      unit.onchange = function() {
+        docCookies.setItem('headUnit', unit.value, Infinity);
+      };
+      break;
+  }
 };
 
 /**
@@ -220,35 +277,18 @@ GrowthTracker.Chart.removeProfile = function() {
   return true;
 };
 
-GrowthTracker.Chart.clearAddDataForm = function() {
-  var addDataForm = document.getElementById('addDataForm');
-  var length = document.getElementById('dataLength');
-  var weight = document.getElementById('dataWeight');
-  var head = document.getElementById('dataHead');
-
-  GrowthTracker.hideError(length);
-  GrowthTracker.hideError(weight);
-  GrowthTracker.hideError(head);
-  GrowthTracker.removeValidationMessage('addDataForm_msg');
-  addDataForm.reset();
-  GrowthTracker.Chart.setUnitSelectors();
-};
-
 /**
  * Adds height, weight, and head circumference data
  * to the currently selected profile.
  */
 GrowthTracker.Chart.addCheckupData = function() {
   var addDataForm = document.getElementById('addDataForm');
-  var profile = document.getElementById('profile');
-  var pid = profile.options[profile.selectedIndex].value;
+  var addDataButton = document.getElementById('addDataButton');
+  var pid = document.getElementById('profile').value;
+  var dataType = document.getElementById('chartType').value;
   var months = document.getElementById('dataMonths');
-  var length = document.getElementById('dataLength');
-  var lengthU = document.getElementById('lengthUnit');
-  var weight = document.getElementById('dataWeight');
-  var weightU = document.getElementById('weightUnit');
-  var head = document.getElementById('dataHead');
-  var headU = document.getElementById('headUnit');
+  var data = document.getElementById('dataEntry');
+  var unit = document.getElementById('dataUnit').value;
 
   /* Validate user input */
   if (!GrowthTracker.Chart.validateDataForm()) {
@@ -257,24 +297,30 @@ GrowthTracker.Chart.addCheckupData = function() {
 
   /* XMLHttpRequest params */
   var url = 'chart.php?action=data&profile=' + pid + '&mo=' + months.value;
-  if (length.value) url += '&l=' + length.value + '&lu=' + lengthU.value;
-  if (weight.value) url += '&w=' + weight.value + '&wu=' + weightU.value;
-  if (head.value)   url += '&hc=' + head.value + '&hcu=' + headU.value;
+  switch (dataType) {
+    case 'length':
+      url += '&l=' + data.value + '&lu=' + unit.value;
+      break;
+    case 'width':
+      url += '&w=' + data.value + '&wu=' + unit.value;
+      break;
+    case 'head':
+      url += '&hc=' + data.value + '&hcu=' + unit.value;
+      break;
+  }
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
       var result = JSON.parse(this.responseText);
 
-      alert(result['message']);
       if (result['success'] == 'false') {
+        alert(result['message']);
         return false;
       }
 
-      GrowthTracker.Chart.clearAddDataForm();
-      addDataForm.style.display = 'none';
+      GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
       /* refresh chart data if chartType is selected */
-      var chartType = document.getElementById('chartType');
-      if (chartType.options[chartType.selectedIndex].value) GrowthTracker.Chart.getPercentileData();
+      if (dataType) GrowthTracker.Chart.getPercentileData();
     }
   };
   xhr.open('GET', url);
@@ -283,31 +329,15 @@ GrowthTracker.Chart.addCheckupData = function() {
 
 /**
  * Validates the addDataForm form.
- * At least one biometric field must contain data.
- * @returns {boolean} Whether at least one field contains biometric data.
+ * @returns {boolean} Whether the required fields are complete.
  */
 GrowthTracker.Chart.validateDataForm = function() {
-  var profile = document.getElementById('profile');
   var months = document.getElementById('dataMonths');
-  var length = document.getElementById('dataLength');
-  var weight = document.getElementById('dataWeight');
-  var head = document.getElementById('dataHead');
+  var data = document.getElementById('dataEntry');
 
-  var valid = GrowthTracker.validateSelect(profile, 'You must select a profile.');
+  var valid = GrowthTracker.Chart.validateProfile();
   valid = GrowthTracker.validateElement(months) && valid;
-
-  if (!length.value && !weight.value && !head.value) {
-    GrowthTracker.showError(length);
-    GrowthTracker.showError(weight);
-    GrowthTracker.showError(head);
-    GrowthTracker.addValidationMessage('addDataForm_msg', 'You must enter at least one type of growth measurement.');
-    valid = false;
-  } else {
-    GrowthTracker.hideError(length);
-    GrowthTracker.hideError(weight);
-    GrowthTracker.hideError(head);
-    GrowthTracker.removeValidationMessage('addDataForm_msg');
-  }
+  valid = GrowthTracker.validateElement(data) && valid;
   return valid;
 };
 
@@ -424,18 +454,17 @@ GrowthTracker.Chart.prepareData = function(arr) {
 /**
  * Validates the profile and chart type select elements.
  * This is used to determine whether the placeholders are selected.
- * @param {number} pid       - The profile ID value.
- * @param {string} chartType - The chart type value.
  * @returns {boolean} Whether both values are non-empty.
  */
-GrowthTracker.Chart.validateProfile = function(pid, chartType) {
+GrowthTracker.Chart.validateProfile = function() {
   var selector = document.getElementById('chartType');
   var profile = document.getElementById('profile');
 
   GrowthTracker.validateSelect(selector, 'You must select a chart type.');
   GrowthTracker.validateSelect(profile, 'You must select a profile.');
 
-  return pid && chartType;
+  return selector.options[selector.selectedIndex].value
+      && profile.options[profile.selectedIndex].value;
 };
 
 /**
@@ -450,7 +479,7 @@ GrowthTracker.Chart.getPercentileData = function() {
   var pid = profile.options[profile.selectedIndex].value;
 
   /* validate input */
-  if (!GrowthTracker.Chart.validateProfile(pid, chartType)) return false;
+  if (!GrowthTracker.Chart.validateProfile()) return false;
 
   /* XMLHttpRequest params */
   var url = 'chart.php?action=chart&profile=' + pid + '&type=' + chartType;

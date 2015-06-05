@@ -82,14 +82,14 @@ $profiles = getProfiles($mysqli, $email);
               <button type="button" id="addDataButton" class="btn btn-default btn-block">Add Checkup Data</button>
             </div>
           <div class="form-group">
-            <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
-          </div>
-          <div class="form-group">
             <div id="validation_message"></div>
           </div>
         </form>
         <div class="form-group">
           <button type="button" id="newButton" class="btn btn-default btn-block">Add New Profile</button>
+        </div>
+        <div class="form-group">
+          <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
         </div>
         <form id="newProfileForm" action="chart.php">
           <h4>New Profile</h4>
@@ -99,7 +99,7 @@ $profiles = getProfiles($mysqli, $email);
           </div>
           <div class="form-group">
             <label for="profileDob" class="sr-only">Date of Birth</label>
-            <input type="text" id="profileDob" class="form-control" pattern="[12][01]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
+            <input type="text" id="profileDob" class="form-control" pattern="[12][09]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
           </div>
           <div class="form-group">
             <label for="profileGender" class="sr-only">Gender</label>
@@ -116,53 +116,29 @@ $profiles = getProfiles($mysqli, $email);
             <button type="reset" id="cancelButton" class="btn btn-default btn-block">Cancel</button>
           </div>
         </form>
+        <form id="addDataForm" action="chart.php">
+          <h4>Add or Update Data</h4>
+          <div class="form-group">
+            <label for="dataMonths" class="sr-only">Age in Months</label>
+            <input type="text" id="dataMonths" class="form-control" title="Age in Months" placeholder="Age (months)" required>
+          </div>
+          <div class="form-group">
+            <label for="dataEntry" class="sr-only">Checkup Data</label>
+            <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d+" title="Checkup Data" placeholder="" required>
+            <select id="dataUnit" class="form-control">
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+            </select>
+          </div>
+          <div class="text-center">
+            <div class="btn-group form-inline">
+                <button id="saveDataButton" type="button" class="btn btn-default">Save Data</button>
+                <button id="cancelDataButton" type="reset" class="btn btn-default">Cancel</button>
+            </div>
+          </div>
+        </form>
       </div>
       <div class="col-sm-9 clearfix">
-      <form id="addDataForm" action="chart.php" class="form-horizontal jumbotron">
-        <h3>Add or Update Data for <span id="currentProfileName">Current Profile</span></h3>
-        <div class="form-group">
-          <label for="dataMonths" class="control-label col-sm-4">Age in Months</label>
-          <div class="col-sm-8">
-              <input type="text" id="dataMonths" class="form-control" title="Age in Months" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="dataLength" class="control-label col-sm-4">Body Length</label>
-          <div class="col-sm-4"><input type="text" id="dataLength" class="form-control" pattern="\d+\.?\d+" title="Length (Height)"></div>
-          <div class="col-sm-4">
-            <select id="lengthUnit" class="form-control">
-              <option value="in">Inches</option>
-              <option value="cm">Centimeters</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="dataWeight" class="control-label col-sm-4">Body Weight</label>
-          <div class="col-sm-4"><input type="text" id="dataWeight" class="form-control" pattern="\d+\.?\d+" title="Weight"></div>
-          <div class="col-sm-4">
-            <select id="weightUnit" class="form-control">
-              <option value="lb">Pounds</option>
-              <option value="kg">Kilograms</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="dataHead" class="control-label col-sm-4">Head Circumference</label>
-          <div class="col-sm-4"><input type="text" id="dataHead" class="form-control" pattern="\d+\.?\d+" title="Head Circumference"></div>
-          <div class="col-sm-4">
-            <select id="headUnit" class="form-control">
-              <option value="in">Inches</option>
-              <option value="cm">Centimeters</option>
-            </select>
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="btn-group form-inline">
-            <button id="saveDataButton" type="button" class="btn btn-default">Save Data</button>
-            <button id="cancelDataButton" type="reset" class="btn btn-default">Cancel</button>
-          </div>
-        </div>
-      </form>
         <div id="chartDiv"></div>
       </div>
       <footer class="col-sm-12">&copy; David Rigert</footer>
