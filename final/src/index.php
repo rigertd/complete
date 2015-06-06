@@ -81,7 +81,7 @@ $profiles = getProfiles($mysqli, $email);
           </div>
         </form>
         <div class="form-group">
-          <button type="button" id="newButton" class="btn btn-default btn-block">Add New Profile</button>
+          <button type="button" id="newButton" class="btn btn-default btn-block">Create New Profile</button>
         </div>
         <div class="form-group">
           <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
@@ -138,12 +138,14 @@ $profiles = getProfiles($mysqli, $email);
       </div>
       <div class="col-sm-9 clearfix">
         <div id="welcome">
-          <img src="../img/baby_hands.png" class="pull-left">
+          <img src="../img/baby_hands.png" class="pull-left img-responsive" alt="A baby's hands">
           <p>Welcome to Baby Growth Tracker, where you can record your baby's length, weight, and head circumference measurements
-            from well child visits. Visually compare your baby's growth against the standards set by the World Health Organization
-            on a separate graph for each measurement.</p>
-          <p>Select a child profile and chart type on the left, or create a new profile for your child if
-              you do not already have one.</p>
+            from well child visits. Visually compare your baby's growth against the standards set for each measurement
+            by <a href="http://www.who.int/childgrowth/standards/en/">the World Health Organization</a>
+            on a chart.</p>
+          <p>To begin, select a child profile, or create a new profile for your child if you do not already have one.
+            Next, select the chart type to view your existing data for that measurement. Click <strong>Add Checkup Data</strong>
+            to add new data or update the existing data on the current chart.</p>
         </div>
         <div id="chartDiv"></div>
       </div>
