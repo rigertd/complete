@@ -76,11 +76,8 @@ $profiles = getProfiles($mysqli, $email);
               <option value="head">Head Circumference</option>
             </select>
           </div>
-            <div class="form-group">
-              <button type="button" id="addDataButton" class="btn btn-default btn-block">Add Checkup Data</button>
-            </div>
           <div class="form-group">
-            <div id="validation_message"></div>
+            <button type="button" id="addDataButton" class="btn btn-default btn-block">Add Checkup Data</button>
           </div>
         </form>
         <div class="form-group">
@@ -118,7 +115,7 @@ $profiles = getProfiles($mysqli, $email);
           <h4>Add or Update Data</h4>
           <div class="form-group">
             <label for="dataMonths" class="sr-only">Age in Months</label>
-            <input type="text" id="dataMonths" class="form-control" pattern="\d+" title="Age in Months" placeholder="Age (months)" required>
+            <input type="text" id="dataMonths" class="form-control" pattern="\d+" title="Age in Months" placeholder="Age (0-24 months)" required>
           </div>
           <div class="form-group">
             <label for="dataEntry" class="sr-only">Checkup Data</label>
@@ -135,6 +132,9 @@ $profiles = getProfiles($mysqli, $email);
             </div>
           </div>
         </form>
+        <div class="form-group">
+          <div id="validation_message"></div>
+        </div>
       </div>
       <div class="col-sm-9 clearfix">
         <div id="welcome">
