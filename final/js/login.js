@@ -49,7 +49,6 @@ window.onload = function() {
   /* event handling */
   suFirst.onblur = GrowthTracker.validateElement;
   suLast.onblur = GrowthTracker.validateElement;
-  suEmail.onkeyup = GrowthTracker.validateElement;
   suEmail.onblur = function() {
     if (GrowthTracker.validateElement(suEmail)) {
       GrowthTracker.SignUp.checkEmail();
@@ -163,7 +162,7 @@ GrowthTracker.SignUp.validatePassword = function() {
   var pw1 = document.getElementById('signup_password1');
   var pw2 = document.getElementById('signup_password2');
 
-  if (pw1.value && pw1.value != pw2.value) {
+  if (pw1.value && pw1.value.substring(0, pw2.value.length) != pw2.value) {
     /* apply error style if passwords do not match */
     GrowthTracker.showError(pw2);
     GrowthTracker.addValidationMessage('pwMatch', 'The passwords do not match.');
