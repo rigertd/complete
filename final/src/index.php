@@ -125,11 +125,11 @@ $profiles = getProfiles($mysqli, $email);
               <option value="cm">Centimeters</option>
             </select>
           </div>
-          <div class="text-center">
-            <div class="btn-group form-inline">
-                <button id="saveDataButton" type="button" class="btn btn-default">Save Data</button>
-                <button id="cancelDataButton" type="reset" class="btn btn-default">Cancel</button>
-            </div>
+          <div class="form-group"">
+            <button id="saveDataButton" type="button" class="btn btn-default btn-block">Save Data</button>
+          </div>
+          <div class="form-group"">
+            <button id="cancelDataButton" type="reset" class="btn btn-default btn-block">Cancel</button>
           </div>
         </form>
         <div class="form-group">
