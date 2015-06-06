@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
 require_once('dbinfo.php');
 
 include 'dbfuncs.php';
@@ -99,7 +97,7 @@ $profiles = getProfiles($mysqli, $email);
           </div>
           <div class="form-group">
             <label for="profileDob" class="sr-only">Date of Birth</label>
-            <input type="text" id="profileDob" class="form-control" pattern="[12][09]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Date of Birth" required>
+            <input type="text" id="profileDob" class="form-control" pattern="[12][09]\d{2}-[01]\d-[0123]\d" title="Date of birth in YYYY-MM-DD format" placeholder="Birth Date (YYYY-MM-DD)" required>
           </div>
           <div class="form-group">
             <label for="profileGender" class="sr-only">Gender</label>
@@ -124,7 +122,7 @@ $profiles = getProfiles($mysqli, $email);
           </div>
           <div class="form-group">
             <label for="dataEntry" class="sr-only">Checkup Data</label>
-            <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d+" title="Checkup Data" placeholder="" required>
+            <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d*" title="Checkup Data" placeholder="" required>
             <select id="dataUnit" class="form-control">
               <option value="in">Inches</option>
               <option value="cm">Centimeters</option>

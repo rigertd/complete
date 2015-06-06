@@ -111,6 +111,8 @@ GrowthTracker.clearForm = function(form) {
 /**
  * Verifies the validity state of the calling form element.
  * Applies error formatting if invalid, removes it if valid.
+ * @param {Object} el     - The element to verify.
+ * @returns {boolean} Whether the select element has valid input.
  */
 GrowthTracker.validateElement = function(el) {
   if (!el) el = this;
@@ -131,6 +133,7 @@ GrowthTracker.validateElement = function(el) {
  * Applies error formatting if selected value is blank.
  * @param {Object} obj     - The select element to verify.
  * @param {string} message - The message to display if invalid.
+ * @returns {boolean} Whether the select element has valid input.
  */
 GrowthTracker.validateSelect = function(obj, message) {
   if (!obj.options[obj.selectedIndex].value) {
@@ -146,6 +149,7 @@ GrowthTracker.validateSelect = function(obj, message) {
 
 /**
  * Toggles the display CSS style of the specified node between none and normal.
+ * @param {Object} node - The node to verify.
  */
 GrowthTracker.toggleVisible = function(node) {
   if (node.style.display == 'none') node.style.display = '';

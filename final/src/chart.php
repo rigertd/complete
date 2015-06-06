@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
 require_once('dbinfo.php');
 
 include 'dbfuncs.php';
@@ -33,6 +31,14 @@ if ($mysqli->connect_errno) {
     die();
 }
 
+/**
+ * Gets the data entered by the user for the specified profile ID.
+ * @param mysqli $db    The mysqli database interface.
+ * @param String $type  The type of chart data (length, weight, or head)
+ * @param int    $pid   The profile ID.
+ * @param String $email The user's email address.
+ * @return array An array of user-entered data as strings.
+ */
 function getUserData($db, $type, $pid, $email) {
     $stmt = prepareQuery($db, "SELECT months, val FROM Entries ".
                               "INNER JOIN Profiles AS p ON profile_id = p.id ".
@@ -50,6 +56,13 @@ function getUserData($db, $type, $pid, $email) {
     return $arr;
 }
 
+/**
+ * Gets the percentile data published by the WHO from the database.
+ * @param mysqli $db    The mysqli database interface.
+ * @param String $type  The type of chart data (length, weight, or head)
+ * @param int    $pid   The profile ID.
+ * @return bool|mysqli_result The result of the query.
+ */
 function getWhoResults($db, $type, $pid) {
     $stmt = prepareQuery($db, "SELECT w.months, w.val " .
                               "FROM WHOMaster AS w INNER JOIN Profiles AS p " .
@@ -61,6 +74,15 @@ function getWhoResults($db, $type, $pid) {
 
 }
 
+/**
+ * Gets an array of the combined WHO percentile and user-entered data.
+ * The user data is in the last column and is NULL if not entered for that age.
+ * @param mysqli $db    The mysqli database interface.
+ * @param String $type  The type of chart data (length, weight, or head)
+ * @param int    $pid   The profile ID.
+ * @param String $email The user's email address.
+ * @return array An array of rows of data, with the last row being the user data.
+ */
 function getChartData($db, $type, $pid, $email) {
     $userArr = getUserData($db, $type, $pid, $email);
     $whoResults = getWhoResults($db, $type, $pid);
@@ -82,11 +104,23 @@ function getChartData($db, $type, $pid, $email) {
     return $arr;
 }
 
+/**
+ * Determines whether the specified YYYY-MM-DD format date is valid.
+ * @param String $date  The date to validate.
+ * @return bool Whether the date is valid.
+ */
 function validateDate($date) {
     $arr = explode('-', $date);
     return count($arr) == 3 && checkdate($arr[1], $arr[2], $arr[0]);
 }
 
+/**
+ * Removes a profile from the database.
+ * @param mysqli $db    The mysqli database interface.
+ * @param String $email The user's email address.
+ * @param int    $pid   The profile ID.
+ * @return array An object indicating whether the operation succeeded and relevant messages.
+ */
 function removeProfile($db, $email, $pid) {
     $obj = array('message' => '');
     /* validate data and return error message if invalid */
@@ -221,6 +255,15 @@ function addOrUpdateData($db, $email, $pid, $months, $length, $lengthUnit, $weig
     return $obj;
 }
 
+/**
+ * Adds a new profile to the current user's account.
+ * @param mysqli $db        The mysqli database interface.
+ * @param String $email     The current user's email address.
+ * @param String $name      The baby's name.
+ * @param String $dob       The baby's date of birth.
+ * @param String $gender    The baby's gender (m/f).
+ * @return array An object indicating whether the operation succeeded and relevant messages.
+ */
 function addNewProfile($db, $email, $name, $dob, $gender) {
     $obj = array('message' => '');
 
