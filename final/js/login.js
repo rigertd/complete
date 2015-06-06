@@ -81,6 +81,10 @@ GrowthTracker.SignUp.checkEmail = function() {
   var xhr = new XMLHttpRequest();
   var url = 'login.php?action=email&signup_email=' + encodeURIComponent(email.value);
 
+  if (!GrowthTracker.validateElement(email)) {
+    return false;
+  }
+
   xhr.onreadystatechange = function() {
     if (this.readyState === 4) {
       var result = this.responseText;
