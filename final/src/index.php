@@ -120,7 +120,7 @@ $profiles = getProfiles($mysqli, $email);
           <h4>Add or Update Data</h4>
           <div class="form-group">
             <label for="dataMonths" class="sr-only">Age in Months</label>
-            <input type="text" id="dataMonths" class="form-control" title="Age in Months" placeholder="Age (months)" required>
+            <input type="text" id="dataMonths" class="form-control" pattern="\d+" title="Age in Months" placeholder="Age (months)" required>
           </div>
           <div class="form-group">
             <label for="dataEntry" class="sr-only">Checkup Data</label>
