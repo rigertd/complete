@@ -41,6 +41,7 @@ window.onload = function() {
   var profileName = document.getElementById('profileName');
   var profileDob = document.getElementById('profileDob');
   var profileGender = document.getElementById('profileGender');
+  var welcome = document.getElementById('welcome');
 
   /* Hide new profile form and add data form by default */
   newProfileForm.style.display = 'none';
@@ -70,24 +71,30 @@ window.onload = function() {
   profileSelector.onchange = function() {
     if (GrowthTracker.validateSelect(this, 'You must select a profile.')) {
       if (chartTypeSelector.value) {
+        welcome.style.display = 'none';
         GrowthTracker.Chart.loadChart();
       } else if (GrowthTracker.Chart.chart) {
         GrowthTracker.Chart.chart.clearChart();
+        welcome.style.display = '';
       }
     } else if (GrowthTracker.Chart.chart) {
       GrowthTracker.Chart.chart.clearChart();
+      welcome.style.display = '';
     }
   };
   chartTypeSelector.onchange = function() {
     if (GrowthTracker.validateSelect(this, 'You must select a chart type.')) {
       GrowthTracker.Chart.setUnitSelector();
       if (profileSelector.value) {
+        welcome.style.display = 'none';
         GrowthTracker.Chart.loadChart();
       } else if (GrowthTracker.Chart.chart) {
         GrowthTracker.Chart.chart.clearChart();
+        welcome.style.display = '';
       }
     } else if (GrowthTracker.Chart.chart) {
       GrowthTracker.Chart.chart.clearChart();
+      welcome.style.display = '';
     }
   };
 
@@ -301,7 +308,7 @@ GrowthTracker.Chart.addCheckupData = function() {
     case 'length':
       url += '&l=' + data.value + '&lu=' + unit.value;
       break;
-    case 'width':
+    case 'weight':
       url += '&w=' + data.value + '&wu=' + unit.value;
       break;
     case 'head':
@@ -348,6 +355,7 @@ GrowthTracker.Chart.validateDataForm = function() {
 GrowthTracker.Chart.refreshProfiles = function () {
   var profile = document.getElementById('profile');
   var addDataForm = document.getElementById('addDataForm');
+  var welcome = document.getElementById('welcome');
 
   /* XMLHttpRequest params */
   var url = 'chart.php?action=profiles';
@@ -368,6 +376,7 @@ GrowthTracker.Chart.refreshProfiles = function () {
       if (GrowthTracker.Chart.chart) GrowthTracker.Chart.chart.clearChart();
       addDataForm.style.display = 'none';
       GrowthTracker.clearForm(addDataForm);
+      welcome.style.display = '';
     }
   };
   xhr.open('GET', url);

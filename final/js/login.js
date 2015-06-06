@@ -50,7 +50,12 @@ window.onload = function() {
   suFirst.onblur = GrowthTracker.validateElement;
   suLast.onblur = GrowthTracker.validateElement;
   suEmail.onkeyup = GrowthTracker.validateElement;
-  suEmail.onblur = GrowthTracker.SignUp.checkEmail;
+  suEmail.onblur = function() {
+    if (GrowthTracker.validateElement(suEmail)) {
+      GrowthTracker.SignUp.checkEmail();
+    }
+  };
+
   suPw1.onblur = GrowthTracker.validateElement;
   suPw2.onkeyup = GrowthTracker.SignUp.validatePassword;
 

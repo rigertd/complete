@@ -185,7 +185,9 @@ header('Content-Type: text/html');
   <body>
     <div class="container">
       <header class="page-header clearfix">
-        <h2 class="col-sm-6">Baby Growth Tracker</h2>
+        <div class="col-sm-6">
+          <h2>Baby Growth Tracker</h2>
+        </div>
         <div class="col-sm-6">
           <form id="login" method="post" action="login.php<?php echo (isset($_REQUEST['callback']) ? "?callback=$_REQUEST[callback]" : ""); ?>" style="padding-right:15px;" class="form-horizontal" role="form">
             <input type="hidden" name="action" value="signin">

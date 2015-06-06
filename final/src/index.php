@@ -54,8 +54,8 @@ $profiles = getProfiles($mysqli, $email);
   <body>
     <div class="container">
       <header class="page-header clearfix">
-        <h2 class="col-sm-9">Baby Growth Tracker</h2>
-        <div class="col-sm-3"><?php echo htmlspecialchars("$first $last"); ?> <a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
+        <h2 class="col-sm-8">Baby Growth Tracker</h2>
+        <div class="col-sm-4 text-right"><span class="h5" style="margin-right:10px;"><?php echo htmlspecialchars("$first $last"); ?></span> <a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
       </header>
       <div class="col-sm-3">
         <form id="selectProfileForm" action="chart.php">
@@ -139,6 +139,14 @@ $profiles = getProfiles($mysqli, $email);
         </form>
       </div>
       <div class="col-sm-9 clearfix">
+        <div id="welcome">
+          <img src="../img/baby_hands.png" class="pull-left">
+          <p>Welcome to Baby Growth Tracker, where you can record your baby's length, weight, and head circumference measurements
+            from well child visits. Visually compare your baby's growth against the standards set by the World Health Organization
+            on a separate graph for each measurement.</p>
+          <p>Select a child profile and chart type on the left, or create a new profile for your child if
+              you do not already have one.</p>
+        </div>
         <div id="chartDiv"></div>
       </div>
       <footer class="col-sm-12">&copy; David Rigert</footer>
