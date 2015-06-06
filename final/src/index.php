@@ -53,7 +53,7 @@ $profiles = getProfiles($mysqli, $email);
     <div class="container">
       <header class="page-header clearfix">
         <h2 class="col-sm-8">Baby Growth Tracker</h2>
-        <div class="col-sm-4 text-right"><span class="h5" style="margin-right:10px;"><?php echo htmlspecialchars("$first $last"); ?></span> <a href="login.php?action=logout" class="btn btn-default" role="button">Log Out</a></div>
+        <div class="col-sm-4 text-right"><span class="h5" style="margin-right:10px;"><?php echo htmlspecialchars("$first $last"); ?></span> <a href="login.php?action=logout" class="btn btn-default" role="button">Sign Out</a></div>
       </header>
       <div class="col-sm-3">
         <form id="selectProfileForm" action="chart.php">
