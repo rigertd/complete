@@ -102,6 +102,14 @@ GrowthTracker.validateForm = function(formId) {
  */
 GrowthTracker.clearForm = function(form) {
   form.reset();
+  GrowthTracker.hideErrors(form);
+};
+
+/**
+ * Hides all validation errors on the specified form.
+ * @param {object} form - The form to hide errors on.
+ */
+GrowthTracker.hideErrors = function(form) {
   for (var i = 0, len = form.elements.length; i < len; i++) {
     GrowthTracker.hideError(form.elements[i]);
     GrowthTracker.removeValidationMessage(form.elements[i].id + '_msg');

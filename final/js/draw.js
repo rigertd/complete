@@ -104,7 +104,7 @@ window.onload = function() {
 
   /* display form if Add New Profile button is clicked */
   newButton.onclick = function() {
-    GrowthTracker.clearForm(selectProfileForm);
+    GrowthTracker.hideErrors(selectProfileForm);
     GrowthTracker.Chart.hideForm(addDataForm);
     GrowthTracker.Chart.hideForm(navButtonForm);
     GrowthTracker.Chart.showForm(newProfileForm);
