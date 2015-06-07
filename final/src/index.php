@@ -97,6 +97,9 @@ $profiles = getProfiles($mysqli, $email);
           <div class="form-group">
             <label for="dataEntry" class="sr-only">Checkup Data</label>
             <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d*" title="Checkup Data" placeholder="" required>
+          </div>
+          <div class="form-group">
+            <label for="dataUnit" class="sr-only">Data Unit</label>
             <select id="dataUnit" class="form-control">
               <option value="in">Inches</option>
               <option value="cm">Centimeters</option>
@@ -140,7 +143,7 @@ $profiles = getProfiles($mysqli, $email);
       </div>
       <div class="col-sm-9 clearfix">
         <div id="welcome">
-          <img src="../img/baby_hands.png" class="pull-left img-responsive" alt="A baby's hands">
+          <img src="../img/baby_hands.png" class="pull-right" alt="A baby's hands">
           <p>Welcome to Baby Growth Tracker, where you can record your baby's length, weight, and head circumference measurements
             from well child visits. Visually compare your baby's growth against the standards set for each measurement
             by <a href="http://www.who.int/childgrowth/standards/en/">the World Health Organization</a>
