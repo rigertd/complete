@@ -45,9 +45,9 @@ $profiles = getProfiles($mysqli, $email);
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
     <script src="https://www.google.com/jsapi"></script>
-    <script src="../js/cookies.js"></script>
-    <script src="../js/tracker.js"></script>
-    <script src="../js/draw.js"></script>
+    <script src="../js/cookies.min.js"></script>
+    <script src="../js/tracker.min.js"></script>
+    <script src="../js/draw.min.js"></script>
   </head>
   <body>
     <div class="container">

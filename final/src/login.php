@@ -179,8 +179,8 @@ header('Content-Type: text/html');
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
-    <script src="../js/tracker.js"></script>
-    <script src="../js/login.js"></script>
+    <script src="../js/tracker.min.js"></script>
+    <script src="../js/login.min.js"></script>
   </head>
   <body>
     <div class="container">
