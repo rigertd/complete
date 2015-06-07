@@ -33,6 +33,8 @@ window.onload = function() {
   var addDataButton = document.getElementById('addDataButton');
   var saveDataButton = document.getElementById('saveDataButton');
   var cancelDataButton = document.getElementById('cancelDataButton');
+  var selectProfileForm = document.getElementById('selectProfileForm');
+  var navButtonForm = document.getElementById('navButtonForm');
   var newProfileForm = document.getElementById('newProfileForm');
   var addDataForm = document.getElementById('addDataForm');
   var profileSelector = document.getElementById('profile');
@@ -50,14 +52,16 @@ window.onload = function() {
   addDataButton.onclick = function() {
     if (GrowthTracker.Chart.validateProfile()) {
       GrowthTracker.Chart.setUnitSelector();
-      GrowthTracker.Chart.showForm(addDataForm, addDataButton);
-      GrowthTracker.Chart.hideForm(newProfileForm, newButton);
+      GrowthTracker.Chart.showForm(addDataForm);
+      GrowthTracker.Chart.hideForm(navButtonForm);
+      GrowthTracker.Chart.hideForm(newProfileForm);
     }
     else return false;
   };
 
   cancelDataButton.onclick = function() {
-    GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
+    GrowthTracker.Chart.hideForm(addDataForm);
+    GrowthTracker.Chart.showForm(navButtonForm);
   };
 
   saveDataButton.onclick = function() {
@@ -100,8 +104,10 @@ window.onload = function() {
 
   /* display form if Add New Profile button is clicked */
   newButton.onclick = function() {
-    GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
-    GrowthTracker.Chart.showForm(newProfileForm, newButton);
+    GrowthTracker.clearForm(selectProfileForm);
+    GrowthTracker.Chart.hideForm(addDataForm);
+    GrowthTracker.Chart.hideForm(navButtonForm);
+    GrowthTracker.Chart.showForm(newProfileForm);
   };
 
   /* If user clicks Save, commit data to database */
@@ -116,36 +122,34 @@ window.onload = function() {
 
   /* If user clicks cancel, hide new profile form and remove any error messages */
   cancelButton.onclick = function() {
-    GrowthTracker.Chart.hideForm(newProfileForm, newButton);
+    GrowthTracker.Chart.hideForm(newProfileForm);
+    GrowthTracker.Chart.showForm(navButtonForm);
   };
 
   /* delete selected profile */
   deleteButton.onclick = function() {
     if (GrowthTracker.Chart.removeProfile()) {
-      GrowthTracker.Chart.hideForm(newProfileForm, newButton);
+      GrowthTracker.Chart.hideForm(newProfileForm);
+      GrowthTracker.Chart.showForm(navButtonForm);
     }
     return false;
   };
 };
 
 /**
- * Hides the specified button and displays the specified form.
+ * Displays the specified form.
  * @param {Node} form   - The form to display.
- * @param {Node} button - The button to hide.
  */
-GrowthTracker.Chart.showForm = function(form, button) {
+GrowthTracker.Chart.showForm = function(form) {
   form.style.display = '';
-  button.style.display = 'none';
 };
 
 /**
- * Hides and clears the specified form and makes the specified button visible.
+ * Hides and clears the specified form.
  * @param {Node} form   - The form to hide and reset.
- * @param {Node} button - The button to display.
  */
-GrowthTracker.Chart.hideForm = function(form, button) {
+GrowthTracker.Chart.hideForm = function(form) {
   form.style.display = 'none';
-  button.style.display = '';
   GrowthTracker.clearForm(form);
 };
 
@@ -237,9 +241,9 @@ window.onresize = function() {
  */
 GrowthTracker.Chart.loadChart = function() {
   var newProfileForm = document.getElementById('newProfileForm');
-  var newButton = document.getElementById('newButton');
-  newProfileForm.style.display = 'none';
-  newButton.style.display = '';
+  var navButtonForm = document.getElementById('navButtonForm');
+  GrowthTracker.Chart.hideForm(newProfileForm);
+  GrowthTracker.Chart.showForm(navButtonForm);
   GrowthTracker.clearForm(newProfileForm);
   GrowthTracker.Chart.getPercentileData();
 };
@@ -269,9 +273,9 @@ GrowthTracker.Chart.removeProfile = function() {
       var result = JSON.parse(this.responseText);
       if (result['success'] == 'true') {
         var newProfileForm = document.getElementById('newProfileForm');
-        var newButton = document.getElementById('newButton');
-        newProfileForm.style.display = 'none';
-        newButton.style.display = '';
+        var navButtonForm = document.getElementById('navButtonForm');
+        GrowthTracker.Chart.hideForm(newProfileForm);
+        GrowthTracker.Chart.showForm(navButtonForm);
         GrowthTracker.clearForm(newProfileForm);
         GrowthTracker.Chart.refreshProfiles();
       } else {
@@ -324,8 +328,9 @@ GrowthTracker.Chart.addCheckupData = function() {
         alert(result['message']);
         return false;
       }
-
-      GrowthTracker.Chart.hideForm(addDataForm, addDataButton);
+      var navButtonForm = document.getElementById('navButtonForm');
+      GrowthTracker.Chart.hideForm(addDataForm);
+      GrowthTracker.Chart.showForm(navButtonForm);
       /* refresh chart data if chartType is selected */
       if (dataType) GrowthTracker.Chart.getPercentileData();
     }
@@ -374,8 +379,7 @@ GrowthTracker.Chart.refreshProfiles = function () {
         profile.appendChild(op);
       });
       if (GrowthTracker.Chart.chart) GrowthTracker.Chart.chart.clearChart();
-      addDataForm.style.display = 'none';
-      GrowthTracker.clearForm(addDataForm);
+      GrowthTracker.hideForm(addDataForm);
       welcome.style.display = '';
     }
   };
@@ -392,7 +396,6 @@ GrowthTracker.Chart.addNewProfile = function() {
   var dob = document.getElementById('profileDob');
   var gender = document.getElementById('profileGender');
   var newForm = document.getElementById('newProfileForm');
-  var newButton = document.getElementById('newButton');
 
   /* Validate user input */
   var valid = GrowthTracker.validateElement(name);
@@ -411,10 +414,10 @@ GrowthTracker.Chart.addNewProfile = function() {
     if (this.readyState === 4) {
       var result = JSON.parse(this.responseText);
       if (result['success'] == 'true') {
+        var navButtonForm = document.getElementById('navButtonForm');
         GrowthTracker.Chart.refreshProfiles();
-        /* Hide form and show new button again */
-        GrowthTracker.toggleVisible(newForm);
-        GrowthTracker.toggleVisible(newButton);
+        GrowthTracker.Chart.hideForm(newForm);
+        GrowthTracker.Chart.showForm(navButtonForm);
       } else {
         alert(result['message']);
       }

@@ -76,16 +76,39 @@ $profiles = getProfiles($mysqli, $email);
               <option value="head">Head Circumference</option>
             </select>
           </div>
+        </form>
+        <form id="navButtonForm" action="#">
           <div class="form-group">
             <button type="button" id="addDataButton" class="btn btn-default btn-block">Add Checkup Data</button>
           </div>
+          <div class="form-group">
+            <button type="button" id="newButton" class="btn btn-default btn-block">Create New Profile</button>
+          </div>
+          <div class="form-group">
+            <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
+          </div>
         </form>
-        <div class="form-group">
-          <button type="button" id="newButton" class="btn btn-default btn-block">Create New Profile</button>
-        </div>
-        <div class="form-group">
-          <button type="button" id="deleteButton" class="btn btn-default btn-block">Delete Profile</button>
-        </div>
+        <form id="addDataForm" action="chart.php">
+          <h4>Add or Update Data</h4>
+          <div class="form-group">
+            <label for="dataMonths" class="sr-only">Age in Months</label>
+            <input type="text" id="dataMonths" class="form-control" pattern="\d+" title="Age in Months" placeholder="Age (0-24 months)" required>
+          </div>
+          <div class="form-group">
+            <label for="dataEntry" class="sr-only">Checkup Data</label>
+            <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d*" title="Checkup Data" placeholder="" required>
+            <select id="dataUnit" class="form-control">
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button id="saveDataButton" type="button" class="btn btn-default btn-block">Save Data</button>
+          </div>
+          <div class="form-group">
+            <button id="cancelDataButton" type="reset" class="btn btn-default btn-block">Cancel</button>
+          </div>
+        </form>
         <form id="newProfileForm" action="chart.php">
           <h4>New Profile</h4>
           <div class="form-group">
@@ -109,27 +132,6 @@ $profiles = getProfiles($mysqli, $email);
           </div>
           <div class="form-group">
             <button type="reset" id="cancelButton" class="btn btn-default btn-block">Cancel</button>
-          </div>
-        </form>
-        <form id="addDataForm" action="chart.php">
-          <h4>Add or Update Data</h4>
-          <div class="form-group">
-            <label for="dataMonths" class="sr-only">Age in Months</label>
-            <input type="text" id="dataMonths" class="form-control" pattern="\d+" title="Age in Months" placeholder="Age (0-24 months)" required>
-          </div>
-          <div class="form-group">
-            <label for="dataEntry" class="sr-only">Checkup Data</label>
-            <input type="text" id="dataEntry" class="form-control" pattern="\d+\.?\d*" title="Checkup Data" placeholder="" required>
-            <select id="dataUnit" class="form-control">
-              <option value="in">Inches</option>
-              <option value="cm">Centimeters</option>
-            </select>
-          </div>
-          <div class="form-group"">
-            <button id="saveDataButton" type="button" class="btn btn-default btn-block">Save Data</button>
-          </div>
-          <div class="form-group"">
-            <button id="cancelDataButton" type="reset" class="btn btn-default btn-block">Cancel</button>
           </div>
         </form>
         <div class="form-group">
