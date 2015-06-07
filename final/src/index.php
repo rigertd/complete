@@ -143,14 +143,16 @@ $profiles = getProfiles($mysqli, $email);
       </div>
       <div class="col-sm-9 clearfix">
         <div id="welcome">
-          <img src="../img/baby_hands.png" class="pull-right" alt="A baby's hands">
-          <p>Welcome to Baby Growth Tracker, where you can record your baby's length, weight, and head circumference measurements
+          <div class="col-xs-4 col-sm-4 col-sm-push-8 col-md-3 col-md-push-9"><img src="../img/baby_hands.png" class="img-responsive img-rounded" alt="A baby's hands"></div>
+          <div class="col-xs-8 col-sm-8 col-sm-pull-4 col-md-9 col-md-pull-3">
+            <p>Welcome to Baby Growth Tracker, where you can record your baby's length, weight, and head circumference measurements
             from well child visits. Visually compare your baby's growth against the standards set for each measurement
             by <a href="http://www.who.int/childgrowth/standards/en/">the World Health Organization</a>
             on a chart.</p>
-          <p>To begin, select a child profile, or create a new profile for your child if you do not already have one.
+            <p>To begin, select a child profile, or create a new profile for your child if you do not already have one.
             Next, select the chart type to view your existing data for that measurement. Click <strong>Add Checkup Data</strong>
             to add new data or update the existing data on the current chart.</p>
+          </div>
         </div>
         <div id="chartDiv"></div>
       </div>
