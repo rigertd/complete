@@ -1,0 +1,86 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+body {
+    background-color: aliceblue;
+    font: 100%/1.35 arial, helvetica, sans-serif;
+    height: 100%;
+    min-width: 910px;
+    margin: 0;
+}
+header {
+    background: linear-gradient(darkblue, royalblue);
+    border: solid darkblue;
+    border-width: 0 0 .25em 0;
+    padding: .5em;
+}
+
+header h1 {
+    color: #fff;
+    font-size: 1.5em;
+    margin: 0;
+}
+
+section {
+    background-color: #fff;
+    border: 1px solid darkblue;
+    border-radius: .25em;
+    margin: .5em;
+    padding: 0 0 .5em 0;
+}
+
+section h2 {
+    background: linear-gradient(lightblue, cornflowerblue);
+    border-bottom: 1px solid darkblue;
+    border-radius: .25em .25em 0 0;
+    font-size: 1.2em;
+    margin: 0 0 .5em 0;
+    padding: .25em .5em;
+}
+
+input[type=submit] {
+    width: 7em;
+}
+
+select, input[type=text], input[type=number] {
+    width: 12em;
+    margin-left: .25em;
+}
+
+input[value="Delete All Videos"] {
+    margin: 0 0 0 .5em;
+    width: 12em;
+}
+
+label {
+    margin-left: 1.5em;
+}
+
+label:first-child {
+    margin-left: .5em;
+}
+
+table {
+    border-collapse: collapse;
+    margin: .5em;
+}
+th, td {
+    border: 1px solid darkblue;
+    white-space: nowrap;
+    padding: .25em;
+}
+th {
+    border-bottom-width: 3px;
+}
+tr:nth-child(odd) {
+    background-color: aliceblue;
+}
+tr:nth-child(even) {
+    background-color: lightblue;
+}
+.error {
+    color: red;
+    font-face: bold;
+    margin-left: .5em;
+}

@@ -1,0 +1,68 @@
+/* base style definition for text */
+html {
+  font: 100%/1.35 helvetica, calibri, sans-serif;
+}
+
+/* table-related style definitions */
+table {
+  border: 1px solid #888;
+}
+
+th, td {
+  border: 1px solid #888;
+  padding: 0 5px;
+}
+
+tbody th {
+  font-style: italic;
+  font-weight: normal;
+}
+
+tbody td:nth-child(2) {
+  color: #f00;
+}
+
+tbody td:nth-child(4) {
+  color: #00f;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #cfc;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #acf;
+}
+
+/* description list style definition */
+dt:hover + dd {
+  background-color: #c0c;
+}
+
+/* nested div style definitions */
+div.outer-content {
+  background-color: #fcc;
+  margin-top: 20px;
+  width: 75%;
+}
+
+div.inner-content {
+  background-color: #acf;
+  margin: auto;
+  text-align: center;
+  width: 75%;
+}
+
+/* embedded image style definition */
+img {
+  float: left;
+}
+
+/* form-related style definitions */
+fieldset {
+  padding: 10px;
+}
+
+button {
+  margin-top: 10px;
+}

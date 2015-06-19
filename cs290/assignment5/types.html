@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Built-In and Custom Types</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>Built-In and Custom Types</h1>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-9 main">
+          <h2>Built-In Types</h2>
+          <p>JavaScript includes a number of built-in data types, including six primitive types and the Object type. You can specify any of these types in block tags that take a type argument. The six primitive types are as follows.
+          <ul>
+            <li>Boolean</li>
+            <li>Null</li>
+            <li>Undefined</li>
+            <li>Number</li>
+            <li>String</li>
+            <li>Symbol</li>
+          </ul>
+          <h2>Symbol Names</h2>
+          <p>JSDoc lets you specify the name of a class or other symbol as a type. If the symbol has a reference page in the documentation, a link is created to the reference page.
+          <pre class="prettyprint"><code class="language-js">/**
+ * Adds the specified employee to the payroll system.
+ * @param {Employee} emp - The employee to add to the system.
+ */
+function addEmployee(emp) {}</code></pre>
+          <h2>HTML Output</h2>
+          <p>Notice that the <code>Employee</code> type in the <strong>Type</strong> column is a hyperlink. Clicking the link navigates to the reference for the <code>Employee</code> class.
+          <p><img class="img-responsive" src="img/types_class.png" alt="Screenshot of a function reference with a link to a user-defined class">
+          <h2>Defining a Custom Type</h2>
+          <p>You can write documentation for a custom type using the <a href="http://usejsdoc.org/tags-typedef.html" target="_blank"><code>@typedef</code></a> block tag. If, for example, you have a function that returns a complex object with a particular structure, you can define the properties of that object in a standalone comment block and then link to that definition from a <strong>Type</strong> field. The <code>@typedef</code> tag uses the following syntax.
+          <pre>@typedef [&lt;data type&gt;] &lt;namepath&gt;</pre>
+          <p>The <em>data type</em> can be any of the valid types specified on <a href="http://usejsdoc.org/tags-typedef.html" target="_blank">the reference page for the <code>@type</code></a> tag. The <a href="http://usejsdoc.org/about-namepaths.html" target="_blank">namepath</a> is the complete path to the symbol, including any module names, namespaces, and class names if the symbol is a member. Use a period (<samp>.</samp>) for static members, a tilde (<samp>~</samp>) for inner members, and a number sign (<samp>#</samp>) for instance members. If you want to define a global type, just write the type name.
+          <pre class="prettyprint"><code class="language-js">/**
+ * The reporting structure of a manager.
+ * @typedef {Object} Manager~Team
+ * @property {string} teamName          - Specifies the name of the manager's team.
+ * @property {Array.&lt;Employee&gt;} reports - Specifies the members on the manager's team.
+ */
+
+/**
+ * Gets the manager's team of direct reports.
+ * @returns {Manager~Team} Returns information on the manager's team and direct reports. 
+ */
+Manager.prototype.getTeam = function() {};</code></pre>
+          <h2>HTML Output</h2>
+          <p>Notice the addition of the <strong>Type Definitions</strong> section. Any references to this custom type in a <strong>Type</strong> field will link to the definition in this section.
+          <p><img class="img-responsive" src="img/types_typedef.png" alt="Screenshot of a type definition">
+          <p>&nbsp;
+          <p><a href="inheritance.html" class="btn btn-lg btn-default">Back</a> <a href="namespaces.html" class="btn btn-lg btn-default">Next</a>
+        </div>
+        <div class="col-xs-12 col-md-3 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="index.html">First Steps</a>
+            <li><a href="setup.html">Setting Up Your Environment</a>
+            <li><a href="files.html">Documenting Files</a>
+            <li><a href="classes.html">Documenting Classes</a>
+            <li><a href="functions.html">Documenting Functions</a>
+            <li><a href="access.html">Controlling Visibility</a>
+            <li><a href="inheritance.html">Documenting Inheritance</a>
+            <li class="active"><a href="types.html">Built-In and Custom Types</a>
+            <li><a href="namespaces.html">Documenting Namespaces</a>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; 2015 David Rigert</p>
+      </footer>
+    </div>
+  </body>
+</html>

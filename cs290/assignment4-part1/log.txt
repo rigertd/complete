@@ -1,0 +1,23 @@
+Start: Sat, 2 May 2015 19:25:00 -0700
+End: Sat, 2 May 2015 19:40:36 -0700
+Tasks: Fixed bug where content1.php would not redirect after logout. Refactored session and request logic for clarity. Changed content type to prevent JSON from being downloaded in IE.
+
+Start: Sat, 2 May 2015 14:30:00 -0700
+End: Sat, 2 May 2015 18:13:17 -0700
+Tasks: Refactored error handling code to avoid invalid HTML output when an error occurs. Reorganized code to keep content and logic separate. Finished all pages. Added logic to display a logout message for previous user when new user logs in before old user logs out. Added automatic redirect to content1.php if user is already logged in.
+
+Start: Sat, 2 May 2015 11:10:00 -0700
+End: Sat, 2 May 2015 12:05:42 -0700
+Tasks: Finished HTML part of login.php. Added additional error checking to loopback.php. Began content1.php implementation.
+
+Start: Wed, 29 Apr 2015 21:00:00 -0700
+End: Wed, 29 Apr 2015 21:46:25 -0700
+Tasks: Updated error messages and CSS style. Finished and tested loopback.php logic.
+
+Start: Tue, 28 Apr 2015 21:00:00 -0700
+End: Tue, 28 Apr 2015 23:18:25 -0700
+Tasks: Tested behavior of PHP control statements mixed with HTML in multtable.php. Completed multtable.php and added a stylesheet for the table formatting.
+
+Start: Sun, 26 Apr 2015 18:45:00 -0700
+End: Sun, 26 Apr 2015 18:49:59 -0700
+Tasks: Created initial files for assignment 4.

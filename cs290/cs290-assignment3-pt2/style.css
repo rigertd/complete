@@ -1,0 +1,195 @@
+/* general page formatting */
+html {
+  background: #ffffee;
+}
+
+body {
+  font: 100%/1.35 arial, helvetica, sans-serif;
+  height: 100%;
+  margin: 0;
+  min-width: 800px;
+  padding: 0;
+}
+
+header {
+  background-color: #559;
+  border-bottom: .5em solid #337;
+  color: #fff;
+  margin: 0;
+  padding: .25em .5em;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+footer {
+  clear: both;
+  color: #444;
+  text-align: center;
+  font-size: .75em;
+  margin: .5em;
+}
+
+/* link formatting */
+
+a {
+  color: #441;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #772;
+  text-decoration: underline;
+}
+
+/* form formatting */
+
+select, input, button {
+  border: 1px solid #aaa;
+  border-radius: .25em/.25em;
+}
+
+select {
+  height: 1.5em;
+  width: 3em;
+}
+
+button {
+  height: 1.5em;
+}
+
+/* result container formatting */
+.results > ul {
+  margin: 0 .5em;
+}
+
+.results > ul > li > ul > li:first-child {
+  background: #fff;
+  border-radius: .25em/.25em;
+  border: 1px solid #446;
+  padding: .25em .25em .15em .25em;
+}
+
+/* favorites container formatting */
+.favorites {
+  float: right;
+  margin: 0 .5em .5em .5em;
+  min-width: 200px;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  width: 40%;
+  z-index: 1; /* display on top of results */
+}
+
+.favorites h2 {
+  background-color: #337;
+  border: 1px solid #446;
+  border-bottom-width: 0;
+  border-radius: .25em .25em 0 0 / .25em .25em 0 0;
+  color: #fcffff;
+  font-size: 1.25em;
+  margin: 0;
+  padding: .25em .5em;
+}
+
+.favorites > ul {
+  background-color: #fff;
+  border: 1px solid #446;
+  border-top-width: 0;
+  border-radius: 0 0 .25em .25em / 0 0 .25em .25em;
+  margin-top: 0;
+  padding: .25em;
+}
+
+/* options formatting */
+.options {
+  background: #fff;
+  border: 1px solid #446;
+  border-radius: .25em/.25em;
+  margin: .5em;
+  padding: 0 .5em;
+}
+
+.options button {
+  margin-left: 1em;
+}
+
+.options > p > label, .options > ul > li:first-child {
+  font-weight: bold;
+  margin-right: 1em;
+  padding-right: 0;
+}
+
+.options ul {
+  padding-left: 0;
+
+}
+.options li {
+  display: inline-block;
+}
+
+.options label {
+  margin-right: 1em;
+}
+
+/* favorites and result list formatting */
+.favorites > ul > li, .results > ul > li {
+  padding-left: .5em;
+}
+
+.favorites li, .results li {
+  list-style-type: none;
+}
+
+.favorites ul {
+  padding-left: 0;
+}
+
+.favorites ul, .results ul {
+  padding-left: 0;
+  white-space: nowrap;
+}
+
+.favorites > ul > li > ul > li, .results > ul > li > ul > li {
+  display: inline-block;
+  margin: .25em;
+  vertical-align: top;
+}
+
+.favorites > ul > li > ul > li > ul > li, .results > ul > li > ul > li > ul > li {
+  background-color: #55a;
+  border: 1px solid #446;
+  border-radius: .25em/.25em;
+  color: #fcffff;
+  display: inline-block;
+  font: .8em/1 calibri;
+  margin: .25em;
+  padding: .1em .25em;
+}
+
+/* favorites button formatting */
+.add_fav, .remove_fav {
+  border-width: 0;
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+}
+
+.add_fav {
+  background: url("star.png") no-repeat left;
+}
+
+.add_fav:hover {
+  background-position: right;
+}
+
+.remove_fav {
+  background: url("star.png") no-repeat right;
+}
+
+.remove_fav:hover {
+  background-position: left;
+}

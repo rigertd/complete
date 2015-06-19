@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documenting Inheritance</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>Documenting Inheritance</h1>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-9 main">
+          <h2>Child Class Constructor Function</h2>
+          <p>The comment block for the constructor function of an object that inherits another object is identical to that of the parent class, with the addition of the <a href="http://usejsdoc.org/tags-augments.html" target="_blank"><code>@augments</code></a> block tag. When you add this tag, the HTML reference for the child class inherits the documentation for all public and protected members of the parent class.
+          <pre class="prettyprint"><code class="language-js">/**
+ * Represents a manager to be managed in the payroll system.
+ * @class
+ * @augments Employee
+ */
+function Manager() {}
+Manager.prototype = new Employee();</code></pre>
+          <h2>HTML Output</h2>
+          <p>Even though we only provided a brief description, the HTML reference for this new class includes all of the public and protected members of the <code>Employee</code> class. Also note the addition of the <strong>Extends</strong> section and the <strong>Inherited From</strong> field below the inherited member documentation.
+          <p><img class="img-responsive" src="img/inheritance_output.png" alt="Screenshot of a class that inherits from a parent class">
+          <h2>Overridden Methods</h2>
+          <p>If you do not write a comment block for a method that overrides a method in the parent class, the method automatically inherits the documentation of the parent class method. You do not need to explicitly specify that a method overrides the method in a parent class. The <a href="http://usejsdoc.org/tags-inheritdoc.html" target="_blank"><code>@inheritdoc</code></a> and <a href="http://usejsdoc.org/tags-override.html" target="_blank"><code>@override</code></a> tags are only provided for compatibility with Google's <a href="https://developers.google.com/closure/compiler/" target="_blank">Closure Compiler</a>.
+          <h3>Parent Class</h3>
+          <pre class="prettyprint"><code class="language-js">/**
+ * Gets the amount that the employee will receive based on the specified rating.
+ * @param {number} rating - The employee rating for the current reporting period.
+ * @returns {number} Returns the amount of the employee's bonus payment. 
+ */
+Employee.prototype.getBonus = function(rating) {};</code></pre>
+          <h3>Child Class</h3>
+          <pre class="prettyprint"><code class="language-js">/**
+ * Gets the amount that the manager will receive based on the specified rating.
+ * @param {number} rating - The manager rating for the current reporting period.
+ * @returns {number} Returns the amount of the manager's bonus payment. 
+ */
+Manager.prototype.getBonus = function(rating) {};</code></pre>
+          <h2>HTML Output</h2>
+          <p>The following output demonstrates the difference between overriding the documentation and inheriting the documentation for a method that overrides a method in the parent class. The first example has manager-specific descriptions for the <code>getBonus</code> method and its parameters, while the second example is identical to the <code>getBonus</code> reference on the <code>Employee</code> page with the addition of the <strong>Overrides</strong> field. In both cases, JSDoc detects and indicates that the method overrides the <code>getBonus</code> method of the <code>Employee</code> class.
+          <h3>Overridden Documentation</h3>
+          <p><img class="img-responsive" src="img/inheritance_override.png" alt="Screenshot of an overridden method with overridden documentation">
+          <h3>Inherited Documentation</h3>
+          <p><img class="img-responsive" src="img/inheritance_noOverride.png" alt="Screenshot of an overridden method with inherited documentation">
+          <p>&nbsp;
+          <p><a href="access.html" class="btn btn-lg btn-default">Back</a> <a href="types.html" class="btn btn-lg btn-default">Next</a>
+        </div>
+        <div class="col-xs-12 col-md-3 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="index.html">First Steps</a>
+            <li><a href="setup.html">Setting Up Your Environment</a>
+            <li><a href="files.html">Documenting Files</a>
+            <li><a href="classes.html">Documenting Classes</a>
+            <li><a href="functions.html">Documenting Functions</a>
+            <li><a href="access.html">Controlling Visibility</a>
+            <li class="active"><a href="inheritance.html">Documenting Inheritance</a>
+            <li><a href="types.html">Built-In and Custom Types</a>
+            <li><a href="namespaces.html">Documenting Namespaces</a>
+          </ul>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; 2015 David Rigert</p>
+      </footer>
+    </div>
+  </body>
+</html>
