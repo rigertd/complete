@@ -14,6 +14,7 @@ if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == ""){
     die();
 }
 
+session_save_path('../../../temp');
 session_start();
 
 /* for building URL to current path */
@@ -179,6 +180,7 @@ header('Content-Type: text/html');
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../favicon.ico">
     <script src="../js/tracker.min.js"></script>
     <script src="../js/login.min.js"></script>
   </head>

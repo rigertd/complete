@@ -7,6 +7,7 @@ include 'dbfuncs.php';
 define('IN_TO_CM', 2.54);
 define('LBS_TO_KG', 0.453592);
 
+session_save_path('../../../temp');
 session_start();
 
 /* Check if user is logged in */

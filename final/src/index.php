@@ -3,6 +3,7 @@ require_once('dbinfo.php');
 
 include 'dbfuncs.php';
 
+session_save_path('../../../temp');
 session_start();
 
 /* Check if user is logged in */
@@ -44,6 +45,7 @@ $profiles = getProfiles($mysqli, $email);
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="../css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../favicon.ico">
     <script src="https://www.google.com/jsapi"></script>
     <script src="../js/cookies.min.js"></script>
     <script src="../js/tracker.min.js"></script>
