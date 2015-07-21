@@ -116,7 +116,7 @@ function getSingleResult($stmt) {
  */
 function getProfiles($db, $user_email) {
   $stmt = prepareQuery($db, 'SELECT p.id, p.name, p.gender, p.dob ' .
-    'FROM Users as u ' .
+    'FROM BabyUsers as u ' .
     'INNER JOIN Profiles as p ON u.id = p.parent_id ' .
     'WHERE u.email = ? ' .
     'ORDER BY p.name ASC');

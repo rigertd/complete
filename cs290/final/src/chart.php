@@ -43,7 +43,7 @@ if ($mysqli->connect_errno) {
 function getUserData($db, $type, $pid, $email) {
     $stmt = prepareQuery($db, "SELECT months, val FROM Entries ".
                               "INNER JOIN Profiles AS p ON profile_id = p.id ".
-                              "INNER JOIN Users AS u ON p.parent_id = u.id ".
+                              "INNER JOIN BabyUsers AS u ON p.parent_id = u.id ".
                               "WHERE type = ? ".
                               "AND p.id = ? AND u.email = ? ".
                               "ORDER BY months ASC");
@@ -138,7 +138,7 @@ function removeProfile($db, $email, $pid) {
     }
 
     $query = "DELETE p FROM Profiles AS p ".
-             "INNER JOIN Users AS u ON p.parent_id = u.id ".
+             "INNER JOIN BabyUsers AS u ON p.parent_id = u.id ".
              "AND p.id = ? AND u.email = ?";
 
     $stmt = prepareQuery($db, $query);
@@ -203,7 +203,7 @@ function addOrUpdateData($db, $email, $pid, $months, $length, $lengthUnit, $weig
     }
     $query = "INSERT INTO Entries (profile_id, type, months, val) ".
              "SELECT p.id, ?, ?, ? FROM Profiles AS p ".
-             "INNER JOIN Users AS u ON u.id = p.parent_id AND u.email = ? AND p.id = ? ".
+             "INNER JOIN BabyUsers AS u ON u.id = p.parent_id AND u.email = ? AND p.id = ? ".
              "ON DUPLICATE KEY UPDATE val = ?";
 
     $stmt = prepareQuery($db, $query);
@@ -287,7 +287,7 @@ function addNewProfile($db, $email, $name, $dob, $gender) {
     }
     $query = "INSERT INTO Profiles (parent_id, name, gender, dob) ".
              "SELECT id, ?, ?, ? ".
-             "FROM Users WHERE email = ?";
+             "FROM BabyUsers WHERE email = ?";
 
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "ssss", $name, $gender, $dob, $email);
