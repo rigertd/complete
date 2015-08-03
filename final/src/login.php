@@ -24,6 +24,7 @@ $validation_message = '';
 
 /* Establish database connection */
 $mysqli = new mysqli(DB_ADDR, DB_USER, DB_PW, DB_NAME);
+$mysqli->set_charset('utf8');
 if ($mysqli->connect_errno) {
     echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
     die();
@@ -33,7 +34,7 @@ if ($mysqli->connect_errno) {
  * Determines whether the specified email and password are correct.
  * Sets the session info on success.
  * @param mysqli $db    The mysqli database interface.
- * @param String $email The e-mail address.
+ * @param String $un    The username.
  * @param String $pw    The plaintext password.
  * @return bool Whether authentication was successful
  */
@@ -52,26 +53,36 @@ function authenticate($db, $un, $pw) {
         $_SESSION['first'] = $result['first_name'];
         $_SESSION['ui_lang_id'] = $result['ui_lang_id'];
         $_SESSION['ui_lang_name'] = $result['ui_lang_name'];
+        /* get cookie info (if any) */
+        if (isset($_COOKIE['issue_sort_col'])) {
+            $_SESSION['issue_sort_col'] = $_COOKIE['issue_sort_col'];
+        } else {
+            setcookie("issue_sort_col","1",time()+60*60*24*30);
+            $_SESSION['issue_sort_col'] = "1";
+        }
+        if (isset($_COOKIE['issue_sort_dir'])) {
+            $_SESSION['issue_sort_dir'] = $_COOKIE['issue_sort_dir'];
+        } else {
+            setcookie("issue_sort_dir","ASC",time()+60*60*24*30);
+            $_SESSION['issue_sort_dir'] = "ASC";
+        }
+        if (isset($_COOKIE['proj_sort_col'])) {
+            $_SESSION['proj_sort_col'] = $_COOKIE['proj_sort_col'];
+        } else {
+            setcookie("proj_sort_col","1",time()+60*60*24*30);
+            $_SESSION['proj_sort_col'] = "1";
+        }
+        if (isset($_COOKIE['proj_sort_dir'])) {
+            $_SESSION['proj_sort_dir'] = $_COOKIE['issue_sort_dir'];
+        } else {
+            setcookie("proj_sort_dir","ASC",time()+60*60*24*30);
+            $_SESSION['proj_sort_dir'] = "ASC";
+        }
         return true;
     } else {
         /* invalid credentials */
         return false;
     }
-}
-
-/**
- * Adds a user with the specified information to the database.
- * @param mysqli $db    The mysqli database interface.
- * @param String $email The user's e-mail address.
- * @param String $first The user's first name.
- * @param String $last  The user's last name.
- * @param String $pw    The plaintext password.
- */
-function addUser($db, $email, $first, $last, $pw) {
-    $hashed = hash('sha256', $pw);
-    $stmt = prepareQuery($db, "INSERT INTO BabyUsers (email, first_name, last_name, pass_hash) VALUES (?, ?, ?, ?)");
-    bindParam($stmt, "ssss", $email, $first, $last, $hashed);
-    executeStatement($stmt);
 }
 
 /* delete session data if logout action */

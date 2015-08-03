@@ -1,10 +1,19 @@
 <?php
 /**
+ * Establishes the database connection.
  * Stores a collection of wrapper functions for accessing a mysql database.
  * User: David Rigert
  * Date: 5/24/2015
  * Time: 1:16 PM
  */
+
+/* Establish database connection */
+$mysqli = new mysqli(DB_ADDR, DB_USER, DB_PW, DB_NAME);
+$mysqli->set_charset('utf8');
+if ($mysqli->connect_errno) {
+    echo "Database connection error (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+    die();
+}
 
 /**
  * Creates and returns a prepared statement based on the specified mysqli and query.

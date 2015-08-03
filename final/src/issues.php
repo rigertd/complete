@@ -31,10 +31,8 @@ else if (isset($_REQUEST['sort'])) {
 
 /* get UI languages */
 $languages = getLanguages($mysqli);
-/* get project list */
-$projects = getProjects($mysqli, $user_id, 1, "ASC");
-/* get assigned issue list */
-$issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir, NULL, $user_id);
+/* get issue list */
+$issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir);
 
 
 $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i class="fi-arrow-down"></i>';
@@ -54,12 +52,13 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <body>
 <?php include('nav.php'); ?>
 <ul class="breadcrumbs">
-    <li class="current">Dashboard</li>
+    <li><a href="index.php">Dashboard</a></li>
+    <li class="current">Issue List</li>
 </ul>
-<div class="large-9 columns">
+<div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
-        <li style="margin-left: 0;"><h3>Assigned Issues</h3></li>
-        <li><a href="issues.php" class="button radius tiny" style="margin-bottom: 0;">View All</a></li>
+        <li style="margin-left: 0;"><h3>All Issues</h3></li>
+        <li><a href="project.php" class="button radius tiny">New Issue</a></li>
     </ul>
     <table>
         <thead>
@@ -74,40 +73,25 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
         </tr>
         </thead>
         <tbody>
-<?php if (count($issues) > 0): ?>
-<?php foreach ($issues as $issue): ?>
-        <tr>
-            <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo $issue['issue_id']; ?></a></td>
-            <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo htmlspecialchars($issue['subject']) . (!$issue['translated'] ? ' (Not Translated)' : ''); ?></a></td>
-            <td><?php echo htmlspecialchars($issue['status']); ?></td>
-            <td><?php echo htmlspecialchars($issue['priority']); ?></td>
-            <td><?php echo htmlspecialchars($issue['assignee_name']); ?></td>
-            <td><a href="project.php?id=<?php echo $issue['proj_id']; ?>"><?php echo htmlspecialchars($issue['proj_name']); ?></a></td>
-            <td><?php echo htmlspecialchars($issue['due_date']); ?></td>
-        </tr>
-<?php endforeach ?>
-<?php else: ?>
-        <tr>
-            <td colspan="7">You do not have any issues assigned to you.</td>
-        </tr>
-<?php endif ?>
+        <?php if (count($issues) > 0): ?>
+            <?php foreach ($issues as $issue): ?>
+                <tr>
+                    <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo $issue['issue_id']; ?></a></td>
+                    <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo htmlspecialchars($issue['subject']) . (!$issue['translated'] ? ' (Not Translated)' : ''); ?></a></td>
+                    <td><?php echo htmlspecialchars($issue['status']); ?></td>
+                    <td><?php echo htmlspecialchars($issue['priority']); ?></td>
+                    <td><?php echo htmlspecialchars($issue['assignee_name']); ?></td>
+                    <td><a href="project.php?id=<?php echo $issue['proj_id']; ?>"><?php echo htmlspecialchars($issue['proj_name']); ?></a></td>
+                    <td><?php echo htmlspecialchars($issue['due_date']); ?></td>
+                </tr>
+            <?php endforeach ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="7">You do not have any issues assigned to you.</td>
+            </tr>
+        <?php endif ?>
         </tbody>
     </table>
-</div>
-<div class="large-3 columns">
-    <ul class="inline-list" style="margin-bottom: 0;">
-        <li style="margin-left: 0;"><h3>Projects</h3></li>
-        <li><a href="projects.php" class="button radius tiny" style="margin-bottom: 0;">View All</a></li>
-    </ul>
-    <ul class="side-nav" role="navigation" title="Project List" style="border: 1px solid #ddd;">
-<?php if (count($projects) > 0): ?>
-<?php foreach ($projects as $proj): ?>
-        <li role="menuitem"><a href="project.php?id=<?php echo $proj['proj_id']; ?>"><?php echo htmlspecialchars($proj['name']); ?></a></li>
-<?php endforeach ?>
-<?php else: ?>
-        <li>No projects found</li>
-<?php endif ?>
-    </ul>
 </div>
 <div class="medium-12 columns text-center">&copy; David Rigert</div>
 <script src="../js/vendor/jquery.js"></script>
