@@ -57,7 +57,7 @@ else {
 <div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>Issue #<?php echo htmlspecialchars($_REQUEST['id']); ?></h3></li>
-        <li><a href="issue.php?id=1&action=update" class="button radius tiny">Update</a></li>
+        <li><a href="issue.php?id=<?php echo htmlspecialchars($_REQUEST['id']); ?>&action=update" class="button radius tiny">Update</a></li>
     </ul>
     <div class="medium-12 panel clearfix">
         <div class="clearfix">

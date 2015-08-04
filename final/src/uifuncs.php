@@ -35,51 +35,66 @@ function getLanguages($db) {
         }
         $_SESSION["languages"] = json_encode($languages, JSON_UNESCAPED_UNICODE);
     }
-
     return $languages;
 }
 
-function updateLanguage($db, $langId, $name, $langCode, $localeCode) {
-    if ($localeCode == '') {
-        $localeCode = NULL;
+function getPriorities($db) {
+    if (isset($_SESSION["priorities"])) {
+        $priorities = json_decode($_SESSION["priorities"], JSON_UNESCAPED_UNICODE);
+    } else {
+        $results = $db->query("SELECT priority_id, name, val FROM Priorities ORDER BY val DESC;");
+        $priorities = array();
+        while ($row = $results->fetch_assoc()) {
+            $priorities[] = $row;
+        }
+        $_SESSION["priorities"] = json_encode($priorities, JSON_UNESCAPED_UNICODE);
     }
-    $stmt = prepareQuery($db, "UPDATE Languages SET name = ?, lang_code = ?, locale_code = ? WHERE lang_id = ?;");
-    bindParam($stmt, "sssi", $name, $langCode, $localeCode, $langId);
-    executeStatement($stmt);
-    if ($stmt->affected_rows > 0) {
-        unset($_SESSION['languages']);
-        return true;
-    }
-    return false;
+    return $priorities;
 }
 
-function addLanguage($db, $name, $langCode, $localeCode) {
-    if ($localeCode == '') {
-        $localeCode = NULL;
+function getRelationships($db) {
+    if (isset($_SESSION["relationships"])) {
+        $relationships = json_decode($_SESSION["relationships"], JSON_UNESCAPED_UNICODE);
+    } else {
+        $results = $db->query("SELECT rel_id, forward_desc, reverse_desc FROM Relationships ORDER BY rel_id;");
+        $relationships = array();
+        while ($row = $results->fetch_assoc()) {
+            $relationships[] = $row;
+        }
+        $_SESSION["relationships"] = json_encode($relationships, JSON_UNESCAPED_UNICODE);
     }
-    $stmt = prepareQuery($db, "INSERT INTO Languages (name, lang_code, locale_code) VALUES (?, ?, ?);");
-    bindParam($stmt, "sss", $name, $langCode, $localeCode);
-    executeStatement($stmt);
-    if ($stmt->affected_rows > 0) {
-        unset($_SESSION['languages']);
-        return true;
-    }
-    return false;
+    return $relationships;
 }
 
-function deleteLanguage($db, $langId) {
-    $stmt = prepareQuery($db, "DELETE FROM Languages WHERE lang_id = ?;");
-    bindParam($stmt, "i", $langId);
-    executeStatement($stmt);
-    if ($stmt->affected_rows > 0) {
-        unset($_SESSION['languages']);
-        return true;
+function getStatuses($db) {
+    if (isset($_SESSION["statuses"])) {
+        $statuses = json_decode($_SESSION["statuses"], JSON_UNESCAPED_UNICODE);
+    } else {
+        $results = $db->query("SELECT status_id, name, percentage FROM Statuses ORDER BY status_id;");
+        $statuses = array();
+        while ($row = $results->fetch_assoc()) {
+            $statuses[] = $row;
+        }
+        $_SESSION["statuses"] = json_encode($statuses, JSON_UNESCAPED_UNICODE);
     }
-    return false;
+    return $statuses;
 }
 
+function getAllUsers($db) {
+    if (isset($_SESSION["users"])) {
+        $users = json_decode($_SESSION["users"], JSON_UNESCAPED_UNICODE);
+    } else {
+        $results = $db->query("SELECT user_id, first_name, last_name, username, email, ui_lang_id, name AS lang_name FROM Users INNER JOIN Languages on ui_lang_id = lang_id ORDER BY user_id;");
+        $users = array();
+        while ($row = $results->fetch_assoc()) {
+            $users[] = $row;
+        }
+        $_SESSION["users"] = json_encode($users, JSON_UNESCAPED_UNICODE);
+    }
+    return $users;
+}
 
-function getProjects($db, $userId, $sort_col, $sort_dir) {
+function getProjects($db, $userId, $sort_col, $sort_dir, $proj_id = NULL) {
     /* set ORDER BY column based on row number */
     switch ($sort_col) {
         case "2":
@@ -95,10 +110,11 @@ function getProjects($db, $userId, $sort_col, $sort_dir) {
     if (isset($_SESSION["projects"])) {
         $projects = json_decode($_SESSION["projects"], JSON_UNESCAPED_UNICODE);
     } else {
-        $query = "SELECT p.proj_id, p.name, p.description ".
+        $query = "SELECT DISTINCT p.proj_id, p.name, p.description ".
                  "FROM Projects p ".
                  "INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
                  "WHERE up.user_id = ? ".
+                 (is_null($proj_id) ? "" : "AND p.proj_id = ? ").
                  "ORDER BY $ob $sort_dir;";
         $stmt = prepareQuery($db, $query);
         bindParam($stmt, "i", $userId);
@@ -122,9 +138,10 @@ function getProjects($db, $userId, $sort_col, $sort_dir) {
  * @param String $sort_dir The sort direction (ASC or DESC).
  * @param String|null $issue_id    The issue to get if looking for a specific issue.
  * @param String|null $assigned_to The assignee of the issues to get. Omit for all issues.
+ * @param String|null $project_id  The project of the issues to get. Omit for all projects.
  * @return array All issues the current user has access to {issue_id, subject, status, priority, due_date, assignee_name}
  */
-function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL, $assigned_to = NULL) {
+function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL, $assigned_to = NULL, $project_id = NULL) {
     /* set ORDER BY column based on row number */
     switch ($sort_col) {
         case "2":
@@ -169,15 +186,24 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "WHERE 1=1 ". //hack for conditional code below
              (is_null($assigned_to) ? "" : "AND i.assignee = ? ").
              (is_null($issue_id) ? "" : "AND i.issue_id = ? ").
+             (is_null($project_id) ? "" : "AND i.proj_id = ? ").
              "ORDER BY $ob $sort_dir;";
     //echo $query;
     $stmt = prepareQuery($db, $query);
-    if (!is_null($assigned_to) && !is_null($issue_id)) {
+    if (!is_null($assigned_to) && !is_null($issue_id) && !is_null($project_id)) {
+        bindParam($stmt, "iiiii", $userId, $langId, $assigned_to, $issue_id, $project_id);
+    } else if (!is_null($assigned_to) && !is_null($issue_id)) {
         bindParam($stmt, "iiii", $userId, $langId, $assigned_to, $issue_id);
+    } else if (!is_null($assigned_to) && !is_null($project_id)) {
+        bindParam($stmt, "iiii", $userId, $langId, $assigned_to, $project_id);
+    } else if (!is_null($issue_id) && !is_null($project_id)) {
+        bindParam($stmt, "iiii", $userId, $langId, $issue_id, $project_id);
     } else if (!is_null($assigned_to)) {
         bindParam($stmt, "iii", $userId, $langId, $assigned_to);
     } else if (!is_null($issue_id)) {
         bindParam($stmt, "iii", $userId, $langId, $issue_id);
+    } else if (!is_null($project_id)) {
+        bindParam($stmt, "iii", $userId, $langId, $project_id);
     } else {
         bindParam($stmt, "ii", $userId, $langId);
     }
@@ -235,6 +261,7 @@ function handleLangRequest($db, $userId) {
     $url = strtok($url, '?');
     $params = $_GET;
     unset($params['lang']);
+    unset($_SESSION['users']);
     $url_param = http_build_query($params);
     if ($url_param) {
         header("Location: https://{$url}?{$url_param}");

@@ -59,7 +59,7 @@ $sort_arrow = $proj_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i clas
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>All Projects</h3></li>
 <?php if (isProjectManager($mysqli, $user_id)): ?>
-        <li><a href="project.php" class="button radius tiny">New Project</a></li>
+        <li><a href="project.php?action=new" class="button radius tiny">New Project</a></li>
 <?php endif ?>
     </ul>
     <table>
@@ -74,8 +74,8 @@ $sort_arrow = $proj_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i clas
         <?php if (count($projects) > 0): ?>
             <?php foreach ($projects as $project): ?>
                 <tr>
-                    <td><a href="issue.php?id=<?php echo $project['proj_id']; ?>"><?php echo $project['proj_id']; ?></a></td>
-                    <td><a href="issue.php?id=<?php echo $project['proj_id']; ?>"><?php echo htmlspecialchars($project['name']); ?></a></td>
+                    <td><a href="project.php?id=<?php echo $project['proj_id']; ?>"><?php echo $project['proj_id']; ?></a></td>
+                    <td><a href="project.php?id=<?php echo $project['proj_id']; ?>"><?php echo htmlspecialchars($project['name']); ?></a></td>
                     <td><?php echo htmlspecialchars($project['description']); ?></td>
                 </tr>
             <?php endforeach ?>

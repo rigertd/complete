@@ -39,8 +39,9 @@ function prepareQuery($db, $query) {
  * @param mixed|null $arg4  The fourth argument (optional).
  * @param mixed|null $arg5  The fifth argument (optional).
  * @param mixed|null $arg6  The sixth argument (optional).
+ * @param mixed|null $arg7  The seventh argument (optional).
  */
-function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL) {
+function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL, $arg7 = NULL) {
     $numargs = func_num_args();
     $numtypes = strlen($type);
 
@@ -90,6 +91,12 @@ function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL
                 die();
             }
             break;
+        case 9:
+            if (!($stmt->bind_param($type, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7))) {
+                echo "Database binding error.";
+                die();
+            }
+            break;
         default:
             echo "Invalid number of arguments in bindParam. ($numargs)";
             die();
@@ -99,12 +106,10 @@ function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL
 /**
  * Executes the specified prepared statement.
  * @param mysqli_stmt $stmt The statement to execute.
+ * @return bool Whether the execution was successful.
  */
 function executeStatement($stmt) {
-    if (!$stmt->execute()) {
-        echo "Error executing operation.";
-        die();
-    }
+    return $stmt->execute();
 }
 
 /**
