@@ -105,7 +105,7 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
         <li role="menuitem"><a href="project.php?id=<?php echo $proj['proj_id']; ?>"><?php echo htmlspecialchars($proj['name']); ?></a></li>
 <?php endforeach ?>
 <?php else: ?>
-        <li>No projects found</li>
+        <li style="padding-left:1em;">No projects found</li>
 <?php endif ?>
     </ul>
 </div>

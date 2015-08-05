@@ -12,11 +12,20 @@
  * Variables for roles.
  */
 $ADMIN = 1;
-$EDIT = 2;
+$UPDATE = 2;
 $CREATE = 3;
 $PROJECT = 4;
 $TRANSLATE = 5;
 $READ = 6;
+$role_map = array(
+    $ADMIN => "Administrator",
+    $UPDATE => "Updater",
+    $CREATE => "Author",
+    $PROJECT => "Project Manager",
+    $TRANSLATE => "Translator",
+    $READ => "Reader"
+);
+
 
 /**
  * Gets an array of all UI languages in the database. Caches the
@@ -80,6 +89,26 @@ function getStatuses($db) {
     return $statuses;
 }
 
+function getProjectUsersRoles($db, $user_id, $project_id) {
+    global $ADMIN;
+    global $PROJECT;
+    $query = "SELECT u.user_id, u.username, u.first_name, u.last_name, up.role ".
+             "FROM Users u INNER JOIN Users_Projects up ON u.user_id = up.user_id ".
+             "WHERE up.proj_id = ? AND (".
+                 "EXISTS (SELECT * FROM Users_Projects WHERE user_id = $user_id AND role = $ADMIN) ".
+                 "OR up.proj_id IN (SELECT proj_id FROM Users_Projects WHERE user_id = $user_id AND role = $PROJECT)".
+             ") ORDER BY u.username";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "i", $project_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $users = array();
+    while ($row = $results->fetch_assoc()) {
+        $users[] = $row;
+    }
+    return $users;
+}
+
 function getAllUsers($db) {
     if (isset($_SESSION["users"])) {
         $users = json_decode($_SESSION["users"], JSON_UNESCAPED_UNICODE);
@@ -107,24 +136,23 @@ function getProjects($db, $userId, $sort_col, $sort_dir, $proj_id = NULL) {
             $ob = "p.proj_id";
     }
 
-    if (isset($_SESSION["projects"])) {
-        $projects = json_decode($_SESSION["projects"], JSON_UNESCAPED_UNICODE);
-    } else {
-        $query = "SELECT DISTINCT p.proj_id, p.name, p.description ".
-                 "FROM Projects p ".
-                 "INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
-                 "WHERE up.user_id = ? ".
-                 (is_null($proj_id) ? "" : "AND p.proj_id = ? ").
-                 "ORDER BY $ob $sort_dir;";
-        $stmt = prepareQuery($db, $query);
+    $query = "SELECT DISTINCT p.proj_id, p.name, p.description ".
+             "FROM Projects p ".
+             "INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
+             "WHERE up.user_id = ? ".
+             (is_null($proj_id) ? "" : "AND p.proj_id = ? ").
+             "ORDER BY $ob $sort_dir;";
+    $stmt = prepareQuery($db, $query);
+    if (is_null($proj_id)) {
         bindParam($stmt, "i", $userId);
-        executeStatement($stmt);
-        $results = $stmt->get_result();
-        $projects = array();
-        while ($row = $results->fetch_assoc()) {
-            $projects[] = $row;
-        }
-        $_SESSION["projects"] = json_encode($projects, JSON_UNESCAPED_UNICODE);
+    } else {
+        bindParam($stmt, "ii", $userId, $proj_id);
+    }
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $projects = array();
+    while ($row = $results->fetch_assoc()) {
+        $projects[] = $row;
     }
     return $projects;
 }
@@ -289,20 +317,51 @@ function isAdmin($db, $userId) {
 }
 
 /**
- * Checks whether a user has the Project Manager role in any project.
+ * Checks whether a user has the Project Manager role in a project.
+ * Checks if the user is PM in any project if $projId is NULL.
  * @param $db
  * @param $userId
+ * @param $projId
  * @return bool
  */
-function isProjectManager($db, $userId) {
+function isProjectManager($db, $userId, $projId = NULL) {
     global $PROJECT;
-    $query = "SELECT role FROM Users_Projects WHERE role = $PROJECT AND user_id = ?";
+    $query = "SELECT role FROM Users_Projects WHERE role = $PROJECT AND user_id = ? ".
+            (is_null($projId) ? "" : "AND proj_id = ?");
     $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "i", $userId);
+    if (is_null($projId)) {
+        bindParam($stmt, "i", $userId);
+    } else {
+        bindParam($stmt, "ii", $userId, $projId);
+    }
     executeStatement($stmt);
     $result = $stmt->get_result();
     $role = $result->fetch_assoc();
     return $role['role'] == $PROJECT;
+}
+
+/**
+ * Checks whether a user has the Author role in a project.
+ * Checks if the user is Author in any project if $projId is NULL.
+ * @param $db
+ * @param $userId
+ * @param $projId
+ * @return bool
+ */
+function isAuthor($db, $userId, $projId = NULL) {
+    global $CREATE;
+    $query = "SELECT role FROM Users_Projects WHERE role = $CREATE AND user_id = ? ".
+        (is_null($projId) ? "" : "AND proj_id = ?");
+    $stmt = prepareQuery($db, $query);
+    if (is_null($projId)) {
+        bindParam($stmt, "i", $userId);
+    } else {
+        bindParam($stmt, "ii", $userId, $projId);
+    }
+    executeStatement($stmt);
+    $result = $stmt->get_result();
+    $role = $result->fetch_assoc();
+    return $role['role'] == $CREATE;
 }
 
 function getProjectRoles($db, $userId, $projId) {
@@ -313,7 +372,7 @@ function getProjectRoles($db, $userId, $projId) {
     $results = $stmt->get_result();
     $roles = array();
     while ($row = $results->fetch_assoc()) {
-        $roles[] = $row['role'];
+        $roles[$row['role']] = $row['role'];
     }
     return $roles;
 }

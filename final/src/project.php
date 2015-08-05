@@ -32,6 +32,11 @@ else {
     die();
 }
 
+$is_admin = isAdmin($mysqli, $user_id);
+$user_roles = getProjectRoles($mysqli, $user_id, $_REQUEST['id']);
+
+$users = getAllUsers($mysqli);
+$proj_users = getProjectUsersRoles($mysqli, $user_id, $_REQUEST['id']);
 $issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir, NULL, NULL, $project[0]['proj_id']);
 $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i class="fi-arrow-down"></i>';
 
@@ -64,51 +69,26 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
     <li class="current"><?php echo htmlspecialchars($project[0]['name']); ?></li>
 </ul>
 <div class="medium-12 columns">
-    <ul class="tabs" data-tab>
+    <ul class="tabs" style="background-color:#eee;border:1px solid #ddd;border-bottom-width:0;" data-tab>
         <li class="tab-title active"><a href="#overview">Overview</a></li>
         <li class="tab-title"><a href="#issues">Issues</a></li>
         <li class="tab-title"><a href="#users">Users</a></li>
     </ul>
-    <div class="tabs-content">
+    <div class="tabs-content" style="border:1px solid #ddd; padding-left: 1em;">
         <div class="content active" id="overview">
             <div class="medium-12 clearfix">
                 <div class="clearfix">
-                    <div class="medium-2 large-2 column"><strong>Name:</strong></div>
+                    <div class="medium-2 large-2 column" style="padding-left:0;"><strong>Name:</strong></div>
                     <div class="medium-10 large-10 column"><?php echo htmlspecialchars($project[0]['name']); ?> </div>
                 </div>
                 <div class="clearfix">
-                    <div class="medium-12 large-2 column"><strong>Description:</strong> </div>
+                    <div class="medium-12 large-2 column" style="padding-left:0;"><strong>Description:</strong> </div>
                     <div class="medium-12 large-10 column"><?php echo nl2br(htmlspecialchars($project[0]['description'])); ?>&nbsp;</div>
                 </div>
             </div>
         </div>
-        <div class="content" id="users">
-            <ul class="inline-list" style="margin-bottom: 0;">
-                <li style="margin-left: 0;"><h4>Project Users <a href="#" title="Add User"><i class="fi-plus"></i></a></h4></li>
-            </ul>
-            <table>
-                <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>translator</td>
-                    <td>Translator</td>
-                    <td><a href="issue.php?id=1&remove=2" title="Remove Related Issue"><i class="fi-trash"></i></a></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
         <div class="content" id="issues">
-            <ul class="inline-list" style="margin-bottom: 0;">
-                <li style="margin-left: 0;"><h4>Project Issues</h4></li>
-                <li><a href="project.php" class="button radius tiny">New Issue</a></li>
-            </ul>
-            <table>
+            <table class="middle">
                 <thead>
                 <tr>
                     <th><a href="?sort=1" title="Sort by Issue #">Issue&nbsp;#&nbsp;<?php echo ($issue_sort_col == 1 ? $sort_arrow : ''); ?></a></th>
@@ -140,6 +120,70 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <?php endif ?>
                 </tbody>
             </table>
+<?php if ($is_admin || isset($user_roles[$PROJECT]) || isset($user_roles[$CREATE])): ?>
+            <ul class="inline-list">
+                <li><a href="issue.php?action=new&parent=<?php echo $project[0]['proj_id']; ?>" class="button radius tiny">New Issue</a></li>
+            </ul>
+<?php endif ?>
+        </div>
+        <div class="content" id="users">
+            <div class="clearfix">
+                <div class="medium-3 large-2 column" style="padding-left:0;"><strong>Username</strong></div>
+                <div class="medium-4 large-3 column"><strong>Name</strong></div>
+                <div class="medium-2 large-2 column"><strong>Role</strong></div>
+                <div class="medium-3 large-5 column"></div>
+            </div>
+<?php foreach ($proj_users as $pu): ?>
+            <div class="clearfix">
+                <div class="medium-3 large-2 column" style="border:1px solid #ddd;line-height:2em;"><?php echo $pu['username']; ?></div>
+                <div class="medium-4 large-3 column" style="border:1px solid #ddd;line-height:2em;"><?php echo $pu['first_name'].' '.$pu['last_name']; ?></div>
+                <div class="medium-2 large-2 column" style="border:1px solid #ddd;line-height:2em;"><?php echo $role_map[$pu['role']]; ?></div>
+<?php if ($is_admin || isset($user_roles[$PROJECT])): ?>
+                <div class="medium-3 large-5 column">
+                    <form action="#" method="POST">
+                        <input type="hidden" name="username" value="<?php echo $pu['username']; ?>">
+                        <input type="hidden" name="role" value="$pu['role']">
+                        <ul class="button-group radius">
+                            <li><button type="submit" name="action" value="remove_user" title="Remove User" class="button tiny"><i class="fi-x"></i></button></li>
+                        </ul>
+                    </form>
+                </div>
+<?php endif ?>
+            </div>
+<?php endforeach ?>
+<?php if ($is_admin || isset($user_roles[$PROJECT])): ?>
+            <hr style="margin-top: 0;">
+            <div class="clearfix">
+                <div class="medium-4 large-3 column" style="padding-left:0;">
+                    <select name="username" required>
+                        <option value="" disabled selected>Select Username</option>
+<?php foreach ($users as $user): ?>
+                        <option value="<?php echo $user['user_id']; ?>"><?php echo $user['username'].' ('.$user['first_name'].' '.$user['last_name'].')'; ?></option>
+<?php endforeach ?>
+                    </select>
+                </div>
+                <form action="#" method="POST">
+                    <div class="medium-4 large-3 column">
+                        <select name="role" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option value="<?php echo $READ; ?>"><?php echo $role_map[$READ]; ?></option>
+                            <option value="<?php echo $UPDATE; ?>"><?php echo $role_map[$UPDATE]; ?></option>
+                            <option value="<?php echo $CREATE; ?>"><?php echo $role_map[$CREATE]; ?></option>
+                            <option value="<?php echo $TRANSLATE; ?>"><?php echo $role_map[$TRANSLATE]; ?></option>
+                            <option value="<?php echo $PROJECT; ?>"><?php echo $role_map[$PROJECT]; ?></option>
+<?php if ($is_admin): ?>
+                            <option value="<?php echo $ADMIN; ?>"><?php echo $role_map[$ADMIN]; ?></option>
+<?php endif ?>
+                        </select>
+                    </div>
+                    <div class="medium-4 large-6 column">
+                        <ul class="button-group radius">
+                            <button type="submit" name="action" value="add_user" class="button tiny" title="Add User"><i class="fi-plus"></i></button>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+<?php endif ?>
         </div>
     </div>
 </div>

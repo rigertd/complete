@@ -53,7 +53,7 @@ $sort_arrow = $proj_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i clas
 <?php include('nav.php'); ?>
 <ul class="breadcrumbs">
     <li><a href="index.php">Dashboard</a></li>
-    <li>Project List</li>
+    <li class="current">Project List</li>
 </ul>
 <div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
