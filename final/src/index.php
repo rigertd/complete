@@ -59,7 +59,11 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <div class="large-9 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>Assigned Issues</h3></li>
-        <li><a href="issues.php" class="button radius tiny" style="margin-bottom: 0;">View All</a></li>
+        <li>
+            <ul class="button-group radius">
+                <li><a href="issues.php" class="button tiny" style="margin-bottom: 0;">View All</a></li>
+            </ul>
+        </li>
     </ul>
     <table>
         <thead>
@@ -97,7 +101,11 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <div class="large-3 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>Projects</h3></li>
-        <li><a href="projects.php" class="button radius tiny" style="margin-bottom: 0;">View All</a></li>
+        <li>
+            <ul class="button-group radius">
+                <li><a href="projects.php" class="button radius tiny" style="margin-bottom: 0;">View All</a></li>
+            </ul>
+        </li>
     </ul>
     <ul class="side-nav" role="navigation" title="Project List" style="border: 1px solid #ddd;">
 <?php if (count($projects) > 0): ?>

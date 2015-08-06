@@ -11,17 +11,15 @@
 /*
  * Variables for roles.
  */
-$ADMIN = 1;
+$PROJECT = 1;
 $UPDATE = 2;
 $CREATE = 3;
-$PROJECT = 4;
-$TRANSLATE = 5;
-$READ = 6;
+$TRANSLATE = 4;
+$READ = 5;
 $role_map = array(
-    $ADMIN => "Administrator",
+    $PROJECT => "Project Manager",
     $UPDATE => "Updater",
     $CREATE => "Author",
-    $PROJECT => "Project Manager",
     $TRANSLATE => "Translator",
     $READ => "Reader"
 );
@@ -90,12 +88,11 @@ function getStatuses($db) {
 }
 
 function getProjectUsersRoles($db, $user_id, $project_id) {
-    global $ADMIN;
     global $PROJECT;
     $query = "SELECT u.user_id, u.username, u.first_name, u.last_name, up.role ".
              "FROM Users u INNER JOIN Users_Projects up ON u.user_id = up.user_id ".
              "WHERE up.proj_id = ? AND (".
-                 "EXISTS (SELECT * FROM Users_Projects WHERE user_id = $user_id AND role = $ADMIN) ".
+                 "EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
                  "OR up.proj_id IN (SELECT proj_id FROM Users_Projects WHERE user_id = $user_id AND role = $PROJECT)".
              ") ORDER BY u.username";
     $stmt = prepareQuery($db, $query);
@@ -113,7 +110,7 @@ function getAllUsers($db) {
     if (isset($_SESSION["users"])) {
         $users = json_decode($_SESSION["users"], JSON_UNESCAPED_UNICODE);
     } else {
-        $results = $db->query("SELECT user_id, first_name, last_name, username, email, ui_lang_id, name AS lang_name FROM Users INNER JOIN Languages on ui_lang_id = lang_id ORDER BY user_id;");
+        $results = $db->query("SELECT user_id, first_name, last_name, username, email, ui_lang_id, name AS lang_name, admin FROM Users INNER JOIN Languages on ui_lang_id = lang_id ORDER BY user_id;");
         $users = array();
         while ($row = $results->fetch_assoc()) {
             $users[] = $row;
@@ -139,14 +136,15 @@ function getProjects($db, $userId, $sort_col, $sort_dir, $proj_id = NULL) {
     $query = "SELECT DISTINCT p.proj_id, p.name, p.description ".
              "FROM Projects p ".
              "INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
-             "WHERE up.user_id = ? ".
+             "WHERE (EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1) ".
+             "OR up.user_id = ?) ".
              (is_null($proj_id) ? "" : "AND p.proj_id = ? ").
              "ORDER BY $ob $sort_dir;";
     $stmt = prepareQuery($db, $query);
     if (is_null($proj_id)) {
-        bindParam($stmt, "i", $userId);
+        bindParam($stmt, "ii", $userId, $userId);
     } else {
-        bindParam($stmt, "ii", $userId, $proj_id);
+        bindParam($stmt, "iii", $userId, $userId, $proj_id);
     }
     executeStatement($stmt);
     $results = $stmt->get_result();
@@ -193,7 +191,7 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
         default:
             $ob = "i.issue_id";
     }
-    $query = "SELECT i.issue_id,".
+    $query = "SELECT DISTINCT i.issue_id,".
              "  COALESCE(t_il.subject, s_il.subject) AS subject,".
              "  COALESCE(t_il.description, s_il.description) AS description,".
              "  COALESCE(t_il.last_update, s_il.last_update) AS last_update,".
@@ -207,7 +205,8 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "INNER JOIN Projects p ON i.proj_id = p.proj_id ".
              "INNER JOIN (SELECT DISTINCT user_id, proj_id ".
              "            FROM Users_Projects ".
-             "            WHERE user_id = ?) up ON p.proj_id = up.proj_id ".
+             "            WHERE user_id = ? ".
+             "            OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1)) up ON p.proj_id = up.proj_id ".
              "LEFT JOIN Users u ON i.assignee = u.user_id ".
              "LEFT JOIN Issues_Languages t_il ON i.issue_id = t_il.issue_id AND t_il.lang_id = ? ".
              "LEFT JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND s_il.lang_id = i.lang_id ".
@@ -219,21 +218,21 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
     //echo $query;
     $stmt = prepareQuery($db, $query);
     if (!is_null($assigned_to) && !is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiiii", $userId, $langId, $assigned_to, $issue_id, $project_id);
+        bindParam($stmt, "iiiiii", $userId, $userId, $langId, $assigned_to, $issue_id, $project_id);
     } else if (!is_null($assigned_to) && !is_null($issue_id)) {
-        bindParam($stmt, "iiii", $userId, $langId, $assigned_to, $issue_id);
+        bindParam($stmt, "iiiii", $userId, $userId, $langId, $assigned_to, $issue_id);
     } else if (!is_null($assigned_to) && !is_null($project_id)) {
-        bindParam($stmt, "iiii", $userId, $langId, $assigned_to, $project_id);
+        bindParam($stmt, "iiiii", $userId, $userId, $langId, $assigned_to, $project_id);
     } else if (!is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiii", $userId, $langId, $issue_id, $project_id);
+        bindParam($stmt, "iiiii", $userId, $userId, $langId, $issue_id, $project_id);
     } else if (!is_null($assigned_to)) {
-        bindParam($stmt, "iii", $userId, $langId, $assigned_to);
+        bindParam($stmt, "iiii", $userId, $userId, $langId, $assigned_to);
     } else if (!is_null($issue_id)) {
-        bindParam($stmt, "iii", $userId, $langId, $issue_id);
+        bindParam($stmt, "iiii", $userId, $userId, $langId, $issue_id);
     } else if (!is_null($project_id)) {
-        bindParam($stmt, "iii", $userId, $langId, $project_id);
+        bindParam($stmt, "iiii", $userId, $userId, $langId, $project_id);
     } else {
-        bindParam($stmt, "ii", $userId, $langId);
+        bindParam($stmt, "iii", $userId, $userId, $langId);
     }
     executeStatement($stmt);
     $results = $stmt->get_result();
@@ -306,14 +305,13 @@ function handleLangRequest($db, $userId) {
  * @return bool
  */
 function isAdmin($db, $userId) {
-    global $ADMIN;
-    $query = "SELECT role FROM Users_Projects WHERE role = $ADMIN AND user_id = ?";
+    $query = "SELECT admin FROM Users WHERE user_id = ?";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "i", $userId);
     executeStatement($stmt);
     $result = $stmt->get_result();
-    $role = $result->fetch_assoc();
-    return $role['role'] == $ADMIN;
+    $admin = $result->fetch_assoc();
+    return $admin['admin'] == 1;
 }
 
 /**

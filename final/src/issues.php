@@ -31,8 +31,22 @@ else if (isset($_REQUEST['sort'])) {
 
 /* get UI languages */
 $languages = getLanguages($mysqli);
-/* get issue list */
-$issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir);
+
+/* check if user is system admin */
+$is_admin = isAdmin($mysqli, $user_id);
+
+/* check if project ID was specified */
+if (isset($_REQUEST['id'])) {
+    /* get project issues */
+    $issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir, NULL, NULL, $_REQUEST['id']);
+    $project = getProjects($mysqli, $user_id, $proj_sort_col, $proj_sort_dir, $_REQUEST['id']);
+    $user_roles = getProjectRoles($mysqli, $user_id, $_REQUEST['id']);
+    $is_project = isset($project[0]);
+} else {
+    /* get all issues */
+    $issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir);
+    $is_project = false;
+}
 
 
 $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i class="fi-arrow-down"></i>';
@@ -43,7 +57,7 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Issue Tracker - User Dashboard</title>
+    <title>Issue Tracker - Issue List</title>
     <link href="../css/foundation.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/foundation-icons.css" />
     <link href="../css/style.css" rel="stylesheet">
@@ -53,12 +67,25 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <?php include('nav.php'); ?>
 <ul class="breadcrumbs">
     <li><a href="index.php">Dashboard</a></li>
+<?php if ($is_project): ?>
+    <li><a href="project.php?id=<?php echo $project[0]['proj_id']; ?>"><?php echo htmlspecialchars($project[0]['name']); ?></a></li>
+<?php endif ?>
     <li class="current">Issue List</li>
 </ul>
 <div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
-        <li style="margin-left: 0;"><h3>All Issues</h3></li>
-        <li><a href="project.php" class="button radius tiny">New Issue</a></li>
+<?php if ($is_project): ?>
+        <li><h3><?php echo htmlspecialchars($project[0]['name']); ?> Issues</h3></li>
+<?php else: ?>
+        <li><h3>All Issues</h3></li>
+<?php endif ?>
+<?php if ($is_admin || isset($user_roles[$PROJECT]) || isset($user_roles[$CREATE])): ?>
+        <li>
+            <ul class="inline-list">
+                <li><a href="issue.php?action=new<?php if ($is_project) { echo "&parent=".$project[0]['proj_id']; } ?>" class="button radius tiny">New Issue</a></li>
+            </ul>
+        </li>
+<?php endif ?>
     </ul>
     <table>
         <thead>
@@ -73,23 +100,23 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
         </tr>
         </thead>
         <tbody>
-        <?php if (count($issues) > 0): ?>
-            <?php foreach ($issues as $issue): ?>
-                <tr>
-                    <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo $issue['issue_id']; ?></a></td>
-                    <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo htmlspecialchars($issue['subject']) . (!$issue['translated'] ? ' (Not Translated)' : ''); ?></a></td>
-                    <td><?php echo htmlspecialchars($issue['status']); ?></td>
-                    <td><?php echo htmlspecialchars($issue['priority']); ?></td>
-                    <td><?php echo htmlspecialchars($issue['assignee_name']); ?></td>
-                    <td><a href="project.php?id=<?php echo $issue['proj_id']; ?>"><?php echo htmlspecialchars($issue['proj_name']); ?></a></td>
-                    <td><?php echo htmlspecialchars($issue['due_date']); ?></td>
-                </tr>
-            <?php endforeach ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="7">You do not have any issues assigned to you.</td>
-            </tr>
-        <?php endif ?>
+<?php if (count($issues) > 0): ?>
+<?php foreach ($issues as $issue): ?>
+        <tr>
+            <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo $issue['issue_id']; ?></a></td>
+            <td><a href="issue.php?id=<?php echo $issue['issue_id']; ?>"><?php echo htmlspecialchars($issue['subject']) . (!$issue['translated'] ? ' (Not Translated)' : ''); ?></a></td>
+            <td><?php echo htmlspecialchars($issue['status']); ?></td>
+            <td><?php echo htmlspecialchars($issue['priority']); ?></td>
+            <td><?php echo htmlspecialchars($issue['assignee_name']); ?></td>
+            <td><a href="project.php?id=<?php echo $issue['proj_id']; ?>"><?php echo htmlspecialchars($issue['proj_name']); ?></a></td>
+            <td><?php echo htmlspecialchars($issue['due_date']); ?></td>
+        </tr>
+<?php endforeach ?>
+<?php else: ?>
+        <tr>
+            <td colspan="7">You do not have any issues assigned to you.</td>
+        </tr>
+<?php endif ?>
         </tbody>
     </table>
 </div>

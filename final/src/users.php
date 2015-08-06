@@ -125,6 +125,18 @@ $users = getAllUsers($mysqli);
             }
         };
     </script>
+    <style type="text/css">
+        .column {
+            padding-left: .1em;
+            padding-right: .1em;
+            width: 11.5%;
+            min-width: 3em;;
+        }
+        .id {
+            width: 5% !important;
+            min-width: 1.5em !important;
+        }
+    </style>
 </head>
 <body>
 <?php echo $alert ?>
@@ -139,34 +151,35 @@ $users = getAllUsers($mysqli);
         <li style="margin-left: 0;"><h3>All Users</h3></li>
     </ul>
     <div class="clearfix">
-        <div class="medium-1 column"><strong>ID</strong></div>
-        <div class="medium-1 column"><strong>Username</strong></div>
-        <div class="medium-2 column"><strong>First</strong></div>
-        <div class="medium-1 column"><strong>Last</strong></div>
-        <div class="medium-2 column"><strong>Email</strong></div>
-        <div class="medium-2 column"><strong>UI Language</strong></div>
-        <div class="medium-1 column"><strong>Password</strong></div>
-        <div class="medium-2 column">&nbsp;</div>
+        <div class="column id"><strong>ID</strong></div>
+        <div class="column"><strong>Username</strong></div>
+        <div class="column"><strong>First</strong></div>
+        <div class="column"><strong>Last</strong></div>
+        <div class="column"><strong>Email</strong></div>
+        <div class="column"><strong>UI Language</strong></div>
+        <div class="column"><strong>Admin</strong></div>
+        <div class="column"><strong>Password</strong></div>
+        <div class="column">&nbsp;</div>
     </div>
 <?php if (count($users) > 0): ?>
 <?php foreach ($users as $user): ?>
     <div class="clearfix">
         <form method="POST" action="users.php" data-abide>
-            <div class="medium-1 column"><?php echo $user['user_id']; ?><input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>"></div>
-            <div class="medium-1 column">
+            <div class="column id"><?php echo $user['user_id']; ?><input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>"></div>
+            <div class="column">
                 <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required pattern="[-_a-zA-Z\d]+">
                 <small class="error">A unique username is required.</small>
             </div>
-            <div class="medium-2 column">
+            <div class="column">
                 <input type="text" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
                 <small class="error">A first name is required.</small>
             </div>
-            <div class="medium-1 column"><input type="text" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>"></div>
-            <div class="medium-2 column">
+            <div class="column"><input type="text" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>"></div>
+            <div class="column">
                 <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">
                 <small class="error">Enter a valid email address or leave it blank to clear.</small>
             </div>
-            <div class="medium-2 column">
+            <div class="column">
                 <select name="ui_lang_id" required>
 <?php foreach ($languages as $lang): ?>
                     <option value="<?php echo $lang['lang_id']; ?>"<?php echo ($lang['lang_id'] == $user['ui_lang_id'] ? 'selected' : ''); ?>><?php echo htmlspecialchars($lang['name']); ?></option>
@@ -174,8 +187,14 @@ $users = getAllUsers($mysqli);
                 </select>
                 <small class="error">A UI language is required.</small>
             </div>
-            <div class="medium-1 column"><input type="password" name="password" placeholder="●●●●●●●●"></div>
-            <div class="medium-2 column">
+            <div class="column">
+                <select name="is_admin" required>
+                    <option value="0"<?php echo $user['admin'] == 0 ? ' selected' : ''; ?>>False</option>
+                    <option value="1"<?php echo $user['admin'] == 1 ? ' selected' : ''; ?>>True</option>
+                </select>
+            </div>
+            <div class="column"><input type="password" name="password" placeholder="●●●●●●●●"></div>
+            <div class="column">
                 <ul class="button-group radius">
                     <li><button type="submit" name="action" value="update" title="Save" class="button tiny"><i class="fi-save" style="font-size: 150%"></i></button></li>
                     <li><button class="button tiny" type="submit" name="action" value="delete" title="Delete"><i class="fi-trash" style="font-size: 150%"></i></button></li>
@@ -192,21 +211,21 @@ $users = getAllUsers($mysqli);
     <div class="clearfix">
         <hr>
         <form method="POST" action="users.php" data-abide>
-            <div class="medium-1 column">New</div>
-            <div class="medium-1 column">
+            <div class="column id">New</div>
+            <div class="column">
                 <input type="text" name="username" placeholder="Username" required>
                 <small class="error">A unique username is required.</small>
             </div>
-            <div class="medium-2 column">
+            <div class="column">
                 <input type="text" name="first_name" placeholder="First name" required>
                 <small class="error">A first name is required.</small>
             </div>
-            <div class="medium-1 column"><input type="text" name="last_name" placeholder="Last name (optional)"></div>
-            <div class="medium-2 column">
+            <div class="column"><input type="text" name="last_name" placeholder="Last name (optional)"></div>
+            <div class="column">
                 <input type="email" name="email" placeholder="Email (optional)">
                 <small class="error">Enter a valid email address or leave it blank.</small>
             </div>
-            <div class="medium-2 column">
+            <div class="column">
                 <select name="ui_lang_id" required>
 <?php foreach ($languages as $lang): ?>
                         <option value="<?php echo $lang['lang_id']; ?>"<?php echo ($lang['lang_id'] == $ui_lang_id ? 'selected' : ''); ?>><?php echo htmlspecialchars($lang['name']); ?></option>
@@ -214,11 +233,17 @@ $users = getAllUsers($mysqli);
                 </select>
                 <small class="error">A UI language is required.</small>
             </div>
-            <div class="medium-1 column">
+            <div class="column">
+                <select name="is_admin" required>
+                    <option value="0">False</option>
+                    <option value="1">True</option>
+                </select>
+            </div>
+            <div class="column">
                 <input type="password" name="password" placeholder="Password" required>
                 <small class="error">A password must be set for new users.</small>
             </div>
-            <div class="medium-2 column">
+            <div class="column">
                 <ul class="button-group radius">
                     <li><button type="submit" title="Add" name="action" value="new" class="button tiny"><i class="fi-plus" style="font-size: 150%"></i></button></li>
                 </ul>

@@ -1,0 +1,3 @@
+.inline-list > li:first-child {
+    margin-left: 0;
+}
