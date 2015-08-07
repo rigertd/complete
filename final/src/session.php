@@ -14,8 +14,9 @@ if (session_status() != PHP_SESSION_ACTIVE || !isset($_SESSION['username'])){
     /* for building URL to current path */
     $host = $_SERVER['HTTP_HOST'];
     $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
+    $redirect = urlencode("{$_SERVER['PHP_SELF']}?{$_SERVER['QUERY_STRING']}");
     /* no username or session--redirect to login.php */
-    header("Location: https://{$host}{$url}/login.php");
+    header("Location: https://{$host}{$url}/login.php?r=$redirect");
     die();
 }
 

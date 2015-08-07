@@ -107,8 +107,8 @@ if (isset($_REQUEST['action'])) {
            Redirects to index.php or callback URL if auth succeeds. */
         $username = $_REQUEST['username'];
         $pass = $_REQUEST['password'];
-        $callback = isset($_REQUEST['callback']) ?
-            "https://{$host}{$_REQUEST['callback']}" :
+        $callback = isset($_REQUEST['r']) ?
+            "https://{$host}{$_REQUEST['r']}" :
             "https://{$host}{$url}/index.php";
         if (authenticate($mysqli, $username, $pass)) {
             header("Location: $callback");
@@ -168,6 +168,9 @@ header('Content-Type: text/html');
                 <button type="submit" class="small radius button">Sign In</button>
               </div>
             </div>
+<?php if (isset($_GET['r'])): ?>
+            <input type="hidden" name="r" value="<?php echo urldecode($_GET['r']); ?>">
+<?php endif ?>
           </form>
         </div>
       </div>
