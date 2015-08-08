@@ -24,6 +24,62 @@ $role_map = array(
     $READ => "Reader"
 );
 
+function updateIssue($db, $user_id, $lang_id, $issue_id, $priority_id, $status_id, $assignee_id, $due, $completed_on, $proj_id) {
+    global $UPDATE;
+    global $PROJECT;
+    $query = "UPDATE Issues i SET i.priority_id = ?, i.status_id = ?, i.assignee = ?, ".
+             "                    i.due_date = ?, i.completed_on = ?, i.proj_id = ? ".
+             "WHERE i.issue_id = ? AND ".
+             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
+             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iiissiii", $priority_id, $status_id, $assignee_id, $due, $completed_on, $proj_id, $issue_id, $proj_id);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
+}
+
+function updateIssueText($db, $user_id, $lang_id, $issue_id, $subject, $description, $proj_id) {
+    global $UPDATE;
+    global $PROJECT;
+    $query = "UPDATE Issues_Languages il SET il.user_id = $user_id, il.subject = ?, il.description = ?, i.lang_id = $lang_id ".
+             "INNER JOIN Issues i ON il.issue_id = i.issue_id ".
+             "INNER JOIN Users_Projects up ON i.proj_id = up.proj_id ".
+             "WHERE il.lang_id = $lang_id AND il.issue_id = ? AND ".
+             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
+             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "ssii", $subject, $description, $issue_id, $proj_id);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
+}
+
+function addIssueComment($db, $user_id, $lang_id, $issue_id, $comment, $proj_id) {
+    global $UPDATE;
+    global $PROJECT;
+    $query = "INSERT INTO Comments (issue_id, user_id, lang_id) ".
+             "SELECT i.issue_id, up.user_id, ? ".
+             "FROM Users_Projects up INNER JOIN Issues i ON up.proj_id = i.proj_id ".
+             "WHERE up.user_id = $user_id AND i.issue_id = ? AND ".
+             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
+             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iii", $lang_id, $issue_id, $proj_id);
+    executeStatement($stmt);
+    $comment_id = $stmt->insert_id;
+    /* if addition was successful, add text */
+    if ($comment_id != null && $stmt->affected_rows > 0) {
+        $query = "INSERT INTO Comments_Languages (comment_id, lang_id, description) VALUES (?, ?, ?);";
+        $stmt = prepareQuery($db, $query);
+        bindParam($stmt, "iis", $comment_id, $lang_id, $comment);
+        executeStatement($stmt);
+        /* delete comment if text insertion failed */
+        if ($stmt->affected_rows < 1) {
+            $db->query("DELETE FROM Comments WHERE comment_id = $comment_id");
+            return false;
+        }
+    }
+    return $stmt->affected_rows > 0;
+}
 
 /**
  * Gets an array of all UI languages in the database. Caches the
@@ -85,6 +141,24 @@ function getStatuses($db) {
         $_SESSION["statuses"] = json_encode($statuses, JSON_UNESCAPED_UNICODE);
     }
     return $statuses;
+}
+
+function getProjectUsers($db, $user_id, $project_id) {
+    $query = "SELECT DISTINCT u.user_id, u.username, u.first_name, u.last_name ".
+        "FROM Users u INNER JOIN Users_Projects up ON u.user_id = up.user_id ".
+        "WHERE up.proj_id = ? AND (".
+        "EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
+        "OR up.proj_id IN (SELECT proj_id FROM Users_Projects WHERE user_id = $user_id)".
+        ") ORDER BY u.username";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "i", $project_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $users = array();
+    while ($row = $results->fetch_assoc()) {
+        $users[] = $row;
+    }
+    return $users;
 }
 
 function getProjectUsersRoles($db, $user_id, $project_id) {
@@ -194,11 +268,12 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
     $query = "SELECT DISTINCT i.issue_id,".
              "  COALESCE(t_il.subject, s_il.subject) AS subject,".
              "  COALESCE(t_il.description, s_il.description) AS description,".
-             "  COALESCE(t_il.last_update, s_il.last_update) AS last_update,".
+             "  uu.created_on AS last_update, uu.updated_by,".
              "  CASE WHEN t_il.subject IS NULL THEN 0 ELSE 1 END AS translated,".
              "  i.priority_id, pr.name AS priority, i.status_id, s.name AS status, u.user_id AS assignee_id,".
              "  CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS assignee_name,".
-             "  i.proj_id, p.name AS proj_name, i.due_date, i.created_on, i.completed_on ".
+             "  i.proj_id, p.name AS proj_name, i.due_date, i.created_on, ".
+             "  CONCAT(COALESCE(cu.first_name, ''), ' ', COALESCE(cu.last_name, '')) AS created_by, i.completed_on ".
              "FROM Issues i ".
              "INNER JOIN Priorities pr ON i.priority_id = pr.priority_id ".
              "INNER JOIN Statuses s ON i.status_id = s.status_id ".
@@ -207,9 +282,13 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "            FROM Users_Projects ".
              "            WHERE user_id = ? ".
              "            OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1)) up ON p.proj_id = up.proj_id ".
+             "INNER JOIN Users cu ON i.created_by = cu.user_id ".
              "LEFT JOIN Users u ON i.assignee = u.user_id ".
              "LEFT JOIN Issues_Languages t_il ON i.issue_id = t_il.issue_id AND t_il.lang_id = ? ".
              "LEFT JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND s_il.lang_id = i.lang_id ".
+             "LEFT JOIN (SELECT ud.user_id, CONCAT(COALESCE(uu.first_name, ''), ' ', COALESCE(uu.last_name, '')) AS updated_by, ud.created_on, ud.issue_id ".
+             "           FROM Updates ud INNER JOIN Users uu ON ud.user_id = uu.user_id) AS uu ".
+             "           ON i.issue_id = uu.issue_id ".
              "WHERE 1=1 ". //hack for conditional code below
              (is_null($assigned_to) ? "" : "AND i.assignee = ? ").
              (is_null($issue_id) ? "" : "AND i.issue_id = ? ").
@@ -376,13 +455,13 @@ function getProjectRoles($db, $userId, $projId) {
 }
 
 /**
- * Checks whether the translation of a specific issue is up to date.
- * @param $db         The mysqli instance.
- * @param $issueId    The issue to check the translation for.
- * @param $langId     The language ID of the translation to check.
- * @return array|null Any out-of-date translations for the issue. {issue_id, t_lang_id, t_lang_name}
+ * Gets any outdated translation for a specific issue.
+ * @param mysqli $db      The mysqli instance.
+ * @param int $issueId    The issue to check the translation for.
+ * @param int $langId     The language ID of the translation to check.
+ * @return array|null Any out-of-date translation for the issue. {issue_id, t_lang_id, t_lang_name}
  */
-function isTransUpToDate($db, $issueId, $langId) {
+function getOutdatedIssueTrans($db, $issueId, $langId) {
     $query = "SELECT i.issue_id, t_il.lang_id AS t_lang_id, l.name AS t_lang_name ".
              "FROM Issues i ".
              "INNER JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND i.lang_id = s_il.lang_id ".

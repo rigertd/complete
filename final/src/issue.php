@@ -81,6 +81,11 @@ if (isset($_REQUEST['id'])) {
     $issues = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir);
     $rels = getRelationships($mysqli);
     $rel_issues = getRelatedIssues($mysqli, $user_id, $_REQUEST['id']);
+    $proj_users = getProjectUsers($mysqli, $user_id, $issue[0]['proj_id']);
+    $priorities = getPriorities($mysqli);
+    $statuses = getStatuses($mysqli);
+    $projects = getProjects($mysqli, $user_id, $proj_sort_col, $proj_sort_dir);
+    $outdated = getOutdatedIssueTrans($mysqli, $_REQUEST['id'], $ui_lang_id);
 } /* no issue ID specified--redirect to list of all issues */
 else {
     $host = $_SERVER['HTTP_HOST'];
@@ -134,12 +139,65 @@ if (isset($_REQUEST['action'])) {
     <link rel="stylesheet" href="../css/foundation-icons.css" />
     <link href="../css/style.css" rel="stylesheet">
     <script src="../js/vendor/modernizr.js"></script>
+    <script>
+        function showUpdate() {
+            document.getElementById('subject_edit').style.display = '';
+            document.getElementById('subject_noedit').style.display = 'none';
+            document.getElementById('project_edit').style.display = '';
+            document.getElementById('project_noedit').style.display = 'none';
+            document.getElementById('assignee_edit').style.display = '';
+            document.getElementById('assignee_noedit').style.display = 'none';
+            document.getElementById('priority_edit').style.display = '';
+            document.getElementById('priority_noedit').style.display = 'none';
+            document.getElementById('status_edit').style.display = '';
+            document.getElementById('status_noedit').style.display = 'none';
+            document.getElementById('due_edit').style.display = '';
+            document.getElementById('due_noedit').style.display = 'none';
+            document.getElementById('description_edit').style.display = '';
+            document.getElementById('description_noedit').style.display = 'none';
+            document.getElementById('comment_edit').style.display = '';
+            document.getElementById('button_edit').style.display = '';
+            document.getElementById('buttons').style.display = 'none';
+        }
+        function hideUpdate() {
+            document.getElementById('subject_edit').style.display = 'none';
+            document.getElementById('subject_noedit').style.display = '';
+            document.getElementById('project_edit').style.display = 'none';
+            document.getElementById('project_noedit').style.display = '';
+            document.getElementById('assignee_edit').style.display = 'none';
+            document.getElementById('assignee_noedit').style.display = '';
+            document.getElementById('priority_edit').style.display = 'none';
+            document.getElementById('priority_noedit').style.display = '';
+            document.getElementById('status_edit').style.display = 'none';
+            document.getElementById('status_noedit').style.display = '';
+            document.getElementById('due_edit').style.display = 'none';
+            document.getElementById('due_noedit').style.display = '';
+            document.getElementById('description_edit').style.display = 'none';
+            document.getElementById('description_noedit').style.display = '';
+            document.getElementById('comment_edit').style.display = 'none';
+            document.getElementById('button_edit').style.display = 'none';
+            document.getElementById('buttons').style.display = '';
+        }
+        function showTranslate() {
+            document.getElementById('subject_edit').style.display = '';
+            document.getElementById('description_edit').style.display = '';
+            document.getElementById('button_translate').style.display = '';
+            document.getElementById('buttons').style.display = 'none';
+        }
+        function hideTranslate() {
+            document.getElementById('subject_edit').style.display = 'none';
+            document.getElementById('description_edit').style.display = 'none';
+            document.getElementById('button_translate').style.display = 'none';
+            document.getElementById('buttons').style.display = '';
+        }
+    </script>
 </head>
 <body>
 <?php include('nav.php'); ?>
 <?php if (count($issue) == 0): ?>
     <ul class="breadcrumbs">
         <li><a href="index.php">Dashboard</a></li>
+        <li><a href="issues.php">Issue List</a></li>
         <li class="current">Invalid Issue</li>
     </ul>
     <div class="medium-12 columns">
@@ -149,47 +207,148 @@ if (isset($_REQUEST['action'])) {
 <?php else: ?>
 <ul class="breadcrumbs">
     <li><a href="index.php">Dashboard</a></li>
+    <li><a href="projects.php">Project List</a></li>
     <li><a href="project.php?id=<?php echo $issue[0]['proj_id']; ?>"><?php echo htmlspecialchars($issue[0]['proj_name']); ?></a></li>
+    <li><a href="issues.php?id=<?php echo $issue[0]['proj_id']; ?>">Issue List</a></li>
     <li class="current">Issue #<?php echo $issue[0]['issue_id']; ?></li>
 </ul>
 <div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>Issue #<?php echo htmlspecialchars($_REQUEST['id']); ?></h3></li>
-        <li><a href="issue.php?id=<?php echo htmlspecialchars($_REQUEST['id']); ?>&action=update" class="button radius tiny">Update</a></li>
+        <li id="buttons">
+            <ul class="button-group radius">
+<?php if (isset($roles[$PROJECT]) || isset($roles[$UPDATE]) || $is_admin): ?>
+                <li><button class="button tiny" onclick="showUpdate()">Update</button></li>
+<?php endif ?>
+<?php if ((isset($roles[$TRANSLATE]) || $is_admin) && ($issue[0]['translated'] == 0 || $outdated != null)): ?>
+                <li><button class="button tiny" onclick="showTranslate()">Translate</button></li>
+<?php endif ?>
+            </ul>
+        </li>
+<?php if ((isset($roles[$TRANSLATE]) || $is_admin) && $outdated != null): ?>
+        <li class="label alert radius">Translation Out of Date</li>
+<?php endif ?>
     </ul>
     <div class="medium-12 panel clearfix">
-        <div class="clearfix">
-            <div class="medium-2 large-2 column"><strong>Subject:</strong></div>
-            <div class="medium-10 large-10 column"><?php echo htmlspecialchars($issue[0]['subject']); ?> </div>
-        </div>
-        <div class="clearfix">
-            <div class="medium-2 large-2 column"><strong>Assignee:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['assignee_name']); ?>&nbsp;</div>
-            <div class="medium-2 large-2 column"><strong>Created:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['created_on']); ?>&nbsp;</div>
-        </div>
-        <div class="clearfix">
-            <div class="medium-2 large-2 column"><strong>Priority:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['priority']); ?>&nbsp;</div>
-            <div class="medium-2 large-2 column"><strong>Updated:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['last_update']); ?>&nbsp;</div>
-        </div>
-        <div class="clearfix">
-            <div class="medium-2 large-2 column"><strong>Status:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['status']); ?>&nbsp;</div>
-            <div class="medium-2 large-2 column"><strong>Due&nbsp;Date:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['due_date']); ?>&nbsp;</div>
-        </div>
-        <div class="clearfix">
-            <div class="medium-2 large-2 column"><strong>Project:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['proj_name']); ?>&nbsp;</div>
-            <div class="medium-2 large-2 column"><strong>Completed:</strong></div>
-            <div class="medium-4 large-4 column"><?php echo htmlspecialchars($issue[0]['completed_on']); ?>&nbsp;</div>
-        </div>
-        <div class="clearfix">
-            <div class="medium-12 large-2 column"><strong>Description:</strong> </div>
-            <div class="medium-12 large-10 column"><?php echo nl2br(htmlspecialchars($issue[0]['description'])); ?>&nbsp;</div>
-        </div>
+        <form action="issue.php" method="POST" data-abide>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="subject">Subject</label></div>
+                <div class="medium-10 column">
+                    <div id="subject_noedit"><?php echo htmlspecialchars($issue[0]['subject']); ?></div>
+                    <div id="subject_edit" style="display:none;">
+                        <input type="text" id="subject" name="subject" value="<?php echo htmlspecialchars($issue[0]['subject']); ?>" required>
+                        <small class="error">A subject is required.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="project">Project</label></div>
+                <div class="medium-4 column">
+                    <div id="project_noedit"><?php echo htmlspecialchars($issue[0]['proj_name']); ?></div>
+                    <div id="project_edit" style="display:none;">
+                        <select name="project" required>
+<?php foreach ($projects as $project): ?>
+                            <option value="<?php echo $project['proj_id']; ?>"<?php if ($project['proj_id'] == $issue[0]['proj_id']) {echo "selected";} ?>><?php echo $project['name'] ?></option>
+<?php endforeach ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="medium-2 column"><label for="created">Created On</label></div>
+                <div class="medium-4 column" id="created"><?php echo htmlspecialchars($issue[0]['created_on']); ?>&nbsp;</div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="assignee">Assignee</label></div>
+                <div class="medium-4 column">
+                    <div id="assignee_noedit"><?php echo htmlspecialchars($issue[0]['assignee_name']); ?></div>
+                    <div id="assignee_edit" style="display:none;">
+                        <select name="assignee">
+                            <option value="">None</option>
+<?php foreach ($proj_users as $user): ?>
+                            <option value="<?php echo $user['user_id']; ?>"<?php if ($user['user_id'] == $issue[0]['assignee_id']) {echo "selected";} ?>><?php echo $user['first_name'].' '.$user['last_name'] ?></option>
+<?php endforeach ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="medium-2 column"><label for="createdby">Created By</label></div>
+                <div class="medium-4 column" id="createdby"><?php echo htmlspecialchars($issue[0]['created_by']); ?>&nbsp;</div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="priority">Priority</label></div>
+                <div class="medium-4 column">
+                    <div id="priority_noedit"><?php echo htmlspecialchars($issue[0]['priority']); ?></div>
+                    <div id="priority_edit" style="display:none;">
+                        <select name="priority" required>
+<?php foreach ($priorities as $priority): ?>
+                            <option value="<?php echo $priority['priority_id']; ?>"<?php if ($priority['priority_id'] == $issue[0]['priority_id']) {echo "selected";} ?>><?php echo $priority['name'] ?></option>
+<?php endforeach ?>
+                        </select>
+                        <small class="error">A priority is required.</small>
+                    </div>
+                </div>
+                <div class="medium-2 column"><label for="updated">Updated On</label></div>
+                <div class="medium-4 column" id="updated"><?php echo htmlspecialchars($issue[0]['last_update']); ?>&nbsp;</div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="status">Status</label></div>
+                <div class="medium-4 column">
+                    <div id="status_noedit"><?php echo htmlspecialchars($issue[0]['status']); ?></div>
+                    <div id="status_edit" style="display:none;">
+                        <select name="status" required>
+<?php foreach ($statuses as $status): ?>
+                            <option value="<?php echo $status['status_id']; ?>"<?php if ($status['status_id'] == $issue[0]['status_id']) {echo "selected";} ?>><?php echo $status['name'] ?></option>
+<?php endforeach ?>
+                        </select>
+                        <small class="error">A status is required.</small>
+                    </div>
+                </div>
+                <div class="medium-2 column"><label for="updatedby">Updated By</label></div>
+                <div class="medium-4 column" id="updatedby"><?php echo htmlspecialchars($issue[0]['updated_by']); ?>&nbsp;</div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column"><label for="duedate">Due&nbsp;Date:</label></div>
+                <div class="medium-4 column">
+                    <div id="due_noedit"><?php echo htmlspecialchars($issue[0]['due_date']); ?></div>
+                    <div id="due_edit" class="row collapse" style="display:none;">
+                        <div class="medium-6 column"><input id="duedate" name="duedate" type="date" value="<?php echo date("Y-m-d", strtotime($issue[0]['due_date'])); ?>"></div>
+                        <div class="medium-6 column"><input id="duetime" name="duetime" type="time" value="<?php echo date("H:i:s", strtotime($issue[0]['due_date'])); ?>"></div>
+                    </div>
+                </div>
+                <div class="medium-2 column"><label for="completed">Completed On</label></div>
+                <div class="medium-4 column" id="completed"><?php echo htmlspecialchars($issue[0]['completed_on']); ?>&nbsp;</div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-12 large-2 column"><label for="description">Description</label> </div>
+                <div class="medium-12 large-10 column">
+                    <div id="description_noedit"><?php echo nl2br(htmlspecialchars($issue[0]['description'])); ?></div>
+                    <div id="description_edit" style="display:none;">
+                        <textarea id="description" name="description" rows="5" maxlength="2000"><?php echo htmlspecialchars($issue[0]['description']); ?></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix" id="comment_edit" style="display:none;">
+                <hr>
+                <div class="medium-12 large-2 column"><label for="comment">Update Comment</label></div>
+                <div class="medium-12 large-10 column">
+                    <textarea id="comment" name="comment" rows="5" maxlength="2000"></textarea>
+                </div>
+            </div>
+            <div class="clearfix" id="button_edit" style="display:none;">
+                <div class="medium-12 column text-center">
+                    <ul class="button-group radius">
+                        <li><button type="submit" class="button tiny" name="action" value="update">Update</button></li>
+                        <li><button class="button tiny" onclick="hideUpdate();return false;">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="clearfix" id="button_translate" style="display:none;">
+                <div class="medium-12 column text-center">
+                    <ul class="button-group radius">
+                        <li><button type="submit" class="button tiny" name="action" value="translate">Save Translation</button></li>
+                        <li><button class="button tiny" onclick="hideTranslate();return false;">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </form>
         <div><hr></div>
         <ul class="inline-list" style="margin-bottom: 0;">
             <li style="margin-left: 0;"><h4>Related Issues</h4></li>

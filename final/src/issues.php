@@ -68,6 +68,7 @@ $sort_arrow = $issue_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i cla
 <ul class="breadcrumbs">
     <li><a href="index.php">Dashboard</a></li>
 <?php if ($is_project): ?>
+    <li><a href="projects.php">Project List</a></li>
     <li><a href="project.php?id=<?php echo $project[0]['proj_id']; ?>"><?php echo htmlspecialchars($project[0]['name']); ?></a></li>
 <?php endif ?>
     <li class="current">Issue List</li>

@@ -58,7 +58,7 @@ $sort_arrow = $proj_sort_dir == 'ASC' ? '<i class="fi-arrow-up"></i>' : '<i clas
 <div class="medium-12 columns">
     <ul class="inline-list" style="margin-bottom: 0;">
         <li style="margin-left: 0;"><h3>All Projects</h3></li>
-<?php if (isProjectManager($mysqli, $user_id)): ?>
+<?php if ($is_admin): ?>
         <li><a href="project.php?action=new" class="button radius tiny">New Project</a></li>
 <?php endif ?>
     </ul>
