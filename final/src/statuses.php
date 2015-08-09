@@ -8,9 +8,9 @@ include 'dbfuncs.php';
 include 'uifuncs.php';
 
 /* status administration functions */
-function addStatus($db, $name, $percent) {
-    $stmt = prepareQuery($db, "INSERT INTO Statuses (name, percentage) VALUES (?, ?);");
-    bindParam($stmt, "si", $name, $percent);
+function addStatus($db, $name, $percent, $complete) {
+    $stmt = prepareQuery($db, "INSERT INTO Statuses (name, percentage, complete) VALUES (?, ?, ?);");
+    bindParam($stmt, "sii", $name, $percent, $complete);
     executeStatement($stmt);
     if ($stmt->affected_rows > 0) {
         unset($_SESSION['statuses']);
@@ -19,9 +19,9 @@ function addStatus($db, $name, $percent) {
     return false;
 }
 
-function updateStatus($db, $status_id, $name, $percent) {
-    $stmt = prepareQuery($db, "UPDATE Statuses SET name = ?, percentage = ? WHERE status_id = ?;");
-    bindParam($stmt, "sii", $name, $percent, $status_id);
+function updateStatus($db, $status_id, $name, $percent, $complete) {
+    $stmt = prepareQuery($db, "UPDATE Statuses SET name = ?, percentage = ?, complete = ? WHERE status_id = ?;");
+    bindParam($stmt, "sii", $name, $percent, $status_id, $complete);
     executeStatement($stmt);
     if ($stmt->affected_rows > 0) {
         unset($_SESSION['statuses']);
@@ -54,13 +54,13 @@ if (!isAdmin($mysqli, $user_id)) {
 } else if (isset($_REQUEST['action'])) {
     $_SESSION['alert'] = '<script>';
     if ($_REQUEST['action'] == 'update') {
-        if (updateStatus($mysqli, $_POST['status_id'], $_POST['status_name'], $_POST['status_percent'])) {
+        if (updateStatus($mysqli, $_POST['status_id'], $_POST['status_name'], $_POST['status_percent'], isset($_POST['status_complete']) ? 1 : 0)) {
             $_SESSION['alert'] .= "alert('$_POST[status_name] was updated.');";
         } else {
             $_SESSION['alert'] .= "alert('Update of $_POST[status_name] failed.');";
         }
     } else if ($_REQUEST['action'] == 'new') {
-        if (addStatus($mysqli, $_POST['status_name'], $_POST['status_percent'])) {
+        if (addStatus($mysqli, $_POST['status_name'], $_POST['status_percent'], isset($_POST['status_complete']) ? 1 : 0)) {
             $_SESSION['alert'] .= "alert('$_POST[status_name] was added.');";
         } else {
             $_SESSION['alert'] .= "alert('Failed to add $_POST[status_name]. Make sure it does not already exist.');";
@@ -126,8 +126,9 @@ $statuses = getStatuses($mysqli);
     </ul>
     <div class="clearfix">
         <div class="medium-1 column"><strong>ID</strong></div>
-        <div class="medium-4 column"><strong>Name</strong></div>
-        <div class="medium-4 column"><strong>Percent Complete</strong></div>
+        <div class="medium-3 column"><strong>Name</strong></div>
+        <div class="medium-3 column"><strong>Percent Complete</strong></div>
+        <div class="medium-2 column"><strong>Completion Flag</strong></div>
         <div class="medium-3 column">&nbsp;</div>
     </div>
 <?php if (count($statuses) > 0): ?>
@@ -135,13 +136,16 @@ $statuses = getStatuses($mysqli);
     <div class="clearfix">
         <form method="POST" action="statuses.php" data-abide>
             <div class="medium-1 column"><?php echo $status['status_id']; ?><input type="hidden" name="status_id" value="<?php echo $status['status_id']; ?>"></div>
-            <div class="medium-4 column">
+            <div class="medium-3 column">
                 <input type="text" name="status_name" value="<?php echo $status['name']; ?>" required>
                 <small class="error">A status name is required.</small>
             </div>
-            <div class="medium-4 column">
+            <div class="medium-3 column">
                 <input type="text" name="status_percent" value="<?php echo $status['percentage']; ?>" pattern="[\d]{0,3}" required>
                 <small class="error">A completion percentage is required.</small>
+            </div>
+            <div class="medium-2 column">
+                <input type="checkbox" name="status_complete" value="1"<?php echo ($status['complete'] == 0 ? "" : " checked"); ?>>
             </div>
             <div class="medium-3 column">
                 <ul class="button-group radius">
@@ -161,13 +165,16 @@ $statuses = getStatuses($mysqli);
         <hr>
         <form method="POST" action="statuses.php" data-abide>
             <div class="medium-1 column">New</div>
-            <div class="medium-4 column">
+            <div class="medium-3 column">
                 <input type="text" name="status_name" placeholder="Status name" required>
                 <small class="error">A status name is required.</small>
             </div>
-            <div class="medium-4 column">
+            <div class="medium-3 column">
                 <input type="text" name="status_percent" placeholder="Percent complete (integer)" pattern="[\d]{0,3}" required>
                 <small class="error">A completion percentage is required.</small>
+            </div>
+            <div class="medium-2 column">
+                <input type="checkbox" name="status_complete" value="1">
             </div>
             <div class="medium-3 column">
                 <ul class="button-group radius">

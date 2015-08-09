@@ -24,63 +24,6 @@ $role_map = array(
     $READ => "Reader"
 );
 
-function updateIssue($db, $user_id, $lang_id, $issue_id, $priority_id, $status_id, $assignee_id, $due, $completed_on, $proj_id) {
-    global $UPDATE;
-    global $PROJECT;
-    $query = "UPDATE Issues i SET i.priority_id = ?, i.status_id = ?, i.assignee = ?, ".
-             "                    i.due_date = ?, i.completed_on = ?, i.proj_id = ? ".
-             "WHERE i.issue_id = ? AND ".
-             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
-             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "iiissiii", $priority_id, $status_id, $assignee_id, $due, $completed_on, $proj_id, $issue_id, $proj_id);
-    executeStatement($stmt);
-    return $stmt->affected_rows > 0;
-}
-
-function updateIssueText($db, $user_id, $lang_id, $issue_id, $subject, $description, $proj_id) {
-    global $UPDATE;
-    global $PROJECT;
-    $query = "UPDATE Issues_Languages il SET il.user_id = $user_id, il.subject = ?, il.description = ?, i.lang_id = $lang_id ".
-             "INNER JOIN Issues i ON il.issue_id = i.issue_id ".
-             "INNER JOIN Users_Projects up ON i.proj_id = up.proj_id ".
-             "WHERE il.lang_id = $lang_id AND il.issue_id = ? AND ".
-             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
-             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "ssii", $subject, $description, $issue_id, $proj_id);
-    executeStatement($stmt);
-    return $stmt->affected_rows > 0;
-}
-
-function addIssueComment($db, $user_id, $lang_id, $issue_id, $comment, $proj_id) {
-    global $UPDATE;
-    global $PROJECT;
-    $query = "INSERT INTO Comments (issue_id, user_id, lang_id) ".
-             "SELECT i.issue_id, up.user_id, ? ".
-             "FROM Users_Projects up INNER JOIN Issues i ON up.proj_id = i.proj_id ".
-             "WHERE up.user_id = $user_id AND i.issue_id = ? AND ".
-             "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
-             " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "iii", $lang_id, $issue_id, $proj_id);
-    executeStatement($stmt);
-    $comment_id = $stmt->insert_id;
-    /* if addition was successful, add text */
-    if ($comment_id != null && $stmt->affected_rows > 0) {
-        $query = "INSERT INTO Comments_Languages (comment_id, lang_id, description) VALUES (?, ?, ?);";
-        $stmt = prepareQuery($db, $query);
-        bindParam($stmt, "iis", $comment_id, $lang_id, $comment);
-        executeStatement($stmt);
-        /* delete comment if text insertion failed */
-        if ($stmt->affected_rows < 1) {
-            $db->query("DELETE FROM Comments WHERE comment_id = $comment_id");
-            return false;
-        }
-    }
-    return $stmt->affected_rows > 0;
-}
-
 /**
  * Gets an array of all UI languages in the database. Caches the
  * data in the session.
@@ -133,7 +76,7 @@ function getStatuses($db) {
     if (isset($_SESSION["statuses"])) {
         $statuses = json_decode($_SESSION["statuses"], JSON_UNESCAPED_UNICODE);
     } else {
-        $results = $db->query("SELECT status_id, name, percentage FROM Statuses ORDER BY status_id;");
+        $results = $db->query("SELECT status_id, name, percentage, complete FROM Statuses ORDER BY status_id;");
         $statuses = array();
         while ($row = $results->fetch_assoc()) {
             $statuses[] = $row;
@@ -141,6 +84,54 @@ function getStatuses($db) {
         $_SESSION["statuses"] = json_encode($statuses, JSON_UNESCAPED_UNICODE);
     }
     return $statuses;
+}
+
+function getIssueUpdates($db, $issue_id, $lang_id) {
+    $query = "SELECT @update_no:=@update_no+1 AS update_no, ".
+             "       up.update_id, u.user_id, ".
+             "       CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name, ".
+             "       up.created_on, COALESCE(t_ul.description, s_ul.description, '') AS comment, ".
+             "       CASE WHEN t_ul.description IS NULL THEN 0 ELSE 1 END AS translated ".
+             "FROM Updates up INNER JOIN Users u ON up.user_id = u.user_id ".
+             "LEFT JOIN Updates_Languages t_ul ON up.update_id = t_ul.update_id AND t_ul.lang_id = $lang_id ".
+             "LEFT JOIN Updates_Languages s_ul ON up.update_id = s_ul.update_id AND up.lang_id = s_ul.lang_id, ".
+             "(SELECT @update_no:=0) AS t ".
+             "WHERE up.issue_id = ? ".
+             "ORDER BY up.created_on DESC";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "i", $issue_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $updates = array();
+    while ($row = $results->fetch_assoc()) {
+        $updates[] = $row;
+    }
+    return $updates;
+}
+
+function getRelatedIssues($db, $user_id, $issue_id) {
+    $query = "SELECT ir.issue_id1 AS issue_id, ir.issue_id2 AS rel_issue_id, ir.rel_id, r.forward_desc AS descrip, 'f' AS dir ".
+        "FROM Issues_Relationships ir ".
+        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
+        "INNER JOIN Issues i ON ir.issue_id1 = i.issue_id ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
+        "WHERE ir.issue_id1 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))".
+        "UNION ".
+        "SELECT ir.issue_id2 AS issue_id, ir.issue_id1 AS rel_issue_id, ir.rel_id, r.reverse_desc AS descrip, 'r' AS dir ".
+        "FROM Issues_Relationships ir ".
+        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
+        "INNER JOIN Issues i ON ir.issue_id2 = i.issue_id ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
+        "WHERE ir.issue_id2 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iiii", $issue_id, $user_id, $issue_id, $user_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $rel_issues = array();
+    while ($row = $results->fetch_assoc()) {
+        $rel_issues[] = $row;
+    }
+    return $rel_issues;
 }
 
 function getProjectUsers($db, $user_id, $project_id) {
@@ -209,7 +200,7 @@ function getProjects($db, $userId, $sort_col, $sort_dir, $proj_id = NULL) {
 
     $query = "SELECT DISTINCT p.proj_id, p.name, p.description ".
              "FROM Projects p ".
-             "INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
+             "LEFT JOIN Users_Projects up ON p.proj_id = up.proj_id ".
              "WHERE (EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1) ".
              "OR up.user_id = ?) ".
              (is_null($proj_id) ? "" : "AND p.proj_id = ? ").
@@ -270,7 +261,7 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "  COALESCE(t_il.description, s_il.description) AS description,".
              "  uu.created_on AS last_update, uu.updated_by,".
              "  CASE WHEN t_il.subject IS NULL THEN 0 ELSE 1 END AS translated,".
-             "  i.priority_id, pr.name AS priority, i.status_id, s.name AS status, u.user_id AS assignee_id,".
+             "  i.priority_id, pr.name AS priority, i.status_id, s.name AS status, s.complete, u.user_id AS assignee_id,".
              "  CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS assignee_name,".
              "  i.proj_id, p.name AS proj_name, i.due_date, i.created_on, ".
              "  CONCAT(COALESCE(cu.first_name, ''), ' ', COALESCE(cu.last_name, '')) AS created_by, i.completed_on ".
@@ -278,18 +269,18 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "INNER JOIN Priorities pr ON i.priority_id = pr.priority_id ".
              "INNER JOIN Statuses s ON i.status_id = s.status_id ".
              "INNER JOIN Projects p ON i.proj_id = p.proj_id ".
-             "INNER JOIN (SELECT DISTINCT user_id, proj_id ".
-             "            FROM Users_Projects ".
-             "            WHERE user_id = ? ".
-             "            OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1)) up ON p.proj_id = up.proj_id ".
              "INNER JOIN Users cu ON i.created_by = cu.user_id ".
+             "LEFT JOIN (SELECT DISTINCT user_id, proj_id ".
+             "            FROM Users_Projects ".
+             "            WHERE user_id = ?) up ON p.proj_id = up.proj_id ".
              "LEFT JOIN Users u ON i.assignee = u.user_id ".
              "LEFT JOIN Issues_Languages t_il ON i.issue_id = t_il.issue_id AND t_il.lang_id = ? ".
              "LEFT JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND s_il.lang_id = i.lang_id ".
              "LEFT JOIN (SELECT ud.user_id, CONCAT(COALESCE(uu.first_name, ''), ' ', COALESCE(uu.last_name, '')) AS updated_by, ud.created_on, ud.issue_id ".
-             "           FROM Updates ud INNER JOIN Users uu ON ud.user_id = uu.user_id) AS uu ".
+             "           FROM Updates ud INNER JOIN Users uu ON ud.user_id = uu.user_id".
+             "           ORDER BY ud.created_on DESC LIMIT 1) AS uu ".
              "           ON i.issue_id = uu.issue_id ".
-             "WHERE 1=1 ". //hack for conditional code below
+             "WHERE (up.user_id IS NOT NULL OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1)) ".
              (is_null($assigned_to) ? "" : "AND i.assignee = ? ").
              (is_null($issue_id) ? "" : "AND i.issue_id = ? ").
              (is_null($project_id) ? "" : "AND i.proj_id = ? ").
@@ -297,21 +288,21 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
     //echo $query;
     $stmt = prepareQuery($db, $query);
     if (!is_null($assigned_to) && !is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiiiii", $userId, $userId, $langId, $assigned_to, $issue_id, $project_id);
+        bindParam($stmt, "iiiiii", $userId, $langId, $userId, $assigned_to, $issue_id, $project_id);
     } else if (!is_null($assigned_to) && !is_null($issue_id)) {
-        bindParam($stmt, "iiiii", $userId, $userId, $langId, $assigned_to, $issue_id);
+        bindParam($stmt, "iiiii", $userId, $langId, $userId, $assigned_to, $issue_id);
     } else if (!is_null($assigned_to) && !is_null($project_id)) {
-        bindParam($stmt, "iiiii", $userId, $userId, $langId, $assigned_to, $project_id);
+        bindParam($stmt, "iiiii", $userId, $langId, $userId, $assigned_to, $project_id);
     } else if (!is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiiii", $userId, $userId, $langId, $issue_id, $project_id);
+        bindParam($stmt, "iiiii", $userId, $langId, $userId, $issue_id, $project_id);
     } else if (!is_null($assigned_to)) {
-        bindParam($stmt, "iiii", $userId, $userId, $langId, $assigned_to);
+        bindParam($stmt, "iiii", $userId, $langId, $userId, $assigned_to);
     } else if (!is_null($issue_id)) {
-        bindParam($stmt, "iiii", $userId, $userId, $langId, $issue_id);
+        bindParam($stmt, "iiii", $userId, $langId, $userId, $issue_id);
     } else if (!is_null($project_id)) {
-        bindParam($stmt, "iiii", $userId, $userId, $langId, $project_id);
+        bindParam($stmt, "iiii", $userId, $langId, $userId, $project_id);
     } else {
-        bindParam($stmt, "iii", $userId, $userId, $langId);
+        bindParam($stmt, "iii", $userId, $langId, $userId);
     }
     executeStatement($stmt);
     $results = $stmt->get_result();
@@ -473,5 +464,17 @@ function getOutdatedIssueTrans($db, $issueId, $langId) {
     executeStatement($stmt);
     $result = $stmt->get_result();
     return $result->fetch_assoc();
+}
+
+function addIssueText($db, $issue_id, $lang_id, $subject, $description) {
+    if (trim($description) == '') {
+        $description = null;
+    }
+    $query = "INSERT INTO Issues_Languages (lang_id, issue_id, subject, description) VALUES (?, ?, ?, ?) ".
+             "ON DUPLICATE KEY UPDATE lang_id = ?, issue_id = ?, subject = ?, description = ?;";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iissiiss", $lang_id, $issue_id, $subject, $description, $lang_id, $issue_id, $subject, $description);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
 }
 

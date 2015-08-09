@@ -7,8 +7,14 @@ include 'session.php';
 include 'dbfuncs.php';
 include 'uifuncs.php';
 
+function addProjectUser($db, $proj_id, $add_id, $role_id) {
+    $query = "INSERT INTO Users_Projects (user_id, proj_id, role) VALUES(?, ?, ?);";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iii", $add_id, $proj_id, $role_id);
+    executeStatement($stmt);
+}
+
 function removeProjectUser($db, $proj_id, $remove_id, $role) {
-    global $PROJECT;
     $query = "DELETE FROM Users_Projects WHERE proj_id = ? AND user_id = ? AND role = ?";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "iii", $proj_id, $remove_id, $role);
@@ -26,7 +32,6 @@ if (isset($_REQUEST['lang'])) {
 
 /* check if project ID was specified */
 if (!isset($_REQUEST['id'])) {
-    echo var_dump($_REQUEST);
     /* no project ID specified--redirect to list of all projects */
     $host = $_SERVER['HTTP_HOST'];
     $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
@@ -42,6 +47,10 @@ if (isset($_REQUEST['action']) && isset($_REQUEST['id'])) {
     if ($_REQUEST['action'] == 'remove') {
         if ($is_admin || isset($user_roles[$PROJECT])) {
             removeProjectUser($mysqli, $_REQUEST['id'], $_POST['user_id'], $_POST['role']);
+        }
+    } else if ($_REQUEST['action'] == 'add') {
+        if ($is_admin || isset($user_roles[$PROJECT])) {
+            addProjectUser($mysqli, $_REQUEST['id'], $_POST['user_id'], $_POST['role']);
         }
     }
     /* redirect to avoid problems with back button */
@@ -118,8 +127,9 @@ $project = getProjects($mysqli, $user_id, $proj_sort_col, $proj_sort_dir, $_REQU
     <div class="clearfix">
         <h4>Add User</h4>
         <form action="proj_users.php" method="POST">
+            <input type="hidden" name="id" value="<?php echo $project[0]['proj_id']; ?>">
             <div class="medium-4 large-3 column" style="padding-left:0;">
-                <select name="username" required>
+                <select name="user_id" required>
                     <option value="" disabled selected>Select Username</option>
 <?php foreach ($users as $user): ?>
                     <option value="<?php echo $user['user_id']; ?>"><?php echo $user['username'].' ('.$user['first_name'].' '.$user['last_name'].')'; ?></option>

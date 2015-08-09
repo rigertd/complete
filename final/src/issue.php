@@ -43,29 +43,72 @@ function hasId($arr, $id) {
     return false;
 }
 
-function getRelatedIssues($db, $user_id, $issue_id) {
-    $query = "SELECT ir.issue_id1 AS issue_id, ir.issue_id2 AS rel_issue_id, ir.rel_id, r.forward_desc AS descrip, 'f' AS dir ".
-             "FROM Issues_Relationships ir ".
-             "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
-             "INNER JOIN Issues i ON ir.issue_id1 = i.issue_id ".
-             "INNER JOIN Users_Projects up ON i.proj_id = up.proj_id ".
-             "WHERE ir.issue_id1 = ? AND up.user_id = ? ".
-             "UNION ".
-             "SELECT ir.issue_id2 AS issue_id, ir.issue_id1 AS rel_issue_id, ir.rel_id, r.reverse_desc AS descrip, 'r' AS dir ".
-             "FROM Issues_Relationships ir ".
-             "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
-             "INNER JOIN Issues i ON ir.issue_id2 = i.issue_id ".
-             "INNER JOIN Users_Projects up ON i.proj_id = up.proj_id ".
-             "WHERE ir.issue_id2 = ? AND up.user_id = ?";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "iiii", $issue_id, $user_id, $issue_id, $user_id);
-    executeStatement($stmt);
-    $results = $stmt->get_result();
-    $rel_issues = array();
-    while ($row = $results->fetch_assoc()) {
-        $rel_issues[] = $row;
+function updateIssue($db, $user_id, $issue_id, $lang_id, $priority_id, $status_id, $assignee_id, $due, $proj_id) {
+    global $UPDATE;
+    global $PROJECT;
+    if (trim($assignee_id) == '') {
+        $assignee_id = null;
     }
-    return $rel_issues;
+    if (trim($due) == '') {
+        $due = null;
+    }
+    $query = "UPDATE Issues i ".
+        "SET i.priority_id = ?, i.status_id = ?, i.assignee = ?, i.due_date = ?, i.lang_id = ?, i.proj_id = ?, ".
+        "    i.completed_on = CASE WHEN ? IN (SELECT status_id FROM Statuses WHERE complete = 1) THEN NOW() ELSE NULL END ".
+        "WHERE i.issue_id = ? AND ".
+        "(EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1) ".
+        " OR $user_id IN (SELECT user_id FROM Users_Projects WHERE proj_id = ? AND (role = $PROJECT OR role = $UPDATE)));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iiisiiiii", $priority_id, $status_id, $assignee_id, $due, $lang_id, $proj_id, $status_id, $issue_id,$proj_id);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
+}
+
+function updateIssueText($db, $user_id, $lang_id, $issue_id, $subject, $description) {
+    global $UPDATE;
+    global $PROJECT;
+    global $TRANSLATE;
+    $query = "UPDATE Issues_Languages il ".
+        "INNER JOIN Issues i ON il.issue_id = i.issue_id ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id AND (up.role = $PROJECT OR up.role = $UPDATE OR up.role = $TRANSLATE) ".
+        "SET il.subject = ?, il.description = ? ".
+        "WHERE il.lang_id = $lang_id AND il.issue_id = ? AND ".
+        "(up.user_id = $user_id OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "ssi", $subject, $description, $issue_id);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
+}
+
+function addIssueUpdate($db, $user_id, $lang_id, $issue_id, $comment) {
+    global $UPDATE;
+    global $PROJECT;
+    $query = "INSERT INTO Updates (issue_id, user_id, lang_id) ".
+        "SELECT DISTINCT i.issue_id, $user_id, ? FROM Issues i ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id AND (up.role = $UPDATE OR up.role = $PROJECT) ".
+        "WHERE i.issue_id = ? AND ".
+        "(up.user_id = $user_id OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1));";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "ii", $lang_id, $issue_id);
+    executeStatement($stmt);
+    $update_id = $stmt->insert_id;
+    /* if addition was successful and a comment was entered, add text */
+    if ($update_id != null && $stmt->affected_rows > 0 && strlen(trim($comment)) > 0) {
+        /* delete update if text insertion failed */
+        if (!addUpdateComment($db, $update_id, $lang_id, $comment)) {
+            $db->query("DELETE FROM Updates WHERE update_id = $update_id");
+            return false;
+        }
+    }
+    return $stmt->affected_rows > 0;
+}
+
+function addUpdateComment($db, $update_id, $lang_id, $comment) {
+    $query = "INSERT INTO Updates_Languages (update_id, lang_id, description) VALUES (?, ?, ?);";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iis", $update_id, $lang_id, $comment);
+    executeStatement($stmt);
+    return $stmt->affected_rows > 0;
 }
 
 /* get UI languages */
@@ -86,6 +129,7 @@ if (isset($_REQUEST['id'])) {
     $statuses = getStatuses($mysqli);
     $projects = getProjects($mysqli, $user_id, $proj_sort_col, $proj_sort_dir);
     $outdated = getOutdatedIssueTrans($mysqli, $_REQUEST['id'], $ui_lang_id);
+    $updates = getIssueUpdates($mysqli, $_REQUEST['id'], $ui_lang_id);
 } /* no issue ID specified--redirect to list of all issues */
 else {
     $host = $_SERVER['HTTP_HOST'];
@@ -101,7 +145,7 @@ $is_admin = isAdmin($mysqli, $user_id);
 /* handle form actions */
 if (isset($_REQUEST['action'])) {
     /* check for proper permissions (admin, PM, or update) */
-    if ($is_admin || isset($roles[$PROJECT]) || isset($roles[$UPDATE])) {
+    if ($is_admin || isset($roles[$PROJECT]) || isset($roles[$UPDATE]) || isset($roles[$TRANSLATE])) {
         if ($_REQUEST['action'] == 'add_rel') {
             /* add a new relationship */
             $rel_info = explode("_", $_REQUEST['rel_type']);
@@ -119,6 +163,21 @@ if (isset($_REQUEST['action'])) {
         } else if ($_REQUEST['action'] == 'del_rel') {
             /* delete a relationship */
             deleteRelatedIssue($mysqli, $_REQUEST['id'], $_REQUEST['rel_id']);
+        } else if ($_REQUEST['action'] == 'update') {
+            /* update the issue */
+            updateIssue($mysqli, $user_id, $_REQUEST['id'], $ui_lang_id, $_REQUEST['priority'], $_REQUEST['status'], $_REQUEST['assignee'], $_REQUEST['duedate'].' '.$_REQUEST['duetime'], $_REQUEST['project']);
+            updateIssueText($mysqli, $user_id, $ui_lang_id, $_REQUEST['id'], $_REQUEST['subject'], $_REQUEST['description'], $_REQUEST['project']);
+            addIssueUpdate($mysqli, $user_id, $ui_lang_id, $_REQUEST['id'], $_REQUEST['comment'], $_REQUEST['project']);
+        } else if ($_REQUEST['action'] == 'translate') {
+            /* provide a new or updated translation */
+            if ($is_admin || isset($roles[$TRANSLATE])) {
+                addIssueText($mysqli, $_REQUEST['id'], $ui_lang_id, $_REQUEST['subject'], $_REQUEST['description']);
+            }
+        } else if ($_REQUEST['action'] == 'trans_update') {
+            /* provide a translation of an update comment */
+            if ($is_admin || isset($roles[$TRANSLATE])) {
+                addUpdateComment($mysqli, $_REQUEST['update_id'], $ui_lang_id, $_REQUEST['comment']);
+            }
         }
     }
     /* redirect to remove params */
@@ -190,6 +249,14 @@ if (isset($_REQUEST['action'])) {
             document.getElementById('button_translate').style.display = 'none';
             document.getElementById('buttons').style.display = '';
         }
+        function showTransUpdate(btn, input) {
+            document.getElementById(btn).style.display = 'none';
+            document.getElementById(input).style.display = '';
+        }
+        function hideTransUpdate(btn, input) {
+            document.getElementById(btn).style.display = '';
+            document.getElementById(input).style.display = 'none';
+        }
     </script>
 </head>
 <body>
@@ -231,6 +298,7 @@ if (isset($_REQUEST['action'])) {
     </ul>
     <div class="medium-12 panel clearfix">
         <form action="issue.php" method="POST" data-abide>
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($_REQUEST['id']); ?>">
             <div class="clearfix">
                 <div class="medium-2 column"><label for="subject">Subject</label></div>
                 <div class="medium-10 column">
@@ -259,7 +327,7 @@ if (isset($_REQUEST['action'])) {
             <div class="clearfix">
                 <div class="medium-2 column"><label for="assignee">Assignee</label></div>
                 <div class="medium-4 column">
-                    <div id="assignee_noedit"><?php echo htmlspecialchars($issue[0]['assignee_name']); ?></div>
+                    <div id="assignee_noedit"><?php echo htmlspecialchars($issue[0]['assignee_name']); ?>&nbsp;</div>
                     <div id="assignee_edit" style="display:none;">
                         <select name="assignee">
                             <option value="">None</option>
@@ -275,7 +343,7 @@ if (isset($_REQUEST['action'])) {
             <div class="clearfix">
                 <div class="medium-2 column"><label for="priority">Priority</label></div>
                 <div class="medium-4 column">
-                    <div id="priority_noedit"><?php echo htmlspecialchars($issue[0]['priority']); ?></div>
+                    <div id="priority_noedit"><?php echo htmlspecialchars($issue[0]['priority']); ?>&nbsp;</div>
                     <div id="priority_edit" style="display:none;">
                         <select name="priority" required>
 <?php foreach ($priorities as $priority): ?>
@@ -291,7 +359,7 @@ if (isset($_REQUEST['action'])) {
             <div class="clearfix">
                 <div class="medium-2 column"><label for="status">Status</label></div>
                 <div class="medium-4 column">
-                    <div id="status_noedit"><?php echo htmlspecialchars($issue[0]['status']); ?></div>
+                    <div id="status_noedit"><?php echo htmlspecialchars($issue[0]['status']); ?>&nbsp;</div>
                     <div id="status_edit" style="display:none;">
                         <select name="status" required>
 <?php foreach ($statuses as $status): ?>
@@ -305,12 +373,12 @@ if (isset($_REQUEST['action'])) {
                 <div class="medium-4 column" id="updatedby"><?php echo htmlspecialchars($issue[0]['updated_by']); ?>&nbsp;</div>
             </div>
             <div class="clearfix">
-                <div class="medium-2 column"><label for="duedate">Due&nbsp;Date:</label></div>
+                <div class="medium-2 column"><label for="duedate">Due&nbsp;Date</label></div>
                 <div class="medium-4 column">
-                    <div id="due_noedit"><?php echo htmlspecialchars($issue[0]['due_date']); ?></div>
+                    <div id="due_noedit"><?php echo htmlspecialchars($issue[0]['due_date']); ?>&nbsp;</div>
                     <div id="due_edit" class="row collapse" style="display:none;">
-                        <div class="medium-6 column"><input id="duedate" name="duedate" type="date" value="<?php echo date("Y-m-d", strtotime($issue[0]['due_date'])); ?>"></div>
-                        <div class="medium-6 column"><input id="duetime" name="duetime" type="time" value="<?php echo date("H:i:s", strtotime($issue[0]['due_date'])); ?>"></div>
+                        <div class="medium-6 column"><input id="duedate" name="duedate" type="date" value="<?php if (strlen($issue[0]['due_date']) > 0) {echo date("Y-m-d", strtotime($issue[0]['due_date']));} ?>" placeholder="YYYY-MM-DD"></div>
+                        <div class="medium-6 column"><input id="duetime" name="duetime" type="time" value="<?php if (strlen($issue[0]['due_date']) > 0) {echo date("H:i:s", strtotime($issue[0]['due_date']));} ?>" placeholder="HH:MM:SS"></div>
                     </div>
                 </div>
                 <div class="medium-2 column"><label for="completed">Completed On</label></div>
@@ -354,6 +422,7 @@ if (isset($_REQUEST['action'])) {
             <li style="margin-left: 0;"><h4>Related Issues</h4></li>
             <li><button onclick="document.getElementById('add_rel').style.display='';this.style.display='none';" class="button radius tiny">Add</button></li>
         </ul>
+<?php if (count($rel_issues) > 0): ?>
         <table>
             <thead>
             <tr>
@@ -369,14 +438,15 @@ if (isset($_REQUEST['action'])) {
 <?php $rel_issue = getIssues($mysqli, $user_id, $ui_lang_id, $issue_sort_col, $issue_sort_dir, $rel['rel_issue_id']); ?>
             <tr>
                 <td><?php echo $rel['descrip'] ?></td>
-                <td><a href="issue.php?id=<?php echo $rel['rel_issue_id'] ?>"><?php echo $rel['rel_issue_id']; ?></a></td>
-                <td><a href="issue.php?id=<?php echo $rel['rel_issue_id'] ?>"><?php echo $rel_issue[0]['subject'].($rel_issue[0]['translated'] ? "" : " (Not Translated)"); ?></a></td>
+                <td><a href="issue.php?id=<?php echo $rel['rel_issue_id'] ?>"><?php if ($rel_issue[0]['complete'] == 1) {echo "<s>";} echo $rel['rel_issue_id']; if ($rel_issue[0]['complete'] == 1) {echo "</s>";} ?></a></td>
+                <td><a href="issue.php?id=<?php echo $rel['rel_issue_id'] ?>"><?php if ($rel_issue[0]['complete'] == 1) {echo "<s>";} echo $rel_issue[0]['subject'].($rel_issue[0]['translated'] ? "" : " (Not Translated)"); if ($rel_issue[0]['complete'] == 1) {echo "</s>";} ?></a></td>
                 <td><?php echo $rel_issue[0]['status'] ?></td>
                 <td><a href="issue.php?id=<?php echo $rel['issue_id'] ?>&rel_id=<?php echo $rel['rel_issue_id'] ?>&action=del_rel" title="Remove Related Issue"><i class="fi-trash"></i></a></td>
             </tr>
 <?php endforeach ?>
             </tbody>
         </table>
+<?php endif ?>
         <div id="add_rel" class="clearfix" style="display:none;">
             <form action="issue.php" method="POST" data-abide>
                 <input type="hidden" name="id" value="<?php echo $_REQUEST['id']; ?>">
@@ -410,6 +480,48 @@ if (isset($_REQUEST['action'])) {
             </form>
         </div>
     </div>
+<?php if (count($updates) > 0): ?>
+    <div class="row">
+        <h4>Updates</h4>
+<?php foreach ($updates as $update): ?>
+        <ul class="pricing-table">
+            <li class="title text-left"><?php echo '#'.$update['update_no'] ?></li>
+<?php if (strlen($update['comment']) > 0): ?>
+            <li class="bullet-item text-left clearfix">
+                <div class="row">
+                    <div class="medium-10 column" style="padding-bottom:.5em;"><?php echo nl2br(htmlspecialchars($update['comment'])); ?></div>
+<?php if ($update['translated'] == 0 && (isset($roles[$TRANSLATE]) || $is_admin)): ?>
+                    <div class="medium-2 column" id="btn_<?php echo $update['update_no']; ?>"><button class="button radius tiny" onclick="showTransUpdate('btn_<?php echo $update['update_no']; ?>', 'trans_<?php echo $update['update_no']; ?>')">Translate</button></div>
+<?php endif ?>
+                </div>
+<?php if ($update['translated'] == 0 && (isset($roles[$TRANSLATE]) || $is_admin)): ?>
+                <div id="trans_<?php echo $update['update_no']; ?>" style="display:none;">
+                    <form action="issue.php" method="POST">
+                        <input type="hidden" name="id" value="<?php echo $_REQUEST['id']; ?>">
+                        <input type="hidden" name="update_id" value="<?php echo $update['update_id']; ?>">
+                        <div class="row">
+                            <div class="medium-12 column">
+                                <textarea name="comment" rows="5" maxlength="2000"><?php echo htmlspecialchars($update['comment']); ?></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="medium-12 column">
+                                <ul class="button-group radius">
+                                    <li><button type="submit" class="button tiny" name="action" value="trans_update">Save Translation</button></li>
+                                    <li><button class="button tiny" onclick="hideTransUpdate('btn_<?php echo $update['update_no']; ?>', 'trans_<?php echo $update['update_no']; ?>');return false;">Cancel</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+<?php endif ?>
+            </li>
+<?php endif ?>
+            <li class="description">Updated by <?php echo $update['full_name'] ?> on <?php echo $update['created_on'] ?></li>
+        </ul>
+<?php endforeach ?>
+    </div>
+<?php endif ?>
 </div>
 <?php endif ?>
 <div class="medium-12 columns text-center">&copy; David Rigert</div>

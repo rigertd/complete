@@ -8,7 +8,7 @@ include 'dbfuncs.php';
 include 'uifuncs.php';
 
 function updateProject($db, $user_id, $proj_id, $proj_name, $proj_desc) {
-    $query = "UPDATE Projects p INNER JOIN Users_Projects up ON p.proj_id = up.proj_id ".
+    $query = "UPDATE Projects p LEFT JOIN Users_Projects up ON p.proj_id = up.proj_id ".
              "SET p.name = ?, p.description = ? ".
              "WHERE p.proj_id = ? AND (up.user_id = ? ".
              "OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1));";
@@ -20,9 +20,6 @@ function updateProject($db, $user_id, $proj_id, $proj_name, $proj_desc) {
 
 /* get UI languages */
 $languages = getLanguages($mysqli);
-
-/* toggle input form visibility */
-$showForm = false;
 
 /* check for URL params */
 if (isset($_REQUEST['lang'])) {
