@@ -7,6 +7,47 @@ include 'session.php';
 include 'dbfuncs.php';
 include 'uifuncs.php';
 
+/**
+ * Gets all issues related to the specified issue.
+ * Only gets issues that the user has access to.
+ * @param mysqli $db    The mysqli database instance.
+ * @param int $user_id  The user_id of the requester.
+ * @param int $issue_id The issue_id to get related issues of.
+ * @return array
+ */
+function getRelatedIssues($db, $user_id, $issue_id) {
+    $query = "SELECT ir.issue_id1 AS issue_id, ir.issue_id2 AS rel_issue_id, ir.rel_id, r.forward_desc AS descrip, 'f' AS dir ".
+        "FROM Issues_Relationships ir ".
+        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
+        "INNER JOIN Issues i ON ir.issue_id1 = i.issue_id ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
+        "WHERE ir.issue_id1 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))".
+        "UNION ".
+        "SELECT ir.issue_id2 AS issue_id, ir.issue_id1 AS rel_issue_id, ir.rel_id, r.reverse_desc AS descrip, 'r' AS dir ".
+        "FROM Issues_Relationships ir ".
+        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
+        "INNER JOIN Issues i ON ir.issue_id2 = i.issue_id ".
+        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
+        "WHERE ir.issue_id2 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "iiii", $issue_id, $user_id, $issue_id, $user_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $rel_issues = array();
+    while ($row = $results->fetch_assoc()) {
+        $rel_issues[] = $row;
+    }
+    return $rel_issues;
+}
+
+/**
+ * Links an issue to the specified issue with the specified relation.
+ * @param $db
+ * @param $issue_id
+ * @param $rel_issue_id
+ * @param $rel_id
+ * @return bool
+ */
 function addRelatedIssue($db, $issue_id, $rel_issue_id, $rel_id) {
     $query = "INSERT INTO Issues_Relationships (issue_id1, issue_id2, rel_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rel_id = ?;";
     $stmt = prepareQuery($db, $query);
@@ -43,6 +84,52 @@ function hasId($arr, $id) {
     return false;
 }
 
+/**
+ * Gets all of the updates for a particular issue.
+ * Gets the localized text if available, or the source text if not.
+ * @param mysqli $db    The mysqli database instance.
+ * @param int $issue_id The issue_id of the issue.
+ * @param int $lang_id  The lang_id of the language to get.
+ * @return array
+ */
+function getIssueUpdates($db, $issue_id, $lang_id) {
+    $query = "SELECT @update_no:=@update_no+1 AS update_no, ".
+        "       up.update_id, u.user_id, ".
+        "       CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name, ".
+        "       up.created_on, COALESCE(t_ul.description, s_ul.description, '') AS comment, ".
+        "       CASE WHEN t_ul.description IS NULL AND s_ul.description IS NOT NULL THEN 0 ELSE 1 END AS translated ".
+        "FROM Updates up INNER JOIN Users u ON up.user_id = u.user_id ".
+        "LEFT JOIN Updates_Languages t_ul ON up.update_id = t_ul.update_id AND t_ul.lang_id = $lang_id ".
+        "LEFT JOIN Updates_Languages s_ul ON up.update_id = s_ul.update_id AND up.lang_id = s_ul.lang_id, ".
+        "(SELECT @update_no:=0) AS t ".
+        "WHERE up.issue_id = ? ".
+        "ORDER BY up.created_on ASC";
+    $stmt = prepareQuery($db, $query);
+    bindParam($stmt, "i", $issue_id);
+    executeStatement($stmt);
+    $results = $stmt->get_result();
+    $updates = array();
+    while ($row = $results->fetch_assoc()) {
+        $updates[] = $row;
+    }
+    return array_reverse($updates);
+}
+
+/**
+ * Updates an issue to the specified information.
+ * Changes the source language if the update is in a different language.
+ * Sets the completion date if a complete status is set.
+ * @param $db
+ * @param $user_id
+ * @param $issue_id
+ * @param $lang_id
+ * @param $priority_id
+ * @param $status_id
+ * @param $assignee_id
+ * @param $due
+ * @param $proj_id
+ * @return bool
+ */
 function updateIssue($db, $user_id, $issue_id, $lang_id, $priority_id, $status_id, $assignee_id, $due, $proj_id) {
     global $UPDATE;
     global $PROJECT;
@@ -80,6 +167,16 @@ function updateIssueText($db, $user_id, $lang_id, $issue_id, $subject, $descript
     return $stmt->affected_rows > 0;
 }
 
+/**
+ * Adds a new update for an issue. Only creates a comment entry if one was entered.
+ * Deletes the update if a comment was entered but could not be added to DB.
+ * @param $db
+ * @param $user_id
+ * @param $lang_id
+ * @param $issue_id
+ * @param $comment
+ * @return bool
+ */
 function addIssueUpdate($db, $user_id, $lang_id, $issue_id, $comment) {
     global $UPDATE;
     global $PROJECT;
@@ -103,6 +200,14 @@ function addIssueUpdate($db, $user_id, $lang_id, $issue_id, $comment) {
     return $stmt->affected_rows > 0;
 }
 
+/**
+ * Adds a comment for the specified update in the specified language.
+ * @param $db
+ * @param $update_id
+ * @param $lang_id
+ * @param $comment
+ * @return bool
+ */
 function addUpdateComment($db, $update_id, $lang_id, $comment) {
     $query = "INSERT INTO Updates_Languages (update_id, lang_id, description) VALUES (?, ?, ?);";
     $stmt = prepareQuery($db, $query);
@@ -295,6 +400,9 @@ if (isset($_REQUEST['action'])) {
 <?php if ((isset($roles[$TRANSLATE]) || $is_admin) && $outdated != null): ?>
         <li class="label alert radius">Translation Out of Date</li>
 <?php endif ?>
+<?php if ($issue[0]['translated'] == 0): ?>
+        <li class="label alert radius">Not Translated</li>
+<?php endif ?>
     </ul>
     <div class="medium-12 panel clearfix">
         <form action="issue.php" method="POST" data-abide>
@@ -485,7 +593,15 @@ if (isset($_REQUEST['action'])) {
         <h4>Updates</h4>
 <?php foreach ($updates as $update): ?>
         <ul class="pricing-table">
-            <li class="title text-left"><?php echo '#'.$update['update_no'] ?></li>
+            <li class="title text-left">
+                <ul class="inline-list" style="margin-bottom:0;">
+                    <li><?php echo '#'.$update['update_no'] ?></li>
+<?php if ($update['translated'] == 0): ?>
+                    <li class="label alert radius right">Not Translated</li>
+<?php endif ?>
+                </ul>
+
+            </li>
 <?php if (strlen($update['comment']) > 0): ?>
             <li class="bullet-item text-left clearfix">
                 <div class="row">

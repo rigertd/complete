@@ -7,6 +7,13 @@ include 'session.php';
 include 'dbfuncs.php';
 include 'uifuncs.php';
 
+/**
+ * Adds a user to a project with a specific role.
+ * @param $db
+ * @param $proj_id
+ * @param $add_id
+ * @param $role_id
+ */
 function addProjectUser($db, $proj_id, $add_id, $role_id) {
     $query = "INSERT INTO Users_Projects (user_id, proj_id, role) VALUES(?, ?, ?);";
     $stmt = prepareQuery($db, $query);
@@ -14,8 +21,15 @@ function addProjectUser($db, $proj_id, $add_id, $role_id) {
     executeStatement($stmt);
 }
 
+/**
+ * Removes the specified user from the specified role in the specified project.
+ * @param $db
+ * @param $proj_id
+ * @param $remove_id
+ * @param $role
+ */
 function removeProjectUser($db, $proj_id, $remove_id, $role) {
-    $query = "DELETE FROM Users_Projects WHERE proj_id = ? AND user_id = ? AND role = ?";
+    $query = "DELETE FROM Users_Projects WHERE proj_id = ? AND user_id = ? AND role = ?;";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "iii", $proj_id, $remove_id, $role);
     executeStatement($stmt);

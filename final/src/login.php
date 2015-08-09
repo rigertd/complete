@@ -41,7 +41,7 @@ if ($mysqli->connect_errno) {
 function authenticate($db, $un, $pw) {
     /* query user database with login credentials */
     $hashed = hash('sha256', $pw);
-    $stmt = prepareQuery($db, "SELECT COUNT(*), user_id, username, first_name, ui_lang_id, Languages.name AS ui_lang_name FROM Users INNER JOIN Languages ON Users.ui_lang_id = Languages.lang_id WHERE username = ? AND pass_hash = ?");
+    $stmt = prepareQuery($db, "SELECT COUNT(*), user_id, username, first_name, ui_lang_id, Languages.name AS ui_lang_name FROM Users INNER JOIN Languages ON Users.ui_lang_id = Languages.lang_id WHERE username = ? AND pass_hash = ?;");
     bindParam($stmt, "ss", $un, $hashed);
     executeStatement($stmt);
     $result = getSingleResult($stmt);

@@ -20,29 +20,6 @@ function addUser($db, $first_name, $last_name, $username, $email, $lang_id, $pw)
     return false;
 }
 
-function updateUser($db, $user_id, $first_name, $last_name, $username, $email, $lang_id, $pw) {
-    if ($last_name == '') {
-        $last_name = NULL;
-    }
-    if ($email == '') {
-        $email = NULL;
-    }
-    if ($pw == NULL || $pw == '') {
-        $stmt = prepareQuery($db, "UPDATE Users SET first_name = ?, last_name = ?, username = ?, email = ?, ui_lang_id = ? WHERE user_id = ?;");
-        bindParam($stmt, "ssssii", $first_name, $last_name, $username, $email, $lang_id, $user_id);
-    } else {
-        $hashed = hash('sha256', $pw);
-        $stmt = prepareQuery($db, "UPDATE Users SET first_name = ?, last_name = ?, username = ?, email = ?, ui_lang_id = ?, pass_hash = ? WHERE user_id = ?;");
-        bindParam($stmt, "ssssisi", $first_name, $last_name, $username, $email, $lang_id, $hashed, $user_id);
-    }
-    executeStatement($stmt);
-    if ($stmt->affected_rows > 0) {
-        unset($_SESSION['users']);
-        return true;
-    }
-    return false;
-}
-
 function deleteUser($db, $user_id) {
     $stmt = prepareQuery($db, "DELETE FROM Users WHERE user_id = ?;");
     bindParam($stmt, "i", $user_id);

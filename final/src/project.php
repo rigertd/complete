@@ -8,9 +8,10 @@ include 'dbfuncs.php';
 include 'uifuncs.php';
 
 function updateProject($db, $user_id, $proj_id, $proj_name, $proj_desc) {
+    global $PROJECT;
     $query = "UPDATE Projects p LEFT JOIN Users_Projects up ON p.proj_id = up.proj_id ".
              "SET p.name = ?, p.description = ? ".
-             "WHERE p.proj_id = ? AND (up.user_id = ? ".
+             "WHERE p.proj_id = ? AND ((up.user_id = ? AND up.role = $PROJECT) ".
              "OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1));";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "ssiii", $proj_name, $proj_desc, $proj_id, $user_id, $user_id);

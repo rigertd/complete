@@ -7,6 +7,18 @@ include 'session.php';
 include 'dbfuncs.php';
 include 'uifuncs.php';
 
+/**
+ * Adds a new issue to a project.
+ * @param $db
+ * @param $user_id
+ * @param $priority_id
+ * @param $status_id
+ * @param $lang_id
+ * @param $assignee
+ * @param $due_date
+ * @param $proj_id
+ * @return int
+ */
 function addIssue($db, $user_id, $priority_id, $status_id, $lang_id, $assignee, $due_date, $proj_id) {
     global $CREATE;
     global $PROJECT;
@@ -27,8 +39,14 @@ function addIssue($db, $user_id, $priority_id, $status_id, $lang_id, $assignee, 
     return $stmt->insert_id;
 }
 
+/**
+ * Deletes an issue.
+ * This is only ever called if something goes wrong with adding issue text.
+ * @param $db
+ * @param $issue_id
+ */
 function deleteIssue($db, $issue_id) {
-    $stmt = prepareQuery($db, "DELETE FROM Issues WHERE issue_id = ?");
+    $stmt = prepareQuery($db, "DELETE FROM Issues WHERE issue_id = ?;");
     bindParam($stmt, "i", $issue_id);
     executeStatement($stmt);
 }

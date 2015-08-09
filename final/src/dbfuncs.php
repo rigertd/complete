@@ -40,6 +40,8 @@ function prepareQuery($db, $query) {
  * @param mixed|null $arg5  The fifth argument (optional).
  * @param mixed|null $arg6  The sixth argument (optional).
  * @param mixed|null $arg7  The seventh argument (optional).
+ * @param mixed|null $arg8  The eighth argument (optional).
+ * @param mixed|null $arg9  The ninth argument (optional).
  */
 function bindParam($stmt, $type, $arg1, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL, $arg7 = NULL, $arg8 = NULL, $arg9 = NULL) {
     $numargs = func_num_args();
@@ -132,27 +134,5 @@ function executeStatement($stmt) {
 function getSingleResult($stmt) {
     $result = $stmt->get_result();
     return mysqli_fetch_assoc($result);
-}
-
-/**
- * Gets an array of baby profiles associated with the account.
- * @param mysqli $db         The mysqli database interface.
- * @param String $user_email The logged in user's email address.
- * @return array An array of profile {id, name, dob}
- */
-function getProfiles($db, $user_email) {
-  $stmt = prepareQuery($db, 'SELECT p.id, p.name, p.gender, p.dob ' .
-    'FROM BabyUsers as u ' .
-    'INNER JOIN Profiles as p ON u.id = p.parent_id ' .
-    'WHERE u.email = ? ' .
-    'ORDER BY p.name ASC');
-  bindParam($stmt, "s", $user_email);
-  executeStatement($stmt);
-  $results = $stmt->get_result();
-  $profiles = array();
-  while ($row = $results->fetch_assoc()) {
-    $profiles[] = $row;
-  }
-  return $profiles;
 }
 

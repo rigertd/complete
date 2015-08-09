@@ -25,8 +25,7 @@ $role_map = array(
 );
 
 /**
- * Gets an array of all UI languages in the database. Caches the
- * data in the session.
+ * Gets an array of all UI languages in the database. Caches the data in the session.
  * @param mysqli $db    The mysqli database instance.
  * @return array        An array of languages {lang_id, name}
  */
@@ -44,6 +43,11 @@ function getLanguages($db) {
     return $languages;
 }
 
+/**
+ * Gets an array of all priorities in the database. Caches the data in the session.
+ * @param mysqli $db    The mysqli database instance.
+ * @return array        An array of priorities {priority_id, name, val}
+ */
 function getPriorities($db) {
     if (isset($_SESSION["priorities"])) {
         $priorities = json_decode($_SESSION["priorities"], JSON_UNESCAPED_UNICODE);
@@ -58,6 +62,11 @@ function getPriorities($db) {
     return $priorities;
 }
 
+/**
+ * Gets an array of all possible relationship types in the database. Caches the data in the session.
+ * @param mysqli $db    The mysqli database instance.
+ * @return array
+ */
 function getRelationships($db) {
     if (isset($_SESSION["relationships"])) {
         $relationships = json_decode($_SESSION["relationships"], JSON_UNESCAPED_UNICODE);
@@ -72,6 +81,11 @@ function getRelationships($db) {
     return $relationships;
 }
 
+/**
+ * Gets an array of all statuses in the database. Caches the data in the session.
+ * @param mysqli $db    The mysqli database instance.
+ * @return array
+ */
 function getStatuses($db) {
     if (isset($_SESSION["statuses"])) {
         $statuses = json_decode($_SESSION["statuses"], JSON_UNESCAPED_UNICODE);
@@ -86,54 +100,13 @@ function getStatuses($db) {
     return $statuses;
 }
 
-function getIssueUpdates($db, $issue_id, $lang_id) {
-    $query = "SELECT @update_no:=@update_no+1 AS update_no, ".
-             "       up.update_id, u.user_id, ".
-             "       CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name, ".
-             "       up.created_on, COALESCE(t_ul.description, s_ul.description, '') AS comment, ".
-             "       CASE WHEN t_ul.description IS NULL THEN 0 ELSE 1 END AS translated ".
-             "FROM Updates up INNER JOIN Users u ON up.user_id = u.user_id ".
-             "LEFT JOIN Updates_Languages t_ul ON up.update_id = t_ul.update_id AND t_ul.lang_id = $lang_id ".
-             "LEFT JOIN Updates_Languages s_ul ON up.update_id = s_ul.update_id AND up.lang_id = s_ul.lang_id, ".
-             "(SELECT @update_no:=0) AS t ".
-             "WHERE up.issue_id = ? ".
-             "ORDER BY up.created_on DESC";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "i", $issue_id);
-    executeStatement($stmt);
-    $results = $stmt->get_result();
-    $updates = array();
-    while ($row = $results->fetch_assoc()) {
-        $updates[] = $row;
-    }
-    return $updates;
-}
-
-function getRelatedIssues($db, $user_id, $issue_id) {
-    $query = "SELECT ir.issue_id1 AS issue_id, ir.issue_id2 AS rel_issue_id, ir.rel_id, r.forward_desc AS descrip, 'f' AS dir ".
-        "FROM Issues_Relationships ir ".
-        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
-        "INNER JOIN Issues i ON ir.issue_id1 = i.issue_id ".
-        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
-        "WHERE ir.issue_id1 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))".
-        "UNION ".
-        "SELECT ir.issue_id2 AS issue_id, ir.issue_id1 AS rel_issue_id, ir.rel_id, r.reverse_desc AS descrip, 'r' AS dir ".
-        "FROM Issues_Relationships ir ".
-        "INNER JOIN Relationships r ON ir.rel_id = r.rel_id ".
-        "INNER JOIN Issues i ON ir.issue_id2 = i.issue_id ".
-        "LEFT JOIN Users_Projects up ON i.proj_id = up.proj_id ".
-        "WHERE ir.issue_id2 = ? AND (up.user_id = ? OR EXISTS (SELECT * FROM Users WHERE user_id = $user_id AND admin = 1))";
-    $stmt = prepareQuery($db, $query);
-    bindParam($stmt, "iiii", $issue_id, $user_id, $issue_id, $user_id);
-    executeStatement($stmt);
-    $results = $stmt->get_result();
-    $rel_issues = array();
-    while ($row = $results->fetch_assoc()) {
-        $rel_issues[] = $row;
-    }
-    return $rel_issues;
-}
-
+/**
+ * Gets a distinct list of users with any kind of access to the specified project.
+ * @param $db
+ * @param $user_id
+ * @param $project_id
+ * @return array
+ */
 function getProjectUsers($db, $user_id, $project_id) {
     $query = "SELECT DISTINCT u.user_id, u.username, u.first_name, u.last_name ".
         "FROM Users u INNER JOIN Users_Projects up ON u.user_id = up.user_id ".
@@ -152,6 +125,13 @@ function getProjectUsers($db, $user_id, $project_id) {
     return $users;
 }
 
+/**
+ * Gets a comprehensive list of all roles held by all users in the specified project.
+ * @param $db
+ * @param $user_id
+ * @param $project_id
+ * @return array
+ */
 function getProjectUsersRoles($db, $user_id, $project_id) {
     global $PROJECT;
     $query = "SELECT u.user_id, u.username, u.first_name, u.last_name, up.role ".
@@ -171,6 +151,11 @@ function getProjectUsersRoles($db, $user_id, $project_id) {
     return $users;
 }
 
+/**
+ * Gets an array of all users in the tracker.
+ * @param $db
+ * @return array
+ */
 function getAllUsers($db) {
     if (isset($_SESSION["users"])) {
         $users = json_decode($_SESSION["users"], JSON_UNESCAPED_UNICODE);
@@ -185,6 +170,16 @@ function getAllUsers($db) {
     return $users;
 }
 
+/**
+ * Gets an array with all projects that the user has access to,
+ * or with one project if a project ID is specified.
+ * @param $db
+ * @param $userId
+ * @param $sort_col
+ * @param $sort_dir
+ * @param null $proj_id
+ * @return array
+ */
 function getProjects($db, $userId, $sort_col, $sort_dir, $proj_id = NULL) {
     /* set ORDER BY column based on row number */
     switch ($sort_col) {
@@ -375,7 +370,7 @@ function handleLangRequest($db, $userId) {
  * @return bool
  */
 function isAdmin($db, $userId) {
-    $query = "SELECT admin FROM Users WHERE user_id = ?";
+    $query = "SELECT admin FROM Users WHERE user_id = ?;";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "i", $userId);
     executeStatement($stmt);
@@ -385,55 +380,14 @@ function isAdmin($db, $userId) {
 }
 
 /**
- * Checks whether a user has the Project Manager role in a project.
- * Checks if the user is PM in any project if $projId is NULL.
+ * Gets the roles of a specific user in a specific project.
  * @param $db
  * @param $userId
  * @param $projId
- * @return bool
+ * @return array
  */
-function isProjectManager($db, $userId, $projId = NULL) {
-    global $PROJECT;
-    $query = "SELECT role FROM Users_Projects WHERE role = $PROJECT AND user_id = ? ".
-            (is_null($projId) ? "" : "AND proj_id = ?");
-    $stmt = prepareQuery($db, $query);
-    if (is_null($projId)) {
-        bindParam($stmt, "i", $userId);
-    } else {
-        bindParam($stmt, "ii", $userId, $projId);
-    }
-    executeStatement($stmt);
-    $result = $stmt->get_result();
-    $role = $result->fetch_assoc();
-    return $role['role'] == $PROJECT;
-}
-
-/**
- * Checks whether a user has the Author role in a project.
- * Checks if the user is Author in any project if $projId is NULL.
- * @param $db
- * @param $userId
- * @param $projId
- * @return bool
- */
-function isAuthor($db, $userId, $projId = NULL) {
-    global $CREATE;
-    $query = "SELECT role FROM Users_Projects WHERE role = $CREATE AND user_id = ? ".
-        (is_null($projId) ? "" : "AND proj_id = ?");
-    $stmt = prepareQuery($db, $query);
-    if (is_null($projId)) {
-        bindParam($stmt, "i", $userId);
-    } else {
-        bindParam($stmt, "ii", $userId, $projId);
-    }
-    executeStatement($stmt);
-    $result = $stmt->get_result();
-    $role = $result->fetch_assoc();
-    return $role['role'] == $CREATE;
-}
-
 function getProjectRoles($db, $userId, $projId) {
-    $query = "SELECT role FROM Users_Projects WHERE user_id = ? AND proj_id = ?";
+    $query = "SELECT role FROM Users_Projects WHERE user_id = ? AND proj_id = ?;";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "ii", $userId, $projId);
     executeStatement($stmt);
@@ -458,7 +412,7 @@ function getOutdatedIssueTrans($db, $issueId, $langId) {
              "INNER JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND i.lang_id = s_il.lang_id ".
              "INNER JOIN Issues_Languages t_il ON i.issue_id = t_il.issue_id AND i.lang_id <> t_il.lang_id ".
              "INNER JOIN Languages l ON t_il.lang_id = l.lang_id ".
-             "WHERE t_il.last_update < s_il.last_update AND i.issue_id = ? AND t_il.lang_id = ?";
+             "WHERE t_il.last_update < s_il.last_update AND i.issue_id = ? AND t_il.lang_id = ?;";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "ii", $issueId, $langId);
     executeStatement($stmt);
@@ -466,6 +420,15 @@ function getOutdatedIssueTrans($db, $issueId, $langId) {
     return $result->fetch_assoc();
 }
 
+/**
+ * Adds or updates the issue text in a specific language.
+ * @param $db
+ * @param $issue_id
+ * @param $lang_id
+ * @param $subject
+ * @param $description
+ * @return bool
+ */
 function addIssueText($db, $issue_id, $lang_id, $subject, $description) {
     if (trim($description) == '') {
         $description = null;
@@ -476,5 +439,40 @@ function addIssueText($db, $issue_id, $lang_id, $subject, $description) {
     bindParam($stmt, "iissiiss", $lang_id, $issue_id, $subject, $description, $lang_id, $issue_id, $subject, $description);
     executeStatement($stmt);
     return $stmt->affected_rows > 0;
+}
+
+/**
+ * Updates user information. Hashes the password if one is specified.
+ * @param $db
+ * @param $user_id
+ * @param $first_name
+ * @param $last_name
+ * @param $username
+ * @param $email
+ * @param $lang_id
+ * @param $pw
+ * @return bool
+ */
+function updateUser($db, $user_id, $first_name, $last_name, $username, $email, $lang_id, $pw) {
+    if ($last_name == '') {
+        $last_name = NULL;
+    }
+    if ($email == '') {
+        $email = NULL;
+    }
+    if ($pw == NULL || $pw == '') {
+        $stmt = prepareQuery($db, "UPDATE Users SET first_name = ?, last_name = ?, username = ?, email = ?, ui_lang_id = ? WHERE user_id = ?;");
+        bindParam($stmt, "ssssii", $first_name, $last_name, $username, $email, $lang_id, $user_id);
+    } else {
+        $hashed = hash('sha256', $pw);
+        $stmt = prepareQuery($db, "UPDATE Users SET first_name = ?, last_name = ?, username = ?, email = ?, ui_lang_id = ?, pass_hash = ? WHERE user_id = ?;");
+        bindParam($stmt, "ssssisi", $first_name, $last_name, $username, $email, $lang_id, $hashed, $user_id);
+    }
+    executeStatement($stmt);
+    if ($stmt->affected_rows > 0) {
+        unset($_SESSION['users']);
+        return true;
+    }
+    return false;
 }
 

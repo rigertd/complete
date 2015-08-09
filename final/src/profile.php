@@ -7,20 +7,15 @@ include 'session.php';
 include 'dbfuncs.php';
 include 'uifuncs.php';
 
+/**
+ * Gets information on the specified user.
+ * @param $db
+ * @param $user_id
+ * @return mixed
+ */
 function getUserInfo($db, $user_id) {
-    $result = $db->query("SELECT username, first_name, last_name, email FROM Users WHERE user_id = $user_id");
+    $result = $db->query("SELECT username, first_name, last_name, email FROM Users WHERE user_id = $user_id;");
     return $result->fetch_assoc();
-}
-function updateUserInfo($db, $user_id, $first_name, $last_name, $email) {
-    if (trim($email) == '') {
-        $email = null;
-    }
-    if (trim($last_name) == '') {
-        $last_name = null;
-    }
-    $stmt = prepareQuery($db, "UPDATE Users SET first_name = ?, last_name = ?, email = ? WHERE user_id = ?");
-    bindParam($stmt, "sssi", $first_name, $last_name, $email, $user_id);
-    executeStatement($stmt);
 }
 
 /* get UI languages */
@@ -30,7 +25,7 @@ $languages = getLanguages($mysqli);
 if (isset($_REQUEST['lang'])) {
     handleLangRequest($mysqli, $user_id);
 } else if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'update') {
-    updateUserInfo($mysqli, $user_id, $_REQUEST['first_name'], $_REQUEST['last_name'], $_REQUEST['email']);
+    updateUser($mysqli, $user_id, $_REQUEST['first_name'], $_REQUEST['last_name'], $_SESSION['username'], $_REQUEST['email'], $ui_lang_id, $_REQUEST['pw']);
     $host = $_SERVER['HTTP_HOST'];
     $url = rtrim(dirname($_SERVER['PHP_SELF']), "\\/");
     header("Location: https://{$host}{$url}/index.php");
@@ -80,11 +75,19 @@ $user = getUserInfo($mysqli, $user_id);
             </div>
             <div class="clearfix">
                 <div class="medium-2 column">
-                    <label for="proj_desc">Email Address</label>
+                    <label for="email">Email Address</label>
                 </div>
                 <div class="medium-10 column">
                     <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" placeholder="Email Address (Optional)">
                     <small class="error">You must enter a valid email address or leave it blank.</small>
+                </div>
+            </div>
+            <div class="clearfix">
+                <div class="medium-2 column">
+                    <label for="password">Password</label>
+                </div>
+                <div class="medium-10 column">
+                    <input type="password" id="password" name="pw" placeholder="●●●●●●●●">
                 </div>
             </div>
             <div class="clearfix">
