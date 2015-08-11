@@ -93,17 +93,15 @@ function hasId($arr, $id) {
  * @return array
  */
 function getIssueUpdates($db, $issue_id, $lang_id) {
-    $query = "SELECT @update_no:=@update_no+1 AS update_no, ".
-        "       up.update_id, u.user_id, ".
+    $query = "SELECT up.update_id, u.user_id, ".
         "       CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name, ".
         "       up.created_on, COALESCE(t_ul.description, s_ul.description, '') AS comment, ".
         "       CASE WHEN t_ul.description IS NULL AND s_ul.description IS NOT NULL THEN 0 ELSE 1 END AS translated ".
         "FROM Updates up INNER JOIN Users u ON up.user_id = u.user_id ".
-        "LEFT JOIN Updates_Languages t_ul ON up.update_id = t_ul.update_id AND t_ul.lang_id = $lang_id ".
-        "LEFT JOIN Updates_Languages s_ul ON up.update_id = s_ul.update_id AND up.lang_id = s_ul.lang_id, ".
-        "(SELECT @update_no:=0) AS t ".
+        "LEFT JOIN (SELECT update_id, description FROM Updates_Languages WHERE lang_id = $lang_id) AS t_ul ON up.update_id = t_ul.update_id ".
+        "LEFT JOIN Updates_Languages s_ul ON up.update_id = s_ul.update_id AND up.lang_id = s_ul.lang_id ".
         "WHERE up.issue_id = ? ".
-        "ORDER BY up.created_on ASC";
+        "ORDER BY up.created_on DESC";
     $stmt = prepareQuery($db, $query);
     bindParam($stmt, "i", $issue_id);
     executeStatement($stmt);
@@ -112,7 +110,7 @@ function getIssueUpdates($db, $issue_id, $lang_id) {
     while ($row = $results->fetch_assoc()) {
         $updates[] = $row;
     }
-    return array_reverse($updates);
+    return $updates;
 }
 
 /**
@@ -591,11 +589,11 @@ if (isset($_REQUEST['action'])) {
 <?php if (count($updates) > 0): ?>
     <div class="row">
         <h4>Updates</h4>
-<?php foreach ($updates as $update): ?>
+<?php $i = count($updates); foreach ($updates as $update): ?>
         <ul class="pricing-table">
             <li class="title text-left">
                 <ul class="inline-list" style="margin-bottom:0;">
-                    <li><?php echo '#'.$update['update_no'] ?></li>
+                    <li><?php echo '#'.$i--; ?></li>
 <?php if ($update['translated'] == 0): ?>
                     <li class="label alert radius right">Not Translated</li>
 <?php endif ?>

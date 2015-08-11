@@ -273,6 +273,7 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
              "LEFT JOIN Issues_Languages s_il ON i.issue_id = s_il.issue_id AND s_il.lang_id = i.lang_id ".
              "LEFT JOIN (SELECT ud.user_id, CONCAT(COALESCE(uu.first_name, ''), ' ', COALESCE(uu.last_name, '')) AS updated_by, ud.created_on, ud.issue_id ".
              "           FROM Updates ud INNER JOIN Users uu ON ud.user_id = uu.user_id".
+             (is_null($issue_id) ? "":"           WHERE ud.issue_id = ?").
              "           ORDER BY ud.created_on DESC LIMIT 1) AS uu ".
              "           ON i.issue_id = uu.issue_id ".
              "WHERE (up.user_id IS NOT NULL OR EXISTS (SELECT * FROM Users WHERE user_id = ? AND admin = 1)) ".
@@ -283,17 +284,17 @@ function getIssues($db, $userId, $langId, $sort_col, $sort_dir, $issue_id = NULL
     //echo $query;
     $stmt = prepareQuery($db, $query);
     if (!is_null($assigned_to) && !is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiiiii", $userId, $langId, $userId, $assigned_to, $issue_id, $project_id);
+        bindParam($stmt, "iiiiiii", $userId, $langId, $issue_id, $userId, $assigned_to, $issue_id, $project_id);
     } else if (!is_null($assigned_to) && !is_null($issue_id)) {
-        bindParam($stmt, "iiiii", $userId, $langId, $userId, $assigned_to, $issue_id);
+        bindParam($stmt, "iiiiii", $userId, $langId, $issue_id, $userId, $assigned_to, $issue_id);
     } else if (!is_null($assigned_to) && !is_null($project_id)) {
         bindParam($stmt, "iiiii", $userId, $langId, $userId, $assigned_to, $project_id);
     } else if (!is_null($issue_id) && !is_null($project_id)) {
-        bindParam($stmt, "iiiii", $userId, $langId, $userId, $issue_id, $project_id);
+        bindParam($stmt, "iiiiii", $userId, $langId, $issue_id, $userId, $issue_id, $project_id);
     } else if (!is_null($assigned_to)) {
         bindParam($stmt, "iiii", $userId, $langId, $userId, $assigned_to);
     } else if (!is_null($issue_id)) {
-        bindParam($stmt, "iiii", $userId, $langId, $userId, $issue_id);
+        bindParam($stmt, "iiiii", $userId, $langId, $issue_id, $userId, $issue_id);
     } else if (!is_null($project_id)) {
         bindParam($stmt, "iiii", $userId, $langId, $userId, $project_id);
     } else {
