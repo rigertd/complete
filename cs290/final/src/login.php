@@ -54,7 +54,7 @@ function isEmailInUse($db, $email) {
 function authenticate($db, $email, $pw) {
     /* query user database with login credentials */
     $hashed = hash('sha256', $pw);
-    $stmt = prepareQuery($db, "SELECT COUNT(*), email, first_name, last_name FROM Users WHERE email = ? AND pass_hash = ?");
+    $stmt = prepareQuery($db, "SELECT COUNT(*), email, first_name, last_name FROM BabyUsers WHERE email = ? AND pass_hash = ?");
     bindParam($stmt, "ss", $email, $hashed);
     executeStatement($stmt);
     $result = getSingleResult($stmt);
@@ -81,7 +81,7 @@ function authenticate($db, $email, $pw) {
  */
 function addUser($db, $email, $first, $last, $pw) {
     $hashed = hash('sha256', $pw);
-    $stmt = prepareQuery($db, "INSERT INTO Users (email, first_name, last_name, pass_hash) VALUES (?, ?, ?, ?)");
+    $stmt = prepareQuery($db, "INSERT INTO BabyUsers (email, first_name, last_name, pass_hash) VALUES (?, ?, ?, ?)");
     bindParam($stmt, "ssss", $email, $first, $last, $hashed);
     executeStatement($stmt);
 }
