@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Project 1 for CS 325 Section 400, Fall 2015
+Project 1 for CS 325 Section 401, Fall 2015
 
 This project calls for the implementation of four different 
-algorithms for computing the maximum sum subarray. 
+algorithms for computing the maximum sum subarray.
  
 Group Members: David Rigert,
 """
@@ -13,6 +13,9 @@ import time
 def load_problems(filename):
     """
     Loads the problem arrays from the specified file.
+
+    This function supports text input files with both 
+    array notation such as '[1, 2, 3]' and CSV notation such as '1, 2, 3'.
     """
     problems = [];
     try:
@@ -38,6 +41,9 @@ def load_problems(filename):
 def max_subarray_enum(arr):
     """
     Calculates the maximum sum subarray using naive enumeration.
+
+    This function uses brute force to calculate the sum of arr from indices i to j
+    for every permutation of (i, j) where i <= j.
     """
     max_sum = 0                                     # Initialize max_sum to 0.
     for i in range(len(arr)):
@@ -51,8 +57,10 @@ def max_subarray_enum(arr):
 
 def max_subarray_better_enum(arr):
     """
-    Calculates the maximum sum subarray by keeping a running total of the values
-    in arr[i:j+1] and checking for a maximum sum each iteration.
+    Calculates the maximum sum subarray by keeping a running total of the values.
+
+    This function calculates the sum of arr from indices i to j for every permutation
+    of (i, j) where i <= j. It reuses the sum of (i, j) when calculating (i, j+1).
     """
     max_sum = 0                                     # Initialize max_sum to 0.
     for i in range(len(arr)):
@@ -66,8 +74,11 @@ def max_subarray_better_enum(arr):
 
 def max_subarray_divide_and_conquer(arr, start, end):
     """
-    Calculates the maximum sum subarray recursively by finding the maximum
-    sum of the first half, the second half, and the array crossing the middle.
+    Calculates the maximum sum subarray recursively using divide and conquer.
+    
+    This function recursively calculates the maximum sum of the first half of arr,
+    of the second half of arr, and of the range that spans the middle.
+    The base case is when start is equal to end (just one element).
     """
     if start >= end:                    # Array only has one element--return it.
         return arr[end]
