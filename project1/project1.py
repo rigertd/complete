@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Project 1 for CS 325 Section 401, Fall 2015
 
@@ -72,7 +72,7 @@ def max_subarray_better_enum(arr):
 
     return max_sum                                  # Return the maximum sum.
 
-def max_subarray_divide_and_conquer(arr, start, end):
+def max_subarray_divide_and_conquer(arr, start = 0, end = None):
     """
     Calculates the maximum sum subarray recursively using divide and conquer.
     
@@ -80,6 +80,8 @@ def max_subarray_divide_and_conquer(arr, start, end):
     of the second half of arr, and of the range that spans the middle.
     The base case is when start is equal to end (just one element).
     """
+    if end == None:                     # Set end to array length if none was specified.
+        end = len(arr) - 1
     if start >= end:                    # Array only has one element--return it.
         return arr[end]
     else:
@@ -122,10 +124,11 @@ def max_subarray_dynamic(arr):
 
     return max_sum
 
-probs = load_problems('MSS_TestProblems-1.txt')
-
-print('{0:18}{1:18}{2:18}{3:18}'.format('Enum', 'Better Enum', 'Divide & Conquer', 'Dynamic'))
-print('-' * 72)
-
-for vals in probs:
-    print('{0:17} {1:17} {2:17} {3:17}'.format(max_subarray_enum(vals), max_subarray_better_enum(vals), max_subarray_divide_and_conquer(vals,0,len(vals)-1), max_subarray_dynamic(vals)))
+if __name__ == '__main__':
+    probs = load_problems('MSS_TestProblems-1.txt')
+    
+    print('{0:18}{1:18}{2:18}{3:18}'.format('Enum', 'Better Enum', 'Divide & Conquer', 'Dynamic'))
+    print('-' * 72)
+    
+    for vals in probs:
+        print('{0:17} {1:17} {2:17} {3:17}'.format(max_subarray_enum(vals), max_subarray_better_enum(vals), max_subarray_divide_and_conquer(vals), max_subarray_dynamic(vals)))
