@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Project 1 for CS 325 Section 401, Fall 2015
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
         output += str(vals) + '\n'                  # Output full array.
         m_sum, start, end = max_subarray_enum(vals) # Find MSS.
         output += str(vals[start:end + 1]) + '\n'   # Output MSS values only.
-        output += str(m_sum) + '\n\n'                 # Output maximum sum.
+        output += str(m_sum) + '\n\n'               # Output maximum sum.
 
 
     f = open('MSS_Results.txt', 'w')
