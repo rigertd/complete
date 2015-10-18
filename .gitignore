@@ -196,3 +196,4 @@ FakesAssemblies/
 *.opt
 *.pyproj
 *.sln
+project1/__pycache__
