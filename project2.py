@@ -5,6 +5,8 @@ This project calls for the implementation of three different
 algorithms for computing the minimum change possible to provide a customer.
  
 Group Members: David Rigert, Isaiah Perrotte-Fentress, Adam McDaniel
+Helpful: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/DynProg/money-change.html
+Helpful: http://stackoverflow.com/questions/12520263/recursive-change-making-algorithm?rq=1
 """
 
 def load_problems(filename):
@@ -41,9 +43,7 @@ def changegreedy(arr, val):
 	"""
 	change = val
 	coin_count = 0
-	coin_arr = list(arr)
-	for x in range(0,len(coin_arr)):
-		coin_arr[x] = 0
+	coin_arr = [0]*len(arr)
 	
 	for i, x in reversed(list(enumerate(arr))):
 		while x <= change:
@@ -53,24 +53,65 @@ def changegreedy(arr, val):
 	
 	return coin_arr, coin_count
 
+
 def changeslow(arr, val):
+
 	"""
 	Calculates the minimum change that can be given using change denominations in arr,
 	and the goal value provided in val.
-	This function uses brute force to calculate the lowest change possible from indices i to j
-	for every permutation of (i, j) where i <= j.
+	This function uses brute force to calculate the lowest change possible by looping through
+	all possibilities where coin value is less than change left to give. 
 	"""
-	change = val
-	coin_count = 0
-	coin_arr = list(arr)
+
+	for i, x in reversed(list(enumerate(arr))):
+		if x == val:
+			coin_arr = [0] * len(arr)
+			coin_arr[i] += 1
+			coin_count = 1
+			return coin_arr, coin_count
+
+	temp_arr = []
+	coin_arr = []
+	temp_count = -1
+	coin_count = -1
+	for i, x in reversed(list(enumerate(arr))):
+		if x < val:
+			temp_arr, temp_count = changeslow(arr, val-x)
+			temp_count += 1
+			temp_arr[i] += 1
+			if coin_count == -1 or temp_count < coin_count:
+				coin_count = temp_count
+				coin_arr = temp_arr
+	return coin_arr, coin_count
+
+"""
+def minCHange(coinValueList, change):
+	minCoins = change
+	if change in CoinValueList:
+		return 1
+	else:
+		for i in [c for c in coinValueList if c <= change]:
+			numCoins = 1 + minChange(coinValueList, change - i)
+			if numCoins < minCoins:
+				minCoins = numCoins
+	return minCoins
+
+"""			
+	
+	
 	
 if __name__ == '__main__':
-	v = [1, 2, 4, 8]
-	a = 15
+	v = [1, 3, 7, 12]
+	a = 29
 	result_arr, result_coin = changegreedy(v, a)
 	print(result_arr)
 	print(result_coin)
-	
+
+	result_arr, result_coin = changeslow(v, a)
+	print(result_arr)
+	print(result_coin)
+
+
 	"""
 	probs = load_problems('MSS_Problems.txt')
     
