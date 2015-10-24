@@ -55,14 +55,12 @@ def changegreedy(arr, val):
 
 
 def changeslow(arr, val):
-
 	"""
 	Calculates the minimum change that can be given using change denominations in arr,
 	and the goal value provided in val.
 	This function uses brute force to calculate the lowest change possible by looping through
 	all possibilities where coin value is less than change left to give. 
 	"""
-
 	for i, x in reversed(list(enumerate(arr))):
 		if x == val:
 			coin_arr = [0] * len(arr)
@@ -84,21 +82,20 @@ def changeslow(arr, val):
 				coin_arr = temp_arr
 	return coin_arr, coin_count
 
-"""
-def minCHange(coinValueList, change):
-	minCoins = change
-	if change in CoinValueList:
-		return 1
-	else:
-		for i in [c for c in coinValueList if c <= change]:
-			numCoins = 1 + minChange(coinValueList, change - i)
-			if numCoins < minCoins:
-				minCoins = numCoins
-	return minCoins
 
-"""			
-	
-	
+def changedp(arr, val):
+	"""
+	Calculates the minimum change that can be given using change denominations in arr,
+	and the goal value provided in val.
+	This function uses dynamic programming to remember the minimum amount of change needed
+	to reach a certain value between 1...val so that work is not repeated. Removes steps of
+	recursion that are unecessary. 
+	"""
+	coin_arr = []
+	coin_count = -1
+	return coin_arr, coin_count
+
+
 	
 if __name__ == '__main__':
 	v = [1, 3, 7, 12]
