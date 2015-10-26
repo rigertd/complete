@@ -41,6 +41,8 @@ def changegreedy(arr, val):
 	the total change left to give. If a coin value is greater than the total amount left to give,
 	it moves on to the next smallest.
 	"""
+	if arr[0] != 1:
+        raise ValueError("The first element of arr must be 1.")
 	change = val
 	coin_count = 0
 	coin_arr = [0]*len(arr)
@@ -61,6 +63,8 @@ def changeslow(arr, val):
 	This function uses brute force to calculate the lowest change possible by looping through
 	all possibilities where coin value is less than change left to give. 
 	"""
+	if arr[0] != 1:
+        raise ValueError("The first element of arr must be 1.")
 	for i, x in reversed(list(enumerate(arr))):
 		if x == val:
 			coin_arr = [0] * len(arr)
@@ -70,14 +74,14 @@ def changeslow(arr, val):
 
 	temp_arr = []
 	coin_arr = []
-	temp_count = -1
-	coin_count = -1
+	temp_count = 0
+	coin_count = 0
 	for i, x in reversed(list(enumerate(arr))):
 		if x < val:
-			temp_arr, temp_count = changeslow(arr, val-x)
+			temp_arr, temp_count = changeslow(arr, val - x)
 			temp_count += 1
 			temp_arr[i] += 1
-			if coin_count == -1 or temp_count < coin_count:
+			if coin_count == 0 or temp_count <= coin_count:
 				coin_count = temp_count
 				coin_arr = temp_arr
 	return coin_arr, coin_count
@@ -91,12 +95,25 @@ def changedp(arr, val):
 	to reach a certain value between 1...val so that work is not repeated. Removes steps of
 	recursion that are unecessary. 
 	"""
-	coin_arr = []
-	coin_count = -1
-	return coin_arr, coin_count
+    if arr[0] != 1:
+        raise ValueError("The first element of arr must be 1.")
+    lookup_table = [([0] * len(arr), 0)]
+    for i in range(1, val + 1):
+        min_count = None
+        coin_idx = None
+        for j, v in enumerate(arr):
+            if v <= i and (min_count == None or lookup_table[i - v][1] + 1 < min_count):
+                min_count = lookup_table[i - v][1] + 1
+                coin_idx = j
+
+        # make a copy of counts for current val - coin val
+        count_arr = lookup_table[i - arr[coin_idx]][0][:]
+        count_arr[coin_idx] += 1
+        lookup_table.append((count_arr, min_count))
+    
+    return lookup_table[val]
 
 
-	
 if __name__ == '__main__':
 	v = [1, 3, 7, 12]
 	a = 29
@@ -108,6 +125,9 @@ if __name__ == '__main__':
 	print(result_arr)
 	print(result_coin)
 
+	result_arr, result_coin = changedp(v, a)
+	print(result_arr)
+	print(result_coin)
 
 	"""
 	probs = load_problems('MSS_Problems.txt')
