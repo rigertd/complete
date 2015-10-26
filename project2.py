@@ -48,10 +48,10 @@ def changegreedy(arr, val):
 	coin_arr = [0]*len(arr)
 	
 	for i, x in reversed(list(enumerate(arr))):
-		while x <= change:
-			change = change - x
-			coin_arr[i] += 1
-			coin_count += 1
+		if x <= change:
+			coin_arr[i] += change / x
+			coin_count += change / x
+			change = change % x
 	
 	return coin_arr, coin_count
 
