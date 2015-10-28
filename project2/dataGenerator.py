@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Project 2 for CS 325 Section 401, Fall 2015
  
