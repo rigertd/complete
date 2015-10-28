@@ -10,6 +10,7 @@ implemented in project2.py
 
 import time 				# Used for timing calculations
 import project2				# Used for importing coin change algorithms
+import csv 					# Used for exporting results
 
 # Ask user which algorithm they want to run. Incorrect input validation takes place later.
 print ("Choose an algorithm first:\n")
@@ -47,39 +48,37 @@ else:	# This is validation that you entered an int between 1-4... otherwise brea
 	print("You didn't choose a valid pair (1-4)")
 	exit("Invalid user input - coin values/change")
 
-# trace statements, just checking to be sure the arrays are populating correctly
-# for i in range(0, len(changeValues)):
-# 	print("Value ",i," = ",changeValues[i],"\n")
-# for i in range(0, len(coinValues)):
-# 	print("Value ",i," = ",coinValues[i],"\n")
+# Customize output filename with input/results info
+filename = 'algo{}input{}results.csv'.format(algorithmSelect, inputSelect)
 
-total_time = 0
+with open(filename, 'w') as csvoutput:  
+	writer = csv.writer(csvoutput, delimiter=',', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
 
-# Call the function for the algorithm the user selected
-if algorithmSelect == 1:
-	start_time = time.time()
-	for value in changeValues:
-		project2.changeslow(coinValues, value)
-		run_time = time.time() - start_time
-		total_time = total_time + run_time
-	print("Brute Force run time:\n")
-	print("Input pair ",inputSelect,"took: ",total_time,"\n")
-elif algorithmSelect == 2:
-	start_time = time.time()
-	for value in changeValues:
-		project2.changegreedy(coinValues, value)
-		run_time = time.time() - start_time
-		total_time = total_time + run_time
-	print("Greedy run time:\n")
-	print("Input pair ",inputSelect,"took: ",total_time,"\n")
-elif algorithmSelect == 3:
-	start_time = time.time()
-	for value in changeValues:
-		project2.changedp(coinValues, value)
-		run_time = time.time() - start_time
-		total_time = total_time + run_time
-	print("Dynamic Programming run time:\n")
-	print("Input pair ",inputSelect,"took: ",total_time,"\n")
-else:	# This is validation that you entered an int between 1-3... otherwise breaks
-	print("You didn't choose a valid algorithm (1-3)")
-	exit("Invalid user input - algorithm")
+	# Call the function for the algorithm the user selected
+	if algorithmSelect == 1:
+		writer.writerow(['Brute Force', 'Input Pair: ',inputSelect])
+		writer.writerow(['A','Number of coins required','Time required'])
+		for value in changeValues:
+			start_time = time.time()
+			coin_array, coin_count = project2.changeslow(coinValues, value)
+			run_time = time.time() - start_time
+			writer.writerow([value,coin_count,run_time])
+	elif algorithmSelect == 2:
+		writer.writerow(['Greedy, Input Pair: ',inputSelect])
+		writer.writerow(['A','Number of coins required','Time required'])
+		for value in changeValues:
+			start_time = time.time()
+			coin_array, coin_count = project2.changegreedy(coinValues, value)
+			run_time = time.time() - start_time
+			writer.writerow([value,coin_count,run_time])
+	elif algorithmSelect == 3:
+		writer.writerow(['Dynamic Programming, Input Pair: ',inputSelect])
+		writer.writerow(['A','Number of coins required','Time required'])
+		for value in changeValues:
+			start_time = time.time()
+			coin_array, coin_count = project2.changedp(coinValues, value)
+			run_time = time.time() - start_time
+			writer.writerow([value,coin_count,run_time])
+	else:	# This is validation that you entered an int between 1-3... otherwise breaks
+		print("You didn't choose a valid algorithm (1-3)")
+		exit("Invalid user input - algorithm")
