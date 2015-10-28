@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import fileinput    # For reading from file
-import ast  # For turning bracketed string of integers into an actual list
-import sys  # For command line checking
+import ast          # For turning bracketed string of integers into an actual list
+import sys          # For command line checking
+import os           # For path operations
 """
 Project 2 for CS 325 Section 401, Fall 2015
 This project calls for the implementation of three different
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     output += '\n'                                  # Add one additional space
 
     # Write the results of the above algorithms to a .txt file
-    outputname = filename[:filename.index('.')] + 'change' + '.txt'
+    outputname = os.path.splitext(filename)[0] + 'change.txt'
     f = open(outputname, 'w')
     f.writelines(output)
     f.close()
