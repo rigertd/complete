@@ -1,0 +1,8 @@
+Project 2 README
+
+1) When running project2.py be sure to include a command line argument for the file you intend to read from.
+    a) Case matters for the file name
+    b) Be sure to include the extension (.txt)
+    c) Each line should be alternating array of coin values, and total change values
+2) Change slow runs... well... slow. If you are testing high values of A you need to remove changeslow from the run.
+    a) To do this, remove the # comment signts at the start of lines 132 and 139 of the code. 
