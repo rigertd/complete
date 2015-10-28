@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import fileinput
-import ast
+import fileinput	# For reading from file
+import ast	# For turning bracketed string of integers into an actual list
+import sys 	# For command line checking
 """
 Project 2 for CS 325 Section 401, Fall 2015
 This project calls for the implementation of three different 
@@ -11,27 +12,27 @@ Group Members: David Rigert, Isaiah Perrotte-Fentress, Adam McDaniel
 
 def load_problems(filename):
 	"""
-	Loads the problem arrays from the specified file.
-	This function supports text input files with both 
-	array notation such as '[1, 2, 3]' and CSV notation such as '1, 2, 3'.
+	Loads the problem lists from the specified file.
+	This function takes in list notation '[1, 2, 3]' 
+	alternated with single integer lines like '15'.
 	"""
-
-	values = []
-	change = []
+	values = []		# Holds V values from text doc
+	change = []		# Holds A values from text doc
 	try:
 		f = open(filename, 'r')
 	except IOError as e:
 		print('Cannot open {0}. {1}: {2}'.format(filename, e.errno, e.strerror))
 	else:
 		print('Loading data from {0}...'.format(filename))
-		lines = (line.strip('\n') for line in f)         # Get list of array strings.
-		for i, arr in enumerate(lines):
-			if i % 2 == 1:
+		lines = (line.strip('\n') for line in f)		# Get list of strings
+		for i, arr in enumerate(lines):					# Loop through all lines
+			if i % 2 == 1:								# For even lines (odd index) add to change
 				change.append(int(arr))
-			else:
-				values.append(ast.literal_eval(arr))
+			else:										# For odd lines (even index) add to values
+				values.append(ast.literal_eval(arr))	# ast.literal_eval converts string to array
 		f.close()
 	return values, change
+
 
 def changegreedy(arr, val):
 	"""
@@ -39,17 +40,19 @@ def changegreedy(arr, val):
 	the total change left to give. If a coin value is greater than the total amount left to give,
 	it moves on to the next smallest.
 	"""
+	# Ensure array is populated correctly
 	if arr[0] != 1:
 		raise ValueError("The first element of arr must be 1.")
 	change = val
 	coin_count = 0
 	coin_arr = [0]*len(arr)
 	
+	# Loop through list starting with highest coin
 	for i, x in reversed(list(enumerate(arr))):
 		if x <= change:
-			coin_arr[i] += int(change / x)
+			coin_arr[i] += int(change / x) 		# Use max coins possible
 			coin_count += int(change / x)
-			change = change % x
+			change = change % x					# Save remaining amount
 	
 	return coin_arr, coin_count
 
@@ -61,8 +64,10 @@ def changeslow(arr, val):
 	This function uses brute force to calculate the lowest change possible by looping through
 	all possibilities where coin value is less than change left to give. 
 	"""
-#	if arr[0] != 1:
-#		raise ValueError("The first element of arr must be 1.")
+	# Ensure array is populated correctly
+	if arr[0] != 1:
+		raise ValueError("The first element of arr must be 1.")
+	# Base case: If coin = remaining value, least coin way to make change for amount provided
 	for i, x in reversed(list(enumerate(arr))):
 		if x == val:
 			coin_arr = [0] * len(arr)
@@ -74,6 +79,7 @@ def changeslow(arr, val):
 	coin_arr = []
 	temp_count = 0
 	coin_count = 0
+	# Recursive case: Recursively check for all coins the least coin way to provide change
 	for i, x in reversed(list(enumerate(arr))):
 		if x < val:
 			temp_arr, temp_count = changeslow(arr, val - x)
@@ -93,6 +99,7 @@ def changedp(arr, val):
 	to reach a certain value between 1...val so that work is not repeated. Removes steps of
 	recursion that are unecessary. 
 	"""
+	# Ensure array is populated correctly
 	if arr[0] != 1:
 		raise ValueError("The first element of arr must be 1.")
 	lookup_table = [([0] * len(arr), 0)]
@@ -112,32 +119,41 @@ def changedp(arr, val):
 	return lookup_table[val]
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':	
+	# Ensure user provides file name, otherwise exit with instructions
+	if len(sys.argv) < 2:
+		print('Include the input file name (%.txt) as a command line argument.\nExiting the program.\n')
+		sys.exit()
+		
+	filename = sys.argv[1]							# Locate text document name
+	v, a = load_problems(filename)					# Load problems from input file
 	
-	#filename = fileinput.input()
-	v, a = load_problems('Amount.txt')
-
-	output = 'Algorithm 1: Change Slow\n'
+	output = ''
+	#''' Delete the # sign here and at the end of change slow to not run Algorithm #1 (especially with large values of A)
+	output += 'Algorithm 1: Change Slow\n'
 	for i, arr in enumerate(v):
-		coin_arr, count = changeslow(arr, a[i]) 	# Get coin array and count
-		output += str(coin_arr) + '\n'   			# Output coin array
+		coin_arr, count = changeslow(arr, a[i]) 	# Get coin list and count
+		output += str(coin_arr) + '\n'   			# Output coin list
 		output += str(count) + '\n'					# Output coin count
 	output += '\n'									# Add one additional space
-
+	#''' # Delete the first number sign here as mentioned above
+	
 	output += 'Algorithm 2: Change Greedy\n'
 	for i, arr in enumerate(v):
-		coin_arr, count = changegreedy(arr, a[i])	# Get coin array and count
-		output += str(coin_arr) + '\n'   			# Output coin array
+		coin_arr, count = changegreedy(arr, a[i])	# Get coin list and count
+		output += str(coin_arr) + '\n'   			# Output coin list
 		output += str(count) + '\n'					# Output coin count
 	output += '\n'									# Add one additional space
 
 	output += 'Algorithm 3: Change Dynamic Programming\n'
 	for i, arr in enumerate(v):
-		coin_arr, count = changedp(arr, a[i]) 		# Get coin array and count
-		output += str(coin_arr) + '\n'   			# Output coin array
+		coin_arr, count = changedp(arr, a[i]) 		# Get coin list and count
+		output += str(coin_arr) + '\n'   			# Output coin list
 		output += str(count) + '\n'					# Output coin count
 	output += '\n'									# Add one additional space
-
-	f = open('Amountchange.txt', 'w')
+	
+	# Write the results of the above algorithms to a .txt file
+	outputname = filename[:filename.index('.')] + 'change' + '.txt'
+	f = open(outputname, 'w')
 	f.writelines(output)
 	f.close()
