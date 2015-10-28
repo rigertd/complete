@@ -14,7 +14,7 @@ import csv      # Used for exporting results
 # Generate coin sets with n = [1..30]
 coin_sets = []
 
-for i in range(1, 31):
+for i in range(1, 1001):
     coin_sets.append([(x**2) for x in range(1, i+1)])
 
 MAX_A_VAL = 10000
@@ -33,7 +33,7 @@ if algorithmSelect == 1:
         for A in range(1, 41):
             print('A={}'.format(A))
             row = [A]
-            for coin_set in coin_sets:
+            for coin_set in coin_sets[:30]:
                 #print('n={}'.format(len(coin_set)))
                 start_time = time.time()
                 project2.changeslow(coin_set, A)
@@ -63,7 +63,7 @@ elif algorithmSelect == 3:
         for A in range(100, MAX_A_VAL, 100):
             print('A={}'.format(A))
             row = [A]
-            for coin_set in coin_sets:
+            for coin_set in coin_sets[:30]:
                 #print('n={}'.format(len(coin_set)))
                 start_time = time.time()
                 project2.changedp(coin_set, A)
