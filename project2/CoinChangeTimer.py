@@ -19,7 +19,7 @@ algorithmSelect = int(input("Enter your input: "))
 
 # Ask user which set of inputs they want to test
 print ("Now choose a pair of coin values and the value for which we want to make change:\n")
-print ("1: Coin values = [1, 5, 10, 25, 50] & make change for [2010, 2015, 2020, ..., 2200]\n2: Coin values = [1, 2, 6, 12, 24, 48, 60] & make change for [2000, 2001, 2002, ..., 2200]\n3: Coin values = [1, 6, 13, 37, 150] & make change for [2000, 2001, 2002, ..., 2200]\n4: Coin values = [1, 2, 4, 6, 8, 10, 12, ..., 30] & make change for [2000, 2001, 2002, ..., 2200]\n")
+print ("1: Coin values = [1, 5, 10, 25, 50] & make change for [2010, 2015, 2020, ..., 2200]\n2: Coin values = [1, 2, 6, 12, 24, 48, 60] & make change for [2000, 2001, 2002, ..., 2200]\n3: Coin values = [1, 6, 13, 37, 150] & make change for [2000, 2001, 2002, ..., 2200]\n4: Coin values = [1, 2, 4, 6, 8, 10, 12, ..., 30] & make change for [2000, 2001, 2002, ..., 2200]\n5: Dumbed down version of 1 for Brute Force\n6: Dumbed down version of 2 for Brute Force\n7: Dumbed down version of 3 for Brute Force\n8: Dumbed down version of 4 for Brute Force\n")
 inputSelect = int(input("Enter your input: "))
 
 # Arrays to hold our coin values and the values we want to make change for
@@ -44,8 +44,25 @@ elif inputSelect == 4:
 		coinValues.append(j + 1)
 	for i in range(2000, 2201):
 		changeValues.append(i)
-else:	# This is validation that you entered an int between 1-4... otherwise breaks
-	print("You didn't choose a valid pair (1-4)")
+elif inputSelect == 5:
+	coinValues = [1, 5, 10, 25, 50]
+	for i in range(10, 50, 5):
+		changeValues.append(i)
+elif inputSelect == 6:
+	coinValues = [1, 2, 6, 12, 24, 48, 60]
+	for i in range(15, 40):
+		changeValues.append(i)
+elif inputSelect == 7:
+	coinValues = [1, 6, 13, 37, 150]
+	for i in range(15, 40):
+		changeValues.append(i)
+elif inputSelect == 8:
+	for j in range(0, 30):
+		coinValues.append(j + 1)
+	for i in range(15, 40):
+		changeValues.append(i)
+else:	# This is validation that you entered an int between 1-8... otherwise breaks
+	print("You didn't choose a valid pair (1-8)")
 	exit("Invalid user input - coin values/change")
 
 # Customize output filename with input/results info
