@@ -1,0 +1,54 @@
+Lindo code:
+
+MIN 10X1 + 11X2 + 13X3 + 9X4 + 8X5 + 5X6 + 6X7 + 7X8 + 10X9 + 14X10 + 12X11 + 12X12 + 6X13
+
+ST
+	X1 < 150
+	X2 < 450
+	X3 + X4 < 250
+	X5 < 150
+	X1 + X2 + X3 - X6 - X7 - X8 - X9 = 0
+	X4 + X5 - X10 - X11 - X12 - X13 = 0
+	X6 > 100
+	X7 > 150
+	X8 > 100
+	X9 + X10 > 200
+	X11 > 200
+	X12 > 150
+	X13 > 100
+	X1 > 0
+	X2 > 0
+	X3 > 0
+	X4 > 0
+	X5 > 0
+	X6 > 0
+	X7 > 0
+	X8 > 0
+	X9 > 0
+	X10 > 0
+	X11 > 0
+	X12 > 0
+	X13 > 0
+END
+
+Report:
+
+Error code: 54
+Error text: NO FEASIBLE SOLUTION AT STEP 10.
+SUM OF INFEASIBILITIES = 50.0000000000
+VIOLATED ROWS HAVE NEGATIVE SLACK, OR
+(EQUALITY ROWS) NONZERO SLACKS. ROWS
+CONTRIBUTING TO INFEASIBILITY HAVE A
+NONZERO DUAL PRICE. USE THE "DEBUG"
+COMMAND FOR MORE INFORMATION.
+
+LINDO Solver Status
+Optimizer Status
+Status: Infeasible
+Iterations: 10
+Infeasibility: 50
+Objective: 17650
+Best IP: N/A
+IP Bound: N/A
+Branches: N/A
+Elapsed Time: 00:01:28
