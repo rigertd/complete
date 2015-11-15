@@ -1,0 +1,20 @@
+! Minimize cost of the salad
+MIN 1 I1 + .75 I2 + .5 I3 + .5 I4 + .45 I5 + 2.15 I6 + .95 I7 + 2 I8
+ST
+	! Constraints for protein, fatx2, carbs, sodium, and leafy greens
+	.85 I1 + 1.62 I2 + 2.86 I3 + .93 I4 + 23.40 I5 + 16 I6 + 9 I7 + 0 I8 > 15	
+	.33 I1 + .20 I2 + .39 I3 + .24 I4 + 48.70 I5 + 5 I6 + 2.6 I7 + 100 I8 > 2
+	.33 I1 + .20 I2 + .39 I3 + .24 I4 + 48.70 I5 + 5 I6 + 2.6 I7 + 100 I8 < 8
+	4.64 I1 + 2.37 I2 + 3.63 I3 + 9.58 I4 + 15 I5 + 3 I6 + 27 I7 + 0 I8 > 4
+	9 I1 + 28 I2 + 65 I3 + 69 I4 + 3.80 I5 + 120 I6 + 78 I7 + 0 I8 < 200
+	.4 I1 + .4 I2 + .4 I3 + .4 I4 + .4 I5 + .4 I6 + .4 I7 + .4 I8 - I2 - I3 < 0
+	! Ensure no negative values for ingredients
+	I1 > 0
+	I2 > 0
+	I3 > 0
+	I4 > 0
+	I5 > 0
+	I6 > 0
+	I7 > 0
+	I8 > 0
+END
