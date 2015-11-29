@@ -12,6 +12,10 @@
 #include <queue>
 #include <map>
 
+#ifndef nullptr
+#define nullptr NULL
+#endif
+
 typedef unsigned int uint;
 typedef uint dist;
 
