@@ -1,5 +1,4 @@
 #include <cmath>
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -235,8 +234,7 @@ int main(int argc, char** argv) {
 	path = reversePath(path);
 
 	char outFilePath[1024];
-	strcpy(outFilePath, argv[1]);
-	strcat(outFilePath, ".tour");
+	snprintf(outFilePath, sizeof outFilePath, "%s%s", argv[1], ".tour");
 	std::ofstream ofs(outFilePath);
 
 	ofs << shortestSoFar << std::endl;
