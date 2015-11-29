@@ -2,12 +2,15 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <thread>
 #include <vector>
 #include <set>
 #include <stack>
+#include <queue>
+#include <map>
 
 typedef unsigned int uint;
 typedef uint dist;
@@ -33,6 +36,8 @@ City* cities = nullptr;
 dist** distances = nullptr;
 uint maxId = 0;
 uint shortestSoFar = std::numeric_limits<uint>::max();
+std::mutex resultMutex;
+std::map<uint, std::stack<uint>> solutions;
 
 struct CompareDist {
 	bool operator()(const ChildNode& lhs, const ChildNode& rhs) const {
@@ -80,9 +85,11 @@ void computeDists() {
 		for (uint j = 0; j <= maxId; ++j) {
 			if (i < j) {
 				distances[i][j] = static_cast<uint>(
-					std::sqrt(
-						(cities[i].x - cities[j].x)*(cities[i].x - cities[j].x) +
-						(cities[i].y - cities[j].y)*(cities[i].y - cities[j].y)
+					std::round(
+						std::sqrt(
+							(cities[i].x - cities[j].x)*(cities[i].x - cities[j].x) +
+							(cities[i].y - cities[j].y)*(cities[i].y - cities[j].y)
+							)
 						)
 					);
 			}
@@ -96,49 +103,40 @@ void computeDists() {
 	}
 }
 
-IdNode* findShortest(uint current, std::set<ChildNode, CompareDist> unvisited, uint distToCurrent, IdNode* last) {
-	IdNode* cur = nullptr;
-	for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
-		if (distToCurrent + it->distance < shortestSoFar) {
-			std::set<ChildNode, CompareDist> nextUnvisited;
-			for (auto it2 = unvisited.begin(), end2 = unvisited.end(); it2 != end2; ++it2) {
-				if (it != it2) {
-					ChildNode cn;
-					cn.distance = distances[it->id][it2->id];
-					cn.id = it2->id;
-					nextUnvisited.insert(cn);
-				}
-			}
-			IdNode* result = findShortest(it->id, nextUnvisited, distToCurrent + it->distance, last);
-			if (result != nullptr) {
-				result->prev = new IdNode{ current, nullptr };
-				if (cur != nullptr) {
-					delete cur;
-				}
-				cur = result->prev;
-			}
-		}
-	}
+void findShortest(uint current, std::set<ChildNode, CompareDist> unvisited, uint distToCurrent, std::stack<uint> &path) {
+	path.push(current);
 	if (unvisited.empty()) {
 		uint totalDistance = distToCurrent + distances[current][0];
 		if (totalDistance < shortestSoFar) {
 			shortestSoFar = totalDistance;
-			cur = new IdNode{ current, nullptr };
-			last = cur;
+			solutions[totalDistance] = path;
 			std::cout << "New shortest distance found: " << shortestSoFar << std::endl;
 		}
-		else {
-			return nullptr;
+	}
+	else {
+		for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
+			if (distToCurrent + it->distance < shortestSoFar) {
+				std::set<ChildNode, CompareDist> nextUnvisited;
+				for (auto it2 = unvisited.begin(), end2 = unvisited.end(); it2 != end2; ++it2) {
+					if (it != it2) {
+						ChildNode cn;
+						cn.distance = distances[it->id][it2->id];
+						cn.id = it2->id;
+						nextUnvisited.insert(cn);
+					}
+				}
+				findShortest(it->id, nextUnvisited, distToCurrent + it->distance, path);
+			}
 		}
 	}
-	return cur;
+	path.pop();
 }
 
 std::stack<uint> getShortestPath() {
 	uint maxThreads = std::thread::hardware_concurrency();
-	std::vector<std::thread*> threads;
+	std::queue<std::thread*> threads;
 	maxThreads = maxThreads < 2 ? 2 : maxThreads;
-	IdNode* last = nullptr;
+	std::vector<std::stack<uint>> paths;
 
 	std::set<ChildNode, CompareDist> unvisited;
 	for (uint i = 1; i <= maxId; ++i) {
@@ -146,10 +144,13 @@ std::stack<uint> getShortestPath() {
 		cn.distance = distances[0][i];
 		cn.id = i;
 		unvisited.insert(cn);
+		std::stack<uint> path;
+		path.push(0);
+		paths.push_back(path);
 	}
-	while (!unvisited.empty()) {
-		while (threads.size() < maxThreads - 1) {
-			auto it = unvisited.begin();
+	int iter_count = 0;
+	for (auto it = unvisited.begin(); it != unvisited.end(); ) {
+		while (threads.size() < maxThreads - 1 && it != unvisited.end()) {
 			std::set<ChildNode, CompareDist> nextUnvisited;
 			for (auto it2 = unvisited.begin(), end2 = unvisited.end(); it2 != end2; ++it2) {
 				if (it != it2) {
@@ -159,36 +160,48 @@ std::stack<uint> getShortestPath() {
 					nextUnvisited.insert(cn);
 				}
 			}
+			std::thread* t = new std::thread(findShortest, it->id, nextUnvisited, it->distance, paths[iter_count++]);
+			it++;
 
-			std::thread* t = new std::thread(findShortest, it->id, nextUnvisited, it->distance, last);
-			unvisited.erase(it);
-			threads.push_back(t);
+			threads.push(t);
 		}
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
-			std::thread* t = threads[i];
+			std::thread* t = threads.front();
+			threads.pop();
 			if (t->joinable()) {
 				t->join();
 				delete t;
+			}
+			else {
+				threads.push(t);
 			}
 		}
 	}
 	// one more time to join the last batch
 	while (!threads.empty()) {
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
-			std::thread* t = threads[i];
+			std::thread* t = threads.front();
+			threads.pop();
 			if (t->joinable()) {
 				t->join();
 				delete t;
 			}
+			else {
+				threads.push(t);
+			}
 		}
 	}
-	std::stack<uint> path;
-	IdNode* node = last;
-	while (node != nullptr) {
-		path.push(node->id);
-		node = node->prev;
+	auto it = solutions.begin();
+	return it->second;
+}
+
+std::stack<uint> reversePath(std::stack<uint> path) {
+	std::stack<uint> tmp;
+	while (!path.empty()) {
+		tmp.push(path.top());
+		path.pop();
 	}
-	return path;
+	return tmp;
 }
 
 void freeDists() {
@@ -213,7 +226,28 @@ int main(int argc, char** argv) {
 	load(argv[1]);
 	computeDists();
 
-	getShortestPath();
+	std::stack<uint> path = getShortestPath();
+	path = reversePath(path);
+
+	char outFilePath[1024];
+	strcpy(outFilePath, argv[1]);
+	strcat(outFilePath, ".tour");
+	std::ofstream ofs(outFilePath);
+
+	ofs << shortestSoFar << std::endl;
+
+	std::cout << "Shortest Path: " << path.top();
+	ofs << path.top() << std::endl;
+	path.pop();
+	while (!path.empty()) {
+		uint id = path.top();
+		path.pop();
+		std::cout << ", " << id;
+		ofs << path.top() << std::endl;
+	}
+
+	ofs.flush();
+	ofs.close();
 
 	freeDists();
 	freeCities();
