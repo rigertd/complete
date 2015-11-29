@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <mutex>
 #include <string>
 #include <sstream>
 #include <thread>
@@ -19,29 +18,18 @@
 typedef unsigned int uint;
 typedef uint dist;
 
+// stores city info from the file
 struct City {
 	uint id;
 	uint x;
 	uint y;
 };
 
-struct IdNode {
-	uint id;
-	IdNode* prev;
-};
-
+// for sorting children nodes by distance
 struct ChildNode {
 	uint id;
 	dist distance;
 };
-
-// globals
-City* cities = nullptr;
-dist** distances = nullptr;
-uint maxId = 0;
-uint shortestSoFar = std::numeric_limits<uint>::max();
-std::mutex resultMutex;
-std::map<uint, std::stack<uint>> solutions;
 
 struct CompareDist {
 	bool operator()(const ChildNode& lhs, const ChildNode& rhs) const {
@@ -49,12 +37,18 @@ struct CompareDist {
 	}
 };
 
+// globals
+std::map<uint, City> cities;									// stores all of the cities
+dist** distances = nullptr;								// stores the distances between the cities
+uint maxId = 0;											// stores the maximum ID value
+uint shortestSoFar = std::numeric_limits<uint>::max();	// stores the shortest path found so far
+std::map<uint, std::stack<uint>> solutions;				// stores the solutions sorted by distance
+
 void load(const char* path) {
 	std::ifstream ifs(path);
 
 	// load data from file and store in vector buffer
 	if (ifs) {
-		std::vector<City> fileBuffer;
 		std::string lineBuffer;
 		maxId = 0;
 
@@ -65,15 +59,9 @@ void load(const char* path) {
 				iss >> c.id;
 				iss >> c.x;
 				iss >> c.y;
-				fileBuffer.push_back(c);
+				cities[c.id] = c;
 				maxId = c.id > maxId ? c.id : maxId;
 			}
-		}
-
-		// initialize cities array indexed by ID
-		cities = new City[maxId + 1];
-		for (size_t i = 0, ilen = fileBuffer.size(); i < ilen; ++i) {
-			cities[fileBuffer[i].id] = fileBuffer[i];
 		}
 	}
 	else {
@@ -87,27 +75,29 @@ void computeDists() {
 	for (uint i = 0; i <= maxId; ++i) {
 		distances[i] = new dist[maxId + 1];
 		for (uint j = 0; j <= maxId; ++j) {
-			if (i < j) {
-				distances[i][j] = static_cast<uint>(
-					std::round(
-						std::sqrt(
-							(cities[i].x - cities[j].x)*(cities[i].x - cities[j].x) +
-							(cities[i].y - cities[j].y)*(cities[i].y - cities[j].y)
+			if (cities.find(i) != cities.end() && cities.find(j) != cities.end()) {
+				if (i < j) {
+					distances[i][j] = static_cast<uint>(
+						std::round(
+							std::sqrt(
+								(cities[i].x - cities[j].x)*(cities[i].x - cities[j].x) +
+								(cities[i].y - cities[j].y)*(cities[i].y - cities[j].y)
+								)
 							)
-						)
-					);
-			}
-			else if (j < i) {
-				distances[i][j] = distances[j][i];
-			}
-			else { // i == j
-				distances[i][j] = 0;
+						);
+				}
+				else if (j < i) {
+					distances[i][j] = distances[j][i];
+				}
+				else { // i == j
+					distances[i][j] = 0;
+				}
 			}
 		}
 	}
 }
 
-void findShortest(uint current, std::set<ChildNode, CompareDist> unvisited, uint distToCurrent, std::stack<uint> &path) {
+void solveBruteForcePruningRecursive(uint current, std::set<ChildNode, CompareDist> unvisited, uint distToCurrent, std::stack<uint> &path) {
 	path.push(current);
 	if (unvisited.empty()) {
 		uint totalDistance = distToCurrent + distances[current][0];
@@ -129,24 +119,24 @@ void findShortest(uint current, std::set<ChildNode, CompareDist> unvisited, uint
 						nextUnvisited.insert(cn);
 					}
 				}
-				findShortest(it->id, nextUnvisited, distToCurrent + it->distance, path);
+				solveBruteForcePruningRecursive(it->id, nextUnvisited, distToCurrent + it->distance, path);
 			}
 		}
 	}
 	path.pop();
 }
 
-std::stack<uint> getShortestPath() {
+std::stack<uint> solveBruteForcePruning() {
 	uint maxThreads = std::thread::hardware_concurrency();
 	std::queue<std::thread*> threads;
 	maxThreads = maxThreads < 2 ? 2 : maxThreads;
 	std::vector<std::stack<uint>> paths;
 
 	std::set<ChildNode, CompareDist> unvisited;
-	for (uint i = 1; i <= maxId; ++i) {
+	for (auto it = ++(cities.begin()); it != cities.end(); ++it) {
 		ChildNode cn;
-		cn.distance = distances[0][i];
-		cn.id = i;
+		cn.distance = distances[0][it->first];
+		cn.id = it->first;
 		unvisited.insert(cn);
 		std::stack<uint> path;
 		path.push(0);
@@ -164,7 +154,7 @@ std::stack<uint> getShortestPath() {
 					nextUnvisited.insert(cn);
 				}
 			}
-			std::thread* t = new std::thread(findShortest, it->id, nextUnvisited, it->distance, paths[iter_count++]);
+			std::thread* t = new std::thread(solveBruteForcePruningRecursive, it->id, nextUnvisited, it->distance, paths[iter_count++]);
 			it++;
 
 			threads.push(t);
@@ -216,11 +206,6 @@ void freeDists() {
 	distances = nullptr;
 }
 
-void freeCities() {
-	delete[] cities;
-	cities = nullptr;
-}
-
 int main(int argc, char** argv) {
 	// Check if argument was specified. If not, display usage instructions.
 	if (argc < 2) {
@@ -230,7 +215,7 @@ int main(int argc, char** argv) {
 	load(argv[1]);
 	computeDists();
 
-	std::stack<uint> path = getShortestPath();
+	std::stack<uint> path = solveBruteForcePruning();
 	path = reversePath(path);
 
 	char outFilePath[1024];
@@ -253,7 +238,6 @@ int main(int argc, char** argv) {
 	ofs.close();
 
 	freeDists();
-	freeCities();
 
 	std::getchar();
 }
