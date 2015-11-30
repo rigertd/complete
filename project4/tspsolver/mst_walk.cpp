@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <set>
+#include <thread>
 
 #ifndef nullptr
 #define nullptr NULL
@@ -51,7 +52,27 @@ public:
 	City* top() {
 		return _data.front();
 	}
+	
+	std::vector<City*>::iterator begin() {
+		return _data.begin();
+	}
+
+	std::vector<City*>::iterator end() {
+		return _data.end();
+	}
+
+	City* operator[](uint index) {
+		return _data[index];
+	}
+
+	uint size() {
+		return _data.size();
+	}
 };
+
+// constants
+const uint MAX_UNSIGNED = std::numeric_limits<uint>::max();
+const uint MAX_THREADS = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
 
 // globals
 uint maxId;
@@ -85,27 +106,12 @@ void load(const char* path) {
 	}
 }
 
-void computeDists() {
+void initializeDistances() {
 	distances = new uint*[maxId + 1];
 	for (uint i = 0, ilen = cities.size(); i < ilen; ++i) {
 		distances[i] = new uint[maxId + 1];
 		for (uint j = 0; j < ilen; ++j) {
-			if (i < j) {
-				distances[i][j] = static_cast<uint>(
-					std::round(
-						std::sqrt(
-							(cities[i].x - cities[j].x)*(cities[i].x - cities[j].x) +
-							(cities[i].y - cities[j].y)*(cities[i].y - cities[j].y)
-							)
-						)
-					);
-			}
-			else if (j < i) {
-				distances[i][j] = distances[j][i];
-			}
-			else { // i == j
-				distances[i][j] = 0;
-			}
+			distances[i][j] = 0;
 		}
 	}
 }
@@ -118,10 +124,27 @@ void freeDists() {
 	distances = nullptr;
 }
 
+uint getDistance(City* u, City* v) {
+	if (distances[u->id][v->id] > 0)
+		return distances[u->id][v->id];
+	if (u->id != v->id) {
+		distances[u->id][v->id] = distances[v->id][u->id] = static_cast<uint>(
+			std::round(
+				std::sqrt(
+					(u->x - v->x)*(u->x - v->x) +
+					(u->y - v->y)*(u->y - v->y)
+					)
+				)
+			);
+		return distances[u->id][v->id];
+	}
+	else {
+		return 0;
+	}
+}
+
 City* findMst() {
 	PriorityQueue unvisited;
-	std::set<uint> visited;
-	uint maxUint = std::numeric_limits<uint>::max();
 
 	// set starting node
 	cities[0].key = 0;
@@ -130,7 +153,7 @@ City* findMst() {
 
 	// add remaining nodes to unvisited
 	for (size_t i = 1, ilen = cities.size(); i < ilen; ++i) {
-		cities[i].key = maxUint;
+		cities[i].key = MAX_UNSIGNED;
 		cities[i].parent = nullptr;
 		unvisited.push(&cities[i]);
 	}
@@ -138,19 +161,17 @@ City* findMst() {
 	while (!unvisited.empty()) {
 		City* current = unvisited.top();
 		unvisited.pop();
-		visited.insert(current->id);
 
 		// add as child of parent node
 		if (current->parent != nullptr) {
 			current->parent->children.push_back(current);
 		}
 
-		for (size_t i = 0, ilen = cities.size(); i < ilen; ++i) {
-			if (visited.find(cities[i].id) == visited.end()
-				&& distances[current->id][cities[i].id] < cities[i].key
-				&& cities[i].id != current->id) {
-				cities[i].parent = current;
-				cities[i].key = distances[current->id][cities[i].id];
+		// multithreading takes longer, so stay with single threaded.
+		for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
+			if (getDistance(current, *it) < (*it)->key) {
+				(*it)->parent = current;
+				(*it)->key = getDistance(current, *it);
 			}
 		}
 		unvisited.rebuild_heap();
@@ -166,7 +187,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	load(argv[1]);
-	computeDists();
+	initializeDistances();
 
 	City* start = findMst();
 
