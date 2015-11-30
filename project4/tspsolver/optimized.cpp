@@ -16,7 +16,7 @@
 #endif
 
 typedef unsigned int uint;
-typedef uint dist;
+typedef uint uint;
 
 // stores city info from the file
 struct City {
@@ -28,7 +28,7 @@ struct City {
 // for sorting children nodes by distance
 struct ChildNode {
 	uint id;
-	dist distance;
+	uint distance;
 };
 
 struct CompareDist {
@@ -38,8 +38,8 @@ struct CompareDist {
 };
 
 // globals
-std::map<uint, City> cities;									// stores all of the cities
-dist** distances = nullptr;								// stores the distances between the cities
+std::map<uint, City> cities;							// stores all of the cities
+uint** distances = nullptr;								// stores the distances between the cities
 uint maxId = 0;											// stores the maximum ID value
 uint shortestSoFar = std::numeric_limits<uint>::max();	// stores the shortest path found so far
 std::map<uint, std::stack<uint>> solutions;				// stores the solutions sorted by distance
@@ -71,9 +71,9 @@ void load(const char* path) {
 }
 
 void computeDists() {
-	distances = new dist*[maxId + 1];
+	distances = new uint*[maxId + 1];
 	for (uint i = 0; i <= maxId; ++i) {
-		distances[i] = new dist[maxId + 1];
+		distances[i] = new uint[maxId + 1];
 		for (uint j = 0; j <= maxId; ++j) {
 			if (cities.find(i) != cities.end() && cities.find(j) != cities.end()) {
 				if (i < j) {
