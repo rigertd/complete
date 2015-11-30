@@ -36,7 +36,6 @@ private:
 	};
 
 	void computeDistances() {
-		size_t count = cities.size();
 		size_t row, col;
 
 		for (size_t i = 0; i < count; ++i) {
@@ -66,7 +65,7 @@ private:
 		}
 	}
 
-	void findShortestRecursive(City current, std::stack<uint>& path, std::set<uint> visited, uint totalDist) {
+	std::stack<uint> findShortestRecursive(City current, std::stack<uint>& path, std::set<uint> visited, uint totalDist) {
 		while (current.dists.size() > 0) {
 			Distance d = current.dists.top();
 			current.dists.pop();
@@ -85,6 +84,8 @@ private:
 		if (current.dists.size() == 0) {
 			shortestDist = shortestDist > totalDist ? totalDist : shortestDist;
 			std::cout << "Reached end of path, distance: " << totalDist << std::endl;
+			std::stack<uint> path;
+			path.push(current.id);
 		}
 	}
 
@@ -121,7 +122,8 @@ private:
 	}
 
 	uint** distances;
-	std::vector<City> cities;
+	City* cities;
+	size_t count;
 	uint shortestDist;
 	uint minId;
 	uint maxId;
