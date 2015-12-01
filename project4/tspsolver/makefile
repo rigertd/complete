@@ -9,7 +9,7 @@ PROGS = tspsolver tspsolverd
 OBJS = tspsolver.o mst_walk.o
 DOBJS = tspsolverd.o mst_walkd.o
 
-all: release debug
+all: release
 
 release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
