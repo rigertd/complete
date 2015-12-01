@@ -11,9 +11,9 @@
 namespace tsp {
 
 // common namespace global variables
-extern uint maxId = 0;
-extern std::vector<City> cities(0);
-extern uint** distances = nullptr;
+uint maxId = 0;
+std::vector<City> cities(0);
+uint** distances = nullptr;
 
 // private function forward delcarations
 void freeDists();
