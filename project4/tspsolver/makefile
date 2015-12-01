@@ -15,13 +15,13 @@ release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
 
 debug: $(DOBJS)
-	$(CXX) $(CXXFLAGS) -o tspsolverd
+	$(CXX) $(CXXFLAGS) $(DOBJS) -o tspsolverd
 
 $(OBJS): $(@:.o=.cpp)
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
-$(DOBJS): $(@:.o=.cpp)
-	$(CXX) $(CXXFLAGS) $(DEBUG) -c $(@:.o=.cpp)
+$(DOBJS): $(@:d.o=.cpp)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -c $(@:d.o=.cpp) -o $@
 
 clean:
 	$(RM) -f $(PROGS) $(OBJS) $(DOBJS)
