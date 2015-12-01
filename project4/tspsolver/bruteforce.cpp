@@ -81,7 +81,7 @@ std::stack<uint> solveBruteForcePruning() {
 					nextUnvisited.insert(cn);
 				}
 			}
-			std::thread* t = new std::thread(solveBruteForcePruningRecursive, it->id, nextUnvisited, it->distance, paths[iter_count++]);
+			std::thread* t = new std::thread(solveBruteForcePruningRecursive, &cities[it->id], nextUnvisited, it->distance, paths[iter_count++]);
 			it++;
 
 			threads.push(t);
