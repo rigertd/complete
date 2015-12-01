@@ -12,3 +12,5 @@ struct City {
 	City* parent;
 	std::vector<City*> children;
 };
+
+typedef City* cityptr;

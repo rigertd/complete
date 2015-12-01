@@ -3,10 +3,15 @@
 #include "mst_walk.h"
 #include "PriorityQueue.h"
 
+template <>
+bool Comparator<>(const cityptr& lhs, const cityptr& rhs) {
+	return lhs->key > rhs->key;
+}
+
 namespace tsp { namespace mstwalk {
 
 City* findMst(uint startIndex) {
-	PriorityQueue unvisited;
+	PriorityQueue<City*> unvisited;
 
 	// set starting node
 	cities[startIndex].key = 0;

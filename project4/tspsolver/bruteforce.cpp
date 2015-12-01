@@ -6,28 +6,23 @@
 #include <queue>
 
 #include "common.h"
+#include "PriorityQueue.h"
+
+template <>
+bool Comparator<>(const City& lhs, const City& rhs) {
+	return lhs.key > rhs.key;
+}
 
 namespace tsp { namespace bruteforce {
-// for sorting children nodes by distance
-struct ChildNode {
-	uint id;
-	uint distance;
-};
-
-struct CompareDist {
-	bool operator()(const ChildNode& lhs, const ChildNode& rhs) const {
-		return lhs.distance < rhs.distance;
-	}
-};
 
 // globals
-uint shortestSoFar = std::numeric_limits<uint>::max();	// stores the shortest path found so far
-std::map<uint, std::stack<uint>> solutions;				// stores the solutions sorted by distance
+uint shortestSoFar = MAX_UNSIGNED;				// stores the shortest path found so far
+std::map<uint, std::stack<uint>> solutions;		// stores the solutions sorted by distance
 
-void solveBruteForcePruningRecursive(City* current, std::set<ChildNode, CompareDist> unvisited, uint distToCurrent, std::stack<uint> &path) {
-	path.push(current->id);
+void solveBruteForcePruningRecursive(City current, PriorityQueue<City> unvisited, uint distToCurrent, std::stack<uint> &path) {
+	path.push(current.id);
 	if (unvisited.empty()) {
-		uint totalDistance = distToCurrent + getDistance(current, &cities[0]);
+		uint totalDistance = distToCurrent + getDistance(&current, &(cities[0]));
 		if (totalDistance < shortestSoFar) {
 			shortestSoFar = totalDistance;
 			solutions[totalDistance] = path;
@@ -35,18 +30,17 @@ void solveBruteForcePruningRecursive(City* current, std::set<ChildNode, CompareD
 		}
 	}
 	else {
-		for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
-			if (distToCurrent + it->distance < shortestSoFar) {
-				std::set<ChildNode, CompareDist> nextUnvisited;
-				for (auto it2 = unvisited.begin(), end2 = unvisited.end(); it2 != end2; ++it2) {
-					if (it != it2) {
-						ChildNode cn;
-						cn.distance = distances[it->id][it2->id];
-						cn.id = it2->id;
-						nextUnvisited.insert(cn);
-					}
+		while (!unvisited.empty()) {
+			City next = unvisited.top();
+			unvisited.pop();
+			uint distToNext = getDistance(&current, &next);
+			if (distToCurrent + distToNext < shortestSoFar) {
+				PriorityQueue<City> nextUnvisited;
+				for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
+					it->key = distToNext;
+					nextUnvisited.push(*it);
 				}
-				solveBruteForcePruningRecursive(&cities[it->id], nextUnvisited, distToCurrent + it->distance, path);
+				solveBruteForcePruningRecursive(next, nextUnvisited, distToCurrent + distToNext, path);
 			}
 		}
 	}
@@ -59,30 +53,28 @@ std::stack<uint> solveBruteForcePruning() {
 	maxThreads = maxThreads < 2 ? 2 : maxThreads;
 	std::vector<std::stack<uint>> paths;
 
-	std::set<ChildNode, CompareDist> unvisited;
+	PriorityQueue<City> unvisited;
 	for (auto it = ++(cities.begin()); it != cities.end(); ++it) {
-		ChildNode cn;
-		cn.distance = getDistance(&cities[0], &(*it));
-		cn.id = it->id;
-		unvisited.insert(cn);
+		it->key = getDistance(&cities[0], &(*it));
+		unvisited.push(*it);
 		std::stack<uint> path;
 		path.push(0);
 		paths.push_back(path);
 	}
 	int iter_count = 0;
-	for (auto it = unvisited.begin(); it != unvisited.end(); ) {
-		while (threads.size() < maxThreads - 1 && it != unvisited.end()) {
-			std::set<ChildNode, CompareDist> nextUnvisited;
-			for (auto it2 = unvisited.begin(), end2 = unvisited.end(); it2 != end2; ++it2) {
-				if (it != it2) {
-					ChildNode cn;
-					cn.distance = getDistance(&cities[it->id], &cities[it2->id]);
-					cn.id = it2->id;
-					nextUnvisited.insert(cn);
+	while (!unvisited.empty()) {
+		City current;
+		while (threads.size() < maxThreads - 1 && !unvisited.empty()) {
+			current = unvisited.top();
+			PriorityQueue<City> nextUnvisited;
+			for (auto it = unvisited.begin(), end = unvisited.end(); it != end; ++it) {
+				if (it->id != current.id) {
+					it->key = getDistance(&cities[0], &(*it));
+					nextUnvisited.push(*it);
 				}
 			}
-			std::thread* t = new std::thread(solveBruteForcePruningRecursive, &cities[it->id], nextUnvisited, it->distance, paths[iter_count++]);
-			it++;
+			std::thread* t = new std::thread(solveBruteForcePruningRecursive, current, nextUnvisited, getDistance(&(cities[0]), &current), paths[iter_count++]);
+			unvisited.pop();
 
 			threads.push(t);
 		}
@@ -135,24 +127,24 @@ void freeDists() {
 
 } }
 
-int main(int argc, char** argv) {
-	// Check if argument was specified. If not, display usage instructions.
-	if (argc < 2) {
-		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
-		return 1;
-	}
-	tsp::load(argv[1]);
-
-	std::stack<uint> path = tsp::bruteforce::solveBruteForcePruning();
-	path = tsp::bruteforce::reversePath(path);
-	std::vector<uint> tour(path.size());
-
-	while (!path.empty()) {
-		tour.push_back(path.top());
-		path.pop();
-	}
-
-	tsp::save(argv[1], tsp::bruteforce::shortestSoFar, tour);
-
-	tsp::finalize();
-}
+//int main(int argc, char** argv) {
+//	// Check if argument was specified. If not, display usage instructions.
+//	if (argc < 2) {
+//		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
+//		return 1;
+//	}
+//	tsp::load(argv[1]);
+//
+//	std::stack<uint> path = tsp::bruteforce::solveBruteForcePruning();
+//	path = tsp::bruteforce::reversePath(path);
+//	std::vector<uint> tour(path.size());
+//
+//	while (!path.empty()) {
+//		tour.push_back(path.top());
+//		path.pop();
+//	}
+//
+//	tsp::save(argv[1], tsp::bruteforce::shortestSoFar, tour);
+//
+//	tsp::finalize();
+//}

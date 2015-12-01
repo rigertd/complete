@@ -4,8 +4,9 @@
 #include <queue>
 #include "City.h"
 
-bool CityComparator(const City* lhs, const City* rhs) {
-	return lhs->key > rhs->key;
+template <typename T>
+bool Comparator(const T& lhs, const T& rhs) {
+	return lhs > rhs;
 }
 
 /**
@@ -13,9 +14,10 @@ bool CityComparator(const City* lhs, const City* rhs) {
  * This implementation provides additional features to the STL priority_queue.
  * Namely, it supports rebuilding the heap after decrease-key operations.
  */
+template <typename T>
 struct PriorityQueue {
 private:
-	std::vector<City*> _data;
+	std::vector<T> _data;
 
 public:
 	bool empty() {
@@ -23,32 +25,32 @@ public:
 	}
 
 	void pop() {
-		std::pop_heap(_data.begin(), _data.end(), CityComparator);
+		std::pop_heap(_data.begin(), _data.end(), typename Comparator<T>);
 		_data.pop_back();
 	}
 
-	void push(City* value) {
+	void push(T value) {
 		_data.push_back(value);
-		std::push_heap(_data.begin(), _data.end(), CityComparator);
+		std::push_heap(_data.begin(), _data.end(), typename Comparator<T>);
 	}
 
 	void rebuild_heap() {
-		std::make_heap(_data.begin(), _data.end(), CityComparator);
+		std::make_heap(_data.begin(), _data.end(), typename Comparator<T>);
 	}
 
-	City* top() {
+	T top() {
 		return _data.front();
 	}
 
-	std::vector<City*>::iterator begin() {
+	typename std::vector<T>::iterator begin() {
 		return _data.begin();
 	}
 
-	std::vector<City*>::iterator end() {
+	typename std::vector<T>::iterator end() {
 		return _data.end();
 	}
 
-	City* operator[](uint index) {
+	T operator[](uint index) {
 		return _data[index];
 	}
 
