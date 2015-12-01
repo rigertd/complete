@@ -1,4 +1,6 @@
 #pragma once
+
+#include <limits>
 #include <vector>
 
 #include "City.h"

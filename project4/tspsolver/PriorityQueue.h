@@ -25,17 +25,17 @@ public:
 	}
 
 	void pop() {
-		std::pop_heap(_data.begin(), _data.end(), typename Comparator<T>);
+		std::pop_heap(_data.begin(), _data.end(), Comparator<T>);
 		_data.pop_back();
 	}
 
 	void push(T value) {
 		_data.push_back(value);
-		std::push_heap(_data.begin(), _data.end(), typename Comparator<T>);
+		std::push_heap(_data.begin(), _data.end(), Comparator<T>);
 	}
 
 	void rebuild_heap() {
-		std::make_heap(_data.begin(), _data.end(), typename Comparator<T>);
+		std::make_heap(_data.begin(), _data.end(), Comparator<T>);
 	}
 
 	T top() {
