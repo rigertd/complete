@@ -5,14 +5,14 @@
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x
-PROGS = tspsolver tspsolver_d optimized
+PROGS = tspsolver tspsolver_d brute
 OBJS = tspsolver.o mst_walk.o aco.o common.o
 DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o
 
 all: release
 
-optimized:
-	$(CXX) $(CXXFLAGS) optimized.cpp -o optimized
+brute:
+	$(CXX) $(CXXFLAGS) bruteforce.cpp -o bruteforce
 
 release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
