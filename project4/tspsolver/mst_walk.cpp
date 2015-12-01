@@ -7,6 +7,7 @@
 #include <sstream>
 #include <set>
 #include <thread>
+#include <stack>
 
 #ifndef nullptr
 #define nullptr NULL
@@ -179,6 +180,48 @@ City* findMst() {
 	return &cities[0];
 }
 
+std::vector<uint> mstPreorderPath(City* start, uint& totalDistance) {
+	std::vector<uint> tour;
+	std::stack<City*> waiting;
+	City* current = nullptr;
+	City* previous = nullptr;
+	totalDistance = 0;
+
+	waiting.push(start);
+	while (!waiting.empty()) {
+		current = waiting.top();
+		waiting.pop();
+
+		// pre-order
+		tour.push_back(current->id);
+		if (previous != nullptr) {
+			totalDistance += getDistance(previous, current);
+		}
+
+		for (size_t i = 0, ilen = current->children.size(); i < ilen; ++i) {
+			waiting.push(current->children[i]);
+		}
+		previous = current;
+	}
+	totalDistance += getDistance(current, start);
+	return tour;
+}
+
+void save(const char* path, uint totalDistance, std::vector<uint>& const tour) {
+	std::string saveFile(path);
+	saveFile.append(".tour");
+	std::ofstream ofs(saveFile.c_str());
+	
+	if (ofs) {
+		ofs << totalDistance << std::endl;
+		for (size_t i = 0, ilen = tour.size(); i < ilen; ++i) {
+			ofs << tour[i] << std::endl;
+		}
+
+		ofs.flush();
+		ofs.close();
+	}
+}
 
 int main(int argc, char** argv) {
 	// Check if argument was specified. If not, display usage instructions.
@@ -190,6 +233,10 @@ int main(int argc, char** argv) {
 	initializeDistances();
 
 	City* start = findMst();
+	uint totalDist;
+	std::vector<uint> tour = mstPreorderPath(start, totalDist);
+
+	save(argv[1], totalDist, tour);
 
 	freeDists();
 
