@@ -35,7 +35,7 @@ void freeDists() {
 // Allocates memory for the distance buffer and initializes all distances to 0
 void initializeDistances() {
 	distances = new uint*[maxId + 1];
-	for (uint i = 0, ilen = cities.size(); i < ilen; ++i) {
+	for (uint i = 0, ilen = maxId + 1; i < ilen; ++i) {
 		distances[i] = new uint[maxId + 1];
 		for (uint j = 0; j < ilen; ++j) {
 			distances[i][j] = 0;

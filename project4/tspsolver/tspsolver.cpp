@@ -10,9 +10,9 @@ int main(int argc, char** argv) {
 	}
 	tsp::load(argv[1]);
 
-	City* start = tsp::mstwalk::findMst(0);
+	City* root = tsp::mstwalk::findMst(0);
 	uint totalDist;
-	std::vector<uint> tour = tsp::mstwalk::mstPreorderPath(start, totalDist);
+	std::vector<uint> tour = tsp::mstwalk::mstPreorderPath(root, totalDist);
 
 	tsp::save(argv[1], totalDist, tour);
 
