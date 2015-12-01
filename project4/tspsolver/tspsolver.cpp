@@ -8,15 +8,15 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
-	mstwalk::load(argv[1]);
+	tsp::load(argv[1]);
 
-	City* start = mstwalk::findMst();
+	City* start = tsp::mstwalk::findMst(0);
 	uint totalDist;
-	std::vector<uint> tour = mstwalk::mstPreorderPath(start, totalDist);
+	std::vector<uint> tour = tsp::mstwalk::mstPreorderPath(start, totalDist);
 
-	mstwalk::save(argv[1], totalDist, tour);
+	tsp::save(argv[1], totalDist, tour);
 
-	mstwalk::finalize();
+	tsp::finalize();
 
 	return 0;
 }

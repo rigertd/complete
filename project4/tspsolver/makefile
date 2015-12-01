@@ -5,9 +5,9 @@
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x
-PROGS = tspsolver tspsolverd
-OBJS = tspsolver.o mst_walk.o
-DOBJS = tspsolverd.o mst_walkd.o
+PROGS = tspsolver tspsolver_d
+OBJS = tspsolver.o mst_walk.o aco.o common.o
+DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o
 
 all: release
 
@@ -15,13 +15,13 @@ release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
 
 debug: $(DOBJS)
-	$(CXX) $(CXXFLAGS) $(DOBJS) -o tspsolverd
+	$(CXX) $(CXXFLAGS) $(DOBJS) -o tspsolver_d
 
 $(OBJS): $(@:.o=.cpp)
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
-$(DOBJS): $(@:d.o=.cpp)
-	$(CXX) $(CXXFLAGS) $(DEBUG) -c $(@:d.o=.cpp) -o $@
+$(DOBJS): $(@:_d.o=.cpp)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -c $(@:_d.o=.cpp) -o $@
 
 clean:
 	$(RM) -f $(PROGS) $(OBJS) $(DOBJS)
