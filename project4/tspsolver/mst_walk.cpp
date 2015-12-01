@@ -1,112 +1,43 @@
-#include <queue>
+#include <cstdlib>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <string>
-#include <vector>
 #include <sstream>
-#include <set>
-#include <thread>
 #include <stack>
+#include <string>
 
-#ifndef nullptr
-#define nullptr NULL
-#endif
-typedef unsigned int uint;
+#include "mst_walk.h"
+#include "PriorityQueue.h"
 
-struct City {
-	uint id;
-	uint x;
-	uint y;
-	uint key;
-	City* parent;
-	std::vector<City*> children;
-};
-
-bool CityComparator(const City* lhs, const City* rhs) {
-	return lhs->key > rhs->key;
-}
-
-struct PriorityQueue {
-private:
-	std::vector<City*> _data;
-
-public:
-	bool empty() {
-		return _data.empty();
-	}
-
-	void pop() {
-		std::pop_heap(_data.begin(), _data.end(), CityComparator);
-		_data.pop_back();
-	}
-
-	void push(City* value) {
-		_data.push_back(value);
-		std::push_heap(_data.begin(), _data.end(), CityComparator);
-	}
-
-	void rebuild_heap() {
-		std::make_heap(_data.begin(), _data.end(), CityComparator);
-	}
-
-	City* top() {
-		return _data.front();
-	}
-	
-	std::vector<City*>::iterator begin() {
-		return _data.begin();
-	}
-
-	std::vector<City*>::iterator end() {
-		return _data.end();
-	}
-
-	City* operator[](uint index) {
-		return _data[index];
-	}
-
-	uint size() {
-		return _data.size();
-	}
-};
+namespace mstwalk {
 
 // constants
 const uint MAX_UNSIGNED = std::numeric_limits<uint>::max();
-const uint MAX_THREADS = std::thread::hardware_concurrency() > 1 ? std::thread::hardware_concurrency() - 1 : 1;
 
-// globals
+// namespace globals
 uint maxId;
 std::vector<City> cities;
 uint** distances;
 
+// private function forward delcarations
+void freeDists();
+void initializeDistances();
 
-void load(const char* path) {
-	std::ifstream ifs(path);
+/*===============================================================*
+ * Private Functions
+ *===============================================================*/
 
-	// load data from file and store in vector buffer
-	if (ifs) {
-		std::string lineBuffer;
-		maxId = 0;
-
-		while (std::getline(ifs, lineBuffer)) {
-			if (!lineBuffer.empty()) {
-				std::istringstream iss(lineBuffer);
-				City c;
-				iss >> c.id;
-				iss >> c.x;
-				iss >> c.y;
-				cities.push_back(c);
-				maxId = c.id > maxId ? c.id : maxId;
-			}
-		}
+// Frees all memory allocated for the distance buffer
+void freeDists() {
+	for (uint i = 0; i <= maxId; ++i) {
+		delete[] distances[i];
 	}
-	else {
-		std::cout << "Invalid path specified: " << path << std::endl;
-		exit(1);
-	}
+	delete[] distances;
+	distances = nullptr;
 }
 
+// Allocates memory for the distance buffer and initializes all distances to 0
 void initializeDistances() {
 	distances = new uint*[maxId + 1];
 	for (uint i = 0, ilen = cities.size(); i < ilen; ++i) {
@@ -117,30 +48,14 @@ void initializeDistances() {
 	}
 }
 
-void freeDists() {
-	for (uint i = 0; i <= maxId; ++i) {
-		delete[] distances[i];
-	}
-	delete[] distances;
-	distances = nullptr;
-}
+/*===============================================================*
+* Public Functions
+*===============================================================*/
 
-uint getDistance(City* u, City* v) {
-	if (distances[u->id][v->id] > 0)
-		return distances[u->id][v->id];
-	if (u->id != v->id) {
-		distances[u->id][v->id] = distances[v->id][u->id] = static_cast<uint>(
-			std::round(
-				std::sqrt(
-					(u->x - v->x)*(u->x - v->x) +
-					(u->y - v->y)*(u->y - v->y)
-					)
-				)
-			);
-		return distances[u->id][v->id];
-	}
-	else {
-		return 0;
+void finalize() {
+	if (!cities.empty()) {
+		freeDists();
+		cities.clear();
 	}
 }
 
@@ -180,6 +95,58 @@ City* findMst() {
 	return &cities[0];
 }
 
+uint getDistance(City* u, City* v) {
+	if (distances[u->id][v->id] > 0)
+		return distances[u->id][v->id];
+	if (u->id != v->id) {
+		distances[u->id][v->id] = distances[v->id][u->id] = static_cast<uint>(
+			std::round(
+				std::sqrt(
+					(u->x - v->x)*(u->x - v->x) +
+					(u->y - v->y)*(u->y - v->y)
+					)
+				)
+			);
+		return distances[u->id][v->id];
+	}
+	else {
+		return 0;
+	}
+}
+
+void load(const char* path) {
+	// Check if cities are already loaded. 
+	// If so, free the distance buffer and cities buffer.
+	finalize();
+
+	std::ifstream ifs(path);
+
+	// Load data from file and store in vector buffer
+	if (ifs) {
+		std::string lineBuffer;
+		maxId = 0;
+
+		while (std::getline(ifs, lineBuffer)) {
+			if (!lineBuffer.empty()) {
+				std::istringstream iss(lineBuffer);
+				City c;
+				iss >> c.id;
+				iss >> c.x;
+				iss >> c.y;
+				cities.push_back(c);
+				maxId = c.id > maxId ? c.id : maxId;
+			}
+		}
+
+		// Initialize the distance buffer to the size of the newly loaded data
+		initializeDistances();
+	}
+	else {
+		std::cout << "Invalid path specified: " << path << std::endl;
+		exit(1);
+	}
+}
+
 std::vector<uint> mstPreorderPath(City* start, uint& totalDistance) {
 	std::vector<uint> tour;
 	std::stack<City*> waiting;
@@ -207,7 +174,7 @@ std::vector<uint> mstPreorderPath(City* start, uint& totalDistance) {
 	return tour;
 }
 
-void save(const char* path, uint totalDistance, std::vector<uint>& const tour) {
+void save(const char* path, uint totalDistance, std::vector<uint>& tour) {
 	std::string saveFile(path);
 	saveFile.append(".tour");
 	std::ofstream ofs(saveFile.c_str());
@@ -223,22 +190,4 @@ void save(const char* path, uint totalDistance, std::vector<uint>& const tour) {
 	}
 }
 
-int main(int argc, char** argv) {
-	// Check if argument was specified. If not, display usage instructions.
-	if (argc < 2) {
-		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
-		return 1;
-	}
-	load(argv[1]);
-	initializeDistances();
-
-	City* start = findMst();
-	uint totalDist;
-	std::vector<uint> tour = mstPreorderPath(start, totalDist);
-
-	save(argv[1], totalDist, tour);
-
-	freeDists();
-
-	return 0;
 }
