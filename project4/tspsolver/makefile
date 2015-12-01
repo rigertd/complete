@@ -12,7 +12,7 @@ DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o
 all: release
 
 brute: common.o
-	$(CXX) $(CXXFLAGS) bruteforce.cpp -o brute
+	$(CXX) $(CXXFLAGS) common.o bruteforce.cpp -o brute
 
 release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
