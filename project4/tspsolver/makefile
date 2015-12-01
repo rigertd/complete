@@ -5,11 +5,14 @@
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -std=c++0x
-PROGS = tspsolver tspsolver_d
+PROGS = tspsolver tspsolver_d optimized
 OBJS = tspsolver.o mst_walk.o aco.o common.o
 DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o
 
 all: release
+
+optimized:
+	$(CXX) $(CXXFLAGS) optimized.cpp -o optimized
 
 release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
