@@ -22,6 +22,7 @@ std::vector<uint> shortestPath;
 std::mutex guardShortest;
 
 void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited, uint distToCurrent, std::vector<uint>& path) {
+	std::cout << "in recursive call" << std::endl;
 	path.push_back(current.id);
 	if (unvisited.empty()) {
 		std::cout << "found end of path" << std::endl;
@@ -95,9 +96,10 @@ std::vector<uint> solveBruteForcePruning() {
 				}
 			}
 			std::sort(nextUnvisited.begin(), nextUnvisited.end(), Comparator<City>);
-			std::cout << "creating thread" << std::endl;
+			std::cout << "creating thread " << processed << std::endl;
 			std::thread* t = new std::thread(solveBruteForcePruningRecursive, unvisited[processed], nextUnvisited, unvisited[processed].key, path);
 			++processed;
+			std::cout << "pushing thread " << processed << std::endl;
 			threads.push(t);
 		}
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
