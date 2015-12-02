@@ -27,5 +27,5 @@ $(DOBJS): $(@:_d.o=.cpp)
 	$(CXX) $(CXXFLAGS) $(DEBUG) -c $(@:_d.o=.cpp) -o $@
 
 clean:
-	$(RM) -f $(PROGS) $(OBJS) $(DOBJS)
+	$(RM) $(PROGS) $(OBJS) $(DOBJS)
 

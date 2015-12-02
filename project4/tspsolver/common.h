@@ -33,7 +33,7 @@ void finalize();
  *
  * Returns the distance rounded to the nearest integer.
  */
-uint getDistance(City* u, City* v);
+uint getDistance(const City* u, const City* v);
 
 /**
  * Loads city coordinate data from the specified path.

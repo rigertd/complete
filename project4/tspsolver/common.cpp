@@ -54,7 +54,7 @@ void finalize() {
 	}
 }
 
-uint getDistance(City* u, City* v) {
+uint getDistance(const City* u, const City* v) {
 	if (distances[u->id][v->id] > 0)
 		return distances[u->id][v->id];
 	if (u->id != v->id) {
