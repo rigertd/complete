@@ -34,11 +34,11 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited
 		guardShortest.unlock();
 	}
 	else {
-		for (size_t i = 0, ilen = unvisited.size(); i < ilen; ++i) {
+		for (size_t i = unvisited.size() - 1; i >= 0; --i) {
 			if (distToCurrent + unvisited[i].key < shortestSoFar) {
 				std::vector<City> nextUnvisited;
 				City next;
-				for (size_t j = 0; j < ilen; ++j) {
+				for (size_t j = unvisited.size() - 1; j >= 0; --j) {
 					if (j != i) {
 						next = unvisited[j];
 						next.key = getDistance(&unvisited[i], &unvisited[j]);
@@ -81,7 +81,7 @@ std::vector<uint> solveBruteForcePruning() {
 
 			std::vector<City> nextUnvisited;
 			City next;
-			for (size_t i = 1, ilen = unvisited.size(); i < ilen; ++i) {
+			for (size_t i = unvisited.size() - 1; i >= 0; --i) {
 				if (i != processed) {
 					next = unvisited[i];
 					next.key = getDistance(&unvisited[processed], &unvisited[i]);
