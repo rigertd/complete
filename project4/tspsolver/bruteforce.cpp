@@ -34,11 +34,11 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited
 		guardShortest.unlock();
 	}
 	else {
-		for (size_t i = unvisited.size() - 1; i >= 0; --i) {
+		for (size_t i = ilen = unvisited.size() - 1; i >= 0; --i) {
 			if (distToCurrent + unvisited[i].key < shortestSoFar) {
 				std::vector<City> nextUnvisited;
 				City next;
-				for (size_t j = unvisited.size() - 1; j >= 0; --j) {
+				for (size_t j = 0; j <= ilen; ++j) {
 					if (j != i) {
 						next = unvisited[j];
 						next.key = getDistance(&unvisited[i], &unvisited[j]);
@@ -72,25 +72,25 @@ std::vector<uint> solveBruteForcePruning() {
 
 	std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
 
-	size_t processed = 1;
-	while (processed < total) {
+	size_t idx = total - 1;
+	while (idx > 0) {
 
-		while (threads.size() < maxThreads - 1 && processed < total) {
+		while (threads.size() < maxThreads - 1 && idx > 0) {
 			std::vector<uint> path;
 			path.push_back(0);
 
 			std::vector<City> nextUnvisited;
 			City next;
-			for (size_t i = unvisited.size() - 1; i >= 0; --i) {
-				if (i != processed) {
+			for (size_t i = 1, ilen = unvisited.size(); i < ilen; ++i) {
+				if (i != idx) {
 					next = unvisited[i];
-					next.key = getDistance(&unvisited[processed], &unvisited[i]);
+					next.key = getDistance(&unvisited[idx], &unvisited[i]);
 					nextUnvisited.push_back(next);
 				}
 			}
 			std::sort(nextUnvisited.begin(), nextUnvisited.end(), Comparator<City>);
-			std::thread* t = new std::thread(solveBruteForcePruningRecursive, unvisited[processed], nextUnvisited, unvisited[processed].key, path);
-			++processed;
+			std::thread* t = new std::thread(solveBruteForcePruningRecursive, unvisited[idx], nextUnvisited, unvisited[idx].key, path);
+			--idx;
 			threads.push(t);
 		}
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
