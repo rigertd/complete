@@ -1,5 +1,5 @@
+#include <algorithm>
 #include <iostream>
-#include <map>
 #include <mutex>
 #include <set>
 #include <stack>
