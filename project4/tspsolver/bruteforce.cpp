@@ -21,9 +21,10 @@ uint shortestSoFar = MAX_UNSIGNED;				// stores the shortest path found so far
 std::vector<uint> shortestPath;
 std::mutex guardShortest;
 
-void solveBruteForcePruningRecursive(City& current, std::vector<City> unvisited, uint distToCurrent, std::vector<uint> path) {
+void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited, uint distToCurrent, std::vector<uint>& path) {
 	path.push_back(current.id);
 	if (unvisited.empty()) {
+		std::cout << "found end of path" << std::endl;
 		uint totalDistance = distToCurrent + getDistance(&current, &(cities[0]));
 		guardShortest.lock();
 		if (totalDistance < shortestSoFar) {
@@ -34,6 +35,7 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City> unvisited,
 		guardShortest.unlock();
 	}
 	else {
+		std::cout << "preparing recursive next unvisited" << std::endl;
 		for (size_t i = 0, ilen = unvisited.size(); i < ilen; ++i) {
 			if (distToCurrent + unvisited[i].key < shortestSoFar) {
 				std::vector<City> nextUnvisited;
@@ -47,6 +49,7 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City> unvisited,
 				}
 				std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
 
+				std::cout << "recursive call" << std::endl;
 				solveBruteForcePruningRecursive(unvisited[i], nextUnvisited, distToCurrent + unvisited[i].key, path);
 			}
 		}
@@ -78,7 +81,7 @@ std::vector<uint> solveBruteForcePruning() {
 	while (processed < total) {
 
 		while (threads.size() < maxThreads - 1 && processed < total) {
-			std::cout << "creating thread" << std::endl;
+			std::cout << "preparing initial next unvisited" << std::endl;
 			std::vector<uint> path;
 			path.push_back(0);
 
