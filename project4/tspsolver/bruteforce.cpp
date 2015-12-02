@@ -62,7 +62,8 @@ std::vector<uint> solveBruteForcePruning() {
 	uint maxThreads = std::thread::hardware_concurrency();
 	std::queue<std::thread*> threads;
 	maxThreads = maxThreads < 2 ? 2 : maxThreads;
-
+    
+	std::cout << "setting initial unvisited" << std::endl;
 	std::vector<City> unvisited;
 	size_t total = cities.size();
 	for (size_t i = 0; i < total; ++i) {
@@ -70,12 +71,14 @@ std::vector<uint> solveBruteForcePruning() {
 		unvisited.push_back(cities[i]);
 	}
 
+	std::cout << "sorting unvisited" << std::endl;
 	std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
 
 	size_t processed = 1;
 	while (processed < total) {
 
 		while (threads.size() < maxThreads - 1 && processed < total) {
+			std::cout << "creating thread" << std::endl;
 			std::vector<uint> path;
 			path.push_back(0);
 
@@ -89,11 +92,13 @@ std::vector<uint> solveBruteForcePruning() {
 				}
 			}
 			std::sort(nextUnvisited.begin(), nextUnvisited.end(), Comparator<City>);
+			std::cout << "creating thread" << std::endl;
 			std::thread* t = new std::thread(solveBruteForcePruningRecursive, unvisited[processed], nextUnvisited, unvisited[processed].key, path);
 			++processed;
 			threads.push(t);
 		}
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
+			std::cout << "joining thread " << i << std::endl;
 			std::thread* t = threads.front();
 			threads.pop();
 			if (t->joinable()) {
@@ -139,11 +144,14 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
+	std::cout << "loading data" << std::endl;
 	tsp::load(argv[1]);
+	std::cout << "done loading data" << std::endl;
 
 	std::vector<uint> path = tsp::bruteforce::solveBruteForcePruning();
 
+	std::cout << "saving data" << std::endl;
 	tsp::save(argv[1], tsp::bruteforce::shortestSoFar, path);
-
+	std::cout << "done saving data" << std::endl;
 	tsp::finalize();
 }
