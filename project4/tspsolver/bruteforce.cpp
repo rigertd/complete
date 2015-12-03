@@ -10,7 +10,7 @@
  */
 
 #include <algorithm>
-#include <atomic>
+#include <stdatomic.h>
 #include <iostream>
 #include <mutex>
 #include <set>
