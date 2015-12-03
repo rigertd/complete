@@ -14,6 +14,7 @@ bool Comparator<>(const City& lhs, const City& rhs) {
 	return lhs.key > rhs.key;
 }
 
+
 namespace tsp { namespace bruteforce {
 
 // globals
@@ -35,8 +36,10 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited
 	}
 	else {
         size_t ilen = unvisited.size();
+        uint distToNext;
 		for (size_t i = ilen - 1; i >= 0; --i) {
-			if (distToCurrent + unvisited[i].key < shortestSoFar) {
+            distToNext = distToCurrent + unvisited[i].key;
+			if (distToNext < shortestSoFar) {
 				std::vector<City> nextUnvisited;
 				City next;
 				for (size_t j = 0; j < ilen; ++j) {
@@ -48,7 +51,7 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited
 				}
 				std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
 
-				solveBruteForcePruningRecursive(unvisited[i], nextUnvisited, distToCurrent + unvisited[i].key, path);
+				solveBruteForcePruningRecursive(unvisited[i], nextUnvisited, distToNext, path);
 			}
 		}
 	}
@@ -56,13 +59,18 @@ void solveBruteForcePruningRecursive(City& current, std::vector<City>& unvisited
 }
 
 std::vector<uint> solveBruteForcePruning() {
+    shortestPath.clear();
 	if (cities.empty()) {
 		return shortestPath;
 	}
 
-	uint maxThreads = std::thread::hardware_concurrency();
-	std::queue<std::thread*> threads;
-	maxThreads = maxThreads < 2 ? 2 : maxThreads;
+#if defined(__GNUC__)
+    uint threadCount = sysconf (_SC_NPROCESSORS_ONLN);
+#else
+    uint threadCount = std::thread::hardware_concurrency();
+#endif
+	threadCount = threadCount > 1 ? threadCount - 1 : 1;
+    std::vector<std::thread> threads;
     
 	std::vector<City> unvisited;
 	size_t total = cities.size();
@@ -73,54 +81,33 @@ std::vector<uint> solveBruteForcePruning() {
 
 	std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
 
-	size_t idx = total - 1;
-	while (idx > 0) {
-
-		while (threads.size() < maxThreads - 1 && idx > 0) {
+	for (size_t j = unvisited.size() - 1; j > 0; --j) {
+        std::cout << "Creating " << threadCount << " threads" << std::endl;
+		while (threads.size() < threadCount && j > 0) {
+            std::cout << "Creating thread " << threads.size() + 1 << std::endl;
 			std::vector<uint> path;
 			path.push_back(0);
 
 			std::vector<City> nextUnvisited;
 			City next;
 			for (size_t i = 1, ilen = unvisited.size(); i < ilen; ++i) {
-				if (i != idx) {
+				if (i != j) {
 					next = unvisited[i];
-					next.key = getDistance(&unvisited[idx], &unvisited[i]);
+					next.key = getDistance(&unvisited[j], &unvisited[i]);
 					nextUnvisited.push_back(next);
 				}
 			}
 			std::sort(nextUnvisited.begin(), nextUnvisited.end(), Comparator<City>);
-			std::thread* t = new std::thread(solveBruteForcePruningRecursive, unvisited[idx], nextUnvisited, unvisited[idx].key, path);
-			--idx;
-			threads.push(t);
+            threads.push_back(std::thread(solveBruteForcePruningRecursive, unvisited[j], nextUnvisited, unvisited[j].key, path));
 		}
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
-			std::thread* t = threads.front();
-			threads.pop();
-			if (t->joinable()) {
-				t->join();
-				delete t;
-			}
-			else {
-				threads.push(t);
+            std::cout << "checking if " << i << " is joinable" << std::endl;
+            if (threads[i].joinable()) {
+				threads[i].join();
 			}
 		}
 	}
-	// one more time to join the last batch
-	while (!threads.empty()) {
-		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
-			std::thread* t = threads.front();
-			threads.pop();
-			if (t->joinable()) {
-				t->join();
-				delete t;
-			}
-			else {
-				threads.push(t);
-			}
-		}
-	}
-
+	
 	return shortestPath;
 }
 
