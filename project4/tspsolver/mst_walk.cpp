@@ -1,3 +1,11 @@
+/**
+ * Implementation of the MST pre-order walk algorithm to find a 2-approximation solution to a TSP.
+ *
+ * Author:		David Rigert
+ * Class:		CS 325 Fall 2015
+ *				Project Group 1
+ * Last Update: 11/30/2015
+*/
 #include <stack>
 
 #include "mst_walk.h"

@@ -4,15 +4,12 @@
 
 CXX = g++
 DEBUG = -g
-CXXFLAGS = -std=c++0x
-PROGS = tspsolver tspsolver_d brute
-OBJS = tspsolver.o mst_walk.o aco.o common.o
-DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o
+CXXFLAGS = -std=c++0x -pthread
+PROGS = tspsolver tspsolver_d
+OBJS = tspsolver.o mst_walk.o aco.o common.o bruteforce.o
+DOBJS = tspsolver_d.o mst_walk_d.o aco_d.o common_d.o bruteforce_d.o
 
 all: release
-
-brute: common.o
-	$(CXX) $(CXXFLAGS) -pthread common.o bruteforce.cpp -o brute
 
 release: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o tspsolver
