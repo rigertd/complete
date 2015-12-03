@@ -1,5 +1,5 @@
 /**
- * Implementation of a brute-force algorithm to find the optimal tour of a TSP.
+ * Implementation of a brute-force algorithm to find an optimal tour of a TSP.
  * Any branch that exceeds the shortest distance found so far is cut.
  * This program uses all available cores minus one, unless only one core is available.
  *
@@ -96,22 +96,24 @@ std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan) {
     
 	std::vector<City> unvisited;
 	size_t total = cities.size();
-	for (size_t i = 0; i < total; ++i) {
+	cities[0].key = 0;
+	for (size_t i = 1; i < total; ++i) {
 		cities[i].key = getDistance(&cities[0], &cities[i]);
 		unvisited.push_back(cities[i]);
 	}
 
 	std::sort(unvisited.begin(), unvisited.end(), Comparator<City>);
-	size_t j = unvisited.size() - 1;
+	size_t j = unvisited.size();
 	while (j > 0) {
 		// create as many threads as there are cores available, minus one
 		if (threads.size() < threadCount && j > 0) {
+			--j; // decrement before use for 0-based subscripts
 			std::vector<uint> path;
 			path.push_back(0);
 
 			std::vector<City> nextUnvisited;
 			City next;
-			for (size_t i = 1, ilen = unvisited.size(); i < ilen; ++i) {
+			for (size_t i = 0, ilen = unvisited.size(); i < ilen; ++i) {
 				if (i != j) {
 					next = unvisited[i];
 					next.key = getDistance(&unvisited[j], &unvisited[i]);
@@ -122,19 +124,20 @@ std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan) {
 			std::cout << "Creating new thread" << std::endl;
 			flags.push_back(new std::atomic<bool>(false));
             threads.push_back(new std::thread(bruteForceRecursive, unvisited[j], nextUnvisited, unvisited[j].key, path, shorterThan, flags.back()));
-			--j;
 		}
 		// join after all threads finish--ideally we would like to use a thread pool, 
 		// but atomics are too slow and GCC doesn't support packages
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
             if (flags[i]->load()) {
 				std::cout << "Joining thread " << i << std::endl;
-				threads[i]->join();
-				delete threads[i];
-				threads.erase(threads.begin() + i);
-				delete flags[i];
-				flags.erase(flags.begin() + i);
-				--i;
+				if (threads[i]->joinable()) {
+					threads[i]->join();
+					delete threads[i];
+					threads.erase(threads.begin() + i);
+					delete flags[i];
+					flags.erase(flags.begin() + i);
+					--i;
+				}
 			}
 		}
 	}
