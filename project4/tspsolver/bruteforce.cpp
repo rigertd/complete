@@ -10,7 +10,12 @@
  */
 
 #include <algorithm>
+#if defined(__GNUC__)
+// more hackery for GCC's lameness
 #include <stdatomic.h>
+#else
+#include <atomic>
+#endif
 #include <iostream>
 #include <mutex>
 #include <set>
