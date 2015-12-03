@@ -9,6 +9,7 @@
 #define nullptr NULL
 #endif
 
+#undef max // to avoid conflicts with Windows.h max macro
 namespace tsp {
 
 // common namespace global variables

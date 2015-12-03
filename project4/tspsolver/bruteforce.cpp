@@ -16,6 +16,11 @@
 #else
 #include <atomic>
 #endif
+#if defined(__linux__)
+#include <unistd.h>
+#elif defined(_WIN32)
+#include <Windows.h>
+#endif
 #include <iostream>
 #include <mutex>
 #include <set>
@@ -140,6 +145,11 @@ std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan) {
 				}
 			}
 		}
+#if defined(__linux__)
+		sleep(1);
+#elif defined(_WIN32)
+		Sleep(1000);
+#endif
 	}
 	
 	totalDistance = shortestSoFar;
