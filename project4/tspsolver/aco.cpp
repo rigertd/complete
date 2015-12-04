@@ -1,10 +1,13 @@
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 #include "aco.h"
 #include "Ant.h"
+
 
 namespace tsp { namespace aco {
 
@@ -13,13 +16,15 @@ float** pheromones;			// stores the pheromone trail between cities
 std::vector<Ant> ants;		// stores the ants
 std::vector<uint> shortestPath; 
 uint shortestDist = MAX_UNSIGNED;
+std::tr1::mt19937 randEngine;
+std::tr1::uniform_real<float> getRand(0,1);
 
-const float Q = 1.0f;		// constant Q value for heuristic factor
+const int MAX_RANDOM = std::numeric_limits<int>::max();
+const float Q = 0.2f;		// constant Q value for heuristic factor
 const float ALPHA = 1.0f;	// power to raise pheromone amount to
 const float BETA = 1.0f;	// power to raise heuristic factor to
-const float DECAY = 0.05f;	// pheromone decay factor
-const float EXTENT = static_cast<float>(maxX > maxY ? maxX : maxY); // Q value for pheromone update
-const int MAX_RANDOM = std::numeric_limits<int>::max();
+const float DECAY = 0.1f;	// pheromone decay factor
+float EXTENT = 1.0f;		// Q value for pheromone update
 
 /*===============================================================*
  * Private Functions
@@ -32,6 +37,21 @@ void freePheromones() {
 	}
 	delete[] pheromones;
 	pheromones = nullptr;
+}
+
+// Sets a higher pheromone value on edges that are part of the MST approximation
+void setMstPheromones(City* start) {
+	std::vector<City*> waiting;
+	waiting.push_back(start);
+	while (!waiting.empty()) {
+		City* current = waiting.back();
+		waiting.pop_back();
+		for (size_t i = 0, ilen = current->children.size(); i < ilen; ++i) {
+			pheromones[current->id][current->children[i]->id] += 10.0f;
+			pheromones[current->children[i]->id][current->id] = pheromones[current->id][current->children[i]->id];
+			waiting.push_back(current->children[i]);
+		}
+	}
 }
 
 // Allocates memory for the pheromone buffer and initializes all values to the specified value
@@ -48,7 +68,9 @@ void initializePheromones(float val) {
 // Determines number of ants based on number of cities and randomly assigns ants to cities
 void populateAnts() {
 	uint cityCount = cities.size();
-	uint antCount = static_cast<uint>(std::ceil(std::sqrt(cityCount)) * 2);
+	uint antCount;
+	antCount = cityCount > 100 ? 100 : cityCount;
+
 	for (uint i = 0; i < antCount; ++i) {
 		Ant a;
 		a.city = &cities[rand() % cityCount];
@@ -57,12 +79,12 @@ void populateAnts() {
 		uint id = a.city->id;
 
 		// add all other cities to unvisited
-		for (uint j = 0; j < id; ++j) {
-			a.unvisited.push_back(&cities[j]);
+		for (uint j = 0; j < cityCount; ++j) {
+			if (cities[j].id != id) {
+				a.unvisited.push_back(&cities[j]);
+			}
 		}
-		for (uint j = id + 1; j < cityCount; ++j) {
-			a.unvisited.push_back(&cities[j]);
-		}
+		std::random_shuffle(a.unvisited.begin(), a.unvisited.end());
 		ants.push_back(a);
 	}
 }
@@ -129,62 +151,46 @@ void resetAnts() {
 
 		uint id = ants[i].city->id;
 		// add all other cities to unvisited
-		for (uint j = 0; j < id; ++j) {
-			ants[i].unvisited.push_back(&cities[j]);
+		for (uint j = 0, jlen = cities.size(); j < jlen; ++j) {
+			if (cities[j].id != id) {
+				ants[i].unvisited.push_back(&cities[j]);
+			}
 		}
-		for (uint j = id + 1, cityCount = cities.size(); j < cityCount; ++j) {
-			ants[i].unvisited.push_back(&cities[j]);
-		}
+
+		std::random_shuffle(ants[i].unvisited.begin(), ants[i].unvisited.end());
 	}
 }
 
 void stepSimulation() {
 	// get a random value between [0, 1)
-	float randVal = static_cast<float>(rand()) / static_cast<float>(MAX_RANDOM);
+	float randVal;
 	for (size_t i = 0, ilen = ants.size(); i < ilen; ++i) {
 		bool updated = false;
 		size_t citiesLeft = ants[i].unvisited.size();
-		if (citiesLeft < 1) {
-			std::cout << "Warning: attempted to step too many times" << std::endl;
-			break;
-		}
 
 		// update path
 		ants[i].path.push_back(ants[i].city);
-
-		// if first round, pick city at random
-		if (citiesLeft == cities.size() - 1) {
-			uint offset = rand() % citiesLeft;
-			auto it = ants[i].unvisited.begin();
-			for (uint j = 0; j < offset; ++j) {
-				++it;
-			}
-			float numerator = getNumerator(ants[i].city, *it);
-			// update cumulative probability value
-			ants[i].probSoFar += numerator;
-			// update cumulative distance
-			ants[i].distSoFar += getDistance(ants[i].city, *it);
-			// update current city
-			ants[i].city = *it;
-			// remove from unvisited
-			it = ants[i].unvisited.erase(it);
-			updated = true;
+		if (citiesLeft < 1) {
+			return;
 		}
-		if (updated) continue;
 
 		// Try initial method of t_ij^a * n_ij^b / sum(t_ij^a * n_ij^b)
-		for (auto it = ants[i].unvisited.begin(), end = ants[i].unvisited.end(); it != end; ++it) {
-			float numerator = getNumerator(ants[i].city, *it);
+		for (size_t j = 0, jlen = ants[i].unvisited.size(); j < jlen; ++j) {
+			City* c = ants[i].unvisited[j];
+			float numerator = getNumerator(ants[i].city, c);
 			float prob = numerator / (ants[i].probSoFar + numerator);
+			//randVal = static_cast<float>(rand()) / (1.0f + MAX_RANDOM);
+			randVal = getRand(randEngine);
 			if (prob >= randVal) {
 				// update cumulative probability value
 				ants[i].probSoFar += numerator;
 				// update cumulative distance
-				ants[i].distSoFar += getDistance(ants[i].city, *it);
+				ants[i].distSoFar += getDistance(ants[i].city, c);
 				// update current city
-				ants[i].city = *it;
+				ants[i].city = c;
 				// remove from unvisited
-				it = ants[i].unvisited.erase(it);
+				std::swap(ants[i].unvisited[j], ants[i].unvisited.back());
+				ants[i].unvisited.pop_back();
 				// break out of loop for this ant and go to next
 				updated = true;
 				break;
@@ -194,23 +200,40 @@ void stepSimulation() {
 
 		// Probability ratio wasn't satisfied. Try secondary method
 		float movingSum = 0.0f;
-		for (auto it = ants[i].unvisited.begin(), end = ants[i].unvisited.end(); it != end; ++it) {
-			float numerator = getNumerator(ants[i].city, *it);
+		for (size_t j = 0, jlen = ants[i].unvisited.size(); j < jlen; ++j) {
+			City* c = ants[i].unvisited[j];
+			float numerator = getNumerator(ants[i].city, c);
 			movingSum += numerator;
+			//randVal = static_cast<float>(rand()) / (1.0f + MAX_RANDOM);
+			randVal = getRand(randEngine);
 			if (movingSum >= randVal) {
 				// update cumulative probability value
 				ants[i].probSoFar += numerator;
 				// update cumulative distance
-				ants[i].distSoFar += getDistance(ants[i].city, *it);
+				ants[i].distSoFar += getDistance(ants[i].city, c);
 				// update current city
-				ants[i].city = *it;
+				ants[i].city = c;
 				// remove from unvisited
-				it = ants[i].unvisited.erase(it);
+				std::swap(ants[i].unvisited[j], ants[i].unvisited.back());
+				ants[i].unvisited.pop_back();
 				// break out of loop for this ant and go to next
 				updated = true;
 				break;
 			}
 		}
+		if (updated) continue;
+
+		// just in case any fall through, assign random
+		City* c = ants[i].unvisited.back();
+		float numerator = getNumerator(ants[i].city, c);
+		// update cumulative probability value
+		ants[i].probSoFar += numerator;
+		// update cumulative distance
+		ants[i].distSoFar += getDistance(ants[i].city, c);
+		// update current city
+		ants[i].city = c;
+		// remove from unvisited
+		ants[i].unvisited.pop_back();
 
 	}
 }
@@ -220,10 +243,14 @@ void stepSimulation() {
  *===============================================================*/
 
 // find the best solution in the specified number of seconds
-std::vector<uint> acoPath(uint& totalDistance, time_t seconds) {
+std::vector<uint> acoPath(uint& totalDistance, time_t seconds, City* mstStart) {
 	time_t start = time(0);
 	srand(static_cast<uint>(start));
+	EXTENT = static_cast<float>(maxX > maxY ? maxX : maxY);
 	initializePheromones(1.0f / std::sqrtf(static_cast<float>(cities.size())));
+	if (mstStart != nullptr) {
+		setMstPheromones(mstStart);
+	}
 	populateAnts();
 	time_t firstRoundStart = time(0);
 	for (size_t i = 0, ilen = cities.size() - 1; i < ilen; ++i) {
@@ -244,5 +271,6 @@ std::vector<uint> acoPath(uint& totalDistance, time_t seconds) {
 
 	return shortestPath;
 }
+
 
 } }

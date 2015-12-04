@@ -10,9 +10,10 @@ namespace tsp { namespace aco {
  *
  * - totalDistance  Set to the total distance of the cycle.
  * - seconds        The number of seconds to run the algorithm for.
+ * - mstStart		The starting city of an MST for the graph.
  *
  * Returns a list of the City IDs in the order visited.
  */
-std::vector<uint> acoPath(uint& totalDistance, time_t seconds);
+std::vector<uint> acoPath(uint& totalDistance, time_t seconds, City* mstStart = nullptr);
 
 } }

@@ -6,7 +6,7 @@
 struct Ant {
 	City* city;
 	std::vector<City*> path;
-	std::list<City*> unvisited;
+	std::vector<City*> unvisited;
 	uint distSoFar;
 	float probSoFar;
 };
