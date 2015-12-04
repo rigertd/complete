@@ -14,6 +14,8 @@ namespace tsp {
 
 // common namespace global variables
 extern uint maxId;
+extern uint maxX;
+extern uint maxY;
 extern std::vector<City> cities;
 extern uint** distances;
 

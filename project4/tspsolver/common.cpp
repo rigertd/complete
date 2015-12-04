@@ -12,6 +12,8 @@ namespace tsp {
 
 // common namespace global variables
 uint maxId = 0;
+uint maxX = 0;
+uint maxY = 0;
 std::vector<City> cities(0);
 uint** distances = nullptr;
 
@@ -94,6 +96,8 @@ void load(const char* path) {
 				iss >> c.y;
 				cities.push_back(c);
 				maxId = c.id > maxId ? c.id : maxId;
+				maxX = c.x > maxX ? c.x : maxX;
+				maxY = c.y > maxY ? c.y : maxY;
 			}
 		}
 
