@@ -1,8 +1,19 @@
+/**
+ * A min priority queue container that wraps the STL vector container.
+ * This container provides functions to rebuild the heap at any time,
+ * iterator functions, and direct subscript access.
+ *
+ * A comparator function must be defined for the specified type to use this container.
+ *
+ * Author:		David Rigert
+ * Class:		CS 325 Fall 2015
+ *				Project Group 1
+ * Last Update:	12/3/2015
+ */
 #pragma once
 
 #include <vector>
 #include <queue>
-#include "City.h"
 
 template <typename T>
 bool Comparator(const T& lhs, const T& rhs) {
@@ -10,7 +21,7 @@ bool Comparator(const T& lhs, const T& rhs) {
 }
 
 /**
- * Wraps a std::vector<City*> with priority queue functionality.
+ * Wraps a std::vector<T> with priority queue functionality.
  * This implementation provides additional features to the STL priority_queue.
  * Namely, it supports rebuilding the heap after decrease-key operations.
  */

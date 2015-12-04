@@ -130,8 +130,7 @@ std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan) {
 			flags.push_back(new std::atomic<bool>(false));
             threads.push_back(new std::thread(bruteForceRecursive, unvisited[j], nextUnvisited, unvisited[j].key, path, shorterThan, flags.back()));
 		}
-		// join after all threads finish--ideally we would like to use a thread pool, 
-		// but atomics are too slow and GCC doesn't support packages
+		// join each thread after it finishes its task. 
 		for (size_t i = 0, ilen = threads.size(); i < ilen; ++i) {
             if (flags[i]->load()) {
 				std::cout << "Joining thread " << i << std::endl;
@@ -151,23 +150,20 @@ std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan) {
 		Sleep(1000);
 #endif
 	}
-	
+
+	// wait for remaining threads
+	while (threads.size() > 0) {
+		if (threads[0]->joinable()) {
+			threads[0]->join();
+			delete threads[0];
+			threads.erase(threads.begin());
+			delete flags[0];
+			flags.erase(flags.begin());
+		}
+	}
 	totalDistance = shortestSoFar;
 	return shortestPath;
 }
 
 } }
 
-//int main(int argc, char** argv) {
-//	// Check if argument was specified. If not, display usage instructions.
-//	if (argc < 2) {
-//		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
-//		return 1;
-//	}
-//	tsp::load(argv[1]);
-//
-//	std::vector<uint> path = tsp::bruteforce::bruteForce();
-//
-//	tsp::save(argv[1], tsp::bruteforce::shortestSoFar, path);
-//	tsp::finalize();
-//}

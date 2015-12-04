@@ -4,7 +4,7 @@
 * Author:		David Rigert
 * Class:		CS 325 Fall 2015
 *				Project Group 1
-* Last Update:	11/30/2015
+* Last Update:	12/3/2015
 */
 #pragma once
 
@@ -18,7 +18,8 @@ namespace tsp { namespace bruteforce {
  * - totalDistance  Set to the total distance of the optimal tour.
  * - shorterThan    Specifies the distance threshold for pruning. Defaults to max unsigned int.
  *
- * Returns a list of the City IDs in the order visited.
+ * Returns a list of the City IDs in the order visited. 
+ * Returns an empty list if no path is possible in the specified shorterThan distance.
  */
 std::vector<uint> bruteForce(uint& totalDistance, uint shorterThan = MAX_UNSIGNED);
 
