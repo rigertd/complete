@@ -1,5 +1,6 @@
 #include <queue>
 #include <iostream>
+#include <ctime>
 #include "nneighbor.h"
 
 bool Comparator(const cityptr& lhs, const cityptr& rhs) {
@@ -34,7 +35,7 @@ void findTourFrom(cityptr start) {
 		std::swap(waiting.front(), waiting.back());
 		waiting.pop_back();
 		for (size_t i = 0, ilen = waiting.size(); i < ilen; ++i) {
-			waiting[i]->key = getDistance(start, waiting[i]);
+			waiting[i]->key = getDistance(current, waiting[i]);
 		}
 		std::make_heap(waiting.begin(), waiting.end(), Comparator);
 	}
@@ -48,9 +49,19 @@ void findTourFrom(cityptr start) {
 	}
 }
 
-std::vector<uint> findTourNN(uint& totalDistance, cityptr start) {
-
-	for (size_t i = 0, ilen = cities.size(); i < ilen; ++i) {
+std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
+	bestTour.clear();
+	if (cities.size() < 1)
+		return bestTour;
+	
+	time_t started = time(0);
+	findTourFrom(&cities[0]);
+	time_t perTour = time(0) - started;
+	uint iterations = static_cast<uint>(runFor) / static_cast<uint>(perTour > 0 ? perTour : 1);
+	uint jumpVal = (cities.size() - 1) / iterations;
+	if (jumpVal < 1) jumpVal = 1;
+	std::cout << "Time to run for " << iterations << " iterations" << std::endl;
+	for (size_t i = 1, ilen = cities.size(); i < ilen; i += jumpVal) {
 		findTourFrom(&cities[i]);
 	}
 

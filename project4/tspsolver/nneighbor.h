@@ -4,6 +4,6 @@
 
 namespace tsp { namespace nneighbor {
 
-std::vector<uint> findTourNN(uint& totalDistance, cityptr start);
+std::vector<uint> findTourNN(uint& totalDistance, time_t runFor);
 
 } }
