@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	//std::vector<uint> mstTour = tsp::mstwalk::mstPreorderPath(root, mstDist);
 	//std::cout << "MST 2-approximation distance: " << mstDist << std::endl;
 
-	time_t remaining = 180 - (time(0) - started);
+	time_t remaining = 290 - (time(0) - started);
 	if (remaining < 6) {
 		std::cout << "Not enough time to run algorithm." << std::endl;
 	}
@@ -31,6 +31,9 @@ int main(int argc, char** argv) {
 	tsp::save(argv[1], nnDist, nnTour);
 
 	tsp::finalize();
+
+	uint runtime = time(0) - started;
+	std::cout << "Final runtime: " << runtime / (60 * 60) << " hours, " << runtime / 60 << " minutes, " << runtime % 60 << " seconds\n";
 
 	return 0;
 }
