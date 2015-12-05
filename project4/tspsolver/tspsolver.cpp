@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 	auto start = std::chrono::high_resolution_clock::now();
 	tsp::load(argv[1]);
 
-	uint remaining = 270 - std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
+	long long remaining = 270 - std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
 	if (remaining < 6) {
 		std::cout << "Not enough time to run algorithm." << std::endl;
 	}
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 	tsp::finalize();
 
-	uint runtime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
+	long long runtime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
 	std::cout << "Final runtime: " << runtime / (60 * 60) << " hours, " << runtime / 60 << " minutes, " << runtime % 60 << " seconds\n";
 
 	return 0;

@@ -71,7 +71,7 @@ void findTourFrom(cityptr start) {
 	guardBest.unlock();
 }
 
-std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
+std::vector<uint> findTourNN(uint& totalDistance, long long runFor) {
 	bestTour.clear();
 	if (cities.size() < 1)
 		return bestTour;
@@ -110,11 +110,15 @@ std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 
 	auto elapsed = std::chrono::high_resolution_clock::now() - start;
 	long long perRound = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+	std::cout << "Seconds per round: " << perRound / 1000000 << std::endl;
 	long long remaining = (runFor * 1000000) - perRound;
+	std::cout << "Seconds remaining: " << remaining / 1000000 << std::endl;
 	long long iterations = remaining / (perRound > 0 ? perRound : 1);
-	uint jumpVal = ((cities.size() - 1) / iterations) / threadCount;
+	uint jumpVal = static_cast<uint>(((cities.size() - 1) / iterations) / threadCount);
 	if (jumpVal < 1) jumpVal = 1;
-	std::cout << "Time to run for up to " << iterations << " more iterations" << std::endl;
+	std::cout << "Values to jump per round: " << jumpVal << std::endl;
+
+	std::cout << "Time to run for up to " << iterations << " more rounds" << std::endl;
 	while (current < cityCount && remaining > perRound) {
 		while (current < cityCount && threads.size() < threadCount) {
 			threads.push_back(new std::thread(findTourFrom, &cities[current]));
@@ -131,7 +135,9 @@ std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 		}
 		elapsed = std::chrono::high_resolution_clock::now() - start;
 		long long ms = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		std::cout << "Seconds elapsed since start: " << ms / 1000000 << std::endl;
 		remaining = (runFor * 1000000) - ms;
+		std::cout << "Seconds remaining: " << remaining / 1000000 << std::endl;
 	}
 
 	totalDistance = bestDist;
