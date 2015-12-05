@@ -24,8 +24,6 @@ bool Comparator(const cityptr& lhs, const cityptr& rhs) {
 	return lhs->key > rhs->key;
 }
 
-using hrc = std::chrono::high_resolution_clock;
-
 namespace tsp {	namespace nneighbor {
 
 std::vector<uint> bestTour;
@@ -78,7 +76,7 @@ std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 	if (cities.size() < 1)
 		return bestTour;
 
-	auto start = hrc::now(); // start timer
+	auto start = std::chrono::high_resolution_clock::now(); // start timer
 
 #if defined(__GNUC__)
 	// GCC does not support the hardware_concurrency function.
@@ -110,7 +108,7 @@ std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 		return bestTour;
 	}
 
-	auto elapsed = hrc::now() - start;
+	auto elapsed = std::chrono::high_resolution_clock::now() - start;
 	long long perRound = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 	long long remaining = (runFor * 1000000) - perRound;
 	long long iterations = remaining / (perRound > 0 ? perRound : 1);
@@ -131,7 +129,7 @@ std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 				threads.erase(threads.begin());
 			}
 		}
-		elapsed = hrc::now() - start;
+		elapsed = std::chrono::high_resolution_clock::now() - start;
 		long long ms = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 		remaining = (runFor * 1000000) - ms;
 	}

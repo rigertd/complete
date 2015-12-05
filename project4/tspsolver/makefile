@@ -4,10 +4,10 @@
 
 CXX = g++
 DEBUG = -g
-CXXFLAGS = -std=c++0x -pthread
+CXXFLAGS = -std=c++0x -O3 -pthread
 PROGS = tspsolver tspsolver_d
-OBJS = tspsolver.o mst_walk.o common.o bruteforce.o
-DOBJS = tspsolver_d.o mst_walk_d.o common_d.o bruteforce_d.o
+OBJS = tspsolver.o common.o nn_multi.o
+DOBJS = tspsolver_d.o common_d.o nn_multi_d.o
 
 all: release
 
