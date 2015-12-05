@@ -15,7 +15,6 @@
 #include <stack>
 #include <thread>
 #include <queue>
-#include <chrono>
 
 #undef max
 #undef min
@@ -71,12 +70,12 @@ void findTourFrom(cityptr start) {
 	guardBest.unlock();
 }
 
-std::vector<uint> findTourNN(uint& totalDistance, long long runFor) {
+std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 	bestTour.clear();
 	if (cities.size() < 1)
 		return bestTour;
 
-	auto start = std::chrono::high_resolution_clock::now(); // start timer
+	time_t started = time(0); // start timer
 
 #if defined(__GNUC__)
 	// GCC does not support the hardware_concurrency function.
@@ -108,17 +107,12 @@ std::vector<uint> findTourNN(uint& totalDistance, long long runFor) {
 		return bestTour;
 	}
 
-	auto elapsed = std::chrono::high_resolution_clock::now() - start;
-	long long perRound = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-	std::cout << "Seconds per round: " << perRound / 1000000 << std::endl;
-	long long remaining = (runFor * 1000000) - perRound;
-	std::cout << "Seconds remaining: " << remaining / 1000000 << std::endl;
-	long long iterations = remaining / (perRound > 0 ? perRound : 1);
-	uint jumpVal = static_cast<uint>(((cities.size() - 1) / iterations) / threadCount);
+	time_t perRound = time(0) - started;
+	time_t remaining = runFor - (time(0) - started);
+	uint iterations = static_cast<uint>(remaining) / static_cast<uint>(perRound > 0 ? perRound : 1);
+	uint jumpVal = ((cities.size() - 1) / iterations) / threadCount;
 	if (jumpVal < 1) jumpVal = 1;
-	std::cout << "Values to jump per round: " << jumpVal << std::endl;
-
-	std::cout << "Time to run for up to " << iterations << " more rounds" << std::endl;
+	std::cout << "Time to run for up to " << iterations << " more iterations" << std::endl;
 	while (current < cityCount && remaining > perRound) {
 		while (current < cityCount && threads.size() < threadCount) {
 			threads.push_back(new std::thread(findTourFrom, &cities[current]));
@@ -133,11 +127,8 @@ std::vector<uint> findTourNN(uint& totalDistance, long long runFor) {
 				threads.erase(threads.begin());
 			}
 		}
-		elapsed = std::chrono::high_resolution_clock::now() - start;
-		long long ms = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-		std::cout << "Seconds elapsed since start: " << ms / 1000000 << std::endl;
-		remaining = (runFor * 1000000) - ms;
-		std::cout << "Seconds remaining: " << remaining / 1000000 << std::endl;
+
+		remaining = runFor - (time(0) - started);
 	}
 
 	totalDistance = bestDist;

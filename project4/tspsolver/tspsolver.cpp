@@ -1,6 +1,5 @@
 #include <iostream>
 #include <ctime>
-#include <chrono>
 
 #include "nn_multi.h"
 
@@ -10,10 +9,11 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
-	auto start = std::chrono::high_resolution_clock::now();
+	time_t started = time(0);
 	tsp::load(argv[1]);
 
-	long long remaining = 270 - std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
+
+	time_t remaining = 270 - (time(0) - started);
 	if (remaining < 6) {
 		std::cout << "Not enough time to run algorithm." << std::endl;
 	}
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 	tsp::finalize();
 
-	long long runtime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start).count();
+	uint runtime = static_cast<uint>(time(0) - started);
 	std::cout << "Final runtime: " << runtime / (60 * 60) << " hours, " << runtime / 60 << " minutes, " << runtime % 60 << " seconds\n";
 
 	return 0;

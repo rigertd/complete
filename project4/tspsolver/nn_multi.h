@@ -8,10 +8,11 @@
  */
 #pragma once
 
+#include <ctime>
 #include "common.h"
 
 namespace tsp { namespace nneighbor {
 
-std::vector<uint> findTourNN(uint& totalDistance, long long runFor);
+std::vector<uint> findTourNN(uint& totalDistance, time_t runFor);
 
 } }
