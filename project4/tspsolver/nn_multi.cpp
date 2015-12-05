@@ -15,7 +15,6 @@
 #include <stack>
 #include <thread>
 #include <queue>
-#include <ctime>
 
 #undef max
 #undef min
@@ -117,7 +116,7 @@ std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 	while (current < cityCount && remaining > perRound) {
 		while (current < cityCount && threads.size() < threadCount) {
 			threads.push_back(new std::thread(findTourFrom, &cities[current]));
-			++current;
+			current += jumpVal;
 		}
 
 		// join threads
