@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ctime>
 
-#include "nn_multi.h"
+#include "nneighbor.h"
 
 int main(int argc, char** argv) {
 	// Check if argument was specified. If not, display usage instructions.
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 	tsp::finalize();
 
-	uint runtime = static_cast<uint>(time(0) - started);
+	uint runtime = time(0) - started;
 	std::cout << "Final runtime: " << runtime / (60 * 60) << " hours, " << runtime / 60 << " minutes, " << runtime % 60 << " seconds\n";
 
 	return 0;
