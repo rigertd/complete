@@ -1,7 +1,8 @@
 #include <iostream>
 
 #include "mst_walk.h"
-#include "bruteforce.h"
+//#include "bruteforce.h"
+#include "nneighbor.h"
 
 int main(int argc, char** argv) {
 	// Check if argument was specified. If not, display usage instructions.
@@ -9,18 +10,18 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
-	int linesRead = tsp::load(argv[1]);
+	tsp::load(argv[1]);
 
 	City* root = tsp::mstwalk::findMst(0);
-	uint totalDist;
-	std::vector<uint> tour = tsp::mstwalk::mstPreorderPath(root, totalDist);
-	std::cout << "2-approximation distance: " << totalDist << std::endl;
+	uint mstDist;
+	std::vector<uint> mstTour = tsp::mstwalk::mstPreorderPath(root, mstDist);
+	std::cout << "MST 2-approximation distance: " << mstDist << std::endl;
 
-	uint optimalDist;
-	std::vector<uint> optimalTour = tsp::bruteforce::bruteForce(optimalDist, totalDist);
-	std::cout << "optimal distance: " << optimalDist << std::endl;
+	uint nnDist;
+	std::vector<uint> nnTour = tsp::nneighbor::findTourNN(nnDist, &tsp::cities[0]);
+	std::cout << "Nearest neighbor approximation distance: " << nnDist << std::endl;
 
-	tsp::save(argv[1], optimalDist, optimalTour);
+	tsp::save(argv[1], nnDist, nnTour);
 
 	tsp::finalize();
 
