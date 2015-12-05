@@ -1,0 +1,26 @@
+Project Group 1
+Project 4: The Travelling Salesman Problem
+
+=======================================
+PREREQUISITES
+=======================================
+1. G++ (GCC) 4.4.7+
+2. Input file with integer ID and coordinates delimited by whitespace,
+   with one city per line. Example:
+   0 4 3
+   1 3 4
+   2 0 0
+
+=======================================
+SYNTAX
+=======================================
+To compile the program:
+> make
+
+To run the program:
+> ./tspsolver <input_filename>
+
+=======================================
+OUTPUT
+=======================================
+Program results are output to <input_filename>.tour
