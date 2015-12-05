@@ -15,6 +15,7 @@
 #include <stack>
 #include <thread>
 #include <queue>
+#include <chrono>
 
 #undef max
 #undef min
@@ -22,6 +23,8 @@
 bool Comparator(const cityptr& lhs, const cityptr& rhs) {
 	return lhs->key > rhs->key;
 }
+
+using hrc = std::chrono::high_resolution_clock;
 
 namespace tsp {	namespace nneighbor {
 
@@ -70,12 +73,12 @@ void findTourFrom(cityptr start) {
 	guardBest.unlock();
 }
 
-std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
+std::vector<uint> findTourNN(uint& totalDistance, uint runFor) {
 	bestTour.clear();
 	if (cities.size() < 1)
 		return bestTour;
 
-	time_t started = time(0); // start timer
+	auto start = hrc::now(); // start timer
 
 #if defined(__GNUC__)
 	// GCC does not support the hardware_concurrency function.
@@ -107,9 +110,10 @@ std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 		return bestTour;
 	}
 
-	time_t perRound = time(0) - started;
-	time_t remaining = runFor - (time(0) - started);
-	uint iterations = static_cast<uint>(remaining) / static_cast<uint>(perRound > 0 ? perRound : 1);
+	auto elapsed = hrc::now() - start;
+	long long perRound = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+	long long remaining = (runFor * 1000000) - perRound;
+	long long iterations = remaining / (perRound > 0 ? perRound : 1);
 	uint jumpVal = ((cities.size() - 1) / iterations) / threadCount;
 	if (jumpVal < 1) jumpVal = 1;
 	std::cout << "Time to run for up to " << iterations << " more iterations" << std::endl;
@@ -127,8 +131,9 @@ std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 				threads.erase(threads.begin());
 			}
 		}
-
-		remaining = runFor - (time(0) - started);
+		elapsed = hrc::now() - start;
+		long long ms = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		remaining = (runFor * 1000000) - ms;
 	}
 
 	totalDistance = bestDist;

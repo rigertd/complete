@@ -1,7 +1,10 @@
 #include <iostream>
 #include <ctime>
+#include <chrono>
 
 #include "nn_multi.h"
+
+using hrc = std::chrono::high_resolution_clock;
 
 int main(int argc, char** argv) {
 	// Check if argument was specified. If not, display usage instructions.
@@ -9,11 +12,10 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
-	time_t started = time(0);
+	auto start = hrc::now();
 	tsp::load(argv[1]);
 
-
-	time_t remaining = 270 - (time(0) - started);
+	uint remaining = 270 - std::chrono::duration_cast<std::chrono::seconds>(hrc::now() - start).count();
 	if (remaining < 6) {
 		std::cout << "Not enough time to run algorithm." << std::endl;
 	}
@@ -26,7 +28,7 @@ int main(int argc, char** argv) {
 
 	tsp::finalize();
 
-	uint runtime = static_cast<uint>(time(0) - started);
+	uint runtime = std::chrono::duration_cast<std::chrono::seconds>(hrc::now() - start).count();
 	std::cout << "Final runtime: " << runtime / (60 * 60) << " hours, " << runtime / 60 << " minutes, " << runtime % 60 << " seconds\n";
 
 	return 0;
