@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 		std::cout << "Usage:\n  tspsolver.exe <input_file>\n\n";
 		return 1;
 	}
-	tsp::load(argv[1]);
+	int linesRead = tsp::load(argv[1]);
 
 	City* root = tsp::mstwalk::findMst(0);
 	uint totalDist;

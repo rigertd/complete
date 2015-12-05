@@ -17,7 +17,7 @@ uint maxY = 0;
 std::vector<City> cities(0);
 uint** distances = nullptr;
 
-// private function forward delcarations
+// private function forward declarations
 void freeDists();
 void initializeDistances();
 
@@ -81,7 +81,7 @@ void load(const char* path) {
 	finalize();
 
 	std::ifstream ifs(path);
-
+	
 	// Load data from file and store in vector buffer
 	if (ifs) {
 		std::string lineBuffer;

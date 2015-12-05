@@ -3,6 +3,7 @@
 #include <time.h>       //time
 
 #include "mst_walk.h"
+#include "common.h"
 //#include "bruteforce.h"
 
 int main(int argc, char** argv) {
@@ -12,17 +13,33 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	tsp::load(argv[1]);
+	
+	// Determine the number of items read in. 0-X, where zero is the starting item position and X is the last item.
+	int idCount = tsp::cities.back().id;
 
 	srand (time(NULL));
 
-	//Isaiah to do: Can you find out how to pull the min/max values from tsp::load so that they scale based on the input file?
+	// Determine min "city" count and the max "city" count read in from the file
 	int min = 0;
-	int max = 75;
+	int max = idCount;
+	
+	// Determine the number of times the MST loop will run based on the number of nodes
+	int maxLoop = 0;
+	if (idCount < 300) 
+	{
+		maxLoop = max;
+	}
+	else
+	{
+		maxLoop = max / 10;
+	}
+	
+	std::cout << "MAX LOOP: " << maxLoop << std::endl << std::endl;
 
 	uint lowestDist = 1000000000;
 	std::vector<uint> bestTour;
-
-	for(int i = 0; i < 1000; i++)
+	
+	for(int i = 0; i < maxLoop; i++)
 	{
 		int mst_number = min + (rand() % (int)(max - min + 1));
 
