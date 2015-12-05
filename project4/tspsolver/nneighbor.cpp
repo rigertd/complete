@@ -67,7 +67,7 @@ std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 	uint iterations = static_cast<uint>(remaining) / static_cast<uint>(perTour > 0 ? perTour : 1);
 	uint jumpVal = (cities.size() - 1) / iterations;
 	if (jumpVal < 1) jumpVal = 1;
-	std::cout << "Time to run for up to " << iterations << " iterations" << std::endl;
+	std::cout << "Time to run for up to " << iterations + 2 << " iterations" << std::endl;
 	for (size_t i = 2, ilen = cities.size(); i < ilen; i += jumpVal) {
 		findTourFrom(&cities[i]);
 	}

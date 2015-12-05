@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ctime>
 
-#include "mst_walk.h"
+//#include "mst_walk.h"
 //#include "bruteforce.h"
 #include "nneighbor.h"
 
