@@ -55,13 +55,20 @@ std::vector<uint> findTourNN(uint& totalDistance, time_t runFor) {
 		return bestTour;
 	
 	time_t started = time(0);
-	findTourFrom(&cities[0]);
-	time_t perTour = time(0) - started;
-	uint iterations = static_cast<uint>(runFor) / static_cast<uint>(perTour > 0 ? perTour : 1);
+	findTourFrom(&cities[0]); // first run is slower
+	time_t endOfRound1 = time(0);
+	if (cities.size() < 2) {
+		totalDistance = bestDist;
+		return bestTour;
+	}
+	findTourFrom(&cities[1]);
+	time_t perTour = time(0) - endOfRound1;
+	time_t remaining = runFor - (time(0) - started);
+	uint iterations = static_cast<uint>(remaining) / static_cast<uint>(perTour > 0 ? perTour : 1);
 	uint jumpVal = (cities.size() - 1) / iterations;
 	if (jumpVal < 1) jumpVal = 1;
-	std::cout << "Time to run for " << iterations << " iterations" << std::endl;
-	for (size_t i = 1, ilen = cities.size(); i < ilen; i += jumpVal) {
+	std::cout << "Time to run for up to " << iterations << " iterations" << std::endl;
+	for (size_t i = 2, ilen = cities.size(); i < ilen; i += jumpVal) {
 		findTourFrom(&cities[i]);
 	}
 
