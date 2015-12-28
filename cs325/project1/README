@@ -1,0 +1,32 @@
+Project Group 1
+Project 1: Maximum Sum Subarray
+
+=======================================
+PREREQUISITES
+=======================================
+1. Python 3.0+
+2. MSS_Problems.txt in same directory
+3. Execute permissions on project1.py (chmod +x project1.py)
+
+=======================================
+SYNTAX
+=======================================
+To run with execute permissions:
+> project1.py
+
+To run without execute permissions:
+> python3 project1.py
+
+=======================================
+OUTPUT
+=======================================
+Program results are output to MSS_Results.txt.
+
+=======================================
+CSV FILE CREATION
+=======================================
+To create a CSV file for runtime analysis, type the following at the command line and follow the program instructions.
+
+> chmod +x csvWriter.py
+> ./csvWriter.py
+

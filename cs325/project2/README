@@ -1,0 +1,44 @@
+Project Group 1
+Project 2: Coin Change
+
+=======================================
+PREREQUISITES
+=======================================
+1. Python 3.0+
+2. Execute permissions on project2.py (chmod +x project2.py)
+3. Input file with coin values and an integer to turn into change as follows:
+   [1, 5, 10, 25]
+   40
+   [1, 2, 4, 8, 16]
+   255
+
+=======================================
+SYNTAX
+=======================================
+To run with execute permissions:
+> project2.py <input_filename>
+
+To run without execute permissions:
+> python3 project2.py <input_filename>
+
+=======================================
+OUTPUT
+=======================================
+Program results are output to <input_filename>change.txt.
+
+=======================================
+CSV FILE CREATION
+=======================================
+To create CSV files for runtime analysis, type the following commands at the
+command line and follow the program instructions.
+
+> chmod +x CoinChangeTimer.py dataGenerator.py
+> ./CoinChangeTimer.py
+> ./dataGenerator.py
+
+=======================================
+EXPONENTIAL ALGORITHM WARNING
+=======================================
+The changeslow algorithm runs... well... slow.
+If you are testing high values of A you need to disable changeslow.
+To do so, remove the #s at the start of lines 132 and 139 of project2.py.
