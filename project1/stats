@@ -1,6 +1,6 @@
 #!/bin/bash
-# Author:		David Rigert
-# Class:		CS344 Winter 2016
+# Author:	David Rigert
+# Class:	CS344 Winter 2016
 # Assignment:	Program 1 - stats
 
 # Trap to clean up temp files if program interrupted
