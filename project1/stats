@@ -25,11 +25,16 @@ means=()
 medians=()
 
 # Read first line of specified file or stdin to count columns
-read -r line <"${2:-/dev/stdin}"
+# Consumes the line irrevokably for stdin, so save it
+if [ -z $2 ]
+then
+	read -r line
+	echo "$line" >temp$$
+else
+	read -r line <"$2"
+	echo -n "" > "temp$$"
+fi
 colCount=`echo $line | wc -w`
-
-# Create an empty temp file
->"temp$$"
 
 # Read stdin or specified file and write to temp file
 while read -r line
