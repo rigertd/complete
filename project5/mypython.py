@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-# Author:		David Rigert
-# Class:		CS344 Winter 2016
+# Author:	David Rigert
+# Class:	CS344 Winter 2016
 # Assignment:	Program 5 - Python Exploration
 
 from random import choice
