@@ -1,9 +1,12 @@
 #!/bin/bash
+# Author:		David Rigert
+# Class:		CS344 Winter 2016
+# Assignment:	Program 1 - stats
 
-# Trap to clean up temp file if program interrupted
+# Trap to clean up temp files if program interrupted
 trap "{ rm -f temp$$* ; exit 1; }" INT HUP TERM
 
-# name of script
+# Name of script without leading dot-slash
 name=`basename "$0"`
 
 # Function to display usage instuctions to stdout and stderr
@@ -11,51 +14,41 @@ echo_usage () {
 	echo "Usage: $name {-rows|-cols} [file]" >&2
 }
 
-# Display usage and exit with error if rows or columns not specified
+# Display usage and exit with error 1 if rows or columns not specified
 [[ $1 != -r* ]] && [[ $1 != -c* ]] && echo_usage && exit 1
 
-# Display usage and exit with error if too many arguments specified
+# Display usage and exit with error 1 if too many arguments specified
 [ $# -gt 2 ] && echo_usage && exit 1
 
-# Display error to stdout and stderr and exit if file not found or unreadable
+# Display error to stderr and give exit code 1 if file not found/unreadable
 [ ! -r $2 ] && echo "$name: cannot read $2" >&2 && exit 1
 
 # Store the mean and median for each col/row in an array
 means=()
 medians=()
 
-# Read first line of specified file or stdin to count columns
-# Consumes the line irrevokably for stdin, so save it
-if [ -z $2 ]
-then
-	read -r line
-	echo "$line" >temp$$
-else
-	read -r line <"$2"
-	echo -n "" > "temp$$"
-fi
+# Write stdin or specified file to temp file
+cat ${2:-/dev/stdin} > temp$$
+
+# Read first line of temp file to count columns
+read -r line <temp$$
 colCount=`echo $line | wc -w`
 
-# Read stdin or specified file and write to temp file
-while read -r line
-do
-	echo "$line" >> "temp$$"
-done <"${2:-/dev/stdin}"
-
-# Transpose array if -col is specified
+# Transpose table if -col is specified
 if [[ $1 == -c* ]]
 then
 	counter=0
-	# Create empty file in case one already exists
-	echo "" > "temp$$t"
+	# Create empty file in case filename already exists
+	printf "" > temp$$t
 	# Cut each column and paste as a row
 	while [ $counter -lt $colCount ]
 	do
 		((counter++))
-		cat "temp$$" | cut -f$counter | paste -s  >> "temp$$t"
+		cat temp$$ | cut -f$counter | paste -s  >> temp$$t
 	done
-	rm -f "temp$$"
-	mv "temp$$t" "temp$$"
+	# Remove old temp file and replace with transposed table
+	rm -f temp$$
+	mv temp$$t temp$$
 fi
 
 # Read the temp file line by line
