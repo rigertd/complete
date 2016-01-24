@@ -63,10 +63,12 @@ do
 	lineSum=0
 
 	# Find the sum of all values on the current line
-	for val in ${vals[@]}
-	do
-		let "lineSum += $val"
-	done
+	# for val in ${vals[@]}
+	# do
+	# 	let "lineSum += $val"
+	# done
+	lineSum=`echo $(printf "%d+" ${vals[@]})0 | bc`
+	echo lineSum
 
 	# Calculate the mean and round by shifting decimal by 1 and adding 5
 	mean=$(( ( (lineSum * 10 / ${#vals[@]}) + 5) / 10  ))
@@ -83,6 +85,10 @@ if [[ $1 == -c* ]]
 then
 	# By column if -cols option
 	echo Averages:
+	# This printf syntax prints each element of the array into the specified
+	# format string. (In this case, each element on its own line.)
+	# This is then redirected into paste with -s to print tab-separated
+	# values with no trailing tab character.
 	paste -s <(printf "%s\n" "${means[@]}")
 	echo Medians:
 	paste -s <(printf "%s\n" "${medians[@]}")
@@ -95,5 +101,5 @@ else
 fi
 
 # Clean up temp file
-rm -f temp$$* && exit 0
+rm -f temp$$ && exit 0
 
