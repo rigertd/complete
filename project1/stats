@@ -63,12 +63,10 @@ do
 	lineSum=0
 
 	# Find the sum of all values on the current line
-	# for val in ${vals[@]}
-	# do
-	# 	let "lineSum += $val"
-	# done
-	lineSum=`echo $(printf "%d+" ${vals[@]})0 | bc`
-	echo lineSum
+	for val in ${vals[@]}
+	do
+		let "lineSum += $val"
+	done
 
 	# Calculate the mean and round by shifting decimal by 1 and adding 5
 	mean=$(( ( (lineSum * 10 / ${#vals[@]}) + 5) / 10  ))
@@ -79,6 +77,10 @@ do
 	median=${vals[$idx]}
 	medians+=($median)
 done < "temp$$" # Read from temp file
+
+# NOTE: Uncomment the following line if you want the script
+#       to run slower so the kill command works
+#sleep 1
 
 # Display the means and medians
 if [[ $1 == -c* ]]
