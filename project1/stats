@@ -14,6 +14,7 @@ echo_usage () {
 	echo "Usage: $name {-rows|-cols} [file]" >&2
 }
 
+# Start with argument error handling and exit the program if error found.
 # Display usage and exit with error 1 if rows or columns not specified
 [[ $1 != -r* ]] && [[ $1 != -c* ]] && echo_usage && exit 1
 
@@ -27,14 +28,20 @@ echo_usage () {
 means=()
 medians=()
 
-# Write stdin or specified file to temp file
+# Write stdin or specified file to temp file. This lets us handle just one
+# type of input in the rest of the code. Also, once you read a line of
+# stdin, it is lost for good. Storing it in a temp file makes it possible
+# to read a line multiple times if necessary.
 cat ${2:-/dev/stdin} > temp$$
 
-# Read first line of temp file to count columns
+# Read first line of temp file to count columns. We could do this in
+# the transpose loop, but this eliminates the need for a conditional
+# test every iteration of the read loop.
 read -r line <temp$$
 colCount=`echo $line | wc -w`
 
-# Transpose table if -col is specified
+# Transpose table if -col is specified. This lets us use the same main
+# logic loop for both rows and columns.
 if [[ $1 == -c* ]]
 then
 	counter=0
