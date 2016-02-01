@@ -3,10 +3,12 @@
 * Class:      CS344 Winter 2016
 * Assignment: Program 2 - adventure
 \*********************************************************/
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -24,7 +26,7 @@
 #define ROOM_TYPE_COUNT 3   /* number of room types */
 #define ROOM_COUNT 7        /* number of rooms to generate */
 #define USERNAME "rigertd"  /* <username> part of room path */
-
+#define BUFFER_SIZE 255     /* must be longer than longest output line */
 
 /*========================================================*
  * Structs and enumerations
@@ -71,7 +73,8 @@ void shuffleIntArray(int[], int);
 void swap(int*, int*);
 int contains(int[], int, int);
 void createRooms(Room[], int);
-int saveRooms(Room[], int);
+void saveRooms(Room[], int, char*);
+void startGame(char*, int);
 
 /*========================================================*
  * main function 
@@ -83,8 +86,18 @@ int main() {
     /* seed the random number generator */
     srand((unsigned int)time(0));
     
+    /* root directory for rooms as <username>.rooms.<pid> */
+    char root[MAX_PATH_LEN];
+    snprintf(root, sizeof(root), "%s.rooms.%d", USERNAME, getpid());
+    
+    /* create the room data in memory */
     createRooms(rooms, ROOM_COUNT);
-    saveRooms(rooms, ROOM_COUNT);
+    
+    /* save the room data to disk */
+    saveRooms(rooms, ROOM_COUNT, root);
+    
+    /* start the game loop */
+    startGame(root, ROOM_COUNT);
     
     return 0;
 }
@@ -131,7 +144,7 @@ void createRooms(Room rooms[], int count) {
     
     /* randomly assign CONNECT_MIN to CONNECT_MAX links */
     for (i = 0; i < ROOM_COUNT; ++i) {
-        randCnt = rand() % (CONNECT_MAX - CONNECT_MIN) + CONNECT_MIN + 1;
+        randCnt = rand() % (CONNECT_MAX - CONNECT_MIN + 1) + CONNECT_MIN;
         /* only add more if randCnt not already reached */
         while (rooms[i].connectCnt < randCnt) {
             randIdx = rand() % ROOM_COUNT;
@@ -161,35 +174,58 @@ int contains(int arr[], int count, int val) {
 /**
  * Saves the rooms to files.
  */
-int saveRooms(Room rooms[], int count) {
+void saveRooms(Room rooms[], int count, char* root) {
     int i, j;
     int fd;                     /* file descriptor */
     char roomPath[MAX_PATH_LEN];/* path to store room files in */
+    char buffer[BUFFER_SIZE];   /* stores file data before writing */
     
-    /* Build path to room directory of <username>.rooms.<pid> */
-    snprintf(roomPath, sizeof(roomPath), "%s.rooms.%d", USERNAME, getpid());
+    /* try to make the root directory */
+    if (mkdir(root) < 0 && errno != EEXIST) {
+        /* failed to create directory and it does not already exist */
+        fprintf(stderr, "Error creating directory: %s (errno %d)", roomPath, errno);
+        exit(1);
+    }
     
-    for (i = 0; i < ROOM_COUNT; ++i) {
+    for (i = 0; i < count; ++i) {
+        /* build path to filename of <username>.rooms.<pid>/<room_no> */
+        snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, i + 1);
+        
+        /* open the generated file path for writing */
         fd = open(roomPath, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+        
         /* verify file handle and write to stderr if invalid */
         if (fd == -1) {
-            fprintf(stderr, "Error writing to file: %s/%d (errno %d)", roomPath, i, errno);
+            fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
             exit(1);
         }
         
-        /* write the room data to the file */
-        fprintf(fd, "ROOM NAME: %s\n", 
+        /* write the room data to the buffer and then to the file */
+        snprintf(buffer, sizeof(buffer), "ROOM NAME: %s\n", 
             RoomNameStrings[rooms[i].name]);
+        if (!write(fd, buffer, strlen(buffer))) {
+            fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
+            exit(1);
+        }
         for (j = 0; j < rooms[i].connectCnt; ++j) {
-            fprintf(fd, "CONNECTION %d: %s\n",
+            snprintf(buffer, sizeof(buffer), "CONNECTION %d: %s\n",
             j + 1,
             RoomNameStrings[rooms[i].connects[j]]);
+            if (!write(fd, buffer, strlen(buffer))) {
+                fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
+                exit(1);
+            }
         }
-        fprintf(fd, "ROOM TYPE: %s\n\n",
+        snprintf(buffer, sizeof(buffer), "ROOM TYPE: %s\n",
             RoomTypeStrings[rooms[i].type]);
+            if (!write(fd, buffer, strlen(buffer))) {
+                fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
+                exit(1);
+            }
+        
+        /* close the file descriptor and flush the cache */
+        close(fd);
     }
-    
-    return 0;
 }
 
 /**
@@ -205,6 +241,13 @@ void shuffleIntArray(int vals[], int size) {
         if (i != j)
             swap(&vals[i], &vals[j]);
     }
+}
+
+/**
+ * Starts the main game loop.
+ */
+void startGame(char* root, int count) {
+    return;
 }
 
 /**
