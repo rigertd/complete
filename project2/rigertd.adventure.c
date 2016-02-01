@@ -178,6 +178,7 @@ int contains(int arr[], int count, int val) {
  * Saves the rooms to files.
  */
 void loadRoom(Room* room, int roomNo, char* root) {
+	int i, j;
     int fd;                     /* stores the file descriptor */
     char buffer[BUFFER_SIZE];   /* read buffer */
     char roomPath[MAX_PATH_LEN];/* stores path to room file */
@@ -198,10 +199,29 @@ void loadRoom(Room* room, int roomNo, char* root) {
         exit(1);
     }
     
+    /* Read the room name */
+	readLine(fd, buffer, sizeof(buffer));
+
+	/* Read the connections */
     readLine(fd, buffer, sizeof(buffer));
-    printf("%s{end}\n", buffer);
-    readLine(fd, buffer, sizeof(buffer));
-    printf("%s{end}\n", buffer);
+	j = 0;
+	while (strncmp(buffer, "CONNECTION", 10) == 0) {
+		for (i = 0; i < ROOM_NAME_COUNT; ++i) {
+			if (strcmp(&buffer[14], RoomNameStrings[i]) == 0) {
+				room->connects[j++] = i;
+				break;
+			}
+		}
+
+		/* print error message if room name not found */
+		if (i == ROOM_NAME_COUNT) {
+			fprintf(stderr, "Connection to unknown room %s found in %s.\n", 
+					&buffer[14], roomPath);
+		}
+
+		/* read the next line */
+		readLine(fd, buffer, sizeof(buffer));
+	}
     
     /* close the file descriptor */
     close(fd);
@@ -234,11 +254,7 @@ void readLine(int fd, char* buf, size_t size) {
                 ) {
                 buf[i] = '\0';
             }
-            printf("read %d bytes into buffer, seeking back %d bytes\n", bytes, bytes - i + 1);
-            os = lseek(fd, 0, SEEK_CUR);
-            printf("current offset: %d\n", (int)os);
-            os = lseek(fd, -(bytes - i + 1), SEEK_CUR);
-            printf("new offset: %d\n", (int)os);
+            os = lseek(fd, -(bytes - i), SEEK_CUR);
             return;
         }
     }
@@ -255,7 +271,7 @@ void saveRooms(Room rooms[], int count, char* root) {
     char buffer[BUFFER_SIZE];   /* stores file data before writing */
     
     /* try to make the root directory */
-    if (mkdir(root) < 0 && errno != EEXIST) {
+    if (mkdir(root, S_IRWXU) < 0 && errno != EEXIST) {
         /* failed to create directory and it does not already exist */
         fprintf(stderr, "Error creating directory: %s (errno %d)", roomPath, errno);
         exit(1);
