@@ -69,12 +69,14 @@ const char RoomNameStrings[ROOM_NAME_COUNT][ROOM_NAME_LEN_MAX] =
 /*========================================================*
  * Function prototypes 
  *========================================================*/
-void shuffleIntArray(int[], int);
-void swap(int*, int*);
 int contains(int[], int, int);
 void createRooms(Room[], int);
+void loadRoom(Room*, int, char*);
+void readLine(int, char*, size_t);
 void saveRooms(Room[], int, char*);
+void shuffleIntArray(int[], int);
 void startGame(char*, int);
+void swap(int*, int*);
 
 /*========================================================*
  * main function 
@@ -95,7 +97,8 @@ int main() {
     
     /* save the room data to disk */
     saveRooms(rooms, ROOM_COUNT, root);
-    
+    Room tmp;
+    loadRoom(&tmp, 0, root);
     /* start the game loop */
     startGame(root, ROOM_COUNT);
     
@@ -169,6 +172,77 @@ int contains(int arr[], int count, int val) {
         if (arr[i] == val) return 1;
     }
     return 0;
+}
+
+/**
+ * Saves the rooms to files.
+ */
+void loadRoom(Room* room, int roomNo, char* root) {
+    int fd;                     /* stores the file descriptor */
+    char buffer[BUFFER_SIZE];   /* read buffer */
+    char roomPath[MAX_PATH_LEN];/* stores path to room file */
+    
+    /* make sure we have a valid Room pointer */
+    if (room == NULL) {
+        fprintf(stderr, "Invalid room pointer for room%d.\n", roomNo);
+        exit(1);
+    }
+    
+    /* build path to room file */
+    snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, roomNo + 1);
+    
+    /* open the room file read only*/
+    fd = open(roomPath, O_RDONLY);
+    if (fd == -1) {
+        fprintf(stderr, "Error opening file: %s (errno %d)\n", roomPath, errno);
+        exit(1);
+    }
+    
+    readLine(fd, buffer, sizeof(buffer));
+    printf("%s{end}\n", buffer);
+    readLine(fd, buffer, sizeof(buffer));
+    printf("%s{end}\n", buffer);
+    
+    /* close the file descriptor */
+    close(fd);
+}
+
+/**
+ * Reads from fd until the first newline or EOF and writes it to buf.
+ * Points fd to next unread non-whitespace char.
+ */
+void readLine(int fd, char* buf, size_t size) {
+    int i;
+    ssize_t bytes = read(fd, buf, size);
+    off_t os;
+    
+    if (bytes < 0) {
+        fprintf(stderr, "Error reading from file. (errno %d)", errno);
+        exit(1);
+    }
+    /* search string for newline and replace with NULL terminator,
+       then count until non-whitespace char is found 
+       and set the file offset to that character. */
+    for (i = 0; i < bytes; ++i) {
+        if (buf[i] == '\n' || buf[i] == '\r') {
+            buf[i] = '\0';
+            while (++i < bytes 
+                && (buf[i] == ' ' 
+                    || buf[i] == '\n' 
+                    || buf[i] == '\t' 
+                    || buf[i] == '\r')
+                ) {
+                buf[i] = '\0';
+            }
+            printf("read %d bytes into buffer, seeking back %d bytes\n", bytes, bytes - i + 1);
+            os = lseek(fd, 0, SEEK_CUR);
+            printf("current offset: %d\n", (int)os);
+            os = lseek(fd, -(bytes - i + 1), SEEK_CUR);
+            printf("new offset: %d\n", (int)os);
+            return;
+        }
+    }
+    
 }
 
 /**
