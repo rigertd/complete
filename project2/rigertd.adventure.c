@@ -58,17 +58,17 @@ enum RoomType {
  * Constant definitions
  *========================================================*/
 /* Use this array to display a RoomType enumerator as a string */
-const char RoomTypeStrings[ROOM_TYPE_COUNT][ROOM_TYPE_LEN_MAX] = 
+const char RoomTypeStrings[ROOM_TYPE_COUNT][ROOM_TYPE_LEN_MAX] =
     {"START_ROOM", "MID_ROOM", "END_ROOM"};
 
 /* Use this array to display the int representing a room name as a string */
-const char RoomNameStrings[ROOM_NAME_COUNT][ROOM_NAME_LEN_MAX] = 
-    {"Melee", "Hook", "Plunder", "Lucre", "Jambalaya", 
+const char RoomNameStrings[ROOM_NAME_COUNT][ROOM_NAME_LEN_MAX] =
+    {"Melee", "Hook", "Plunder", "Lucre", "Jambalaya",
      "Scabb", "Phatt", "Skull", "Spittle", "Pinchpenny"};
 
 
 /*========================================================*
- * Function prototypes 
+ * Function prototypes
  *========================================================*/
 int contains(int[], int, int);
 void createRooms(Room[], int);
@@ -82,30 +82,30 @@ void startGame(char*);
 void swap(int*, int*);
 
 /*========================================================*
- * main function 
+ * main function
  *========================================================*/
 int main() {
     /* declare array of Room structs to hold rooms */
     Room rooms[ROOM_COUNT];
-    
+
     /* seed the random number generator */
     srand((unsigned int)time(0));
-    
+
     /* root directory for rooms as <username>.rooms.<pid> */
     char root[MAX_PATH_LEN];
     snprintf(root, sizeof(root), "%s.rooms.%d", USERNAME, getpid());
-    
+
     /* create the room data in memory */
     createRooms(rooms, ROOM_COUNT);
-    
+
     /* save the room data to disk */
     saveRooms(rooms, ROOM_COUNT, root);
     Room tmp;
     loadRoom(&tmp, 0, root);
     /* start the game loop */
     startGame(root);
-    
-    return 0;
+
+	return 0;
 }
 
 /*========================================================*
@@ -119,15 +119,15 @@ void createRooms(Room rooms[], int count) {
     int i, j;
     int randIdx;
     int randCnt;
-    
+
     /* create an array of ints, 1 for each room name */
     for (i = 0; i < ROOM_NAME_COUNT; ++i) {
         indices[i] = i;
     }
-    
+
     /* shuffle the indices */
     shuffleIntArray(indices, ROOM_NAME_COUNT);
-    
+
     /* initialize rooms arrray and populate with the first 7 indices */
     for (i = 0; i < ROOM_COUNT; ++i) {
         rooms[i].name = indices[i];
@@ -138,16 +138,16 @@ void createRooms(Room rooms[], int count) {
         }
         rooms[i].connectCnt = 0;
     }
-    
+
     /* randomly assign the start and end rooms */
     rooms[rand() % ROOM_COUNT].type = RoomType_START_ROOM;
-    
+
     /* make sure END_ROOM does not overwrite START_ROOM */
     do {
         randIdx = rand() % ROOM_COUNT;
     } while (rooms[randIdx].type == RoomType_START_ROOM);
     rooms[randIdx].type = RoomType_END_ROOM;
-    
+
     /* randomly assign CONNECT_MIN to CONNECT_MAX links */
     for (i = 0; i < ROOM_COUNT; ++i) {
         randCnt = rand() % (CONNECT_MAX - CONNECT_MIN + 1) + CONNECT_MIN;
@@ -196,7 +196,7 @@ int loadRoom(Room* room, int roomNo, char* root) {
 		/* return false if the room file was not found */
         return 0;
     }
-    
+
     /* Read the room name */
 	readLine(fd, buffer, sizeof(buffer));
 	if (strncmp(buffer, "ROOM NAME", 9) == 0) {
@@ -208,7 +208,7 @@ int loadRoom(Room* room, int roomNo, char* root) {
 		exit(1);
 	}
 
-	/* Read the connections */
+    /* Read the connections */
     readLine(fd, buffer, sizeof(buffer));
 	i = 0;
 	while (strncmp(buffer, "CONNECTION", 10) == 0) {
@@ -264,31 +264,30 @@ int parseRoomType(char* buf) {
 void readLine(int fd, char* buf, size_t size) {
     int i;
     ssize_t bytes = read(fd, buf, size);
-    off_t os;
-    
+
     if (bytes < 0) {
         fprintf(stderr, "Error reading from file. (errno %d)", errno);
         exit(1);
     }
     /* search string for newline and replace with NULL terminator,
-       then count until non-whitespace char is found 
+       then count until non-whitespace char is found
        and set the file offset to that character. */
     for (i = 0; i < bytes; ++i) {
         if (buf[i] == '\n' || buf[i] == '\r') {
             buf[i] = '\0';
-            while (++i < bytes 
-                && (buf[i] == ' ' 
-                    || buf[i] == '\n' 
-                    || buf[i] == '\t' 
+            while (++i < bytes
+                && (buf[i] == ' '
+                    || buf[i] == '\n'
+                    || buf[i] == '\t'
                     || buf[i] == '\r')
                 ) {
                 buf[i] = '\0';
             }
-            os = lseek(fd, -(bytes - i), SEEK_CUR);
+            lseek(fd, -(bytes - i), SEEK_CUR);
             return;
         }
     }
-    
+
 }
 
 /**
@@ -299,29 +298,29 @@ void saveRooms(Room rooms[], int count, char* root) {
     int fd;                     /* file descriptor */
     char roomPath[MAX_PATH_LEN];/* path to store room files in */
     char buffer[BUFFER_SIZE];   /* stores file data before writing */
-    
+
     /* try to make the root directory */
     if (mkdir(root, S_IRWXU) < 0 && errno != EEXIST) {
         /* failed to create directory and it does not already exist */
         fprintf(stderr, "Error creating directory: %s (errno %d)", roomPath, errno);
         exit(1);
     }
-    
+
     for (i = 0; i < count; ++i) {
         /* build path to filename of <username>.rooms.<pid>/<room_no> */
         snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, rooms[i].name);
         
         /* open the generated file path for writing */
         fd = open(roomPath, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-        
+
         /* verify file handle and write to stderr if invalid */
         if (fd == -1) {
             fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
             exit(1);
         }
-        
+
         /* write the room data to the buffer and then to the file */
-        snprintf(buffer, sizeof(buffer), "ROOM NAME: %s\n", 
+        snprintf(buffer, sizeof(buffer), "ROOM NAME: %s\n",
             RoomNameStrings[rooms[i].name]);
         if (!write(fd, buffer, strlen(buffer))) {
             fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
@@ -342,7 +341,7 @@ void saveRooms(Room rooms[], int count, char* root) {
                 fprintf(stderr, "Error writing to file: %s (errno %d)", roomPath, errno);
                 exit(1);
             }
-        
+
         /* close the file descriptor and flush the cache */
         close(fd);
     }
@@ -354,7 +353,7 @@ void saveRooms(Room rooms[], int count, char* root) {
 void shuffleIntArray(int vals[], int size) {
     int i;
     int j;
-    
+
     /* shuffle the values in the array */
     for (i = 0; i < size; ++i) {
         j = rand() % size;
