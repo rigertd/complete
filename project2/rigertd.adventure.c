@@ -27,6 +27,7 @@
 #define ROOM_COUNT 7        /* number of rooms to generate */
 #define USERNAME "rigertd"  /* <username> part of room path */
 #define BUFFER_SIZE 255     /* must be longer than longest output line */
+#define MAX_MOVES 255		/* max number of moves that can be stored */
 
 /*========================================================*
  * Structs and enumerations
@@ -71,11 +72,13 @@ const char RoomNameStrings[ROOM_NAME_COUNT][ROOM_NAME_LEN_MAX] =
  *========================================================*/
 int contains(int[], int, int);
 void createRooms(Room[], int);
-void loadRoom(Room*, int, char*);
+int loadRoom(Room*, int, char*);
+int parseRoomName(char*);
+int parseRoomType(char*);
 void readLine(int, char*, size_t);
 void saveRooms(Room[], int, char*);
 void shuffleIntArray(int[], int);
-void startGame(char*, int);
+void startGame(char*);
 void swap(int*, int*);
 
 /*========================================================*
@@ -100,7 +103,7 @@ int main() {
     Room tmp;
     loadRoom(&tmp, 0, root);
     /* start the game loop */
-    startGame(root, ROOM_COUNT);
+    startGame(root);
     
     return 0;
 }
@@ -154,10 +157,11 @@ void createRooms(Room rooms[], int count) {
             /* only add connection if target is not self,
                if target connection count not > CONNECT_MAX,
                and if target is not already a target */
-            if (randIdx != i && rooms[randIdx].connectCnt < CONNECT_MAX
-                && !contains(rooms[i].connects, rooms[i].connectCnt, randIdx)) {
-                rooms[i].connects[rooms[i].connectCnt++] = randIdx;
-                rooms[randIdx].connects[rooms[randIdx].connectCnt++] = i;
+            if (rooms[randIdx].name != rooms[i].name 
+				&& rooms[randIdx].connectCnt < CONNECT_MAX
+                && !contains(rooms[i].connects, rooms[i].connectCnt, rooms[randIdx].name)) {
+                rooms[i].connects[rooms[i].connectCnt++] = rooms[randIdx].name;
+                rooms[randIdx].connects[rooms[randIdx].connectCnt++] = rooms[i].name;
             }
         }
     }
@@ -175,56 +179,82 @@ int contains(int arr[], int count, int val) {
 }
 
 /**
- * Saves the rooms to files.
+ * Loads the specified room from a file.
  */
-void loadRoom(Room* room, int roomNo, char* root) {
-	int i, j;
+int loadRoom(Room* room, int roomNo, char* root) {
+	int i;
     int fd;                     /* stores the file descriptor */
     char buffer[BUFFER_SIZE];   /* read buffer */
     char roomPath[MAX_PATH_LEN];/* stores path to room file */
     
-    /* make sure we have a valid Room pointer */
-    if (room == NULL) {
-        fprintf(stderr, "Invalid room pointer for room%d.\n", roomNo);
-        exit(1);
-    }
-    
     /* build path to room file */
-    snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, roomNo + 1);
+    snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, roomNo);
     
     /* open the room file read only*/
     fd = open(roomPath, O_RDONLY);
     if (fd == -1) {
-        fprintf(stderr, "Error opening file: %s (errno %d)\n", roomPath, errno);
-        exit(1);
+		/* return false if the room file was not found */
+        return 0;
     }
     
     /* Read the room name */
 	readLine(fd, buffer, sizeof(buffer));
+	if (strncmp(buffer, "ROOM NAME", 9) == 0) {
+		room->name = parseRoomName(&buffer[11]);
+	}
+	else {
+		fprintf(stderr, "Unknown room name %s found in %s.\n",
+				&buffer[11], roomPath);
+		exit(1);
+	}
 
 	/* Read the connections */
     readLine(fd, buffer, sizeof(buffer));
-	j = 0;
+	i = 0;
 	while (strncmp(buffer, "CONNECTION", 10) == 0) {
-		for (i = 0; i < ROOM_NAME_COUNT; ++i) {
-			if (strcmp(&buffer[14], RoomNameStrings[i]) == 0) {
-				room->connects[j++] = i;
-				break;
-			}
-		}
+		room->connects[i] = parseRoomName(&buffer[14]);
 
 		/* print error message if room name not found */
-		if (i == ROOM_NAME_COUNT) {
+		if (room->connects[i] == -1) {
 			fprintf(stderr, "Connection to unknown room %s found in %s.\n", 
 					&buffer[14], roomPath);
+			exit(1);
 		}
+
+		++i;
 
 		/* read the next line */
 		readLine(fd, buffer, sizeof(buffer));
 	}
+
+	/* set connection count */
+	room->connectCnt = i;
+
+	/* the room type should be in the buffer now */
+	if (strncmp(buffer, "ROOM TYPE", 9) == 0) {
+		room->type = parseRoomType(&buffer[11]);
+	}
+	else {
+		fprintf(stderr, "Unrecognized room type %s found in %s.\n",
+				&buffer[11], roomPath);
+		exit(1);
+	}
     
     /* close the file descriptor */
     close(fd);
+
+	/* return true because the load succeeded */
+	return 1;
+}
+
+int parseRoomType(char* buf) {
+	int i;
+	for (i = 0; i < ROOM_TYPE_COUNT; ++i) {
+		if (strcmp(buf, RoomTypeStrings[i]) == 0) return i;
+	}
+
+	/* if no matching room type found, return -1 to indicate invalid type */
+	return -1;
 }
 
 /**
@@ -279,7 +309,7 @@ void saveRooms(Room rooms[], int count, char* root) {
     
     for (i = 0; i < count; ++i) {
         /* build path to filename of <username>.rooms.<pid>/<room_no> */
-        snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, i + 1);
+        snprintf(roomPath, sizeof(roomPath), "%s/room%d", root, rooms[i].name);
         
         /* open the generated file path for writing */
         fd = open(roomPath, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -333,11 +363,97 @@ void shuffleIntArray(int vals[], int size) {
     }
 }
 
+void getStartRoom(char* root, Room* start) {
+	int i;
+	for (i = 0; i < ROOM_NAME_COUNT; ++i) {
+		if (loadRoom(start, i, root) && start->type == RoomType_START_ROOM) return;
+	}
+	
+	/* if execution reaches here, no start room was found */
+	fprintf(stderr, "Start room not found. Exiting.\n");
+	exit(1);
+}
+
+int parseRoomName(char* input) {
+	int i;
+
+	for (i = 0; i < ROOM_NAME_COUNT; ++i) {
+		if (strcmp(input, RoomNameStrings[i]) == 0)	return i;
+	}
+
+	/* if no matching room is found, return -1 */
+	return -1;
+}
+
+void getInput(char* buf, int size) {
+    int i;
+
+	/* get user input */
+	fgets(buf, size, stdin);
+
+	/* convert first newline to null */
+	for (i = 0; i < size; ++i) {
+		if (buf[i] == '\n') {
+			buf[i] = '\0';
+			break;
+		}
+	}
+}
+
+void initializeIntArray(int* arr, int size, int val) {
+	int i;
+	for (i = 0; i < size; ++i)
+		arr[i] = val;
+}
+
 /**
  * Starts the main game loop.
  */
-void startGame(char* root, int count) {
-    return;
+void startGame(char* root) {
+	Room current;
+	char buffer[BUFFER_SIZE];
+	int path[MAX_MOVES];
+	int moves = 0;
+	int nextRoom;
+	int i;
+
+	initializeIntArray(path, MAX_MOVES, -1);
+
+	getStartRoom(root, &current);
+
+	while (current.type != RoomType_END_ROOM) {
+		printf("\nCURRENT LOCATION: %s\n", RoomNameStrings[current.name]);
+		printf("POSSIBLE CONNECTIONS: ");
+		for (i = 0; i < current.connectCnt; ++i) {
+			if (i == current.connectCnt - 1)
+				printf("%s.\n", RoomNameStrings[current.connects[i]]);
+			else
+				printf("%s, ", RoomNameStrings[current.connects[i]]);
+		}
+		printf("WHERE TO? >");
+
+		getInput(buffer, sizeof(buffer));
+
+		/* parse input to get room number */
+		nextRoom = parseRoomName(buffer);
+
+		/* ensure nextRoom is a valid connection.
+		   If so, load that room; otherwise, print HUH? */
+		if (contains(current.connects, current.connectCnt, nextRoom)
+			&& loadRoom(&current, nextRoom, root)) {
+			path[moves++] = nextRoom;
+		} 
+		else {
+			printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+		}
+	}
+
+	printf("\nYOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
+	printf("YOU TOOK %d STEPS. YOUR PATH TO VICTORY WAS:\n", moves);
+	for (i = 0; i < moves; ++i) {
+		printf("%s\n", RoomNameStrings[path[i]]);
+	}
+
 }
 
 /**
