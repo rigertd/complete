@@ -46,17 +46,12 @@ enum RoomType {
 /**
  * Represents a room in memory. Use ints instead of char arrays
  * for easier comparison and to save memory.
- *
- *  name        Index of the room name in RoomNameStrings.
- *  connects    Array of indices of connected rooms.
- *  connectCnt  Actual number of connected rooms.
- *  type        Enum representing the room type.
  */
 typedef struct Room {
-    int name;
-    int connects[CONNECT_MAX];
-    int connectCnt;
-    enum RoomType type;
+    int name;                   // index of the room name in RoomNameStrings
+    int connects[CONNECT_MAX];  // array of indices of connected rooms
+    int connectCnt;             // actual number of connected rooms
+    enum RoomType type;         // enum representing the room type
 } Room;
 
 /*========================================================*
@@ -478,6 +473,7 @@ void shuffleIntArray(int vals[], int size) {
 
 /**
  * Starts the main game loop.
+ * The total path travelled must be no more than MAX_MOVES.
  *
  *  root    Path to the directory containing the room data.
  */
@@ -508,13 +504,14 @@ void startGame(char* root) {
         }
         printf("WHERE TO? >");
 
+        // get next line of input from user
         getInput(buffer, sizeof(buffer));
 
         // parse input to get room index
         nextRoom = parseRoomName(buffer);
 
-        // ensure nextRoom is a valid connection
-        // if so, load that room; otherwise, print HUH?
+        // if nextRoom is a valid connection, load it, store it in path,
+        // and increment the path counter; otherwise, print HUH?
         if (contains(current.connects, current.connectCnt, nextRoom)
             && loadRoom(&current, nextRoom, root)) {
             path[moves++] = nextRoom;
