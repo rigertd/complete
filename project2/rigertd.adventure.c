@@ -199,17 +199,24 @@ int contains(int arr[], int size, int val) {
  */
 void getInput(char* buf, int size) {
     int i;
+    char c;
 
     // get user input
     fgets(buf, size, stdin);
 
-    // convert first newline to null
+    // convert first newline to null and return
     for (i = 0; i < size; ++i) {
         if (buf[i] == '\n') {
             buf[i] = '\0';
-            break;
+            return;
         }
     }
+
+    // if execution reaches here, no newline was encountered
+    // consume any remaining data in stdin
+    do {
+        c = fgetc(stdin);
+    } while (c != '\n' && c != EOF);
 }
 
 /**
