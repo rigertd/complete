@@ -9,6 +9,7 @@
 #include "smallsh.h"
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -38,6 +39,7 @@ typedef struct Command {
 void parseCommand(Command*, char*);
 void catchint();
 void registerIntHandler(void (*)(int));
+void fputs_r(const char*, FILE*);
 
 /*========================================================*
  * Constant definitions
@@ -51,7 +53,11 @@ int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
     registerIntHandler(catchint);
     
-    return 0;
+    while (1) {
+		sleep(1);
+	}
+	
+	return 0;
 }
 
 /*========================================================*
@@ -62,13 +68,13 @@ int main(int argc, char* argv[]) {
  */
 void parseCommand(Command* cmd, char* input) {
     if (cmd == 0) {
-        fprintf(stderr, "NULL Command object specified.\n");
+        fputs_r("NULL Command object specified.\n", stderr);
         exit(1);
     }
 }
 
 void catchint() {
-    printf("Caught interrupt signal.\n");
+    fputs_r("Caught interrupt signal.\n", stdout);
 }
 
 void registerIntHandler(void (*handler)(int)) {
@@ -77,4 +83,20 @@ void registerIntHandler(void (*handler)(int)) {
     act.sa_flags = 0;
     sigfillset(&act.sa_mask);
     sigaction(SIGINT, &act, NULL);
+}
+
+void fputs_r(const char* str, FILE* stream) {
+	sigset_t all, old, empty;
+	sigfillset(&all);
+	sigemptyset(&empty);
+	if (sigprocmask(SIG_BLOCK, &all, &old) < 0) {
+		fputs("Error blocking signals.\n", stderr);
+		exit(1);
+	}
+	fputs(str, stream);
+	sigsuspend(&empty);
+	if (sigprocmask(SIG_UNBLOCK, &old, NULL) < 0) {
+		fputs("Error unblocking signals.\n", stderr);
+		exit(1);
+	}
 }
