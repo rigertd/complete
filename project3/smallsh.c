@@ -8,8 +8,8 @@
 
 #include "smallsh.h"
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -39,7 +39,9 @@ typedef struct Command {
 void parseCommand(Command*, char*);
 void catchint();
 void registerIntHandler(void (*)(int));
-void fputs_r(const char*, FILE*);
+void spawnBgProcess();
+void spawnFgProcess();
+void fatalError(char*);
 
 /*========================================================*
  * Constant definitions
@@ -54,10 +56,10 @@ int main(int argc, char* argv[]) {
     registerIntHandler(catchint);
     
     while (1) {
-		sleep(1);
-	}
-	
-	return 0;
+        sleep(1);
+    }
+    
+    return 0;
 }
 
 /*========================================================*
@@ -68,13 +70,14 @@ int main(int argc, char* argv[]) {
  */
 void parseCommand(Command* cmd, char* input) {
     if (cmd == 0) {
-        fputs_r("NULL Command object specified.\n", stderr);
+        //fputs_r("NULL Command object specified.\n", stderr);
         exit(1);
     }
 }
 
 void catchint() {
-    fputs_r("Caught interrupt signal.\n", stdout);
+    char* msg = "Caught interrupt signal.\n";
+    write(STDOUT_FILENO, msg, strlen(msg));
 }
 
 void registerIntHandler(void (*handler)(int)) {
@@ -85,18 +88,23 @@ void registerIntHandler(void (*handler)(int)) {
     sigaction(SIGINT, &act, NULL);
 }
 
-void fputs_r(const char* str, FILE* stream) {
-	sigset_t all, old, empty;
-	sigfillset(&all);
-	sigemptyset(&empty);
-	if (sigprocmask(SIG_BLOCK, &all, &old) < 0) {
-		fputs("Error blocking signals.\n", stderr);
-		exit(1);
-	}
-	fputs(str, stream);
-	sigsuspend(&empty);
-	if (sigprocmask(SIG_UNBLOCK, &old, NULL) < 0) {
-		fputs("Error unblocking signals.\n", stderr);
-		exit(1);
-	}
+// void fputs_r(const char* str, FILE* stream) {
+    // sigset_t all, old, empty;
+    // sigfillset(&all);
+    // sigemptyset(&empty);
+    // if (sigprocmask(SIG_BLOCK, &all, &old) < 0) {
+        // fputs("Error blocking signals.\n", stderr);
+        // exit(1);
+    // }
+    // fputs(str, stream);
+    // sigsuspend(&empty);
+    // if (sigprocmask(SIG_UNBLOCK, &old, NULL) < 0) {
+        // fputs("Error unblocking signals.\n", stderr);
+        // exit(1);
+    // }
+// }
+
+void fatalError(char* msg) {
+    write(STDOUT_FILENO, msg, strlen(msg));
+    exit(1);
 }
