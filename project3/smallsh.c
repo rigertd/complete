@@ -294,7 +294,7 @@ void parseCommand(Command* cmd, char* input) {
             cmd->outfile = strtok_r(cmd->buffer, " ", &saveptr);
             printf("Set outfile to %s\n", cmd->outfile);
         } else if (strcmp(token, "&") == 0) {
-            temp = strtok_r(cmd->buffer, " ", &saveptr);
+            temp = strtok_r(NULL, " ", &saveptr);
             if (temp != NULL) {
                 cmd->argv[cmd->argc++] = token;
                 cmd->argv[cmd->argc++] = temp;
@@ -307,7 +307,7 @@ void parseCommand(Command* cmd, char* input) {
         }
         
         /* read next token */
-        token = strtok_r(cmd->buffer, " ", &saveptr);
+        token = strtok_r(NULL, " ", &saveptr);
     }
 }
 void spawnFgProcess(char* argv[]) {
