@@ -206,7 +206,7 @@ void parseCommand(Command*);
 void catchint();
 void registerIntHandler(void (*)(int));
 void spawnBgProcess();
-void spawnFgProcess(char* argv[]);
+int spawnFgProcess(char* argv[]);
 void printFatalError(char*);
 void printWarning(char*);
 int getExitStatus(pid_t);
@@ -323,7 +323,7 @@ int spawnFgProcess(char* argv[]) {
     if (cpid == 0) {
         // this is the child process--exec the specified program
         printf("running command '%s'\n", argv[0]);
-        execve(argv[0], argv);
+        execvp(argv[0], argv);
         
         printFatalError("Failed to spawn new foreground process.\n");
     } else if (cpid == -1) {
