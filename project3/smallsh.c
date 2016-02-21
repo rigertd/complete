@@ -233,7 +233,7 @@ typedef struct Command {
 /*========================================================*
  * Function prototypes
  *========================================================*/
-void parseCommand(Command*, char*);
+void parseCommand(Command*);
 void catchint();
 void registerIntHandler(void (*)(int));
 void spawnBgProcess();
@@ -254,14 +254,17 @@ int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
     // registerIntHandler(catchint);
     
-    char inputBuffer[MAX_CMD_LINE_LEN];
     Command cmd;
     
     do {
         write(STDOUT_FILENO, ": ", 2);
-        readLine(STDIN_FILENO, inputBuffer, MAX_CMD_LINE_LEN);
-        parseCommand(&cmd, inputBuffer);
-    } while (cmd.argc > 0 && strcmp(cmd.argv[0], "exit") != 0);
+        readLine(STDIN_FILENO, cmd.buffer, MAX_CMD_LINE_LEN);
+        parseCommand(&cmd);
+        
+        if (cmd.argc > 0) {
+            spawnFgProcess(cmd.argv);
+        }
+    } while (cmd.argc == 0 || strcmp(cmd.argv[0], "exit") != 0);
     
     return EXIT_SUCCESS;
 }
@@ -269,7 +272,7 @@ int main(int argc, char* argv[]) {
 /*========================================================*
  * Function definitions
  *========================================================*/
-void parseCommand(Command* cmd, char* input) {
+void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;
     
     /* initialize structure members */
@@ -279,15 +282,29 @@ void parseCommand(Command* cmd, char* input) {
     cmd->infile = NULL;
     cmd->outfile = NULL;
 
-    /* parse input until EOF is reached */
     token = strtok_r(cmd->buffer, " ", &saveptr);
+    
+    /* parse input until EOF is reached */
     while (token != NULL) {
         printf("Token found: %s\n", token);
         
-        if (strcmp(token, "<") == 0) {
+        if (strcmp(token, "#") == 0) {
+            /* comment marker found--ignore rest of line */
+            break;
+        } else if (strcmp(token, "<") == 0) {
+            /* print error if redirection comes first */
+            if (cmd->argc == 0) {
+                write(STDERR_FILENO, "smallsh: invalid syntax\n", 24);
+                break;
+            }
             cmd->infile = strtok_r(NULL, " ", &saveptr);
             printf("Set infile to %s\n", cmd->infile);
         } else if (strcmp(token, ">") == 0) {
+            /* print error if redirection comes first */
+            if (cmd->argc == 0) {
+                write(STDERR_FILENO, "smallsh: invalid syntax\n", 24);
+                break;
+            }
             cmd->outfile = strtok_r(NULL, " ", &saveptr);
             printf("Set outfile to %s\n", cmd->outfile);
         } else if (strcmp(token, "&") == 0) {
@@ -307,6 +324,9 @@ void parseCommand(Command* cmd, char* input) {
         /* read next token */
         token = strtok_r(NULL, " ", &saveptr);
     }
+    
+    /* set the final argv to NULL */
+    cmd->argv[cmd->argc] = NULL;
 }
 void spawnFgProcess(char* argv[]) {
     pid_t cpid = fork();
