@@ -305,6 +305,9 @@ void parseCommand(Command* cmd, char* input) {
         } else {
             cmd->argv[cmd->argc++] = token;
         }
+        
+        /* read next token */
+        token = strtok_r(cmd->buffer, " ", &saveptr);
     }
 }
 void spawnFgProcess(char* argv[]) {
