@@ -273,32 +273,39 @@ void parseCommand(Command* cmd, char* input) {
     char *saveptr, *token, *temp;
     
     /* initialize structure members */
+    printf("Initializing Command structure...\n");
     strcpy(cmd->buffer, input);
     cmd->background = 0;
     cmd->argc = 0;
     cmd->infile = NULL;
     cmd->outfile = NULL;
-    
+    printf("Size of struct: %d\n", sizeof(*cmd));
+    printf("Size of buffer: %d\n", sizeof(cmd->buffer));
+    printf("Size of argv: %d\n", sizeof(cmd->argv));
     /* parse input until EOF is reached */
-    do {
     token = strtok_r(cmd->buffer, " ", &saveptr);
-    
-    if (strcmp(token, "<") == 0) {
-        cmd->infile = strtok_r(cmd->buffer, " ", &saveptr);
-    } else if (strcmp(token, ">") == 0) {
-        cmd->outfile = strtok_r(cmd->buffer, " ", &saveptr);
-    } else if (strcmp(token, "&") == 0) {
-        temp = strtok_r(cmd->buffer, " ", &saveptr);
-        if (temp != NULL) {
-            cmd->argv[cmd->argc++] = token;
-            cmd->argv[cmd->argc++] = temp;
+    while (token != NULL) {
+        printf("Token found: %s\n", token);
+        
+        if (strcmp(token, "<") == 0) {
+            cmd->infile = strtok_r(cmd->buffer, " ", &saveptr);
+            printf("Set infile to %s\n", cmd->infile);
+        } else if (strcmp(token, ">") == 0) {
+            cmd->outfile = strtok_r(cmd->buffer, " ", &saveptr);
+            printf("Set outfile to %s\n", cmd->outfile);
+        } else if (strcmp(token, "&") == 0) {
+            temp = strtok_r(cmd->buffer, " ", &saveptr);
+            if (temp != NULL) {
+                cmd->argv[cmd->argc++] = token;
+                cmd->argv[cmd->argc++] = temp;
+            } else {
+                cmd->background = 1;
+                printf("Running command in background\n");
+            }
         } else {
-            cmd->background = 1;
+            cmd->argv[cmd->argc++] = token;
         }
-    } else {
-        cmd->argv[cmd->argc++] = token;
     }
-    } while (token != NULL);
 }
 void spawnFgProcess(char* argv[]) {
     pid_t cpid = fork();
