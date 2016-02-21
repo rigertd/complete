@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
  * Function definitions
  *========================================================*/
 void parseCommand(Command* cmd, char* input) {
-    char* saveptr, token, temp;
+    char *saveptr, *token, *temp;
     
     /* initialize structure members */
     strcpy(cmd->buffer, input);
