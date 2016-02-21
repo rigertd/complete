@@ -344,7 +344,7 @@ void catchint() {
 
 int getExitStatus(pid_t cpid) {
     int status;
-    cpid = wait(cpid, &status, 0);
+    cpid = waitpid(cpid, &status, 0);
     
     if (cpid == -1)
         printFatalError("Wait call failed.\n");
