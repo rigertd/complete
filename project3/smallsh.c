@@ -342,6 +342,7 @@ void spawnFgProcess(char* argv[]) {
         // this is the parent process--wait for child to terminated
         int status;
         waitpid(cpid, &status, 0);
+    }
 }
 
 void catchint() {
