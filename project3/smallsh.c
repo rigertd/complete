@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 /*  File descriptors automatically opened by kernel:
         0 = stdin
@@ -260,7 +261,7 @@ int main(int argc, char* argv[]) {
         write(STDOUT_FILENO, ": ", 2);
         readLine(STDIN_FILENO, inputBuffer, MAX_CMD_LINE_LEN);
         parseCommand(&cmd, inputBuffer);
-    } while (cmd->argc > 0 && strcmp(cmd->argv[0], "exit") != 0);
+    } while (cmd.argc > 0 && strcmp(cmd.argv[0], "exit") != 0);
     
     return EXIT_SUCCESS;
 }
