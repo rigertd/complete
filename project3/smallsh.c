@@ -334,6 +334,8 @@ int spawnFgProcess(char* argv[]) {
     }
     return status;
 }
+void spawnBgProcess(char* argv[]) {
+}
 
 void catchint() {
     char* msg = "Caught interrupt signal.\n";
