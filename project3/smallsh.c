@@ -273,15 +273,12 @@ void parseCommand(Command* cmd, char* input) {
     char *saveptr, *token, *temp;
     
     /* initialize structure members */
-    printf("Initializing Command structure...\n");
     strcpy(cmd->buffer, input);
     cmd->background = 0;
     cmd->argc = 0;
     cmd->infile = NULL;
     cmd->outfile = NULL;
-    printf("Size of struct: %d\n", sizeof(*cmd));
-    printf("Size of buffer: %d\n", sizeof(cmd->buffer));
-    printf("Size of argv: %d\n", sizeof(cmd->argv));
+
     /* parse input until EOF is reached */
     token = strtok_r(cmd->buffer, " ", &saveptr);
     while (token != NULL) {
@@ -297,6 +294,7 @@ void parseCommand(Command* cmd, char* input) {
             temp = strtok_r(NULL, " ", &saveptr);
             if (temp != NULL) {
                 cmd->argv[cmd->argc++] = token;
+                printf("Token found: %s\n", temp);
                 cmd->argv[cmd->argc++] = temp;
             } else {
                 cmd->background = 1;
