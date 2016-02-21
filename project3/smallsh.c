@@ -332,12 +332,16 @@ void spawnFgProcess(char* argv[]) {
     
     if (cpid == 0) {
         // this is the child process--exec the specified program
+        printf("running command '%s'\n", argv[0]);
         execv(argv[0], argv);
         
         printFatalError("Failed to spawn new foreground process.\n");
     } else if (cpid == -1) {
         printWarning("Failed to fork process.\n");
-    }
+    } else {
+        // this is the parent process--wait for child to terminated
+        int status;
+        waitpid(cpid, &status, 0);
 }
 
 void catchint() {
