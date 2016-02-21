@@ -174,38 +174,7 @@
         - If input pipe is closed, write() returns -1 and errno set to EPIPE
         - also receives SIGPIPE signal
 */
-char* strtok_r(
-    char *str, 
-    const char *delim, 
-    char **nextp)
-{
-    char *ret;
 
-    if (str == NULL)
-    {
-        str = *nextp;
-    }
-
-    str += strspn(str, delim);
-
-    if (*str == '\0')
-    {
-        return NULL;
-    }
-
-    ret = str;
-
-    str += strcspn(str, delim);
-
-    if (*str)
-    {
-        *str++ = '\0';
-    }
-
-    *nextp = str;
-
-    return ret;
-}
 /*========================================================*
  * Macro definitions
  *
@@ -248,13 +217,19 @@ void readLine(int, char*, size_t);
  *========================================================*/
 
 /*========================================================*
+ * Globals
+ *========================================================*/
+static int lastCmdStatus;
+
+/*========================================================*
  * main function
  *========================================================*/
 int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
-    // registerIntHandler(catchint);
+    registerIntHandler(catchint);
     
     Command cmd;
+    lastCmdStatus = 0;
     
     do {
         write(STDOUT_FILENO, ": ", 2);
@@ -262,9 +237,23 @@ int main(int argc, char* argv[]) {
         parseCommand(&cmd);
         
         if (cmd.argc > 0) {
-            spawnFgProcess(cmd.argv);
+            /* check for built-in commands */
+            if (strcmp(cmd.argv[0], "exit") == 0) {
+                break;
+            } else if (strcmp(cmd.argv[0], "cd") == 0) {
+                chdir(cmd.argv[0]);
+            } else if (strcmp(cmd.argv[0], "status") == 0) {
+                printf("exit value %d\n", lastCmdStatus);
+            } else {
+                /* not a built-in command--check for foreground or background */
+                if (cmd.background) {
+                    spawnBgProcess(cmd.argv);
+                } else {
+                    lastCmdStatus = spawnFgProcess(cmd.argv);
+                }
+            }
         }
-    } while (cmd.argc == 0 || strcmp(cmd.argv[0], "exit") != 0);
+    } while (1);
     
     return EXIT_SUCCESS;
 }
@@ -327,22 +316,23 @@ void parseCommand(Command* cmd) {
     /* set the final argv to NULL */
     cmd->argv[cmd->argc] = NULL;
 }
-void spawnFgProcess(char* argv[]) {
+int spawnFgProcess(char* argv[]) {
     pid_t cpid = fork();
+    int status = 0;
     
     if (cpid == 0) {
         // this is the child process--exec the specified program
         printf("running command '%s'\n", argv[0]);
-        execv(argv[0], argv);
+        execve(argv[0], argv);
         
         printFatalError("Failed to spawn new foreground process.\n");
     } else if (cpid == -1) {
         printWarning("Failed to fork process.\n");
     } else {
-        // this is the parent process--wait for child to terminated
-        int status;
-        waitpid(cpid, &status, 0);
+        // this is the parent process--wait for child to terminate
+        status = getExitStatus(cpid);
     }
+    return status;
 }
 
 void catchint() {
@@ -352,7 +342,7 @@ void catchint() {
 
 int getExitStatus(pid_t cpid) {
     int status;
-    cpid = wait(&status);
+    cpid = wait(cpid, &status, 0);
     
     if (cpid == -1)
         printFatalError("Wait call failed.\n");
