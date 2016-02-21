@@ -7,6 +7,7 @@
 \*********************************************************/
 
 #include "smallsh.h"
+#include <errno.h>
 #include <fcntl.h>  // for close-on-exec
 #include <signal.h>
 #include <stdio.h>
@@ -14,7 +15,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 
 /*  File descriptors automatically opened by kernel:
         0 = stdin
