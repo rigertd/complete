@@ -276,7 +276,6 @@ void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;
     
     /* initialize structure members */
-    strcpy(cmd->buffer, input);
     cmd->background = 0;
     cmd->argc = 0;
     cmd->infile = NULL;
