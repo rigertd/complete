@@ -240,6 +240,7 @@ void spawnFgProcess(char* argv[]);
 void printFatalError(char*);
 void printWarning(char*);
 int getExitStatus(pid_t);
+void readLine(int, char*, size_t);
 
 /*========================================================*
  * Constant definitions
@@ -252,6 +253,14 @@ int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
     // registerIntHandler(catchint);
     
+    char inputBuffer[MAX_CMD_LINE_LEN];
+    Command cmd;
+    
+    do {
+        write(STDOUT_FILENO, ": ", 2);
+        readLine(STDIN_FILENO, inputBuffer, MAX_CMD_LINE_LEN);
+        parseCommand(&cmd, inputBuffer);
+    } while (cmd->argc > 0 && strcmp(cmd->argv[0], "exit") != 0);
     
     return EXIT_SUCCESS;
 }
@@ -350,4 +359,41 @@ void printFatalError(char* msg) {
 
 void printWarning(char* msg) {
     write(STDERR_FILENO, msg, strlen(msg));
+}
+/**
+ * Reads from fd until the first newline or EOF and writes it to buf.
+ * Points fd to next unread non-whitespace char.
+ * Terminates the program with exit code 1 if cannot read from file.
+ *
+ *  fd      File descriptor to read from. Must be open and readable.
+ *  buf     Buffer to store line of text into.
+ *  size    Maximum amount of data to read into buffer.
+ */
+void readLine(int fd, char* buf, size_t size) {
+    int i;
+    ssize_t bytes = read(fd, buf, size);
+
+    if (bytes < 0) {
+        fprintf(stderr, "Error reading from file. (errno %d)", errno);
+        exit(1);
+    }
+    // search string for newline and replace with NULL terminator,
+    // then count until non-whitespace char is found
+    // and set the file offset to that character.
+    for (i = 0; i < bytes; ++i) {
+        if (buf[i] == '\n' || buf[i] == '\r') {
+            buf[i] = '\0';
+            while (++i < bytes
+                && (buf[i] == ' '
+                    || buf[i] == '\n'
+                    || buf[i] == '\t'
+                    || buf[i] == '\r')
+                ) {
+                buf[i] = '\0';
+            }
+            lseek(fd, -(bytes - i), SEEK_CUR);
+            return;
+        }
+    }
+
 }
