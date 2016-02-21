@@ -288,10 +288,10 @@ void parseCommand(Command* cmd, char* input) {
         printf("Token found: %s\n", token);
         
         if (strcmp(token, "<") == 0) {
-            cmd->infile = strtok_r(cmd->buffer, " ", &saveptr);
+            cmd->infile = strtok_r(NULL, " ", &saveptr);
             printf("Set infile to %s\n", cmd->infile);
         } else if (strcmp(token, ">") == 0) {
-            cmd->outfile = strtok_r(cmd->buffer, " ", &saveptr);
+            cmd->outfile = strtok_r(NULL, " ", &saveptr);
             printf("Set outfile to %s\n", cmd->outfile);
         } else if (strcmp(token, "&") == 0) {
             temp = strtok_r(NULL, " ", &saveptr);
