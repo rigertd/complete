@@ -262,11 +262,11 @@ int main(int argc, char* argv[]) {
  * Function definitions
  *========================================================*/
 void printStatus(int status) {
-    if (WIFEXITED(lastCmdStatus)) {
+    if (WIFEXITED(status)) {
         
-        printf("exit value %d\n", WEXITSTATUS(lastCmdStatus));
-    } else if (WIFSIGNALED(lastCmdStatus)) {
-        printf("terminated by signal %d\n", WTERMSIG(lastCmdStatus));
+        printf("exit value %d\n", WEXITSTATUS(status));
+    } else if (WIFSIGNALED(status)) {
+        printf("terminated by signal %d\n", WTERMSIG(status));
     }
 }
 
