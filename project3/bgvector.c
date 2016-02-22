@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void initBgProcessVector(BgProcessVector *vec, unsigned int capacity) {
     vec->size = 0;
