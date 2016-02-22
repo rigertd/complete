@@ -1,5 +1,6 @@
 #include "bgvector.h"
 #include <unistd.h>
+#include <stdio.h>
 
 void initBgProcessVector(BgProcessVector *vec, unsigned int capacity) {
     vec->size = 0;
@@ -58,7 +59,7 @@ void removeAtBgProcessVector(BgProcessVector* vec, unsigned int index) {
     --vec->lock;
 }
 
-int getAtBgProcessVector(BgProcessVector* vec, unsigned int index) {
+BgProcess getAtBgProcessVector(BgProcessVector* vec, unsigned int index) {
     if (index < 0 || index > vec->size) {
         fprintf(stderr, "Illegal index %d specified\n", index);
         exit(1);

@@ -107,9 +107,9 @@ pid_t runCommand(Command* cmd, int* status) {
             
             // close any open file descriptors
             if (cmd->infd >= 0)
-                close(fdIn);
+                close(cmd->infd);
             if (cmd->outfd >= 0)
-                close(fdOut);
+                close(cmd->outfd);
         }
     }
     

@@ -16,6 +16,6 @@ void finalizeIntVector(BgProcessVector*);
 void pushBackBgProcessVector(BgProcessVector*, BgProcess);
 void popBackBgProcessVector(BgProcessVector*);
 void removeIndexBgProcessVector(BgProcessVector*, unsigned int);
-int getAtBgProcessVector(BgProcessVector*, unsigned int);
+BgProcess getAtBgProcessVector(BgProcessVector*, unsigned int);
 
 #endif
