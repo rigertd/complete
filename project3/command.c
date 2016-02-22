@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
 
 void parseCommand(Command* cmd) {
@@ -61,10 +60,11 @@ void parseCommand(Command* cmd) {
     cmd->argv[cmd->argc] = NULL;
 }
 
-pid_t runCommand(Command* cmd, int* status) {
-    pid_t cpid = fork();
+int runCommand(Command* cmd, pid_t* cpid) {
+    *cpid = fork();
+    int status = 0;
     
-    if (cpid == 0) {
+    if (*cpid == 0) {
         // this is the child process--exec the specified program
         printf("running command '%s'\n", cmd->argv[0]);
         
@@ -72,8 +72,7 @@ pid_t runCommand(Command* cmd, int* status) {
             cmd->infd = open(cmd->infile, O_RDONLY);
             if (dup2(cmd->infd, STDIN_FILENO) == -1) {
                 fprintf(stderr, "%s: cannot open %s for input\n", cmd->argv[0], cmd->infile);
-                *status = 1;
-                return -1;
+                exit(1);
             }
         }
         if (cmd->outfile != NULL) {
@@ -82,28 +81,27 @@ pid_t runCommand(Command* cmd, int* status) {
                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
             if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 fprintf(stderr, "%s: cannot open %s for output\n", cmd->argv[0], cmd->outfile);
-                *status = 1;
-                return -1;
+                exit(1);
             }
         } else if (cmd->background) {
             // redirect stdout to /dev/null if background process
             cmd->outfd = open("/dev/null", O_WRONLY);
             if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 fprintf(stderr, "%s: cannot open /dev/null for output\n", cmd->argv[0]);
-                *status = 1;
-                return -1;
+                exit(1);
             }
         }
         
         execvp(cmd->argv[0], cmd->argv);
         
         fprintf(stderr, "%s: no such file or directory\n", cmd->argv[0]);
-    } else if (cpid == -1) {
+        exit(1);
+    } else if (*cpid == -1) {
         printWarning("Failed to fork process.\n");
     } else {
         // this is the parent process--wait for child to terminate if not background
         if (!cmd->background) {
-            waitpid(cpid, &status, 0);
+            waitpid(*cpid, &status, 0);
             
             // close any open file descriptors
             if (cmd->infd >= 0)
@@ -113,6 +111,6 @@ pid_t runCommand(Command* cmd, int* status) {
         }
     }
     
-    return cpid;
+    return status;
 }
 

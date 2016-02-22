@@ -1,6 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include <unistd.h>
 #include <sys/types.h>
 
 #define MAX_CMD_LINE_LEN 2048
@@ -22,6 +23,6 @@ typedef struct Command {
 } Command;
 
 void parseCommand(Command*);
-pid_t runCommand(Command*, int*);
+int runCommand(Command*, pid_t*);
 
 #endif
