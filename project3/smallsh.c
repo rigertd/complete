@@ -259,9 +259,9 @@ int main(int argc, char* argv[]) {
 void printStatus(int status) {
     if (WIFEXITED(status)) {
         
-        printf("exit value %d\n", WEXITSTATUS(status));
+        printf("exit value %d\n", /*WEXITSTATUS(*/status/*)*/);
     } else if (WIFSIGNALED(status)) {
-        printf("terminated by signal %d\n", WTERMSIG(status));
+        printf("terminated by signal %d\n", /*WTERMSIG(*/status/*)*/);
     }
     /* ensure the output buffer is flushed */
     fflush(stdout);
