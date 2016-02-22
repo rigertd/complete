@@ -248,9 +248,9 @@ int main(int argc, char* argv[]) {
             } else {
                 /* not a built-in command--check for foreground or background */
                 if (cmd.background) {
-                    spawnBgProcess(cmd.argv);
+                    spawnBgProcess(&cmd);
                 } else {
-                    lastCmdStatus = spawnFgProcess(cmd.argv);
+                    lastCmdStatus = spawnFgProcess(&cmd);
                 }
             }
         }
@@ -269,6 +269,8 @@ void printStatus(int status) {
     } else if (WIFSIGNALED(status)) {
         printf("terminated by signal %d\n", WTERMSIG(status));
     }
+    /* ensure the output buffer is flushed */
+    fflush(stdout);
 }
 
 void parseCommand(Command* cmd) {
@@ -326,25 +328,48 @@ void parseCommand(Command* cmd) {
     /* set the final argv to NULL */
     cmd->argv[cmd->argc] = NULL;
 }
-int spawnFgProcess(char* argv[]) {
+int spawnFgProcess(Command* cmd) {
     pid_t cpid = fork();
     int status = 0;
+    int fdIn = -5, fdOut = -5;
     
     if (cpid == 0) {
         // this is the child process--exec the specified program
-        printf("running command '%s'\n", argv[0]);
-        execvp(argv[0], argv);
+        printf("running command '%s'\n", cmd->argv[0]);
         
-        printFatalError("Failed to spawn new foreground process.\n");
+        if (cmd->infile != NULL) {
+            fdIn = open(cmd->infile, O_RDONLY);
+            if (dup2(fdIn, STDIN_FILENO) == -1) {
+                fprintf(stderr, "%s: cannot open %s for input\n", cmd->argv[0], cmd->infile);
+                return 1;
+            }
+        }
+        if (cmd->outfile != NULL) {
+            fdOut = open(cmd->outfile, O_WRONLY);
+            if (dup2(fdOut, STDOUT_FILENO) == -1) {
+                fprintf(stderr, "%s: cannot open %s for output\n", cmd->argv[0], cmd->outfile);
+                return 1;
+            }
+        }
+        
+        execvp(cmd->argv[0], cmd->argv);
+        
+        fprintf(stderr, "%s: no such file or directory\n", cmd->argv[0]);
     } else if (cpid == -1) {
         printWarning("Failed to fork process.\n");
     } else {
         // this is the parent process--wait for child to terminate
         waitpid(cpid, &status, 0);
+        
+        // close any open file descriptors
+        if (fdIn >= 0)
+            close(fdIn);
+        if (fdOut >= 0)
+            close(fdOut);
     }
     return status;
 }
-void spawnBgProcess(char* argv[]) {
+void spawnBgProcess(Command* cmd) {
 }
 
 void catchint() {
