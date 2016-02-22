@@ -205,8 +205,8 @@ typedef struct Command {
 void parseCommand(Command*);
 void catchint();
 void registerIntHandler(void (*)(int));
-void spawnBgProcess();
-int spawnFgProcess(char* argv[]);
+void spawnBgProcess(Command*);
+int spawnFgProcess(Command*);
 void printFatalError(char*);
 void printWarning(char*);
 int getExitStatus(pid_t);
