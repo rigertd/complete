@@ -237,16 +237,16 @@ int main(int argc, char* argv[]) {
         parseCommand(&cmd);
         
         if (cmd.argc > 0) {
-            /* check for built-in commands */
+            // check for built-in commands */
             if (strcmp(cmd.argv[0], "exit") == 0) {
                 break;
             } else if (strcmp(cmd.argv[0], "cd") == 0) {
-                /* only run the command if an argument was specified */
-                if (cmd.argc > 1) chdir(cmd.argv[1]);
+                // parseCommand sets argv[1] to NULL if nothing entered after cd
+                chdir(cmd.argv[1]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
                 printStatus(lastCmdStatus);
             } else {
-                /* not a built-in command--check for foreground or background */
+                // not a built-in command--check for foreground or background
                 if (cmd.background) {
                     spawnBgProcess(&cmd);
                 } else {
