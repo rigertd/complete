@@ -7,6 +7,8 @@
 \*********************************************************/
 
 #include "smallsh.h"
+#include "bgvector.h"
+#include "command.h"
 #include <errno.h>
 #include <fcntl.h>  // for close-on-exec
 #include <signal.h>
@@ -183,29 +185,15 @@
 #define MAX_CMD_LINE_LEN 2048
 #define MAX_ARGS 512
 
-
 /*========================================================*
  * Structs and enumerations
  *========================================================*/
-/**
- *
- */
-typedef struct Command {
-    char buffer[MAX_CMD_LINE_LEN];
-    int argc;
-    char* argv[MAX_ARGS];
-    int background;
-    char* infile;
-    char* outfile;
-} Command;
 
 /*========================================================*
  * Function prototypes
  *========================================================*/
-void parseCommand(Command*);
 void catchint();
 void registerIntHandler(void (*)(int));
-void spawnBgProcess(Command*);
 int spawnFgProcess(Command*);
 void printFatalError(char*);
 void printWarning(char*);
@@ -220,6 +208,8 @@ void printStatus(int);
 /*========================================================*
  * Globals
  *========================================================*/
+BgProcessVector bgPids;
+
 
 /*========================================================*
  * main function
@@ -227,9 +217,13 @@ void printStatus(int);
 int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
     registerIntHandler(catchint);
-    
+
     Command cmd;
     int lastCmdStatus = 0;
+    pid_t cpid;
+    
+    // initialize the bgPids BgProcessVector for storing background process IDs
+    initBgProcessVector(&bgPids, 4);
     
     do {
         write(STDOUT_FILENO, ": ", 2);
@@ -246,15 +240,17 @@ int main(int argc, char* argv[]) {
             } else if (strcmp(cmd.argv[0], "status") == 0) {
                 printStatus(lastCmdStatus);
             } else {
-                // not a built-in command--check for foreground or background
-                if (cmd.background) {
-                    spawnBgProcess(&cmd);
-                } else {
-                    lastCmdStatus = spawnFgProcess(&cmd);
+                // not a built-in command--run it
+                cpid = runCommand(&cmd, &lastCmdStatus);
+                if (cpid > -1 && cmd.background) {
+                    // add to bgPids waitlist
+                    pushBackBgProcessVector(&bgPids, {cpid, cmd.infd, cmd.outfd});
                 }
             }
         }
     } while (1);
+    
+    finalizeBgProcessVector(&bgPids);
     
     return EXIT_SUCCESS;
 }
@@ -271,107 +267,6 @@ void printStatus(int status) {
     }
     /* ensure the output buffer is flushed */
     fflush(stdout);
-}
-
-void parseCommand(Command* cmd) {
-    char *saveptr, *token, *temp;
-    
-    /* initialize structure members */
-    cmd->background = 0;
-    cmd->argc = 0;
-    cmd->infile = NULL;
-    cmd->outfile = NULL;
-
-    token = strtok_r(cmd->buffer, " ", &saveptr);
-    
-    /* parse input until EOF is reached */
-    while (token != NULL) {
-        printf("Token found: %s\n", token);
-        
-        if (strncmp(token, "#", 1) == 0) {
-            /* comment marker found--ignore rest of line */
-            break;
-        } else if (strcmp(token, "<") == 0) {
-            /* print error if redirection comes first */
-            if (cmd->argc == 0) {
-                write(STDERR_FILENO, "smallsh: invalid syntax\n", 24);
-                break;
-            }
-            cmd->infile = strtok_r(NULL, " ", &saveptr);
-            printf("Set infile to %s\n", cmd->infile);
-        } else if (strcmp(token, ">") == 0) {
-            /* print error if redirection comes first */
-            if (cmd->argc == 0) {
-                write(STDERR_FILENO, "smallsh: invalid syntax\n", 24);
-                break;
-            }
-            cmd->outfile = strtok_r(NULL, " ", &saveptr);
-            printf("Set outfile to %s\n", cmd->outfile);
-        } else if (strcmp(token, "&") == 0) {
-            temp = strtok_r(NULL, " ", &saveptr);
-            if (temp != NULL) {
-                cmd->argv[cmd->argc++] = token;
-                printf("Token found: %s\n", temp);
-                cmd->argv[cmd->argc++] = temp;
-            } else {
-                cmd->background = 1;
-                printf("Running command in background\n");
-            }
-        } else {
-            cmd->argv[cmd->argc++] = token;
-        }
-        
-        /* read next token */
-        token = strtok_r(NULL, " ", &saveptr);
-    }
-    
-    /* set the final argv to NULL */
-    cmd->argv[cmd->argc] = NULL;
-}
-int spawnFgProcess(Command* cmd) {
-    pid_t cpid = fork();
-    int status = 0;
-    int fdIn = -5, fdOut = -5;
-    
-    if (cpid == 0) {
-        // this is the child process--exec the specified program
-        printf("running command '%s'\n", cmd->argv[0]);
-        
-        if (cmd->infile != NULL) {
-            fdIn = open(cmd->infile, O_RDONLY);
-            if (dup2(fdIn, STDIN_FILENO) == -1) {
-                fprintf(stderr, "%s: cannot open %s for input\n", cmd->argv[0], cmd->infile);
-                return 1;
-            }
-        }
-        if (cmd->outfile != NULL) {
-            fdOut = open(cmd->outfile, 
-                         O_WRONLY | O_CREAT | O_TRUNC, 
-                         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-            if (dup2(fdOut, STDOUT_FILENO) == -1) {
-                fprintf(stderr, "%s: cannot open %s for output\n", cmd->argv[0], cmd->outfile);
-                return 1;
-            }
-        }
-        
-        execvp(cmd->argv[0], cmd->argv);
-        
-        fprintf(stderr, "%s: no such file or directory\n", cmd->argv[0]);
-    } else if (cpid == -1) {
-        printWarning("Failed to fork process.\n");
-    } else {
-        // this is the parent process--wait for child to terminate
-        waitpid(cpid, &status, 0);
-        
-        // close any open file descriptors
-        if (fdIn >= 0)
-            close(fdIn);
-        if (fdOut >= 0)
-            close(fdOut);
-    }
-    return status;
-}
-void spawnBgProcess(Command* cmd) {
 }
 
 void catchint() {
