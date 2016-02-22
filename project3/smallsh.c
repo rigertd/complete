@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
                 printStatus(lastCmdStatus);
             } else {
                 // not a built-in command--run it
-                cpid = runCommand(&cmd, &lastCmdStatus);
+                lastCmdStatus = runCommand(&cmd, &cpid);
                 if (cpid > -1 && cmd.background) {
                     // add to bgPids waitlist
                     BgProcess bgp = {cpid, cmd.infd, cmd.outfd};
