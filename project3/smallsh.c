@@ -345,7 +345,7 @@ int spawnFgProcess(Command* cmd) {
             }
         }
         if (cmd->outfile != NULL) {
-            fdOut = open(cmd->outfile, O_WRONLY);
+            fdOut = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC);
             if (dup2(fdOut, STDOUT_FILENO) == -1) {
                 fprintf(stderr, "%s: cannot open %s for output\n", cmd->argv[0], cmd->outfile);
                 return 1;
