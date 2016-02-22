@@ -239,16 +239,10 @@ int main(int argc, char* argv[]) {
             /* check for built-in commands */
             if (strcmp(cmd.argv[0], "exit") == 0) {
                 break;
-            } else if (strcmp(cmd.argv[0], "cd") == 0) {
-                chdir(cmd.argv[0]);
+            } else if (strcmp(cmd.argv[0], "cd") == 0 && cmd.argc > 1) {
+                chdir(cmd.argv[1]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
-                if (WIFEXITED(lastCmdStatus)) {
-                    
-                    printf("exit value %d\n", WEXITSTATUS(lastCmdStatus));
-                } else if (WIFSIGNALED(lastCmdStatus)) {
-                    printf("terminated by signal %d\n", WTERMSIG(lastCmdStatus));
-                }
-                
+                printStatus(lastCmdStatus);
             } else {
                 /* not a built-in command--check for foreground or background */
                 if (cmd.background) {
@@ -266,6 +260,15 @@ int main(int argc, char* argv[]) {
 /*========================================================*
  * Function definitions
  *========================================================*/
+void printStatus(int status) {
+    if (WIFEXITED(lastCmdStatus)) {
+        
+        printf("exit value %d\n", WEXITSTATUS(lastCmdStatus));
+    } else if (WIFSIGNALED(lastCmdStatus)) {
+        printf("terminated by signal %d\n", WTERMSIG(lastCmdStatus));
+    }
+}
+
 void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;
     
