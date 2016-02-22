@@ -10,7 +10,6 @@
 #include "bgvector.h"
 #include "command.h"
 #include <errno.h>
-#include <fcntl.h>  // for close-on-exec
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,8 +181,6 @@
  *
  * Define constants here for easy modification and to avoid magic numbers.
  *========================================================*/
-#define MAX_CMD_LINE_LEN 2048
-#define MAX_ARGS 512
 
 /*========================================================*
  * Structs and enumerations
@@ -208,7 +205,6 @@ void printStatus(int);
 /*========================================================*
  * Globals
  *========================================================*/
-BgProcessVector bgPids;
 
 
 /*========================================================*
@@ -218,6 +214,7 @@ int main(int argc, char* argv[]) {
     /* start by registering signal handler for CTRL+C*/
     registerIntHandler(catchint);
 
+    BgProcessVector bgPids;
     Command cmd;
     int lastCmdStatus = 0;
     pid_t cpid;

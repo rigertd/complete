@@ -3,6 +3,8 @@
 
 #include <sys/types.h>
 
+#define MAX_CMD_LINE_LEN 2048
+#define MAX_ARGS 512
 #define UNUSED_FD -5
 
 /**

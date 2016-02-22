@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;

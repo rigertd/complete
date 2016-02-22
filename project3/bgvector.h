@@ -8,7 +8,7 @@ typedef struct BgProcessVector {
     unsigned int capacity;
     BgProcess* arr;
     int lock;
-} IntVector;
+} BgProcessVector;
 
 void initBgProcessVector(BgProcessVector*, unsigned int);
 void finalizeIntVector(BgProcessVector*);
