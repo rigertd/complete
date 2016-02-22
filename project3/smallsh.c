@@ -240,8 +240,9 @@ int main(int argc, char* argv[]) {
             /* check for built-in commands */
             if (strcmp(cmd.argv[0], "exit") == 0) {
                 break;
-            } else if (strcmp(cmd.argv[0], "cd") == 0 && cmd.argc > 1) {
-                chdir(cmd.argv[1]);
+            } else if (strcmp(cmd.argv[0], "cd") == 0) {
+                /* only run the command if an argument was specified */
+                if (cmd.argc > 1) chdir(cmd.argv[1]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
                 printStatus(lastCmdStatus);
             } else {
@@ -285,7 +286,7 @@ void parseCommand(Command* cmd) {
     while (token != NULL) {
         printf("Token found: %s\n", token);
         
-        if (strcmp(token, "#") == 0) {
+        if (strncmp(token, "#", 1) == 0) {
             /* comment marker found--ignore rest of line */
             break;
         } else if (strcmp(token, "<") == 0) {
