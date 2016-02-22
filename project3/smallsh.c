@@ -241,7 +241,8 @@ int main(int argc, char* argv[]) {
                 cpid = runCommand(&cmd, &lastCmdStatus);
                 if (cpid > -1 && cmd.background) {
                     // add to bgPids waitlist
-                    pushBackBgProcessVector(&bgPids, {cpid, cmd.infd, cmd.outfd});
+                    BgProcess bgp = {cpid, cmd.infd, cmd.outfd};
+                    pushBackBgProcessVector(&bgPids, bgp);
                 }
             }
         }

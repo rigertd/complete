@@ -1,6 +1,7 @@
 #include "bgvector.h"
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void initBgProcessVector(BgProcessVector *vec, unsigned int capacity) {
     vec->size = 0;
@@ -20,7 +21,7 @@ void pushBackBgProcessVector(BgProcessVector* vec, BgProcess value) {
         --vec->lock;
         usleep(10);
     }
-    int* tempArr;
+    BgProcess* tempArr;
     
     if (vec->capacity <= vec->size) {
         tempArr = malloc(sizeof(BgProcess) * vec->capacity * 2);
