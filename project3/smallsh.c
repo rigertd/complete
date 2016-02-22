@@ -211,6 +211,7 @@ void printFatalError(char*);
 void printWarning(char*);
 int getExitStatus(pid_t);
 void readLine(int, char*, size_t);
+void printStatus(int);
 
 /*========================================================*
  * Constant definitions
