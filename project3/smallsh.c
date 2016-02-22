@@ -219,7 +219,6 @@ void readLine(int, char*, size_t);
 /*========================================================*
  * Globals
  *========================================================*/
-static int lastCmdStatus;
 
 /*========================================================*
  * main function
@@ -229,7 +228,7 @@ int main(int argc, char* argv[]) {
     registerIntHandler(catchint);
     
     Command cmd;
-    lastCmdStatus = 0;
+    int lastCmdStatus = 0;
     
     do {
         write(STDOUT_FILENO, ": ", 2);
@@ -243,7 +242,13 @@ int main(int argc, char* argv[]) {
             } else if (strcmp(cmd.argv[0], "cd") == 0) {
                 chdir(cmd.argv[0]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
-                printf("exit value %d\n", lastCmdStatus);
+                if (WIFEXITED(lastCmdStatus)) {
+                    
+                    printf("exit value %d\n", WEXITSTATUS(lastCmdStatus));
+                } else if (WIFSIGNALED(lastCmdStatus)) {
+                    printf("terminated by signal %d\n", WTERMSIG(lastCmdStatus));
+                }
+                
             } else {
                 /* not a built-in command--check for foreground or background */
                 if (cmd.background) {
@@ -330,7 +335,7 @@ int spawnFgProcess(char* argv[]) {
         printWarning("Failed to fork process.\n");
     } else {
         // this is the parent process--wait for child to terminate
-        status = getExitStatus(cpid);
+        waitpid(cpid, &status, 0);
     }
     return status;
 }
@@ -340,18 +345,6 @@ void spawnBgProcess(char* argv[]) {
 void catchint() {
     char* msg = "Caught interrupt signal.\n";
     write(STDOUT_FILENO, msg, strlen(msg));
-}
-
-int getExitStatus(pid_t cpid) {
-    int status;
-    cpid = waitpid(cpid, &status, 0);
-    
-    if (cpid == -1)
-        printFatalError("Wait call failed.\n");
-    if (WIFEXITED(status))
-        return WEXITSTATUS(status);
-    else
-        return -1;
 }
 
 void registerIntHandler(void (*handler)(int)) {
