@@ -190,6 +190,7 @@
  * Function prototypes
  *========================================================*/
 void catchint();
+void processChildren(BgProcessVector*);
 void registerIntHandler(void (*)(int));
 int spawnFgProcess(Command*);
 void printFatalError(char*);
@@ -197,6 +198,7 @@ void printWarning(char*);
 int getExitStatus(pid_t);
 void readLine(int, char*, size_t);
 void printStatus(int);
+void printBgStatus(pid_t, int);
 
 /*========================================================*
  * Constant definitions
@@ -206,13 +208,12 @@ void printStatus(int);
  * Globals
  *========================================================*/
 
-
 /*========================================================*
  * main function
  *========================================================*/
 int main(int argc, char* argv[]) {
-    /* start by registering signal handler for CTRL+C*/
-    registerIntHandler(catchint);
+	/* start by catching the interrupt signal in the shell itself */
+	registerIntHandler(catchint);
 
     BgProcessVector bgPids;
     Command cmd;
@@ -223,6 +224,7 @@ int main(int argc, char* argv[]) {
     initBgProcessVector(&bgPids, 4);
     
     do {
+		processChildren(&bgPids);
         write(STDOUT_FILENO, ": ", 2);
         readLine(STDIN_FILENO, cmd.buffer, MAX_CMD_LINE_LEN);
         parseCommand(&cmd);
@@ -233,13 +235,19 @@ int main(int argc, char* argv[]) {
                 break;
             } else if (strcmp(cmd.argv[0], "cd") == 0) {
                 // parseCommand sets argv[1] to NULL if nothing entered after cd
-                chdir(cmd.argv[1]);
+                if (cmd.argv[1] == NULL) {
+					cmd.argv[1] = getenv("HOME");
+					cmd.argv[2] = NULL;
+					cmd.argc++;
+				}
+				chdir(cmd.argv[1]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
                 printStatus(lastCmdStatus);
             } else {
                 // not a built-in command--run it
                 lastCmdStatus = runCommand(&cmd, &cpid);
-                if (cpid > -1 && cmd.background) {
+				if (cpid > -1 && !cmd.background) {
+				} else if (cpid > -1 && cmd.background) {
                     // add to bgPids waitlist
                     BgProcess bgp = {cpid, cmd.infd, cmd.outfd};
                     pushBackBgProcessVector(&bgPids, bgp);
@@ -256,6 +264,37 @@ int main(int argc, char* argv[]) {
 /*========================================================*
  * Function definitions
  *========================================================*/
+void processChildren(BgProcessVector *vec) {
+	int i, status;
+	pid_t cpid;
+
+	for (i = 0; i < vec->size; ++i) {
+		cpid = waitpid(getAtBgProcessVector(vec, i).id, &status, WNOHANG);
+		if (cpid > 0) {
+			close(getAtBgProcessVector(vec, i).inFd);
+			close(getAtBgProcessVector(vec, i).outFd);
+			removeIndexBgProcessVector(vec, i);
+			--i;
+			printBgStatus(cpid, status);
+		} else if (cpid < 0) {
+			close(getAtBgProcessVector(vec, i).inFd);
+			close(getAtBgProcessVector(vec, i).outFd);
+			removeIndexBgProcessVector(vec, i);
+			--i;
+		}
+	}
+}
+
+void printBgStatus(pid_t pid, int status) {
+	if (WIFEXITED(status)) {
+		printf("background pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
+	} else if (WIFSIGNALED(status)) {
+		printf("background pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
+	}
+	/* ensure the output buffer is flushed */
+	fflush(stdout);
+}
+
 void printStatus(int status) {
     if (WIFEXITED(status)) {
         
@@ -268,8 +307,9 @@ void printStatus(int status) {
 }
 
 void catchint() {
-    char* msg = "Caught interrupt signal.\n";
-    write(STDOUT_FILENO, msg, strlen(msg));
+    //char* msg = "Caught interrupt signal.\n";
+    //write(STDOUT_FILENO, msg, strlen(msg));
+	// forward interrupt signal to foreground process if active
 }
 
 void registerIntHandler(void (*handler)(int)) {
@@ -317,8 +357,8 @@ void readLine(int fd, char* buf, size_t size) {
     ssize_t bytes = read(fd, buf, size);
 
     if (bytes < 0) {
-        fprintf(stderr, "Error reading from file. (errno %d)", errno);
-        exit(1);
+		buf[0] = '\0';
+		return;
     }
     // search string for newline and replace with NULL terminator,
     // then count until non-whitespace char is found

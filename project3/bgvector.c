@@ -43,7 +43,7 @@ void popBackBgProcessVector(BgProcessVector* vec) {
     --vec->size;
 }
 
-void removeAtBgProcessVector(BgProcessVector* vec, unsigned int index) {
+void removeIndexBgProcessVector(BgProcessVector* vec, unsigned int index) {
     int i;
     // use a counting semaphore for critical section
     // attempt to get a lock and sleep for 10 usecs until one is acquired
