@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <signal.h>
 
 void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;
@@ -92,6 +93,9 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 exit(EXIT_FAILURE);
             }
         } else if (cmd->background) {
+			// background process--ignore SIGINT
+			signal(SIGINT, SIG_IGN);
+
             // redirect stdout to /dev/null if background process
             cmd->outfd = open("/dev/null", O_WRONLY);
             if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
@@ -122,6 +126,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 close(cmd->outfd);
         } else {
 			printf("background pid is %d\n", *cpid);
+
 		}
     }
     
