@@ -139,10 +139,13 @@ void intToString(int val, char *buf, int size) {
     
     /* Get the absolute value of val and write the string in reverse */
     j = j > 0 ? j : j * -1;
-    while (j > 0) {
-        buf[i++] = '0' + j % 10;
-        j /= 10;
-    }
+    if (j == 0)
+        buf[i++] = '0';
+    else
+        while (j > 0) {
+            buf[i++] = '0' + j % 10;
+            j /= 10;
+        }
     
     /* Append the negative sign at the end if value is negative */
     if (val < 0) buf[i++] = '-';
@@ -417,10 +420,9 @@ int runCommand(Command* cmd, pid_t* cpid) {
             
             /* Print message if child process was terminated by a signal */
             if (WIFSIGNALED(status)) {
-                printString(STDOUT_FILENO, "background pid is ");
-                printInt(STDOUT_FILENO, (int)*cpid);
+                printString(STDOUT_FILENO, "terminated by signal ");
+                printInt(STDOUT_FILENO, (int)WTERMSIG(status));
                 printString(STDOUT_FILENO, "\n");
-                printf("terminated by signal %d\n", WTERMSIG(status));
             }
             /* Close any open file descriptors */
             close(cmd->infd);

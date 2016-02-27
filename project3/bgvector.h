@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 /**
- * Stores the PID and input/output file descriptors of a background process. */
+ * Stores the PID and input/output file descriptors of a background process.
  */
 typedef struct BgProcess {
     pid_t id;
