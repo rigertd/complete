@@ -25,7 +25,7 @@ void initBgProcessVector(BgProcessVector *vec, unsigned int capacity) {
     vec->size = 0;
     vec->capacity = capacity;
     vec->arr = malloc(sizeof(BgProcess) * capacity);
-    if (arr == NULL) {
+    if (vec->arr == NULL) {
         fprintf(stderr, "Failed to allocate memory for BgProcessVector\n");
         exit(EXIT_FAILURE);
     }

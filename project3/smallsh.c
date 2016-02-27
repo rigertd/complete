@@ -7,15 +7,15 @@
 \*********************************************************/
 
 #include "smallsh.h"
-#include "bgvector.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <sys/wait.h>
 
 /*========================================================*
  * main function
@@ -100,26 +100,26 @@ void changeDirectory(char* path) {
     }
     
     /* Check whether specified path exists, and display error if not */
-    if (stat(cmd.argv[1], &fldr) == -1) {
-        printString(FILENO_STDERR, "smallsh: cd: ");
-        printString(FILENO_STDERR, cmd.argv[1]);
+    if (stat(path, &fldr) == -1) {
+        printString(STDERR_FILENO, "smallsh: cd: ");
+        printString(STDERR_FILENO, path);
         switch (errno) {
         case ENOENT:
-            printString(FILENO_STDERR, ": No such file or directory\n");
+            printString(STDERR_FILENO, ": No such file or directory\n");
             break;
         case EACCES:
-            printString(FILENO_STDERR, ": Access denied\n");
+            printString(STDERR_FILENO, ": Access denied\n");
             break;
         case ENOTDIR:
-            printString(FILENO_STDERR, ": Not a directory\n");
+            printString(STDERR_FILENO, ": Not a directory\n");
             break;
         default:
-            printString(FILENO_STDERR, ": Unknown error\n");
+            printString(STDERR_FILENO, ": Unknown error\n");
             break;
         }
     } else {
         /* Path found--change directory to specified path */
-        chdir(cmd.argv[1]);
+        chdir(path);
     }
 }
 
@@ -137,21 +137,25 @@ void intToString(int val, char *buf, int size) {
     i = 0;
     j = val;
     
-    j = j > 0 ? j : j * -1;
+    /* Get the absolute value of val and write the string in reverse */
+	j = j > 0 ? j : j * -1;
     while (j > 0) {
         buf[i++] = '0' + j % 10;
         j /= 10;
     }
     
-    if (val < 0) buf[i++] = '-';
+    /* Append the negative sign at the end if value is negative */
+	if (val < 0) buf[i++] = '-';
     
-    for (j = 0; j < i / 2; ++j) {
+    /* Reverse the string */
+	for (j = 0; j < i / 2; ++j) {
         tmp = buf[j];
         buf[j] = buf[i - j - 1];
         buf[i - j - 1] = tmp;
     }
     
-    for (j = i; j < size; ++j) {
+    /* Fill the rest of the buffer with NULL */
+	for (j = i; j < size; ++j) {
         buf[j] = '\0';
     }
 }
@@ -230,17 +234,17 @@ void parseCommand(Command* cmd) {
  */
 void printBgStatus(pid_t pid, int status) {
     if (WIFEXITED(status)) {
-        printString(FILENO_STDOUT, "background pid ");
-        printInt(FILENO_STDOUT, pid);
-        printString(FILENO_STDOUT, " is done: exit value ");
-        printInt(FILENO_STDOUT, WEXITSTATUS(status));
-        printString("\n");
+        printString(STDOUT_FILENO, "background pid ");
+        printInt(STDOUT_FILENO, pid);
+        printString(STDOUT_FILENO, " is done: exit value ");
+        printInt(STDOUT_FILENO, WEXITSTATUS(status));
+        printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
-        printString(FILENO_STDOUT, "background pid ");
-        printInt(FILENO_STDOUT, pid);
-        printString(FILENO_STDOUT, " is done: terminated by signal ");
-        printInt(FILENO_STDOUT, WTERMSIG(status));
-        printString("\n");
+        printString(STDOUT_FILENO, "background pid ");
+        printInt(STDOUT_FILENO, pid);
+        printString(STDOUT_FILENO, " is done: terminated by signal ");
+        printInt(STDOUT_FILENO, WTERMSIG(status));
+        printString(STDOUT_FILENO, "\n");
     }
 }
 
@@ -259,7 +263,7 @@ void printInt(int fd, int val) {
         printString(STDERR_FILENO, "smallsh: failed to allocate memory\n");
         exit(EXIT_FAILURE);
     }
-    write(fd, buf, (int)size_t);
+    write(fd, buf, (int)maxlen);
     free(buf);
 }
 
@@ -271,13 +275,13 @@ void printInt(int fd, int val) {
  */
 void printStatus(int status) {
     if (WIFEXITED(status)) {
-        printString(FILENO_STDOUT, "background pid ");
-        printInt(FILENO_STDOUT, WEXITSTATUS(status));
-        printString("\n");
+        printString(STDOUT_FILENO, "background pid ");
+        printInt(STDOUT_FILENO, WEXITSTATUS(status));
+        printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
-        printString(FILENO_STDOUT, "terminated by signal ");
-        printInt(FILENO_STDOUT, WTERMSIG(status));
-        printString("\n");
+        printString(STDOUT_FILENO, "terminated by signal ");
+        printInt(STDOUT_FILENO, WTERMSIG(status));
+        printString(STDOUT_FILENO, "\n");
     }
 }
 
@@ -342,12 +346,11 @@ void readLine(int fd, char* buf, size_t size) {
  * Returns the exit status of 
  */
 int runCommand(Command* cmd, pid_t* cpid) {
-    int infd, outfd;
-    
-    *cpid = fork();
+	int status = 0;
 
-    int status = 0;
-    
+    /* Fork the process */
+	*cpid = fork();
+
     if (*cpid == 0) {
         /* This is the child process */
         
@@ -357,8 +360,8 @@ int runCommand(Command* cmd, pid_t* cpid) {
         
         /* Redirect input file to stdin if one is specified */
         if (cmd->infile != NULL) {
-            infd = open(cmd->infile, O_RDONLY);
-            if (dup2(infd, STDIN_FILENO) == -1) {
+            cmd->infd = open(cmd->infile, O_RDONLY);
+            if (dup2(cmd->infd, STDIN_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open ");
                 printString(STDERR_FILENO, cmd->infile);
                 printString(STDERR_FILENO, "for input\n");
@@ -366,8 +369,8 @@ int runCommand(Command* cmd, pid_t* cpid) {
             }
         } else if (cmd->background) {
             /* Redirect /dev/null to stdin if background process */
-            infd = open("/dev/null", O_RDONLY);
-            if (dup2(infd, STDIN_FILENO) == -1) {
+            cmd->infd = open("/dev/null", O_RDONLY);
+            if (dup2(cmd->infd, STDIN_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open /dev/null for input\n");
                 exit(EXIT_FAILURE);
             }
@@ -375,10 +378,10 @@ int runCommand(Command* cmd, pid_t* cpid) {
         
         /* Redirect stdout to output file if one is specified */
         if (cmd->outfile != NULL) {
-            outfd = open(cmd->outfile, 
+            cmd->outfd = open(cmd->outfile, 
                          O_WRONLY | O_CREAT | O_TRUNC, 
                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-            if (dup2(outfd, STDOUT_FILENO) == -1) {
+            if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open ");
                 printString(STDERR_FILENO, cmd->outfile);
                 printString(STDERR_FILENO, "for output\n");
@@ -386,8 +389,8 @@ int runCommand(Command* cmd, pid_t* cpid) {
             }
         } else if (cmd->background) {
             /* Redirect stdout to /dev/null if background process */
-            outfd = open("/dev/null", O_WRONLY);
-            if (dup2(outfd, STDOUT_FILENO) == -1) {
+            cmd->outfd = open("/dev/null", O_WRONLY);
+            if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open /dev/null for output\n");
                 exit(EXIT_FAILURE);
             }
@@ -414,20 +417,20 @@ int runCommand(Command* cmd, pid_t* cpid) {
             
             /* Print message if child process was terminated by a signal */
             if (WIFSIGNALED(status)) {
-                printString(FILENO_STDOUT, "background pid is ");
-                printInt(FILENO_STDOUT, (int)*cpid);
-                printString(FILENO_STDOUT, "\n");
+                printString(STDOUT_FILENO, "background pid is ");
+                printInt(STDOUT_FILENO, (int)*cpid);
+                printString(STDOUT_FILENO, "\n");
                 printf("terminated by signal %d\n", WTERMSIG(status));
             }
             /* Close any open file descriptors */
-            close(infd);
-            close(outfd);
+            close(cmd->infd);
+            close(cmd->outfd);
         } else {
             /* Child is running in background. 
                Print PID and return to prompt. */
-            printString(FILENO_STDOUT, "background pid is ");
-            printInt(FILENO_STDOUT, (int)*cpid);
-            printString(FILENO_STDOUT, "\n");
+            printString(STDOUT_FILENO, "background pid is ");
+            printInt(STDOUT_FILENO, (int)*cpid);
+            printString(STDOUT_FILENO, "\n");
 
         }
     }

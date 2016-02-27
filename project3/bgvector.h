@@ -26,7 +26,7 @@ typedef struct BgProcessVector {
 } BgProcessVector;
 
 void initBgProcessVector(BgProcessVector*, unsigned int);
-void finalizeIntVector(BgProcessVector*);
+void finalizeBgProcessVector(BgProcessVector*);
 
 void pushBackBgProcessVector(BgProcessVector*, BgProcess);
 void popBackBgProcessVector(BgProcessVector*);

@@ -11,7 +11,7 @@ all: $(OBJS)
 	$(C) $(CFLAGS) $(OBJS) -o smallsh
 
 $(OBJS): $(@:.o=.c)
-	$(C) $(CFLAGS) -c $(@:.o=.cpp)
+	$(C) $(CFLAGS) -c $(@:.o=.c)
 
 clean:
 	$(RM) $(PROGS) $(OBJS)

@@ -8,6 +8,7 @@
 #ifndef SMALLSH_H
 #define SMALLSH_H
 
+#include "bgvector.h"
 #include <unistd.h>
 
 /*========================================================*
@@ -31,6 +32,8 @@
  *  background  Whether to run the command in the background.
  *  infile      The filename to use for input, or NULL.
  *  outfile     The filename to use for output, or NULL.
+ *  infd        The file descriptor of the input file.
+ *  outfd       The file descriptor of the output file.
  */
 typedef struct Command {
     int argc;
@@ -39,6 +42,8 @@ typedef struct Command {
     int background;
     char *infile;
     char *outfile;
+    int infd;
+    int outfd;
 } Command;
 
 /*========================================================*
