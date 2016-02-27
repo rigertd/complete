@@ -146,7 +146,7 @@ void intToString(int val, char *buf, int size) {
             buf[i++] = '0' + j % 10;
             j /= 10;
         }
-    
+	
     /* Append the negative sign at the end if value is negative */
     if (val < 0) buf[i++] = '-';
     
@@ -266,6 +266,7 @@ void printInt(int fd, int val) {
         printString(STDERR_FILENO, "smallsh: failed to allocate memory\n");
         exit(EXIT_FAILURE);
     }
+	intToString(val, buf, maxlen);
     write(fd, buf, (int)maxlen);
     free(buf);
 }
