@@ -8,247 +8,66 @@
 
 #include "smallsh.h"
 #include "bgvector.h"
-#include "command.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 
-/*  File descriptors automatically opened by kernel:
-        0 = stdin
-        1 = stdout
-        2 = stderr
-    Creating a pipe:
-        - Parent process creates a pipe, resulting in an input fd and an output fd
-        - Parent forks (and possibly execs) and both parent and child have copies of fds
-            - One reads from input, and the other writes to output
-        
-    Signals:
-        SIGBUS = bus error (read invalid mem address), SIGSEGV = seg fault
-        SIGILL = illegal machine instruction
-        SIGFPE = floating point error
-        SIGSYS = illegal system call
-        SIGCHILD = child process terminated
-        SIGTERM can be caught and ignored, but not SIGKILL
-        SIGUSR1 and SIGUSR2 are for user-defined signals
-        SIGQUIT
-        SIGINT = interrupt signal (ctrl+c)
-    struct sigaction
-    {
-        void (*sa_handler)(int);
-        sigset_t sa_mask;
-        int sa_flags;
-        void (*sa_sigaction)(int, siginfo_t *, void *);
-    }
-    First member should be set to SIG_DFL, SIG_IGN, or pointer to function to call when signal is received.
-    Second member tells which signals to block while sig handler is executing
-    Third one can be SA_RESTHAND (reset handler to SIG_DFL) after signal is received and handled
-        - SA_SIGINFO (tells kernel to call function specified in 4th member instead of first)
-        - Set to 0 to set no flags.
-        - Set to SA_RESTART to automatically restart system calls
-    These function calls will likely be needed:
-    sigemptyset(sigset_t*)
-        - creates an empty sigset_t
-    sigfillset(sigset_t*)
-        - creates a full sigset_t
-    sigaddset(sigset_t*, int)
-        - adds the specified mask to a set
-    sigdelset(sigset_t*, int)
-        - removes the specified mask from a set
-    int sigaction(int signo, struct sigaction *newact, struct sigaction *origact)
-        - sets the signal handler to call when a signal occurs
-        - Set third parameter to NULL if you don't want to store original action
-    sigprocmask()
-        - Blocks signals (delays) until unblocked
-    int pause()
-        - Blocks until any unblocked signal is received
-        - When signal is received, pause returns -1 and sets errno to EINTR
-    int raise(int sig)
-        - Sends a signal to yourself
-    unsigned int alarm(unsigned int seconds) 
-        - Kernal sends SIGALARM after specified amount of time passes
-        - returns immediately
-        - can only have one alarm set at a time
-        - sleep() calls alarm() followed by pause()
-    ualarm()
-    int mkfifo(const char* fifoName, 0644(perms))
-        - returns new file descriptor
-        - Creates a named pipe (FIFO), which is a special file in the file system
-        - Must be at least one reader and one writer process before you can open a FIFO
-        - Process A calls open(..., O_RDONLY), process B calls open(..., O_WRONLY)
-        - open() call blocks until both processes call open
-    pipe(int[2])
-        - Stores fd in the argument array
-        - First is input, second is output
-        int r, pipeFDs[2];
-        char message[512];
-        pid_t cpid;
-        
-        if (pipe(pipeFDs) == -1) {
-            exit(1);
-        }
-        cpid = fork();
-        switch (cpid) {
-            case 0: // child
-            close(pipeFDs[0]); // close input fd
-            write(pipeFDs[1], "message to parent from child", 41);
-            exit(0);
-            
-            default: // parent
-            close(pipeFDs[1]); // close output fd
-            r = read(pipeFDs[0], message, sizeof(message)); // message from child
-            exit(0)
-        }
-    dup2(fd_a, fd_b)
-        - Duplicates fd_b to point to same target as fd_a (both point to fd_a)
-        - fd2 = dup2(fd, 1) makes stdout point to same file as fd
-        - If fd2 == -1, dup2 call failed
-        - fd2 = dup2(fd, 0) makes stdin point to same file as fd (gets input from that file)
-    fork()
-        - Both resulting processes have same open file descriptors
-        - Variables are copied to child process (managed separately)
-        - Each returns a different value from fork: 0 for child, pid of child for parent, -1 for error (sets errno)
-        - pid_t for pid
-    int execl(char *path, char *arg1, ...)
-        - Replaces current program with new program (process)
-        - Destroys the previous process
-        - Can specify arguments that become argc/argv command line arguments
-        - Executes program in path with specified args
-        - Last arg must be NULL
-    int execv(char *path, char *argv[])
-        - Executes program in path and gives command line arguments in c-string array
-        - First arg must be program path
-        - Last element in argv must be NULL
-    int execlp(char *path, char *arg1, ...)
-    int execvp(char *path, char *argv[])
-        - These search PATH for the executable
-    atexit()
-        - Arranges for function to be called before exit()
-    exit()
-        - Calls all functions registered by atexit()
-        - Flushes all stdio output streams
-        - Removes files created by tmpfile()
-        - Calls _exit()
-    _exit()
-        - Closes all files
-        - Cleans up everything--see man page for wait() for complete list
-    fcntl(fd, flags, int)
-        - FD_SETFD flag = close-on-exec
-        
-    pid_t wait(int &exitMethod)
-        - Waits for any one child process to complete, then returns that pid
-    pid_t waitpid(int pid, int &exitMethod, 0)
-        - Waits until the specified PID process terminates
-        - Specify -1 for pid to wait for any child process
-        - waitpid(-1, &status, WNOHANG) to check if any process has completed
-          and return immediately with 0 if none have
-    pid_t getpid()
-        - Returns the pid of the current process
-    getpgrp()
-        - 
-    setpgid()
-    setsid()
-    getsid()
-    char* getenv("MY_VAR")
-        - Gets an environment variable
-        - Can be used to pass info between shell and C program
-    putenv("MY_VAR= Some text string 1234")
-        - Adds an environment variable
-    nice()
-    char* strdup(const char*)
-        - Returns a duplicate string allocated with malloc--must be free'd
-        - To prevent stack strings from going out of scope (eg when adding to array)
-    getcwd()
-        - Gets the current working dir
-    chdir()
-        - Sets the current working dir
-    int read(int fd, char* buf, int sizeToRead)
-        - Returns number of bytes read
-        - Succeeds if data was available to read
-        - Blocks until data is available in pipe
-        - If output pipe is closed, read() returns 0
-    write()
-        - Blocks until all data has been written
-        - If input pipe is closed, write() returns -1 and errno set to EPIPE
-        - also receives SIGPIPE signal
-*/
-
-/*========================================================*
- * Macro definitions
- *
- * Define constants here for easy modification and to avoid magic numbers.
- *========================================================*/
-
-/*========================================================*
- * Structs and enumerations
- *========================================================*/
-
-/*========================================================*
- * Function prototypes
- *========================================================*/
-void catchint();
-void processChildren(BgProcessVector*);
-void registerIntHandler(void (*)(int));
-int spawnFgProcess(Command*);
-void printFatalError(char*);
-void printWarning(char*);
-int getExitStatus(pid_t);
-void readLine(int, char*, size_t);
-void printStatus(int);
-void printBgStatus(pid_t, int);
-
-/*========================================================*
- * Constant definitions
- *========================================================*/
-
-/*========================================================*
- * Globals
- *========================================================*/
 
 /*========================================================*
  * main function
  *========================================================*/
 int main(int argc, char* argv[]) {
-	/* start by catching the interrupt signal in the shell itself */
-	registerIntHandler(catchint);
+    /* Ignore the interrupt signal in the shell itself */
+    signal(SIGINT, SIG_IGN);
 
-    BgProcessVector bgPids;
-    Command cmd;
-    int lastCmdStatus = 0;
-    pid_t cpid;
+    BgProcessVector bgPids; /* Stores PIDs of background processes */
+    Command cmd;            /* Stores the parsed user command */
+    int lastCmdStatus = 0;  /* Status of the last foreground command */
+    pid_t cpid;             /* PID of new process spawned */
     
-    // initialize the bgPids BgProcessVector for storing background process IDs
+    /* Initialize the bgPids BgProcessVector */
     initBgProcessVector(&bgPids, 4);
     
+    /* Command loop. Loop until user enters "exit" */
     do {
-		processChildren(&bgPids);
+        /* Check if any background processes can be waited */
+        waitBgChildren(&bgPids);
+        
+        /* Display the prompt */
         write(STDOUT_FILENO, ": ", 2);
+        
+        /* Get a line of user (or other) input */
         readLine(STDIN_FILENO, cmd.buffer, MAX_CMD_LINE_LEN);
+        
+        /* Parse the line of input and populate a Command object */
         parseCommand(&cmd);
         
+        /* Only run the command if the user entered something */
         if (cmd.argc > 0) {
-            // check for built-in commands */
+            /* Check for built-in commands: 'exit', 'cd', or 'status' */
             if (strcmp(cmd.argv[0], "exit") == 0) {
+                /* Terminate the shell by breaking out of command loop */
                 break;
             } else if (strcmp(cmd.argv[0], "cd") == 0) {
-                // parseCommand sets argv[1] to NULL if nothing entered after cd
-                if (cmd.argv[1] == NULL) {
-					cmd.argv[1] = getenv("HOME");
-					cmd.argv[2] = NULL;
-					cmd.argc++;
-				}
-				chdir(cmd.argv[1]);
+                changeDirectory(cmd.argv[1]);
             } else if (strcmp(cmd.argv[0], "status") == 0) {
                 printStatus(lastCmdStatus);
             } else {
-                // not a built-in command--run it
-                lastCmdStatus = runCommand(&cmd, &cpid);
-				if (cpid > -1 && !cmd.background) {
-				} else if (cpid > -1 && cmd.background) {
-                    // add to bgPids waitlist
+                /* Not a built-in command--run it.
+                   Only store exit status if foreground command. */
+                if (cmd.background)
+                    runCommand(&cmd, &cpid);
+                else
+                    lastCmdStatus = runCommand(&cmd, &cpid);
+                
+                /* Add PID to bgPids if a background command succeeds */
+                if (cpid > -1 && cmd.background) {
+                    /* Keep track of file descriptors to ensure they are
+                       closed after the child process terminates. */
                     BgProcess bgp = {cpid, cmd.infd, cmd.outfd};
                     pushBackBgProcessVector(&bgPids, bgp);
                 }
@@ -256,6 +75,7 @@ int main(int argc, char* argv[]) {
         }
     } while (1);
     
+    /* Finalize the bgPids BgProcessVector */
     finalizeBgProcessVector(&bgPids);
     
     return EXIT_SUCCESS;
@@ -264,85 +84,215 @@ int main(int argc, char* argv[]) {
 /*========================================================*
  * Function definitions
  *========================================================*/
-void processChildren(BgProcessVector *vec) {
-	int i, status;
-	pid_t cpid;
-
-	for (i = 0; i < vec->size; ++i) {
-		cpid = waitpid(getAtBgProcessVector(vec, i).id, &status, WNOHANG);
-		if (cpid > 0) {
-			close(getAtBgProcessVector(vec, i).inFd);
-			close(getAtBgProcessVector(vec, i).outFd);
-			removeIndexBgProcessVector(vec, i);
-			--i;
-			printBgStatus(cpid, status);
-		} else if (cpid < 0) {
-			close(getAtBgProcessVector(vec, i).inFd);
-			close(getAtBgProcessVector(vec, i).outFd);
-			removeIndexBgProcessVector(vec, i);
-			--i;
-		}
-	}
+/**
+ * Changes the current working directory to the specified path.
+ * Displays an error message to STDERR if invalid path is specified.
+ * Changes to the user's HOME directory if path is NULL.
+ *
+ *  path    The path to change to, or NULL for user's HOME directory.
+ */
+void changeDirectory(char* path) {
+    struct stat fldr;   /* for checking if a path exists */
+    
+    /* parseCommand sets argv[1] to NULL if nothing entered after cd */
+    if (path == NULL) {
+        path = getenv("HOME");
+    }
+    
+    /* Check whether specified path exists, and display error if not */
+    if (stat(cmd.argv[1], &fldr) == -1) {
+        printString(FILENO_STDERR, "smallsh: cd: ");
+        printString(FILENO_STDERR, cmd.argv[1]);
+        switch (errno) {
+        case ENOENT:
+            printString(FILENO_STDERR, ": No such file or directory\n");
+            break;
+        case EACCES:
+            printString(FILENO_STDERR, ": Access denied\n");
+            break;
+        case ENOTDIR:
+            printString(FILENO_STDERR, ": Not a directory\n");
+            break;
+        default:
+            printString(FILENO_STDERR, ": Unknown error\n");
+            break;
+        }
+    } else {
+        /* Path found--change directory to specified path */
+        chdir(cmd.argv[1]);
+    }
 }
 
+/**
+ * Converts the specified integer value to a string and
+ * stores it in the specified buffer.
+ *
+ *  val     The integer value to convert.
+ *  buf     The buffer to store the string in.
+ *  size    The size of the buffer--must be big enough to hold the value.
+ */
+void intToString(int val, char *buf, int size) {
+    int i, j;
+    char tmp;
+    i = 0;
+    j = val;
+    
+    j = j > 0 ? j : j * -1;
+    while (j > 0) {
+        buf[i++] = '0' + j % 10;
+        j /= 10;
+    }
+    
+    if (val < 0) buf[i++] = '-';
+    
+    for (j = 0; j < i / 2; ++j) {
+        tmp = buf[j];
+        buf[j] = buf[i - j - 1];
+        buf[i - j - 1] = tmp;
+    }
+    
+    for (j = i; j < size; ++j) {
+        buf[j] = '\0';
+    }
+}
+
+/**
+ * Parses a line of user input and stores it in the specified 
+ * Command structure.
+ *
+ *  cmd     The Command structure for storing the command.
+ */
+void parseCommand(Command* cmd) {
+    char *saveptr, *token, *temp;
+    
+    /* Initialize Command structure members */
+    cmd->background = 0;
+    cmd->argc = 0;
+    cmd->infile = NULL;
+    cmd->outfile = NULL;
+
+    /* Get the first token using the reentrant strtok */
+    token = strtok_r(cmd->buffer, " ", &saveptr);
+    
+    /* Parse input until EOF is reached */
+    while (token != NULL) {
+        
+        if (strncmp(token, "#", 1) == 0) {
+            /* Comment marker--ignore rest of line */
+            break;
+        } else if (strcmp(token, "<") == 0) {
+            /* Input redirection */
+            if (cmd->argc == 0) {
+                /* Print error if redirection comes first */
+                printString(STDERR_FILENO, "smallsh: invalid syntax\n");
+                break;
+            }
+            /* Set input file to next token */
+            cmd->infile = strtok_r(NULL, " ", &saveptr);
+        } else if (strcmp(token, ">") == 0) {
+            /* Output redirection */
+            if (cmd->argc == 0) {
+                /* Print error if redirection comes first */
+                printString(STDERR_FILENO, "smallsh: invalid syntax\n");
+                break;
+            }
+            /* Set output file to next token */
+            cmd->outfile = strtok_r(NULL, " ", &saveptr);
+        } else if (strcmp(token, "&") == 0) {
+            /* Possible background command */
+            temp = strtok_r(NULL, " ", &saveptr);
+            if (temp != NULL) {
+                /* Token found after ampersand--add both as arguments */
+                cmd->argv[cmd->argc++] = token;
+                cmd->argv[cmd->argc++] = temp;
+            } else {
+                /* No additional tokens found--set as background command */
+                cmd->background = 1;
+            }
+        } else {
+            /* Not a special symbol--add to arguments */
+            cmd->argv[cmd->argc++] = token;
+        }
+        
+        /* Read the next token */
+        token = strtok_r(NULL, " ", &saveptr);
+    }
+    
+    /* Set the final argv to NULL, as required by execvp */
+    cmd->argv[cmd->argc] = NULL;
+}
+
+/**
+ * Prints out the status of the specified background process ID.
+ *
+ *  pid     The ID of the process to print the status of.
+ *  status  The status value associated with the specified pid.
+ */
 void printBgStatus(pid_t pid, int status) {
-	if (WIFEXITED(status)) {
-		printf("background pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
-	} else if (WIFSIGNALED(status)) {
-		printf("background pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
-	}
-	/* ensure the output buffer is flushed */
-	fflush(stdout);
+    if (WIFEXITED(status)) {
+        printString(FILENO_STDOUT, "background pid ");
+        printInt(FILENO_STDOUT, pid);
+        printString(FILENO_STDOUT, " is done: exit value ");
+        printInt(FILENO_STDOUT, WEXITSTATUS(status));
+        printString("\n");
+    } else if (WIFSIGNALED(status)) {
+        printString(FILENO_STDOUT, "background pid ");
+        printInt(FILENO_STDOUT, pid);
+        printString(FILENO_STDOUT, " is done: terminated by signal ");
+        printInt(FILENO_STDOUT, WTERMSIG(status));
+        printString("\n");
+    }
 }
 
+/**
+ * Prints the specified integer to the specified file descriptor.
+ * This function is thread-safe.
+ *
+ *  fd      The file descriptor to print to.
+ *  str     The string to print.
+ */
+void printInt(int fd, int val) {
+    size_t maxlen = sizeof(int) * 8 / 3 + 1;
+    char *buf = malloc(maxlen);
+    if (buf == NULL)
+    {
+        printString(STDERR_FILENO, "smallsh: failed to allocate memory\n");
+        exit(EXIT_FAILURE);
+    }
+    write(fd, buf, (int)size_t);
+    free(buf);
+}
+
+/**
+ * Prints out the status of the specified foreground process ID.
+ *
+ *  pid     The ID of the process to print the status of.
+ *  status  The status value associated with the specified pid.
+ */
 void printStatus(int status) {
     if (WIFEXITED(status)) {
-        
-        printf("exit value %d\n", WEXITSTATUS(status));
+        printString(FILENO_STDOUT, "background pid ");
+        printInt(FILENO_STDOUT, WEXITSTATUS(status));
+        printString("\n");
     } else if (WIFSIGNALED(status)) {
-        printf("terminated by signal %d\n", WTERMSIG(status));
+        printString(FILENO_STDOUT, "terminated by signal ");
+        printInt(FILENO_STDOUT, WTERMSIG(status));
+        printString("\n");
     }
-    /* ensure the output buffer is flushed */
-    fflush(stdout);
 }
 
-void catchint() {
-    //char* msg = "Caught interrupt signal.\n";
-    //write(STDOUT_FILENO, msg, strlen(msg));
-	// forward interrupt signal to foreground process if active
+/**
+ * Prints the specified string to the specified file descriptor
+ * and blocks all signals until it completes.
+ *
+ *  fd      The file descriptor to print to.
+ *  str     The string to print.
+ */
+void printString(int fd, char *str) {
+    int len = strlen(str);
+    write(fd, str, len);
 }
 
-void registerIntHandler(void (*handler)(int)) {
-    struct sigaction act;
-    act.sa_handler = handler;
-    act.sa_flags = 0;
-    sigfillset(&act.sa_mask);
-    sigaction(SIGINT, &act, NULL);
-}
-// void fputs_r(const char* str, FILE* stream) {
-    // sigset_t all, old, empty;
-    // sigfillset(&all);
-    // sigemptyset(&empty);
-    // if (sigprocmask(SIG_BLOCK, &all, &old) < 0) {
-        // fputs("Error blocking signals.\n", stderr);
-        // exit(1);
-    // }
-    // fputs(str, stream);
-    // sigsuspend(&empty);
-    // if (sigprocmask(SIG_UNBLOCK, &old, NULL) < 0) {
-        // fputs("Error unblocking signals.\n", stderr);
-        // exit(1);
-    // }
-// }
-
-void printFatalError(char* msg) {
-    write(STDERR_FILENO, msg, strlen(msg));
-    exit(EXIT_FAILURE);
-}
-
-void printWarning(char* msg) {
-    write(STDERR_FILENO, msg, strlen(msg));
-}
 /**
  * Reads from fd until the first newline or EOF and writes it to buf.
  * Points fd to next unread non-whitespace char.
@@ -357,12 +307,12 @@ void readLine(int fd, char* buf, size_t size) {
     ssize_t bytes = read(fd, buf, size);
 
     if (bytes < 0) {
-		buf[0] = '\0';
-		return;
+        buf[0] = '\0';
+        return;
     }
-    // search string for newline and replace with NULL terminator,
-    // then count until non-whitespace char is found
-    // and set the file offset to that character.
+    /* Search string for newline and replace with NULL terminator,
+       then count until non-whitespace char is found
+       and set the file offset to that character. */
     for (i = 0; i < bytes; ++i) {
         if (buf[i] == '\n' || buf[i] == '\r') {
             buf[i] = '\0';
@@ -380,3 +330,142 @@ void readLine(int fd, char* buf, size_t size) {
     }
 
 }
+
+/**
+ * Runs the specified command structure based on the configured values.
+ * You must call parseCommand on the Command structure before passing it
+ * to this function.
+ *
+ *  cmd     The Command structure to run.
+ *  cpid    Stores the PID of the resulting child process.
+ *
+ * Returns the exit status of 
+ */
+int runCommand(Command* cmd, pid_t* cpid) {
+    int infd, outfd;
+    
+    *cpid = fork();
+
+    int status = 0;
+    
+    if (*cpid == 0) {
+        /* This is the child process */
+        
+        /* Set SIGINT signal handler to default behavior if foreground */
+        if (!cmd->background)
+            signal(SIGINT, SIG_DFL);
+        
+        /* Redirect input file to stdin if one is specified */
+        if (cmd->infile != NULL) {
+            infd = open(cmd->infile, O_RDONLY);
+            if (dup2(infd, STDIN_FILENO) == -1) {
+                printString(STDERR_FILENO, "smallsh: cannot open ");
+                printString(STDERR_FILENO, cmd->infile);
+                printString(STDERR_FILENO, "for input\n");
+                exit(EXIT_FAILURE);
+            }
+        } else if (cmd->background) {
+            /* Redirect /dev/null to stdin if background process */
+            infd = open("/dev/null", O_RDONLY);
+            if (dup2(infd, STDIN_FILENO) == -1) {
+                printString(STDERR_FILENO, "smallsh: cannot open /dev/null for input\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+        
+        /* Redirect stdout to output file if one is specified */
+        if (cmd->outfile != NULL) {
+            outfd = open(cmd->outfile, 
+                         O_WRONLY | O_CREAT | O_TRUNC, 
+                         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+            if (dup2(outfd, STDOUT_FILENO) == -1) {
+                printString(STDERR_FILENO, "smallsh: cannot open ");
+                printString(STDERR_FILENO, cmd->outfile);
+                printString(STDERR_FILENO, "for output\n");
+                exit(EXIT_FAILURE);
+            }
+        } else if (cmd->background) {
+            /* Redirect stdout to /dev/null if background process */
+            outfd = open("/dev/null", O_WRONLY);
+            if (dup2(outfd, STDOUT_FILENO) == -1) {
+                printString(STDERR_FILENO, "smallsh: cannot open /dev/null for output\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+        
+        /* Execute the command */
+        execvp(cmd->argv[0], cmd->argv);
+        
+        /* If we get here, the command failed to execute */
+        printString(STDERR_FILENO, cmd->argv[0]);
+        printString(STDERR_FILENO, ": no such file or directory\n");
+        exit(EXIT_FAILURE);
+    } else if (*cpid == -1) {
+        /* Print an error if the fork failed */
+        printString(STDERR_FILENO, "Failed to fork process.\n");
+    } else {
+        /* This is the parent process */
+        if (!cmd->background) {
+            /* Child is running in foreground. Wait for it to terminate.
+               Resume waiting if interrupted by signal */
+            while (waitpid(*cpid, &status, 0) < 0 && errno == EINTR) {
+                continue;
+            }
+            
+            /* Print message if child process was terminated by a signal */
+            if (WIFSIGNALED(status)) {
+                printString(FILENO_STDOUT, "background pid is ");
+                printInt(FILENO_STDOUT, (int)*cpid);
+                printString(FILENO_STDOUT, "\n");
+                printf("terminated by signal %d\n", WTERMSIG(status));
+            }
+            /* Close any open file descriptors */
+            close(infd);
+            close(outfd);
+        } else {
+            /* Child is running in background. 
+               Print PID and return to prompt. */
+            printString(FILENO_STDOUT, "background pid is ");
+            printInt(FILENO_STDOUT, (int)*cpid);
+            printString(FILENO_STDOUT, "\n");
+
+        }
+    }
+    
+    return status;
+}
+
+/**
+ * Checks if any of the PIDs in the specified BgProcessVector are ready
+ * to be waited on. If a PID is ready, it waits on it and prints out the
+ * PID and exit value or terminating signal. If a PID is not ready, it
+ * skips it and checks the next one. Any invalid PIDs are removed.
+ * Any file descriptors that were opened for input or output are closed.
+ *
+ *  vec     The BgProcessVector containing the PIDs to check.
+ */
+void waitBgChildren(BgProcessVector *vec) {
+    int i, status;
+    pid_t cpid;
+
+    /* Loop through vector and attempt to wait for each background process.
+       Do not block if process is not finished. */
+    for (i = 0; i < vec->size; ++i) {
+        cpid = waitpid(getAtBgProcessVector(vec, i).id, &status, WNOHANG);
+        
+        /* If process successfully waited, remove it and close FDs */
+        if (cpid > 0) {
+            close(getAtBgProcessVector(vec, i).inFd);
+            close(getAtBgProcessVector(vec, i).outFd);
+            removeIndexBgProcessVector(vec, i);
+            --i;
+            printBgStatus(cpid, status);
+        } else if (cpid < 0) {
+            close(getAtBgProcessVector(vec, i).inFd);
+            close(getAtBgProcessVector(vec, i).outFd);
+            removeIndexBgProcessVector(vec, i);
+            --i;
+        }
+    }
+}
+
