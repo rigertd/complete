@@ -138,24 +138,24 @@ void intToString(int val, char *buf, int size) {
     j = val;
     
     /* Get the absolute value of val and write the string in reverse */
-	j = j > 0 ? j : j * -1;
+    j = j > 0 ? j : j * -1;
     while (j > 0) {
         buf[i++] = '0' + j % 10;
         j /= 10;
     }
     
     /* Append the negative sign at the end if value is negative */
-	if (val < 0) buf[i++] = '-';
+    if (val < 0) buf[i++] = '-';
     
     /* Reverse the string */
-	for (j = 0; j < i / 2; ++j) {
+    for (j = 0; j < i / 2; ++j) {
         tmp = buf[j];
         buf[j] = buf[i - j - 1];
         buf[i - j - 1] = tmp;
     }
     
     /* Fill the rest of the buffer with NULL */
-	for (j = i; j < size; ++j) {
+    for (j = i; j < size; ++j) {
         buf[j] = '\0';
     }
 }
@@ -235,15 +235,15 @@ void parseCommand(Command* cmd) {
 void printBgStatus(pid_t pid, int status) {
     if (WIFEXITED(status)) {
         printString(STDOUT_FILENO, "background pid ");
-        printInt(STDOUT_FILENO, pid);
+        printInt(STDOUT_FILENO, (int)pid);
         printString(STDOUT_FILENO, " is done: exit value ");
-        printInt(STDOUT_FILENO, WEXITSTATUS(status));
+        printInt(STDOUT_FILENO, (int)WEXITSTATUS(status));
         printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
         printString(STDOUT_FILENO, "background pid ");
-        printInt(STDOUT_FILENO, pid);
+        printInt(STDOUT_FILENO, (int)pid);
         printString(STDOUT_FILENO, " is done: terminated by signal ");
-        printInt(STDOUT_FILENO, WTERMSIG(status));
+        printInt(STDOUT_FILENO, (int)WTERMSIG(status));
         printString(STDOUT_FILENO, "\n");
     }
 }
@@ -275,12 +275,12 @@ void printInt(int fd, int val) {
  */
 void printStatus(int status) {
     if (WIFEXITED(status)) {
-        printString(STDOUT_FILENO, "background pid ");
-        printInt(STDOUT_FILENO, WEXITSTATUS(status));
+        printString(STDOUT_FILENO, "exit value ");
+        printInt(STDOUT_FILENO, (int)WEXITSTATUS(status));
         printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
         printString(STDOUT_FILENO, "terminated by signal ");
-        printInt(STDOUT_FILENO, WTERMSIG(status));
+        printInt(STDOUT_FILENO, (int)WTERMSIG(status));
         printString(STDOUT_FILENO, "\n");
     }
 }
@@ -346,10 +346,10 @@ void readLine(int fd, char* buf, size_t size) {
  * Returns the exit status of 
  */
 int runCommand(Command* cmd, pid_t* cpid) {
-	int status = 0;
+    int status = 0;
 
     /* Fork the process */
-	*cpid = fork();
+    *cpid = fork();
 
     if (*cpid == 0) {
         /* This is the child process */

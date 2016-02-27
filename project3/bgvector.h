@@ -12,12 +12,20 @@
 #define BG_VECTOR_H
 
 #include <unistd.h>
+
+/**
+ * Stores the PID and input/output file descriptors of a background process. */
+ */
 typedef struct BgProcess {
     pid_t id;
     int inFd;
     int outFd;
 } BgProcess;
 
+/**
+ * Structure for a dynamically allocated and resized vector 
+ * that stores BgProcess values.
+ */
 typedef struct BgProcessVector {
     unsigned int size;
     unsigned int capacity;
