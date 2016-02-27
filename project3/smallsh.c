@@ -28,24 +28,24 @@ int main(int argc, char* argv[]) {
     Command cmd;            /* Stores the parsed user command */
     int lastCmdStatus = 0;  /* Status of the last foreground command */
     pid_t cpid;             /* PID of new process spawned */
-    
+
     /* Initialize the bgPids BgProcessVector */
     initBgProcessVector(&bgPids, 4);
-    
+
     /* Command loop. Loop until user enters "exit" */
     do {
         /* Check if any background processes can be waited */
         waitBgChildren(&bgPids);
-        
+
         /* Display the prompt */
         write(STDOUT_FILENO, ": ", 2);
-        
+
         /* Get a line of user (or other) input */
         readLine(STDIN_FILENO, cmd.buffer, MAX_CMD_LINE_LEN);
-        
+
         /* Parse the line of input and populate a Command object */
         parseCommand(&cmd);
-        
+
         /* Only run the command if the user entered something */
         if (cmd.argc > 0) {
             /* Check for built-in commands: 'exit', 'cd', or 'status' */
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
                     runCommand(&cmd, &cpid);
                 else
                     lastCmdStatus = runCommand(&cmd, &cpid);
-                
+
                 /* Add PID to bgPids if a background command succeeds */
                 if (cpid > -1 && cmd.background) {
                     /* Keep track of file descriptors to ensure they are
@@ -74,10 +74,10 @@ int main(int argc, char* argv[]) {
             }
         }
     } while (1);
-    
+
     /* Finalize the bgPids BgProcessVector */
     finalizeBgProcessVector(&bgPids);
-    
+
     return EXIT_SUCCESS;
 }
 
@@ -93,12 +93,12 @@ int main(int argc, char* argv[]) {
  */
 void changeDirectory(char* path) {
     struct stat fldr;   /* for checking if a path exists */
-    
+
     /* parseCommand sets argv[1] to NULL if nothing entered after cd */
     if (path == NULL) {
         path = getenv("HOME");
     }
-    
+
     /* Check whether specified path exists, and display error if not */
     if (stat(path, &fldr) == -1) {
         printString(STDERR_FILENO, "smallsh: cd: ");
@@ -136,7 +136,7 @@ void intToString(int val, char *buf, int size) {
     char tmp;
     i = 0;
     j = val;
-    
+
     /* Get the absolute value of val and write the string in reverse */
     j = j > 0 ? j : j * -1;
     if (j == 0)
@@ -146,17 +146,17 @@ void intToString(int val, char *buf, int size) {
             buf[i++] = '0' + j % 10;
             j /= 10;
         }
-	
+
     /* Append the negative sign at the end if value is negative */
     if (val < 0) buf[i++] = '-';
-    
+
     /* Reverse the string */
     for (j = 0; j < i / 2; ++j) {
         tmp = buf[j];
         buf[j] = buf[i - j - 1];
         buf[i - j - 1] = tmp;
     }
-    
+
     /* Fill the rest of the buffer with NULL */
     for (j = i; j < size; ++j) {
         buf[j] = '\0';
@@ -164,14 +164,14 @@ void intToString(int val, char *buf, int size) {
 }
 
 /**
- * Parses a line of user input and stores it in the specified 
+ * Parses a line of user input and stores it in the specified
  * Command structure.
  *
  *  cmd     The Command structure for storing the command.
  */
 void parseCommand(Command* cmd) {
     char *saveptr, *token, *temp;
-    
+
     /* Initialize Command structure members */
     cmd->background = 0;
     cmd->argc = 0;
@@ -180,10 +180,10 @@ void parseCommand(Command* cmd) {
 
     /* Get the first token using the reentrant strtok */
     token = strtok_r(cmd->buffer, " ", &saveptr);
-    
+
     /* Parse input until EOF is reached */
     while (token != NULL) {
-        
+
         if (strncmp(token, "#", 1) == 0) {
             /* Comment marker--ignore rest of line */
             break;
@@ -220,11 +220,11 @@ void parseCommand(Command* cmd) {
             /* Not a special symbol--add to arguments */
             cmd->argv[cmd->argc++] = token;
         }
-        
+
         /* Read the next token */
         token = strtok_r(NULL, " ", &saveptr);
     }
-    
+
     /* Set the final argv to NULL, as required by execvp */
     cmd->argv[cmd->argc] = NULL;
 }
@@ -266,7 +266,7 @@ void printInt(int fd, int val) {
         printString(STDERR_FILENO, "smallsh: failed to allocate memory\n");
         exit(EXIT_FAILURE);
     }
-	intToString(val, buf, maxlen);
+    intToString(val, buf, maxlen);
     write(fd, buf, (int)maxlen);
     free(buf);
 }
@@ -347,7 +347,7 @@ void readLine(int fd, char* buf, size_t size) {
  *  cmd     The Command structure to run.
  *  cpid    Stores the PID of the resulting child process.
  *
- * Returns the exit status of 
+ * Returns the exit status of
  */
 int runCommand(Command* cmd, pid_t* cpid) {
     int status = 0;
@@ -357,11 +357,11 @@ int runCommand(Command* cmd, pid_t* cpid) {
 
     if (*cpid == 0) {
         /* This is the child process */
-        
+
         /* Set SIGINT signal handler to default behavior if foreground */
         if (!cmd->background)
             signal(SIGINT, SIG_DFL);
-        
+
         /* Redirect input file to stdin if one is specified */
         if (cmd->infile != NULL) {
             cmd->infd = open(cmd->infile, O_RDONLY);
@@ -379,11 +379,11 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 exit(EXIT_FAILURE);
             }
         }
-        
+
         /* Redirect stdout to output file if one is specified */
         if (cmd->outfile != NULL) {
-            cmd->outfd = open(cmd->outfile, 
-                         O_WRONLY | O_CREAT | O_TRUNC, 
+            cmd->outfd = open(cmd->outfile,
+                         O_WRONLY | O_CREAT | O_TRUNC,
                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
             if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open ");
@@ -399,10 +399,10 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 exit(EXIT_FAILURE);
             }
         }
-        
+
         /* Execute the command */
         execvp(cmd->argv[0], cmd->argv);
-        
+
         /* If we get here, the command failed to execute */
         printString(STDERR_FILENO, cmd->argv[0]);
         printString(STDERR_FILENO, ": no such file or directory\n");
@@ -418,7 +418,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
             while (waitpid(*cpid, &status, 0) < 0 && errno == EINTR) {
                 continue;
             }
-            
+
             /* Print message if child process was terminated by a signal */
             if (WIFSIGNALED(status)) {
                 printString(STDOUT_FILENO, "terminated by signal ");
@@ -429,7 +429,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
             close(cmd->infd);
             close(cmd->outfd);
         } else {
-            /* Child is running in background. 
+            /* Child is running in background.
                Print PID and return to prompt. */
             printString(STDOUT_FILENO, "background pid is ");
             printInt(STDOUT_FILENO, (int)*cpid);
@@ -437,7 +437,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
 
         }
     }
-    
+
     return status;
 }
 
@@ -458,7 +458,7 @@ void waitBgChildren(BgProcessVector *vec) {
        Do not block if process is not finished. */
     for (i = 0; i < vec->size; ++i) {
         cpid = waitpid(getAtBgProcessVector(vec, i).id, &status, WNOHANG);
-        
+
         /* If process successfully waited, remove it and close FDs */
         if (cpid > 0) {
             close(getAtBgProcessVector(vec, i).inFd);

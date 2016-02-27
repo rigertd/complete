@@ -3,7 +3,16 @@
 * Class:        CS344 Winter 2016
 * Assignment:   Program 3 - smallsh
 * File:         smallsh.h
-* Description:  
+* Description:  A small shell program written in C.
+*               The command line syntax is as follows:
+*
+*               command [arg1 arg2 ...] [< input_file] [> output_file] [&]
+*
+*               This program includes 3 built-in commands:
+*               - cd     -- Changes the present working directory
+*               - exit   -- Exits the shell
+*               - status -- Gets the exit/termination status of the last
+*                           foreground process
 \*********************************************************/
 #ifndef SMALLSH_H
 #define SMALLSH_H
