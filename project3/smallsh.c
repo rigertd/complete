@@ -368,7 +368,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
             if (dup2(cmd->infd, STDIN_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open ");
                 printString(STDERR_FILENO, cmd->infile);
-                printString(STDERR_FILENO, "for input\n");
+                printString(STDERR_FILENO, " for input\n");
                 exit(EXIT_FAILURE);
             }
         } else if (cmd->background) {
@@ -388,7 +388,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
             if (dup2(cmd->outfd, STDOUT_FILENO) == -1) {
                 printString(STDERR_FILENO, "smallsh: cannot open ");
                 printString(STDERR_FILENO, cmd->outfile);
-                printString(STDERR_FILENO, "for output\n");
+                printString(STDERR_FILENO, " for output\n");
                 exit(EXIT_FAILURE);
             }
         } else if (cmd->background) {
