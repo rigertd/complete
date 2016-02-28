@@ -75,6 +75,11 @@ int main(int argc, char* argv[]) {
         }
     } while (1);
 
+    /* Clean up any lingering background processes */
+    while (bgPids.size > 0) {
+        waitBgChildren(&bgPids);
+    }
+    
     /* Finalize the bgPids BgProcessVector */
     finalizeBgProcessVector(&bgPids);
 
