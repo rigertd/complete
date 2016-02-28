@@ -430,9 +430,9 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 printInt(STDOUT_FILENO, WTERMSIG(status));
                 printString(STDOUT_FILENO, "\n");
             }
-            /* Close any open file descriptors */
-            if (cmd->infile != NULL) close(cmd->infd);
-            if (cmd->outfile != NULL) close(cmd->outfd);
+            /* Close any open file descriptors other than STDIN/OUT/ERR */
+            if (cmd->infd > 2) close(cmd->infd);
+            if (cmd->outfd > 2) close(cmd->outfd);
         } else {
             /* Child is running in background.
                Print PID and return to prompt. */
@@ -458,25 +458,24 @@ int runCommand(Command* cmd, pid_t* cpid) {
 void waitBgChildren(BgProcessVector *vec) {
     int i, status;
     pid_t cpid;
-
+    BgProcess bgp;
+    
     /* Loop through vector and attempt to wait for each background process.
        Do not block if process is not finished. */
     for (i = 0; i < vec->size; ++i) {
+        bgp = getAtBgProcessVector(vec, i);
         cpid = waitpid(getAtBgProcessVector(vec, i).id, &status, WNOHANG);
 
-        /* If process successfully waited, remove it and close FDs */
-        if (cpid > 0) {
-            close(getAtBgProcessVector(vec, i).inFd);
-            close(getAtBgProcessVector(vec, i).outFd);
-            removeIndexBgProcessVector(vec, i);
-            --i;
-            printBgStatus(cpid, status);
-        } else if (cpid < 0) {
-            close(getAtBgProcessVector(vec, i).inFd);
-            close(getAtBgProcessVector(vec, i).outFd);
+        /* If successfully waited or invalid, remove from list and close FDs */
+        if (cpid > 0 || cpid < 0) {
+            if (bgp.inFd > 2) close(bgp.inFd);
+            if (bgp.outFd > 2) close(bgp.outFd);
             removeIndexBgProcessVector(vec, i);
             --i;
         }
+        
+        /* Print background status if successfully waited */
+        if (cpid > 0) printBgStatus(cpid, status);
     }
 }
 
