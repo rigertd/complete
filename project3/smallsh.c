@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
     Command cmd;            /* Stores the parsed user command */
     int lastCmdStatus = 0;  /* Status of the last foreground command */
     pid_t cpid;             /* PID of new process spawned */
+    int i;
 
     /* Initialize the bgPids BgProcessVector */
     initBgProcessVector(&bgPids, 4);
@@ -75,8 +76,11 @@ int main(int argc, char* argv[]) {
         }
     } while (1);
 
-    /* Clean up any lingering background processes */
+    /* Terminate and clean up any lingering background processes */
     while (bgPids.size > 0) {
+        for (i = 0; i < bgPids.size; ++i) {
+            kill(getAtBgProcessVector(&bgPids, i).id, SIGKILL);
+        }
         waitBgChildren(&bgPids);
     }
     
