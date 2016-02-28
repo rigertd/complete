@@ -419,11 +419,10 @@ int runCommand(Command* cmd, pid_t* cpid) {
         /* This is the parent process */
         if (!cmd->background) {
             /* Child is running in foreground. Wait for it to terminate.
-               Continue waiting of interrupted by another signal.
+               We completely ignore the signal in the parent process,
+               so waitpid will not be interrupted by a Ctrl-C.
                The interrupt signal is propogated to the child process */
-            while (waitpid(*cpid, &status, 0) < 0 && errno == EINTR) {
-                continue;
-            }
+            waitpid(*cpid, &status, 0);
 
             /* Print message if child process was terminated by a signal */
             if (WIFSIGNALED(status)) {
@@ -432,8 +431,8 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 printString(STDOUT_FILENO, "\n");
             }
             /* Close any open file descriptors */
-            close(cmd->infd);
-            close(cmd->outfd);
+            if (cmd->infile != NULL) close(cmd->infd);
+            if (cmd->outfile != NULL) close(cmd->outfd);
         } else {
             /* Child is running in background.
                Print PID and return to prompt. */
