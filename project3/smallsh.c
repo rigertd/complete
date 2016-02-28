@@ -92,15 +92,14 @@ int main(int argc, char* argv[]) {
  *  path    The path to change to, or NULL for user's HOME directory.
  */
 void changeDirectory(char* path) {
-    struct stat fldr;   /* for checking if a path exists */
 
     /* parseCommand sets argv[1] to NULL if nothing entered after cd */
     if (path == NULL) {
         path = getenv("HOME");
     }
 
-    /* Check whether specified path exists, and display error if not */
-    if (stat(path, &fldr) == -1) {
+    /* Attempt to change directory and display error if fails */
+    if (chdir(path) == -1) {
         printString(STDERR_FILENO, "smallsh: cd: ");
         printString(STDERR_FILENO, path);
         switch (errno) {
@@ -117,9 +116,6 @@ void changeDirectory(char* path) {
             printString(STDERR_FILENO, ": Unknown error\n");
             break;
         }
-    } else {
-        /* Path found--change directory to specified path */
-        chdir(path);
     }
 }
 
@@ -164,7 +160,7 @@ void intToString(int val, char *buf, int size) {
 }
 
 /**
- * Parses a line of user input and stores it in the specified
+ * Parses a line of shell input and stores it in the specified
  * Command structure.
  *
  *  cmd     The Command structure for storing the command.
@@ -238,15 +234,15 @@ void parseCommand(Command* cmd) {
 void printBgStatus(pid_t pid, int status) {
     if (WIFEXITED(status)) {
         printString(STDOUT_FILENO, "background pid ");
-        printInt(STDOUT_FILENO, (int)pid);
+        printInt(STDOUT_FILENO, pid);
         printString(STDOUT_FILENO, " is done: exit value ");
-        printInt(STDOUT_FILENO, (int)WEXITSTATUS(status));
+        printInt(STDOUT_FILENO, WEXITSTATUS(status));
         printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
         printString(STDOUT_FILENO, "background pid ");
-        printInt(STDOUT_FILENO, (int)pid);
+        printInt(STDOUT_FILENO, pid);
         printString(STDOUT_FILENO, " is done: terminated by signal ");
-        printInt(STDOUT_FILENO, (int)WTERMSIG(status));
+        printInt(STDOUT_FILENO, WTERMSIG(status));
         printString(STDOUT_FILENO, "\n");
     }
 }
@@ -280,11 +276,11 @@ void printInt(int fd, int val) {
 void printStatus(int status) {
     if (WIFEXITED(status)) {
         printString(STDOUT_FILENO, "exit value ");
-        printInt(STDOUT_FILENO, (int)WEXITSTATUS(status));
+        printInt(STDOUT_FILENO, WEXITSTATUS(status));
         printString(STDOUT_FILENO, "\n");
     } else if (WIFSIGNALED(status)) {
         printString(STDOUT_FILENO, "terminated by signal ");
-        printInt(STDOUT_FILENO, (int)WTERMSIG(status));
+        printInt(STDOUT_FILENO, WTERMSIG(status));
         printString(STDOUT_FILENO, "\n");
     }
 }
@@ -414,15 +410,15 @@ int runCommand(Command* cmd, pid_t* cpid) {
         /* This is the parent process */
         if (!cmd->background) {
             /* Child is running in foreground. Wait for it to terminate.
-               Resume waiting if interrupted by signal */
-            while (waitpid(*cpid, &status, 0) < 0 && errno == EINTR) {
-                continue;
-            }
+               We completely ignore the signal in the parent process,
+               so waitpid will not be interrupted by a Ctrl-C.
+               The interrupt signal is propogated to the child process */
+            waitpid(*cpid, &status, 0);
 
             /* Print message if child process was terminated by a signal */
             if (WIFSIGNALED(status)) {
                 printString(STDOUT_FILENO, "terminated by signal ");
-                printInt(STDOUT_FILENO, (int)WTERMSIG(status));
+                printInt(STDOUT_FILENO, WTERMSIG(status));
                 printString(STDOUT_FILENO, "\n");
             }
             /* Close any open file descriptors */
@@ -432,7 +428,7 @@ int runCommand(Command* cmd, pid_t* cpid) {
             /* Child is running in background.
                Print PID and return to prompt. */
             printString(STDOUT_FILENO, "background pid is ");
-            printInt(STDOUT_FILENO, (int)*cpid);
+            printInt(STDOUT_FILENO, *cpid);
             printString(STDOUT_FILENO, "\n");
 
         }
