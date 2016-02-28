@@ -182,6 +182,8 @@ void parseCommand(Command* cmd) {
     cmd->argc = 0;
     cmd->infile = NULL;
     cmd->outfile = NULL;
+    cmd->infd = UNUSED_FD;
+    cmd->outfd = UNUSED_FD;
 
     /* Get the first token using the reentrant strtok */
     token = strtok_r(cmd->buffer, " ", &saveptr);
@@ -430,9 +432,9 @@ int runCommand(Command* cmd, pid_t* cpid) {
                 printInt(STDOUT_FILENO, WTERMSIG(status));
                 printString(STDOUT_FILENO, "\n");
             }
-            /* Close any open file descriptors other than STDIN/OUT/ERR */
-            if (cmd->infd > 2) close(cmd->infd);
-            if (cmd->outfd > 2) close(cmd->outfd);
+            /* Close any open file descriptors */
+            if (cmd->infd != UNUSED_FD) close(cmd->infd);
+            if (cmd->outfd != UNUSED_FD) close(cmd->outfd);
         } else {
             /* Child is running in background.
                Print PID and return to prompt. */
@@ -468,8 +470,8 @@ void waitBgChildren(BgProcessVector *vec) {
 
         /* If successfully waited or invalid, remove from list and close FDs */
         if (cpid > 0 || cpid < 0) {
-            if (bgp.inFd > 2) close(bgp.inFd);
-            if (bgp.outFd > 2) close(bgp.outFd);
+            if (bgp.inFd != UNUSED_FD) close(bgp.inFd);
+            if (bgp.outFd != UNUSED_FD) close(bgp.outFd);
             removeIndexBgProcessVector(vec, i);
             --i;
         }
