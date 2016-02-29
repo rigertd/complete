@@ -16,20 +16,15 @@ Assignment: Program 5 - Python Exploration
 from random import choice
 from random import randint
 
-# Lowercase alphabet for use with choice function
+# Python does not have constants, but it uses uppercase as a naming
+# convention to indicate that these values should be treated as such.
 LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz'
-# Number of files to generate
-FILE_COUNT = 3
-# Number of characters per string
-CHAR_COUNT = 10
-# Prefix for filenames
-FILENAME_BASE = 'file'
-# Minimum number
-NUM_LOW = 1
-# Maximum number
-NUM_HIGH = 42
-# Number of numbers to generate
-NUM_COUNT = 2
+FILE_COUNT = 3          # Number of files to generate
+CHAR_COUNT = 10         # Number of characters per string
+FILENAME_BASE = 'file'  # Prefix for filenames
+NUM_LOW = 1             # Minimum random number
+NUM_HIGH = 42           # Maximum random number
+NUM_COUNT = 2           # Number of numbers to generate
 
 def generateString(sourceChars, charCount):
     """
@@ -45,7 +40,6 @@ def generateString(sourceChars, charCount):
 # instead of imported as a module.
 if __name__ == '__main__':
     rand_strings = []   # Stores the generated strings
-
     rand_nums = []      # Stores the generated numbers
     product = 1         # Set this to 1 so we can just multiply by each number
 
