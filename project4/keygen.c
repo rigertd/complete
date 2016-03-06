@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     buf[keylen] = '\n';
 
     /* Write buffer to stdout */
-    write(STDOUT_FILENO, buf, (unsigned int)keylen);
+    write(STDOUT_FILENO, buf, (unsigned int)keylen + 1);
 
     return EXIT_SUCCESS;
 }
