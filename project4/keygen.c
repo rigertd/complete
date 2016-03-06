@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
 
     /* Write buffer to stdout */
     write(STDOUT_FILENO, buf, (unsigned int)keylen + 1);
+    
+    /* Free key buffer */
+    free(buf);
+    buf = NULL;
 
     return EXIT_SUCCESS;
 }
