@@ -172,6 +172,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             exit(EXIT_FAILURE);
         }
         
+        /* Receive key data */
         bytes_rcvd = receiveAll(remote_fd, &key);
         if (bytes_rcvd < 0) {
             perror("recv");
@@ -187,6 +188,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             exit(EXIT_FAILURE);
         }
         
+        /* Receive plaintext message data */
         bytes_rcvd = receiveAll(remote_fd, &msg);
         if (bytes_rcvd < 0) {
             perror("recv");
