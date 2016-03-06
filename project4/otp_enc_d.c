@@ -40,9 +40,7 @@ int setupListenSocket(char *port) {
     int fd, val;
     int yes = 1;
     struct addrinfo hints, *res;
-    struct sockaddr_storage client;
-    socklen_t sin_size;
-    
+
     /* Zero-initialize and set addrinfo structure */
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;    /* IPv4 or IPv6, whichever is available */
@@ -70,7 +68,7 @@ int setupListenSocket(char *port) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
-    
+
     /* Bind the socket to the port */
     if (bind(fd, res->ai_addr, res->ai_addrlen) < 0) {
         close(fd);
@@ -89,13 +87,13 @@ int receiveAll(int fd, char **buf) {
     int bytes, total = 0;
     char buffer[BUFFER_SIZE];
     char *tmp = NULL;
-    
+
     /* Make sure buf is not already allocated */
     if (*buf != NULL) {
         free(*buf);
         *buf = NULL;
     }
-    
+
     /* Receive until there is nothing left to receive */
     while ((bytes = recv(fd, buffer, BUFFER_SIZE - 1, 0)) > 0) {
         printf("received %d bytes, %d total: '%s'\n", bytes, bytes + total, buffer);
@@ -104,29 +102,29 @@ int receiveAll(int fd, char **buf) {
             perror("malloc");
             exit(EXIT_FAILURE);
         }
-        
+
         /* Copy old data (if any) to new string */
         if (total > 0) {
             strncpy(tmp, *buf, total);
         }
-        
+
         /* Append new data to end of new string */
         strncpy(&tmp[total], buffer, bytes);
-        
+
         /* Update total */
         total += bytes;
-        
+
         /* Add null terminator */
         tmp[total] = '\0';
-        
+
         /* Free old buffer */
         free(*buf);
-        
+
         /* Update buffer pointer to new string */
         *buf = tmp;
         tmp = NULL;
     }
-    
+
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) return -1;
     else return total;
@@ -136,7 +134,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
     int ret_val, bytes_rcvd;
     char *msg = NULL;
     char *key = NULL;
-    
+
     ret_val = fork();
     if (ret_val < 0) {
         /* Fork failed */
@@ -153,7 +151,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Abort connection if invalid request */
         if (strncmp(msg, "ENCRYPT", bytes_rcvd) != 0) {
             fprintf(stderr, "otp_enc_d: Invalid request type\n");
@@ -161,17 +159,17 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Free msg buffer */
         if (msg != NULL) free(msg);
-        
+
         /* Request key data */
         if (send(remote_fd, "KEY", 3, 0) < 0) {
             perror("send");
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Receive key data */
         bytes_rcvd = receiveAll(remote_fd, &key);
         if (bytes_rcvd < 0) {
@@ -180,14 +178,14 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Request plaintext message data */
         if (send(remote_fd, "MSG", 3, 0) < 0) {
             perror("send");
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Receive plaintext message data */
         bytes_rcvd = receiveAll(remote_fd, &msg);
         if (bytes_rcvd < 0) {
@@ -197,27 +195,20 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             close(remote_fd);
             exit(EXIT_FAILURE);
         }
-        
+
         /* Encrypt plaintext message */
         enum Result res = encryptText(key, msg);
-        
-        /* Send encrypted text back if successful */
-        if (res == Result_SUCCESS) {
+
+        /* Send encrypted text back if successful;
+           Otherwise determine which error occurred and display message */
+        switch (res) {
+        case Result_SUCCESS:
             if (send(remote_fd, msg, bytes_rcvd, 0) < 0) {
                 perror("send");
                 close(remote_fd);
                 exit(EXIT_FAILURE);
             }
-            
-            /* Child process is done--clean up resources and exit */
-            if (key != NULL) free(key);
-            if (msg != NULL) free(msg);
-            close(remote_fd);
-            exit(EXIT_SUCCESS);
-        }
-        
-        /* Determine which error occurred and display error message */
-        switch (res) {
+            break;
         case Result_KEY_ERROR:
             fprintf(stderr, "otp_enc_d error: key '%s' is too short\n", key);
             break;
@@ -225,18 +216,21 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             fprintf(stderr, "otp_enc_d error: input contains bad characters\n");
             break;
         }
-        
-        /* Clean up resources and exit with error */
+
+        /* Child process is done--clean up resources and exit */
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         close(remote_fd);
-        exit(EXIT_FAILURE);
+
+        if (res == Result_SUCCESS)
+            exit(EXIT_SUCCESS);
+        else
+            exit(EXIT_FAILURE);
     }
 }
 
 int main(int argc, char *argv[]) {
     int listen_fd, new_fd;
-    int ret_val;
     struct sockaddr_storage client;
     socklen_t sin_size;
     //char s[INET6_ADDRSTRLEN];
@@ -260,7 +254,7 @@ int main(int argc, char *argv[]) {
 
     /* Set up signal handler to reap child processes */
     setupChildHandler();
-    
+
     /* Stay in accept loop until terminated by a KILL or STOP signal */
     while(1) {
         sin_size = sizeof(client);
