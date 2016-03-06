@@ -46,17 +46,17 @@ int main(int argc, char *argv[]) {
     hints.ai_flags = AI_PASSIVE;    // Use local host's IP
     
     // Look up the local host's address info
-    if (ret_val = getaddrinfo(NULL, PORT, &hints, &server_info)) != 0) {
+    if ((ret_val = getaddrinfo(NULL, argv[1], &hints, &server_info)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(ret_val));
         exit(EXIT_FAILURE);
     }
     
     // Open a socket based on the local host's address info
-    if (listen_fd = socket(
+    if ((listen_fd = socket(
                         server_info->ai_family,
                         server_info->ai_socktype,
                         server_info->ai_protocol
-                    ) < 0) {
+					)) < 0) {
         perror("server: socket");
     }
     
