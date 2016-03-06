@@ -9,15 +9,15 @@ int main(int argc, char *argv[]) {
     long i, keylen; /* Loop variable and key length */
     char *end;      /* Stores first invalid char in strtol */
     char *buf;      /* Stores the key prior to output */
-    
+
     /* Verify number of arguments and print help if needed */
-    if (argc < 2 || 
+    if (argc < 2 ||
         strcmp(argv[1], "--help") == 0 ||
         strcmp(argv[1], "-h") == 0) {
         fprintf(stderr, "usage: %s key_length\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    
+
     /* Convert argument to number and validate */
     keylen = 0;
     end = NULL;
@@ -30,24 +30,27 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "%s: Specified key length too long\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    
+
     /* Seed random number generator */
     srand(time(0));
-    
+
     /* Allocate memory to store key */
-    buf = malloc(keylen);
+    buf = malloc(keylen + 1);
     if (buf == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    
+
     /* Write a random sequence of uppercase letters and spaces to buffer */
     for (i = 0; i < keylen; ++i) {
         buf[i] = '@' + (rand() % 27);
         /* Replace '@' with space */
         if (buf[i] == '@') buf[i] = ' ';
     }
-    
+
+    /* Add line feed to end */
+    buf[keylen] = '\n';
+
     /* Write buffer to stdout */
     write(STDOUT_FILENO, buf, (unsigned int)keylen);
 
