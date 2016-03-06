@@ -1,6 +1,6 @@
 #include "crypto.h"
 
-Result encryptText(char *key, char *msg) {
+enum Result encryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {
         /* Check for errors and return result accordingly. 
@@ -27,7 +27,7 @@ Result encryptText(char *key, char *msg) {
     return Result_SUCCESS;
 }
 
-Result decryptText(char *key, char *msg) {
+enum Result decryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {
         /* Check for errors and return result accordingly. 

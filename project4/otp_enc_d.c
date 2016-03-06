@@ -79,7 +79,7 @@ int setupListenSocket(char *port) {
     }
 
     /* Free memory used by local host's address info */
-    freeaddrinfo(server_info);
+    freeaddrinfo(res);
 
     /* Return the listening socket file descriptor */
     return fd;
@@ -197,7 +197,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
         }
         
         /* Encrypt plaintext message */
-        Result res = encryptText(key, msg);
+        enum Result res = encryptText(key, msg);
         
         /* Send encrypted text back if successful */
         if (res == Result_SUCCESS) {
@@ -210,7 +210,7 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
             /* Child process is done--clean up resources and exit */
             if (key != NULL) free(key);
             if (msg != NULL) free(msg);
-            close(new_fd);
+            close(remote_fd);
             exit(EXIT_SUCCESS);
         }
         
