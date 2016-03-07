@@ -103,6 +103,7 @@ int main(int argc, char *argv[]) {
 
         // If a connection fails, just continue
         if (new_fd < 0) {
+            printf("Connected to client\n");
             continue;
         }
 

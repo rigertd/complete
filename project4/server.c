@@ -20,6 +20,7 @@ int acceptConnection(int fd) {
     if (result < 0)
         perror("accept");
 
+    printf("Accepted connection, new fd %d\n", fd);
     return result;
 }
 
@@ -101,6 +102,7 @@ int validateClient(int fd, char *expected) {
     int result = 1;
     char *buf;
     
+    printf("Validating %s client\n", expected);
     /* Get client request type */
     if (receiveAll(fd, &buf) < 0) {
         result = 0;
