@@ -100,7 +100,7 @@ int startListening(const char *port) {
 
 int validateClient(int fd, char *expected) {
     int result = 1;
-    char *buf;
+    char *buf = NULL;
     
     printf("Validating %s client\n", expected);
     /* Get client request type */
