@@ -43,10 +43,7 @@ int receiveAll(int fd, char **buf) {
     /* Receive until newline is encountered */
     while ((bytes = recv(fd, buffer, BUFFER_SIZE - 1, 0)) > 0) {
         int i;
-        for (i = 0; i < bytes; ++i) {
-            printf("char %d: %d\n", i+1, buffer[i]);
-        }
-        printf("received %d bytes, %d total: '%s'\n", bytes, bytes + total, buffer);
+        printf("received %d bytes, %d total\n", bytes, bytes + total);
         tmp = malloc(total + 1);
         if (tmp == NULL) {
             perror("malloc");
@@ -78,6 +75,7 @@ int receiveAll(int fd, char **buf) {
         if (buffer[bytes - 1] == '\n')
             break;
     }
+    printf("data received: '%s'\n", *buf);
 
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) {
