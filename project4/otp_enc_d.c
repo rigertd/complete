@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
     listen_fd = startListening(argv[1]);
 
     /* Set up signal handler to reap child processes */
-    setupChildHandler();
+    registerChildHandler();
 
     /* Stay in accept loop until terminated by a KILL or STOP signal */
     while(1) {
