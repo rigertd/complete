@@ -42,6 +42,10 @@ int receiveAll(int fd, char **buf) {
 
     /* Receive until newline is encountered */
     while ((bytes = recv(fd, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+        int i;
+        for (i = 0; i < bytes; ++i) {
+            printf("char %d: %d\n", i+1, buffer[i]);
+        }
         printf("received %d bytes, %d total: '%s'\n", bytes, bytes + total, buffer);
         tmp = malloc(total + 1);
         if (tmp == NULL) {
@@ -70,7 +74,7 @@ int receiveAll(int fd, char **buf) {
         *buf = tmp;
         tmp = NULL;
         
-        /* Exit loop if newline encountered */
+        /* Exit loop if newline encountered at end */
         if (buffer[bytes - 1] == '\n')
             break;
     }
@@ -96,7 +100,8 @@ int sendAll(int fd, const char *buf) {
     total = strlen(buf);
 
     /* Send until there is nothing left to send */
-    while ((bytes = send(fd, &buf[running], total, 0)) > 0) {
+    while (running < total) {
+        bytes = send(fd, &buf[running], total, 0);
         printf("sent %d bytes of %d total: %.*s\n", running + bytes, total, bytes, &buf[running]);
         /* Update running total */
         running += bytes;
