@@ -5,14 +5,14 @@
 C = gcc
 CFLAGS = -Wall
 PROGS = otp_enc_d otp_enc keygen
-OBJS = crypto.o
+OBJS = crypto.o socketio.o server.o
 
 all: $(PROGS)
 
 otp_enc_d: $(OBJS) otp_enc_d.c
 	$(C) $(CFLAGS) otp_enc_d.c $(OBJS) -o $(@)
 
-opt_enc: otp_enc.c
+opt_enc: socketio.o otp_enc.c
 	$(C) $(CFLAGS) otp_enc.c -o $(@)
 
 keygen: keygen.c
