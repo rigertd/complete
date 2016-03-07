@@ -34,26 +34,23 @@ int receiveAll(int fd, char **buf) {
     char buffer[BUFFER_SIZE];
     char *tmp = NULL;
 
-    printf("checking if buffer is null\n");
     /* Make sure buf is not already allocated */
     if (*buf != NULL) {
-        printf("not null, freeing\n");
         free(*buf);
         *buf = NULL;
     }
 
-    printf("about to start receiving from %d\n", fd);
-    /* Receive until there is nothing left to receive */
+    /* Receive until newline is encountered */
     while ((bytes = recv(fd, buffer, BUFFER_SIZE - 1, 0)) > 0) {
         printf("received %d bytes, %d total: '%s'\n", bytes, bytes + total, buffer);
-        tmp = malloc(total + bytes + 1);
+        tmp = malloc(total + 1);
         if (tmp == NULL) {
             perror("malloc");
             exit(EXIT_FAILURE);
         }
 
         /* Copy old data (if any) to new string */
-        if (total > 0) {
+        if (total > bytes) {
             strncpy(tmp, *buf, total);
         }
 
@@ -72,9 +69,12 @@ int receiveAll(int fd, char **buf) {
         /* Update buffer pointer to new string */
         *buf = tmp;
         tmp = NULL;
+        
+        /* Exit loop if newline encountered */
+        if (buffer[bytes - 1] == '\n')
+            break;
     }
 
-    printf("done recv, last bytes read: %d, total: %d\n", bytes, total);
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) {
         perror("recv");
@@ -96,7 +96,7 @@ int sendAll(int fd, const char *buf) {
     total = strlen(buf);
 
     /* Send until there is nothing left to send */
-    while ((bytes = send(fd, &buf[running], BUFFER_SIZE - 1, 0)) > 0) {
+    while ((bytes = send(fd, &buf[running], total, 0)) > 0) {
         printf("sent %d bytes of %d total: %.*s\n", running + bytes, total, bytes, &buf[running]);
         /* Update running total */
         running += bytes;

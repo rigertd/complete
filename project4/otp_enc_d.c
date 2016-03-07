@@ -14,17 +14,17 @@ int handleClient(int fd) {
     char *key = NULL;
     
     /* Validate that client is correct one */
-    if (!validateClient(fd, "ENCRYPT")) {
+    if (!validateClient(fd, "ENCRYPT\n")) {
         return 0;
     }
     
     /* Request and receive key data */
-    if (!getData(fd, "KEY", &key)) {
+    if (!getData(fd, "KEY\n", &key)) {
         return 0;
     }
 
     /* Request and receive plaintext message data */
-    if (!getData(fd, "MSG", &msg)) {
+    if (!getData(fd, "MSG\n", &msg)) {
         return 0;
     }
 
