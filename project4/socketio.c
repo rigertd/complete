@@ -37,10 +37,12 @@ int receiveAll(int fd, char **buf) {
     printf("checking if buffer is null\n");
     /* Make sure buf is not already allocated */
     if (*buf != NULL) {
+        printf("not null, freeing\n");
         free(*buf);
         *buf = NULL;
     }
 
+    printf("about to start receiving from %d\n", fd);
     /* Receive until there is nothing left to receive */
     while ((bytes = recv(fd, buffer, BUFFER_SIZE - 1, 0)) > 0) {
         printf("received %d bytes, %d total: '%s'\n", bytes, bytes + total, buffer);
