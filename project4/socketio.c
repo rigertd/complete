@@ -34,6 +34,7 @@ int receiveAll(int fd, char **buf) {
     char buffer[BUFFER_SIZE];
     char *tmp = NULL;
 
+    printf("checking if buffer is null\n");
     /* Make sure buf is not already allocated */
     if (*buf != NULL) {
         free(*buf);
@@ -71,6 +72,7 @@ int receiveAll(int fd, char **buf) {
         tmp = NULL;
     }
 
+    printf("done recv, last bytes read: %d, total: %d\n", bytes, total);
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) {
         perror("recv");

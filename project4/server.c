@@ -108,6 +108,7 @@ int validateClient(int fd, char *expected) {
         result = 0;
     }
 
+    printf("String received: %s\n", buf);
     /* Abort connection if invalid request */
     if (result && strcmp(buf, expected) != 0) {
         /* Send error message to client and disconnect */
