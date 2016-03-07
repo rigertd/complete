@@ -35,7 +35,7 @@ int handleClient(int fd) {
        Otherwise determine which error occurred and display message */
     switch (res) {
     case Result_SUCCESS:
-        sendAll(remote_fd, msg);
+        sendAll(fd, msg);
         break;
     case Result_KEY_ERROR:
         fprintf(stderr, "otp_enc_d error: key '%s' is too short\n", key);
@@ -81,9 +81,6 @@ void spawnChildProcess(int listen_fd, int remote_fd) {
 
 int main(int argc, char *argv[]) {
     int listen_fd, new_fd;
-    struct sockaddr_storage client;
-    socklen_t sin_size;
-    //char s[INET6_ADDRSTRLEN];
 
     /* Verify command line arguments */
     if (argc < 2 ||
