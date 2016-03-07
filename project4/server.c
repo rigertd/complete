@@ -1,23 +1,25 @@
 #include "server.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <netdb.h>
 
+#include "socketio.h"
+
 /* Accept a connection on the specified socket and return the new fd */
 int acceptConnection(int fd) {
     int result;
-    result = accept(listen_fd, NULL, NULL);
+    result = accept(fd, NULL, NULL);
     if (result < 0)
         perror("accept");
 
     return result;
 }
-
-new_fd = 
 
 /* Wait on any terminated child processes */
 void childHandler(int sig) {
@@ -40,7 +42,7 @@ void registerChildHandler() {
     }
 }
 
-int startListening(char *port) {
+int startListening(const char *port) {
     int fd, val;
     int yes = 1;
     struct addrinfo hints, *res;
@@ -105,7 +107,7 @@ int validateClient(int fd, char *expected) {
     /* Abort connection if invalid request */
     if (result && strcmp(buf, expected) != 0) {
         /* Send error message to client and disconnect */
-        sendAll(fd, "INVALID")
+        sendAll(fd, "INVALID");
         result = 0;
     }
 

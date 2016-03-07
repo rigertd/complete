@@ -6,7 +6,7 @@
 int acceptConnection(int fd);
 void childHandler(int sig);
 void registerChildHandler();
-int startListening(char *port);
+int startListening(const char *port);
 int validateClient(int fd, char *expected);
 
 #endif

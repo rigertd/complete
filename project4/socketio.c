@@ -76,7 +76,7 @@ int receiveAll(int fd, char **buf) {
     else return total;
 }
 
-int sendAll(int fd, char *buf) {
+int sendAll(int fd, const char *buf) {
     int bytes, total;
     int running = 0;
 
