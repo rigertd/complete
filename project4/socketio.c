@@ -72,7 +72,10 @@ int receiveAll(int fd, char **buf) {
     }
 
     /* Return -1 if receive error, or total bytes received otherwise */
-    if (bytes == -1) return -1;
+    if (bytes == -1) {
+        perror("recv");
+        return -1;
+    }
     else return total;
 }
 
