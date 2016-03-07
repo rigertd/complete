@@ -2,12 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <signal.h>
 #include <string.h>
+#include <errno.h>
+#include <netdb.h>
+#include <signal.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <netdb.h>
 
 #include "socketio.h"
 
