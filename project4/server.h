@@ -4,9 +4,8 @@
 #define MAX_CONNECTIONS 5
 
 int acceptConnection(int fd);
-void childHandler(int sig);
 void registerChildHandler();
-int startListening(const char *port);
+int listenPort(const char *port);
 int validateClient(int fd, char *expected);
 
 #endif

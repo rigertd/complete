@@ -2,7 +2,7 @@
 #define SOCKETIO_H
 
 int getData(int fd, const char *request, char **buf);
-int receiveAll(int fd, char **buf);
-int sendAll(int fd, const char *buf);
+ssize_t receiveAll(int fd, char **buf);
+ssize_t sendAll(int fd, const char *buf);
 
 #endif
