@@ -16,7 +16,7 @@ enum Result encryptText(char *key, char *msg) {
         if (key[i] == ' ') key[i] = '@';
 
         /* Encrypt the text */
-        msg[i] = ((msg[i] + key[i]) % 27) + '@';
+        msg[i] = ((msg[i] - '@' + key[i] - '@') % 27) + '@';
         
         /* Convert '@' symbol back to space */
         if (msg[i] == '@') msg[i] = ' ';
@@ -43,7 +43,9 @@ enum Result decryptText(char *key, char *msg) {
         if (key[i] == ' ') key[i] = '@';
 
         /* Decrypt the text */
-        msg[i] = ((msg[i] - key[i]) % 27) + '@';
+        msg[i] = ((msg[i] - '@') - (key[i] - '@')) % 27;
+        msg[i] = msg[i] < 0 ? msg[i] + 27 : msg[i];
+        msg[i] += '@';
         
         /* Convert '@' symbol back to space */
         if (msg[i] == '@') msg[i] = ' ';
