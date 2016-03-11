@@ -3,31 +3,68 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
+#include <limits.h>
 
 #include "crypto.h"
 #include "socketio.h"
 #include "server.h"
 
+unsigned short getRandPort() {
+	return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
+}
 
 int handleClient(int fd) {
-    char *msg = NULL;
-    char *key = NULL;
+    char *msg = NULL;      /* stores the message data */
+    char *key = NULL;      /* stores the key data */
+	char buf[BUFFER_SIZE]; /* stores handshake data */
+	int listenfd, newfd;   /* stores the socket fds */
+	char *tmp, *str;
+	size_t keylen, msglen;    /* stores the key and message sizes */
     
     /* Validate that client is correct one */
-    if (!validateClient(fd, "ENCRYPT\n")) {
-        return 0;
+	receive(fd, buf, BUFFER_SIZE);
+	str = strtok_r(buf, " ", &tmp);
+    if (strcmp(str, "ENCRYPT") != 0) {
+        fprintf(stderr, "otp_enc_d: Invalid request from client\n");
+		exit(EXIT_FAILURE);
     }
+	
+	/* get key and message sizes */
+	str = strtok_r(NULL, " ", &tmp);
+	keylen = atoi(str);
+	str = strtok_r(NULL, " ", &tmp);
+	msglen = atoi(str);
     
-    /* Request and receive key data */
-    if (!getData(fd, "KEY\n", &key)) {
-        return 0;
-    }
-
-    /* Request and receive plaintext message data */
-    if (!getData(fd, "MSG\n", &msg)) {
-        return 0;
-    }
-
+	/* Tell client which port to connect to */
+	snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
+	sendAll(fd, buf);
+	
+	/* Listen for the client on that port */
+	listenfd = startListening(buf);
+	
+	/* Accept the connection on the new port */
+	newfd = acceptConnection(listenfd);
+	
+	/* We no longer need the listen fd */
+	close(listenfd);
+	
+	/* Allocate memory for the key and buffer data */
+	key = malloc(keylen + 1);
+	if (key == NULL) {
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	msg = malloc(msglen + 1);
+	if (msg == NULL) {
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	
+	/* Get the key data, followed by the message data */
+	receiveAll(newfd, key, keylen + 1);
+	receiveAll(newfd, msg, msglen + 1);
+	
     /* Encrypt plaintext message */
     enum Result res = encryptText(key, msg);
 
@@ -89,6 +126,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s listening_port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+	
+	/* Seed random number generator */
+	srand(time(0));
 
     /* Configure, bind, and start listening on the listening socket */
     listen_fd = startListening(argv[1]);
@@ -115,5 +155,5 @@ int main(int argc, char *argv[]) {
         close(new_fd);
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

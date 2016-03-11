@@ -109,27 +109,3 @@ int listenPort(const char *port) {
     return fd;
 }
 
-int validateClient(int fd, char *expected) {
-    int result = 1;
-    char *buf = NULL;
-    
-    //printf("Validating %s client\n", expected);
-    /* Get client request type */
-    if (receiveAll(fd, &buf) < 0) {
-        result = 0;
-    }
-
-    //printf("String received: %s\n", buf);
-    /* Abort connection if invalid request */
-    if (result && strcmp(buf, expected) != 0) {
-        /* Send error message to client and disconnect */
-        sendAll(fd, "INVALID\n");
-        result = 0;
-    }
-
-    /* Free buffer */
-    if (buf != NULL) free(buf);
-
-    return result;
-}
-

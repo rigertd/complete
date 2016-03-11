@@ -8,82 +8,51 @@
 
 #define BUFFER_SIZE 512
 
-int getData(int fd, const char *request, char **buf) {
-    int result = -1;
-    
-    /* Free data buffer if already allocated */
-    if (buf != NULL) {
-        free(*buf);
-        *buf = NULL;
-    }
-    
-    /* Send request */
-    if (sendAll(fd, request) < 0) {
-        result = 0;
-    }
+ssize_t receive(int fd, char *buf, size_t len) {
+    int bytes;
 
-    /* Receive data */
-    if (result && receiveAll(fd, buf) < 0) {
-        if (*buf != NULL) free(*buf);
-    }
-
-    return result;
-}
-
-ssize_t receiveAll(int fd, char **buf) {
-    int bytes, total = 0;
-    char buffer[BUFFER_SIZE + 1];
-    char *tmp = NULL;
-
-    /* Make sure buf is not already allocated */
-    if (*buf != NULL) {
-        free(*buf);
-        *buf = NULL;
-    }
-
-    while ((bytes = recv(fd, buffer, BUFFER_SIZE, 0)) > 0) {
-        printf("received %d bytes, %d total\n", bytes, bytes + total);
-        
-        /* Allocate enough memory to store total data received so far */
-        tmp = malloc(bytes + total + 1);
-        if (tmp == NULL) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
-
-        /* Copy old data (if any) to new string */
-        if (total > bytes) {
-            strncpy(tmp, *buf, total);
-        }
-
-        /* Append new data to end of new string */
-        strncpy(&tmp[total], buffer, bytes);
-
-        /* Update total */
-        total += bytes;
-
-        /* Add null terminator */
-        tmp[total] = '\0';
-
-        /* Free old buffer */
-        free(*buf);
-
-        /* Update buffer pointer to new string */
-        *buf = tmp;
-        tmp = NULL;
-        
-        /* Exit loop if nothing left to receive */
-        if (recv(fd, buffer, BUFFER_SIZE, MSG_PEEK | MSG_DONTWAIT) <= 0)
-            break;
-    }
-    printf("data received: '%s'\n", *buf);
+    bytes = recv(fd, &buf[running], len, 0);
 
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) {
         perror("recv");
         return -1;
     }
-    else return total;
+    else {
+		/* Null-terminate buffer */
+		buf[bytes] = '\0';
+		return bytes;
+	}
+}
+
+ssize_t receiveAll(int fd, char *buf, size_t len) {
+    int bytes, running = 0;
+
+    while (running < len - 1) {
+        /* Block until all data is received */
+        bytes = recv(fd, &buffer[running], len, MSG_WAITALL);
+        
+        /* Stop if an error other than a signal interrupt occurred,
+           or if socket was closed */
+        if ((bytes == -1 && errno != EINTR) || bytes == 0) {
+            break;
+        }
+        running += bytes;
+        
+        printf("received %d bytes, %d of %d total\n", bytes, running, len);
+        
+    }
+
+    /* Return -1 if receive error, or total bytes received otherwise */
+    if (bytes == -1) {
+        perror("recv");
+        return -1;
+    }
+    else {
+		/* Null-terminate buffer */
+		buf[bytes] = '\0';
+		return bytes;
+	}
 }
 
 ssize_t sendAll(int fd, const char *buf) {
