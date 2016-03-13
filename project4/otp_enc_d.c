@@ -72,13 +72,13 @@ int handleClient(int fd) {
        Otherwise determine which error occurred and display message */
     switch (res) {
     case Result_SUCCESS:
-        sendAll(fd, msg);
+        sendAll(newfd, msg);
         break;
     case Result_KEY_ERROR:
-        sendAll(fd, "KEYERROR");
+        sendAll(newfd, "KEYERROR");
         break;
     case Result_INVALID_CHAR:
-        sendAll(fd, "INVALIDCHAR");
+        sendAll(newfd, "INVALIDCHAR");
         break;
     }
 

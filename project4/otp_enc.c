@@ -87,16 +87,13 @@ int main(int argc, char *argv[]) {
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }
-    printf("otp_enc: sent key\n");
     
     /* Free memory for key */
     if (key != NULL) free(key);
     key = NULL;
     
     /* Receive acknowledgement */
-    printf("otp_enc: waiting for ACK\n");
     receiveAny(serverfd, buffer, BUF_SIZE);
-    printf("otp_enc: received '%s'\n", buffer);
     if (strncmp(buffer, "MSG", 3) != 0) {
         fprintf(stderr, "otp_enc error: unexpected response from server\n");
         if (msg != NULL) free(msg);
@@ -104,18 +101,14 @@ int main(int argc, char *argv[]) {
     }
     
     /* Send plaintext message data */
-    printf("otp_enc: sending msg '%s'\n", msg);
     if (sendAll(serverfd, msg) == -1) {
         fprintf(stderr, "otp_enc error: sending plaintext message failed\n");
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }
-    printf("otp_enc: sent msg\n");
     
     /* Receive encrypted data */
-    printf("otp_enc: waiting for encrypted data\n");
     receiveAll(serverfd, msg, msglen);
-    printf("otp_enc: received '%s'\n", msg);
     
     /* Verify result */
     if (strcmp(msg, "KEYERROR") == 0) {
