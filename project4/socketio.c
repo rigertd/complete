@@ -43,7 +43,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         }
         running += bytes;
         
-        printf("received %d bytes, %du of %du total\n", bytes, running, len);
+        printf("received %d bytes, %du of %du total\n", (int)bytes, (int)running, (int)len);
         
     }
 
@@ -80,7 +80,7 @@ ssize_t sendAll(int fd, const char *buf) {
                 break;
             }
         }
-        printf("sent %du bytes of %du total: %.*s\n", running + bytes, total, &buf[running]);
+        printf("sent %d bytes of %d total: %s\n", (int)(running + bytes), (int)total, &buf[running]);
         /* Update running total */
         running += bytes;
     }
