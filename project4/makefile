@@ -11,14 +11,14 @@ CLOBJS = client.o
 
 all: $(PROGS)
 
-otp_dec_d otp_enc_d: $(SOBJS) $(OBJS) $(@).c
-	$(C) $(CFLAGS) $(@).c $(SOBJS) $(OBJS) -o $(@)
+otp_dec_d otp_enc_d: $(SOBJS) $(OBJS) $(@:=.c)
+	$(C) $(CFLAGS) $(@:=.c) $(SOBJS) $(OBJS) -o $(@)
 
-otp_enc otp_dec: $(CLOBJS) $(OBJS) $(@).c
-	$(C) $(CFLAGS) $(@).c $(CLOBJS) $(OBJS) -o $(@)
+otp_enc otp_dec: $(CLOBJS) $(OBJS) $(@:=.c)
+	$(C) $(CFLAGS) $(@:=.c) $(CLOBJS) $(OBJS) -o $(@)
 
-keygen: $(@).c
-	$(C) $(CFLAGS) $(@).c -o $(@)
+keygen: $(@:=.c)
+	$(C) $(CFLAGS) $(@:=.c) -o $(@)
 
 $(OBJS) $(CLOBJS) $(SOBJS): $(@:.o=.c)
 	$(C) $(CFLAGS) -c $(@:.o=.c)
