@@ -65,7 +65,7 @@ void handleRequest(const char *prog, int fd, const char *type) {
     if (strcmp(str, type) != 0) {
         /* fprintf(stderr, "%s error: invalid request type '%s' from client\n",
             prog, str); */
-        sendAll(fd, "INVALID");
+        sendAll(fd, INVALID_TYPE);
         exit(EXIT_FAILURE);
     }
 
@@ -102,17 +102,17 @@ void handleRequest(const char *prog, int fd, const char *type) {
     }
 
     /* Tell client ready for key data */
-    sendAll(newfd, "KEY");
+    sendAll(newfd, KEY_REQ);
 
     /* Get the key data, followed by the message data */
     receiveAll(newfd, key, keylen);
-    sendAll(newfd, "MSG");
+    sendAll(newfd, MESSAGE_REQ);
     receiveAll(newfd, msg, msglen);
 
     /* Encrypt or decrypt message */
-    if (strcmp(type, "ENCRYPT") == 0) {
+    if (strcmp(type, ENCRYPT_REQ) == 0) {
         res = encryptText(key, msg);
-    } else if (strcmp(type, "DECRYPT") == 0) {
+    } else if (strcmp(type, DECRYPT_REQ) == 0) {
         res = decryptText(key, msg);
     } else {
         fprintf(stderr, "%s error: invalid request type '%s'\n", prog, type);
@@ -126,10 +126,10 @@ void handleRequest(const char *prog, int fd, const char *type) {
         sendAll(newfd, msg);
         break;
     case Result_KEY_ERROR:
-        sendAll(newfd, "key_error");
+        sendAll(newfd, KEY_ERROR);
         break;
     case Result_INVALID_CHAR:
-        sendAll(newfd, "invalid_char");
+        sendAll(newfd, INVALID_CHAR);
         break;
     }
 

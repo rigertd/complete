@@ -101,12 +101,12 @@ int requestOp(  const char *prog,
     receiveAny(serverfd, buffer, BUF_SIZE);
 
     /* Verify response from server */
-    if (strcmp(buffer, "INVALID") == 0) {
+    if (strcmp(buffer, INVALID_TYPE) == 0) {
         char othertype[8];
-        if (strcmp(type, "ENCRYPT") == 0)
-            strcpy(othertype, "DECRYPT");
+        if (strcmp(type, ENCRYPT_REQ) == 0)
+            strcpy(othertype, DECRYPT_REQ);
         else
-            stpcpy(othertype, "ENCRYPT");
+            stpcpy(othertype, ENCRYPT_REQ);
         fprintf(stderr,
             "%s error: cannot use %s server on port %s from %s client\n",
             prog, othertype, port, type);
@@ -122,7 +122,7 @@ int requestOp(  const char *prog,
 
     /* Wait for server to ask for key data */
     receiveAny(serverfd, buffer, BUF_SIZE);
-    if (strcmp(buffer, "KEY") != 0) {
+    if (strcmp(buffer, KEY_REQ) != 0) {
         fprintf(stderr, "%s error: no key request received\n", prog);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
@@ -143,7 +143,7 @@ int requestOp(  const char *prog,
 
     /* Receive acknowledgement */
     receiveAny(serverfd, buffer, BUF_SIZE);
-    if (strncmp(buffer, "MSG", 3) != 0) {
+    if (strncmp(buffer, MESSAGE_REQ, 3) != 0) {
         fprintf(stderr, "%s error: unexpected response from server\n", prog);
         if (msg != NULL) free(msg);
         return EXIT_FAILURE;
@@ -160,11 +160,11 @@ int requestOp(  const char *prog,
     msglen = receiveAll(serverfd, msg, msglen);
 
     /* Verify result */
-    if (strcmp(msg, "key_error") == 0) {
+    if (strcmp(msg, KEY_ERROR) == 0) {
         fprintf(stderr, "%s error: key '%s' is too short\n", prog, keypath);
         if (msg != NULL) free(msg);
         return EXIT_FAILURE;
-    } else if (strcmp(msg, "invalid_char") == 0) {
+    } else if (strcmp(msg, INVALID_CHAR) == 0) {
         fprintf(stderr, "%s error: input contains bad characters\n", prog);
         if (msg != NULL) free(msg);
         return EXIT_FAILURE;
