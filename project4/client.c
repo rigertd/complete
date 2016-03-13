@@ -16,7 +16,7 @@
 #define BUF_SIZE 50
 #define EXIT_INVALID_SERVER 2
 
-int connectServer(const char prog, const char *port) {
+int connectServer(const char *prog, const char *port) {
     int fd, val;
     struct addrinfo hints, *result, *rp;
 
