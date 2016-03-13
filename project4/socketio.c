@@ -44,7 +44,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         }
         running += bytes;
         
-        printf("received %d bytes, %d of %d total: '%s'\n", (int)bytes, (int)running, (int)len, &buf[running - bytes]);
+        printf("received %d bytes, %d of %d total: '%s'\n", (int)bytes, (int)running, (int)len - 1, &buf[running - bytes]);
         
     }
 
