@@ -61,6 +61,13 @@ int connectServer(char *port) {
     return fd;
 }
 
+ssize_t loadData(char *path, char **data) {
+    int fd = openFile(path);
+    ssize_t bytes = readline(fd, data);
+    close(fd);
+    return bytes;
+}
+
 int openFile(char *path) {
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
@@ -110,6 +117,7 @@ ssize_t readline(int fd, char **buf) {
         total += i;
         
         /* Append data to end of heap buffer */
+        /* Add one for NULL terminator */
         tmp = malloc(total + 1);
         if (tmp == NULL) {
             perror("malloc");
@@ -147,5 +155,14 @@ ssize_t readline(int fd, char **buf) {
     lseek(fd, -(bytes - i), SEEK_CUR);
     
     return total;
+}
+
+void verifyArgs(int argc, char *argv[]) {
+    if (argc < 4 ||
+        strcmp(argv[1], "--help") == 0 ||
+        strcmp(argv[1], "-h") == 0) {
+        fprintf(stderr, "usage: %s plaintext key port\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 }
 

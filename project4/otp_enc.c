@@ -9,33 +9,18 @@
 /* Length of buffer for converting plaintext and key sizes to a string */
 #define BUF_SIZE 50
 
-void requestEncryption() {
-}
-
 int main(int argc, char *argv[]) {
-    if (argc < 4 ||
-        strcmp(argv[1], "--help") == 0 ||
-        strcmp(argv[1], "-h") == 0) {
-        fprintf(stderr, "usage: %s plaintext key port\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
+    verifyArgs(argc, argv);
     
-    int serverfd, msgfd, keyfd;
+    int serverfd;
     char *msg = NULL, *key = NULL;
     ssize_t msglen, keylen;
     
-    /* Open files and socket */
-    msgfd = openFile(argv[1]);
-    keyfd = openFile(argv[2]);
-    serverfd = connectServer(argv[3]);
+    /* Load plaintext data */
+    msglen = loadData(argv[1], &msg);
     
-    /* Attempt to read plaintext and key from files */
-    msglen = readline(msgfd, &msg);
-    keylen = readline(keyfd, &key);
-    
-    /* Close files */
-    close(msgfd);
-    close(keyfd);
+    /* Load key data */
+    keylen = loadData(argv[2], &key);
     
     /* Verify key length */
     if (keylen < msglen) {
@@ -44,6 +29,9 @@ int main(int argc, char *argv[]) {
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }
+    
+    /* Connect to the server */
+    serverfd = connectServer(argv[3]);
     
     /* Send request type and key/message lengths to server */
     char buffer[BUF_SIZE];
@@ -69,7 +57,7 @@ int main(int argc, char *argv[]) {
     /* Wait for server to ask for key data */
     receiveAny(serverfd, buffer, BUF_SIZE);
     if (strcmp(buffer, "KEY") != 0) {
-        fprintf(stderr, "otp_enc error: no key request received\n");
+        fprintf(stderr, "%s error: no key request received\n", argv[0]);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
@@ -77,7 +65,7 @@ int main(int argc, char *argv[]) {
     
     /* Send the key data */
     if (sendAll(serverfd, key) == -1) {
-        fprintf(stderr, "otp_enc error: sending key data failed\n");
+        fprintf(stderr, "%s error: sending key data failed\n", argv[0]);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
@@ -90,14 +78,14 @@ int main(int argc, char *argv[]) {
     /* Receive acknowledgement */
     receiveAny(serverfd, buffer, BUF_SIZE);
     if (strncmp(buffer, "MSG", 3) != 0) {
-        fprintf(stderr, "otp_enc error: unexpected response from server\n");
+        fprintf(stderr, "%s error: unexpected response from server\n", argv[0]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }
     
     /* Send plaintext message data */
     if (sendAll(serverfd, msg) == -1) {
-        fprintf(stderr, "otp_enc error: sending plaintext message failed\n");
+        fprintf(stderr, "%s error: sending plaintext message failed\n", argv[0]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }
@@ -107,11 +95,11 @@ int main(int argc, char *argv[]) {
     
     /* Verify result */
     if (strcmp(msg, "KEYERROR") == 0) {
-        fprintf(stderr, "otp_enc error: key '%s' is too short\n", argv[2]);
+        fprintf(stderr, "%s error: key '%s' is too short\n", argv[0], argv[2]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     } else if (strcmp(msg, "INVALIDCHAR") == 0) {
-        fprintf(stderr, "otp_enc error: input contains bad characters\n");
+        fprintf(stderr, "%s error: input contains bad characters\n", argv[0]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
     }

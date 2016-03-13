@@ -50,6 +50,99 @@ unsigned short getRandPort() {
 	return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
 }
 
+void handleRequest(const char *prog, int fd, const char *type) {
+    char *msg = NULL;       /* stores the message data */
+    char *key = NULL;       /* stores the key data */
+    char buf[BUFFER_SIZE];  /* stores handshake data */
+    int listenfd, newfd;    /* stores the socket fds */
+    char *tmp, *str;        /* for parsing handshake data with strtok */
+    size_t keylen, msglen;  /* stores the key and message sizes */
+    enum Result res;        /* stores result of en/decryption operation */
+    
+    /* Validate that client is correct one */
+    receiveAny(fd, buf, BUFFER_SIZE);
+    str = strtok_r(buf, " \n\r", &tmp);
+    if (strcmp(str, type) != 0) {
+        fprintf(stderr, "%s error: invalid request type '%s' from client\n",
+            prog, str);
+        sendAll(fd, "INVALID");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* get key and message sizes */
+    str = strtok_r(NULL, " \n\r", &tmp);
+    keylen = atoi(str);
+    str = strtok_r(NULL, " \n\r", &tmp);
+    msglen = atoi(str);
+    
+    /* Tell client which port to connect to */
+    snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
+    sendAll(fd, buf);
+    
+    /* Listen for the client on that port */
+    listenfd = listenPort(buf);
+    
+    /* Accept the connection on the new port */
+    newfd = acceptConnection(listenfd);
+    
+    /* We no longer need the listen fd */
+    close(listenfd);
+    
+    /* Allocate memory for the key and buffer data */
+    /* Include 1 extra byte for NULL terminator */
+    key = malloc(keylen + 1);
+    if (key == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    msg = malloc(msglen + 1);
+    if (msg == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Tell client ready for key data */
+    sendAll(newfd, "KEY");
+    
+    /* Get the key data, followed by the message data */
+    receiveAll(newfd, key, keylen);
+    sendAll(newfd, "MSG");
+    receiveAll(newfd, msg, msglen);
+    
+    /* Encrypt or decrypt message */
+    if (strcmp(type, "ENCRYPT") == 0) {
+        res = encryptText(key, msg);
+    } else if (strcmp(type, "DECRYPT") == 0) {
+        res = decryptText(key, msg);
+    } else {
+        fprintf(stderr, "%s error: invalid request type '%s'\n", prog, type);
+        exit(EXIT_FAILURE);
+    }
+
+    /* Send encrypted text back if successful;
+       Otherwise determine which error occurred and display message */
+    switch (res) {
+    case Result_SUCCESS:
+        sendAll(newfd, msg);
+        break;
+    case Result_KEY_ERROR:
+        sendAll(newfd, "KEYERROR");
+        break;
+    case Result_INVALID_CHAR:
+        sendAll(newfd, "INVALIDCHAR");
+        break;
+    }
+
+    /* Child process is done--clean up resources and return */
+    if (key != NULL) free(key);
+    if (msg != NULL) free(msg);
+
+    if (res == Result_SUCCESS)
+        exit(EXIT_SUCCESS);
+    else
+        exit(EXIT_FAILURE);
+}
+
 int listenPort(const char *port) {
     int fd, val;
     int yes = 1;
@@ -114,3 +207,11 @@ int listenPort(const char *port) {
     return fd;
 }
 
+void verifyArgs(int argc, char *argv[]) {
+    if (argc < 2 ||
+        strcmp(argv[1], "--help") == 0 ||
+        strcmp(argv[1], "-h") == 0) {
+        fprintf(stderr, "usage: %s listening_port\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+}
