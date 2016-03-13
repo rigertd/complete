@@ -4,21 +4,21 @@
 
 C = gcc
 CFLAGS = -Wall
-PROGS = otp_enc_d otp_enc keygen
+PROGS = otp_enc_d otp_enc otp_dec_d otp_dec keygen
 OBJS = socketio.o
 SOBJS = crypto.o server.o
 CLOBJS = client.o
 
 all: $(PROGS)
 
-otp_enc_d: $(SOBJS) $(OBJS) otp_enc_d.c
-	$(C) $(CFLAGS) otp_enc_d.c $(SOBJS) $(OBJS) -o $(@)
+otp_dec_d otp_enc_d: $(SOBJS) $(OBJS) $(@).c
+	$(C) $(CFLAGS) $(@).c $(SOBJS) $(OBJS) -o $(@)
 
-otp_enc: $(CLOBJS) $(OBJS) otp_enc.c
-	$(C) $(CFLAGS) otp_enc.c $(CLOBJS) $(OBJS) -o $(@)
+otp_enc otp_dec: $(CLOBJS) $(OBJS) $(@).c
+	$(C) $(CFLAGS) $(@).c $(CLOBJS) $(OBJS) -o $(@)
 
-keygen: keygen.c
-	$(C) $(CFLAGS) keygen.c -o $(@)
+keygen: $(@).c
+	$(C) $(CFLAGS) $(@).c -o $(@)
 
 $(OBJS) $(CLOBJS) $(SOBJS): $(@:.o=.c)
 	$(C) $(CFLAGS) -c $(@:.o=.c)
