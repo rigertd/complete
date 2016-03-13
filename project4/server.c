@@ -63,8 +63,8 @@ void handleRequest(const char *prog, int fd, const char *type) {
     receiveAny(fd, buf, BUFFER_SIZE);
     str = strtok_r(buf, " \n\r", &tmp);
     if (strcmp(str, type) != 0) {
-        fprintf(stderr, "%s error: invalid request type '%s' from client\n",
-            prog, str);
+        /* fprintf(stderr, "%s error: invalid request type '%s' from client\n",
+            prog, str); */
         sendAll(fd, "INVALID");
         exit(EXIT_FAILURE);
     }

@@ -3,7 +3,7 @@
 
 #include <sys/types.h> /* ssize_t, addrinfo, getaddrinfo */
 
-int connectServer(const char *port);
+int connectServer(const char *prog, const char *port);
 int requestOp(  const char *prog,
                 const char *msgpath,
                 const char *keypath,

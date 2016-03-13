@@ -14,8 +14,9 @@
 
 /* Length of buffer for converting plaintext and key sizes to a string */
 #define BUF_SIZE 50
+#define EXIT_INVALID_SERVER 2
 
-int connectServer(const char *port) {
+int connectServer(const char prog, const char *port) {
     int fd, val;
     struct addrinfo hints, *result, *rp;
 
@@ -43,7 +44,8 @@ int connectServer(const char *port) {
 
         /* Attempt to connect to the open socket */
         if (connect(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-            perror("client: connect");
+            fprintf(stderr, "%s: ", prog);
+            perror("connect error");
             close(fd);
             continue; /* Try next on error */
         }
@@ -88,7 +90,7 @@ int requestOp(  const char *prog,
     }
 
     /* Connect to the server */
-    serverfd = connectServer(port);
+    serverfd = connectServer(prog, port);
 
     /* Send request type and key/message lengths to server */
     char buffer[BUF_SIZE];
@@ -100,16 +102,17 @@ int requestOp(  const char *prog,
 
     /* Verify response from server */
     if (strcmp(buffer, "INVALID") == 0) {
-        fprintf(stderr, "%s error: invalid server type\n", prog);
+        fprintf(stderr, "%s error: could not contact %s server on port %s\n",
+            prog, type, port);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
-        return EXIT_FAILURE;
+        return EXIT_INVALID_SERVER;
     }
 
     /* Close current connection and open new one on new port */
     close(serverfd);
 
-    serverfd = connectServer(buffer);
+    serverfd = connectServer(prog, buffer);
 
     /* Wait for server to ask for key data */
     receiveAny(serverfd, buffer, BUF_SIZE);
