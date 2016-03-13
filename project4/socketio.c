@@ -17,10 +17,11 @@ ssize_t receiveAny(int fd, char *buf, size_t len) {
         return -1;
     }
     else {
-		/* Null-terminate buffer */
-		buf[bytes] = '\0';
-		return bytes;
-	}
+        /* Null-terminate buffer */
+        buf[bytes] = '\0';
+        printf("received %d bytes total: '%s'\n", bytes, buf);
+        return bytes;
+    }
 }
 
 ssize_t receiveAll(int fd, char *buf, size_t len) {
@@ -43,7 +44,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         }
         running += bytes;
         
-        printf("received %d bytes, %du of %du total\n", (int)bytes, (int)running, (int)len);
+        printf("received %d bytes, %d of %d total: '%s'\n", (int)bytes, (int)running, (int)len, &buf[running - bytes]);
         
     }
 
@@ -53,10 +54,11 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         return -1;
     }
     else {
-		/* Null-terminate buffer */
-		buf[bytes] = '\0';
-		return bytes;
-	}
+        /* Null-terminate buffer */
+        buf[bytes] = '\0';
+        printf("received %d bytes total: '%s'\n", bytes, buf);
+        return bytes;
+    }
 }
 
 ssize_t sendAll(int fd, const char *buf) {

@@ -143,7 +143,6 @@ ssize_t readline(int fd, char **buf) {
             || buffer[i] == '\t'
             || buffer[i] == '\r')
         ) {
-        buffer[i] = '\0';
     }
     lseek(fd, -(bytes - i), SEEK_CUR);
     
