@@ -1,9 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <time.h>
+#include <stdlib.h> /* srand */
+#include <stdio.h>  /* perror */
+#include <unistd.h> /* fork */
+#include <errno.h>  /* perror */
+#include <time.h>   /* time */
 
 #include "socketio.h"
 #include "server.h"

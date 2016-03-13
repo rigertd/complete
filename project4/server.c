@@ -1,16 +1,16 @@
 #include "server.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <limits.h>
-#include <netdb.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#include <stdlib.h>     /* EXIT_*, rand, srand, malloc, free */
+#include <stdio.h>      /* perror, fprintf */
+#include <string.h>     /* strtok_r, strcmp */
+#include <errno.h>      /* perror, errno */
+#include <limits.h>     /* USHRT_MAX */
+#include <signal.h>     /* sigaction */
+#include <netdb.h>      /* addrinfo, getaddrinfo, gai_strerror */
+#include <sys/socket.h> /* addrinfo, getaddrinfo, gai_strerror */
+#include <sys/types.h>  /* ssize_t, size_t */
+#include <sys/wait.h>   /* waitpid */
+#include <unistd.h>     /* close */
 
 #include "crypto.h"
 #include "socketio.h"
@@ -22,7 +22,6 @@ int acceptConnection(int fd) {
     if (result < 0)
         perror("accept");
 
-    printf("Accepted connection, new fd %d\n", fd);
     return result;
 }
 

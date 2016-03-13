@@ -1,10 +1,9 @@
 #include "socketio.h"
 
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h>
+#include <errno.h>      /* perror, errno */
+#include <stdio.h>      /* perror */
+#include <string.h>     /* strlen */
+#include <sys/socket.h> /* recv, send */
 
 ssize_t receiveAny(int fd, char *buf, size_t len) {
     ssize_t bytes;
@@ -19,7 +18,7 @@ ssize_t receiveAny(int fd, char *buf, size_t len) {
     else {
         /* Null-terminate buffer */
         buf[bytes] = '\0';
-        printf("received %d bytes total: '%s'\n", (int)bytes, buf);
+        /* printf("received %d bytes total: '%s'\n", (int)bytes, buf); */
         return bytes;
     }
 }
@@ -42,9 +41,6 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
             else break;
         }
         running += bytes;
-
-        printf("received %d bytes, %d of %d total: '%s'\n", (int)bytes, (int)running, (int)len, &buf[running - bytes]);
-
     }
 
     /* Return -1 if receive error, or total bytes received otherwise */
@@ -55,7 +51,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
     else {
         /* Null-terminate buffer */
         buf[running] = '\0';
-        printf("received %d bytes total: '%s'\n", (int)running, buf);
+        /* printf("received %d bytes total: '%s'\n", (int)running, buf); */
         return bytes;
     }
 }
@@ -81,7 +77,7 @@ ssize_t sendAll(int fd, const char *buf) {
                 break;
             }
         }
-        printf("sent %d bytes of %d total: '%s'\n", (int)(running + bytes), (int)total, &buf[running]);
+        /* printf("sent %d bytes of %d total: '%s'\n", (int)(running + bytes), (int)total, &buf[running]); */
         /* Update running total */
         running += bytes;
     }

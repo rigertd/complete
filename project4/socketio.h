@@ -1,7 +1,7 @@
 #ifndef SOCKETIO_H
 #define SOCKETIO_H
 
-#include <sys/types.h>
+#include <sys/types.h>  /* ssize_t, size_t */
 
 #define BUFFER_SIZE 512
 

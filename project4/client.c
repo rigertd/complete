@@ -1,14 +1,14 @@
 #include "client.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <stdlib.h>     /* malloc, free */
+#include <stdio.h>      /* printf, fprintf, perror */
+#include <errno.h>      /* perror */
+#include <string.h>     /* memset, strcmp */
+#include <netdb.h>      /* addrinfo, getaddrinfo, gai_strerror */
+#include <sys/socket.h> /* addrinfo, getaddrinfo, gai_strerror */
+#include <sys/stat.h>   /* open */
+#include <fcntl.h>      /* open */
+#include <unistd.h>     /* close, lseek */
 
 #include "socketio.h"
 
@@ -99,7 +99,7 @@ int requestOp(  const char *prog,
     receiveAny(serverfd, buffer, BUF_SIZE);
 
     /* Verify response from server */
-    if (strncmp(buffer, "INVALID", BUF_SIZE) == 0) {
+    if (strcmp(buffer, "INVALID") == 0) {
         fprintf(stderr, "%s error: invalid server type\n", prog);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);

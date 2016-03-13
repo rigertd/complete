@@ -1,7 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <sys/types.h>
+#include <sys/types.h> /* ssize_t, addrinfo, getaddrinfo */
 
 int connectServer(const char *port);
 int requestOp(  const char *prog,
