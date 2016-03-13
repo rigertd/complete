@@ -68,7 +68,16 @@ int main(int argc, char *argv[]) {
     printf("otp_enc: connecting to '%s'\n", buffer);
 
     serverfd = connectServer(buffer);
-    printf("otp_enc: connected\n", buffer);
+    printf("otp_enc: connected\n");
+    
+    /* Wait for server to ask for key data */
+    receiveAny(serverfd, buffer, BUF_SIZE);
+    if (strcmp(buffer, "KEY") != 0) {
+        fprintf(stderr, "otp_enc error: no key request received\n");
+        if (key != NULL) free(key);
+        if (msg != NULL) free(msg);
+        exit(EXIT_FAILURE);
+    }
     
     /* Send the key data */
     printf("otp_enc: sending key '%s'\n", key);

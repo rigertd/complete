@@ -57,6 +57,9 @@ int handleClient(int fd) {
         exit(EXIT_FAILURE);
     }
     
+    /* Tell client ready for key data */
+    sendAll(newfd, "KEY");
+    
     /* Get the key data, followed by the message data */
     receiveAll(newfd, key, keylen + 1);
     sendAll(newfd, "MSG");
