@@ -6,8 +6,6 @@
 #include <string.h>
 #include <sys/socket.h>
 
-#define BUFFER_SIZE 512
-
 ssize_t receive(int fd, char *buf, size_t len) {
     int bytes;
 
@@ -26,7 +24,8 @@ ssize_t receive(int fd, char *buf, size_t len) {
 }
 
 ssize_t receiveAll(int fd, char *buf, size_t len) {
-    int bytes, running = 0;
+    ssize_t bytes;
+    size_t running = 0;
 
     while (running < len - 1) {
         /* Block until all data is received */
@@ -34,8 +33,13 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         
         /* Stop if an error other than a signal interrupt occurred,
            or if socket was closed */
-        if ((bytes == -1 && errno != EINTR) || bytes == 0) {
+        if (bytes == 0) {
             break;
+        } else if (bytes == -1) {
+            /* Try again if interrupted by signal */
+            if (errno == EINTR) continue;
+            /* otherwise, return error */
+            else break;
         }
         running += bytes;
         
