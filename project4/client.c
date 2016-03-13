@@ -102,8 +102,14 @@ int requestOp(  const char *prog,
 
     /* Verify response from server */
     if (strcmp(buffer, "INVALID") == 0) {
-        fprintf(stderr, "%s error: could not contact %s server on port %s\n",
-            prog, type, port);
+        char othertype[8];
+        if (strcmp(type, "ENCRYPT") == 0)
+            strcpy(othertype, "DECRYPT");
+        else
+            stpcpy(othertype, "ENCRYPT");
+        fprintf(stderr,
+            "%s error: cannot use %s server on port %s from %s client\n",
+            prog, othertype, port, type);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         return EXIT_INVALID_SERVER;
