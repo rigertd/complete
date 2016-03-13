@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
-#include <limits.h>
 
 #include "crypto.h"
 #include "socketio.h"

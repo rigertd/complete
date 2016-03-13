@@ -19,7 +19,7 @@ opt_enc: $(COBJS) otp_enc.c
 keygen: keygen.c
 	$(C) $(CFLAGS) keygen.c -o $(@)
 
-$(OBJS): $(@:.o=.c)
+$(COBJS) $(SOBJS): $(@:.o=.c)
 	$(C) $(CFLAGS) -c $(@:.o=.c)
 
 clean:
