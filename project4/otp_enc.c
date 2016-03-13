@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     key = NULL;
     
     /* Receive acknowledgement */
-    receiveAny(serverfd, buffer);
+    receiveAny(serverfd, buffer, BUF_SIZE);
     if (strncmp(buffer, "MSG", 3) != 0) {
         fprintf(stderr, "otp_enc error: unexpected response from server\n");
         if (msg != NULL) free(msg);
