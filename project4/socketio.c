@@ -19,7 +19,7 @@ ssize_t receiveAny(int fd, char *buf, size_t len) {
     else {
         /* Null-terminate buffer */
         buf[bytes] = '\0';
-        printf("received %d bytes total: '%s'\n", bytes, buf);
+        printf("received %d bytes total: '%s'\n", (int)bytes, buf);
         return bytes;
     }
 }
@@ -28,11 +28,9 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
     ssize_t bytes;
     size_t running = 0;
 
+    /* Keep trying until all data is received */
     while (running < len - 1) {
-        /* Block until all data is received */
-        printf("about to call recv--running: %d, len: %d\n", (int)running, (int)len);
-        bytes = recv(fd, &buf[running], len, MSG_WAITALL);
-        printf("called recv--bytes: %d\n", (int)bytes);
+        bytes = recv(fd, &buf[running], len, 0);
         /* Stop if an error other than a signal interrupt occurred,
            or if socket was closed */
         if (bytes == 0) {
