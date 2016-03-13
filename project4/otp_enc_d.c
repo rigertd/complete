@@ -38,10 +38,10 @@ int handleClient(int fd) {
     
 	/* Tell client which port to connect to */
 	snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
-	sendAll(fd, buf);
+	sendAll(fd, buf, strlen(buf));
 	
 	/* Listen for the client on that port */
-	listenfd = startListening(buf);
+	listenfd = listenPort(buf);
 	
 	/* Accept the connection on the new port */
 	newfd = acceptConnection(listenfd);
@@ -72,7 +72,7 @@ int handleClient(int fd) {
        Otherwise determine which error occurred and display message */
     switch (res) {
     case Result_SUCCESS:
-        sendAll(fd, msg);
+        sendAll(fd, msg, msglen);
         break;
     case Result_KEY_ERROR:
         fprintf(stderr, "otp_enc_d error: key '%s' is too short\n", key);
