@@ -94,11 +94,11 @@ int main(int argc, char *argv[]) {
     msglen = receiveAll(serverfd, msg, msglen);
     
     /* Verify result */
-    if (strncmp(msg, "key_error", 9) == 0) {
+    if (strcmp(msg, "key_error") == 0) {
         fprintf(stderr, "%s error: key '%s' is too short\n", argv[0], argv[2]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
-    } else if (strncmp(msg, "invalid_char", 12) == 0) {
+    } else if (strcmp(msg, "invalid_char") == 0) {
         fprintf(stderr, "%s error: input contains bad characters\n", argv[0]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
