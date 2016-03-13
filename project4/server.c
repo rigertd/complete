@@ -76,12 +76,12 @@ void handleRequest(const char *prog, int fd, const char *type) {
     str = strtok_r(NULL, " \n\r", &tmp);
     msglen = atoi(str);
     
+    /* Listen for the client on that port */
+    listenfd = listenPort(buf);
+    
     /* Tell client which port to connect to */
     snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
     sendAll(fd, buf);
-    
-    /* Listen for the client on that port */
-    listenfd = listenPort(buf);
     
     /* Accept the connection on the new port */
     newfd = acceptConnection(listenfd);
