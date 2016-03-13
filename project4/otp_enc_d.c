@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 	srand(time(0));
 
     /* Configure, bind, and start listening on the listening socket */
-    listen_fd = startListening(argv[1]);
+    listen_fd = listenPort(argv[1]);
 
     /* Set up signal handler to reap child processes */
     registerChildHandler();
