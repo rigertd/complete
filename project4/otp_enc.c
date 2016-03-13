@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     
     /* Send request type and key/message lengths to server */
     char buffer[BUF_SIZE]; /* Make buffer long enough to hold max len of 2 ints */
-    snprintf(buffer, BUF_SIZE, "ENCRYPT %d %d", (int)msglen, (int)keylen);
+    snprintf(buffer, BUF_SIZE, "ENCRYPT %d %d", (int)keylen, (int)msglen);
     sendAll(serverfd, buffer);
     
     /* Get new port number from server */
