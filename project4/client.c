@@ -55,7 +55,7 @@ int connectServer(const char *prog, const char *port) {
     }
 
     if (rp == NULL) {
-        fprintf(stderr, "connect: No valid address found");
+        fprintf(stderr, "%s: No valid address found\n", prog);
         exit(EXIT_FAILURE);
     }
 
