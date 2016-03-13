@@ -3,9 +3,14 @@
 
 #include <sys/types.h>
 
-int connectServer(char *port);
-ssize_t loadData(char *path, char **data);
-int openFile(char *path);
+int connectServer(const char *port);
+int requestOp(  const char *prog,
+                const char *msgpath,
+                const char *keypath,
+                const char *port,
+                const char *type    );
+ssize_t loadData(const char *path, char **data);
+int openFile(const char *path);
 ssize_t readline(int fd, char **buf);
 void verifyArgs(int argc, char *argv[]);
 

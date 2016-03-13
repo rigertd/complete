@@ -48,7 +48,7 @@ void registerChildHandler() {
 }
 
 unsigned short getRandPort() {
-	return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
+    return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
 }
 
 void handleRequest(const char *prog, int fd, const char *type) {
@@ -59,7 +59,7 @@ void handleRequest(const char *prog, int fd, const char *type) {
     char *tmp, *str;        /* for parsing handshake data with strtok */
     size_t keylen, msglen;  /* stores the key and message sizes */
     enum Result res;        /* stores result of en/decryption operation */
-    
+
     /* Validate that client is correct one */
     receiveAny(fd, buf, BUFFER_SIZE);
     str = strtok_r(buf, " \n\r", &tmp);
@@ -69,26 +69,26 @@ void handleRequest(const char *prog, int fd, const char *type) {
         sendAll(fd, "INVALID");
         exit(EXIT_FAILURE);
     }
-    
+
     /* get key and message sizes */
     str = strtok_r(NULL, " \n\r", &tmp);
     keylen = atoi(str);
     str = strtok_r(NULL, " \n\r", &tmp);
     msglen = atoi(str);
-    
+
     /* Listen for the client on that port */
     snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
     listenfd = listenPort(buf);
-    
+
     /* Tell client which port to connect to */
     sendAll(fd, buf);
-    
+
     /* Accept the connection on the new port */
     newfd = acceptConnection(listenfd);
-    
+
     /* We no longer need the listen fd */
     close(listenfd);
-    
+
     /* Allocate memory for the key and buffer data */
     /* Include 1 extra byte for NULL terminator */
     key = malloc(keylen + 1);
@@ -101,15 +101,15 @@ void handleRequest(const char *prog, int fd, const char *type) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    
+
     /* Tell client ready for key data */
     sendAll(newfd, "KEY");
-    
+
     /* Get the key data, followed by the message data */
     receiveAll(newfd, key, keylen);
     sendAll(newfd, "MSG");
     receiveAll(newfd, msg, msglen);
-    
+
     /* Encrypt or decrypt message */
     if (strcmp(type, "ENCRYPT") == 0) {
         res = encryptText(key, msg);
@@ -170,7 +170,7 @@ int listenPort(const char *port) {
             perror("server: socket");
             continue; /* Try next on error */
         }
-        
+
         /* Attempt to reuse the socket if it's already in use */
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
             perror("setsockopt");
@@ -182,7 +182,7 @@ int listenPort(const char *port) {
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
             break;  /* Break from loop if bind was successful */
         }
-        
+
         /* Bind failed. Close file descriptor and try next address */
         close(fd);
         perror("server: bind");
@@ -194,7 +194,7 @@ int listenPort(const char *port) {
         fprintf(stderr, "bind: No valid address found.\n");
         exit(EXIT_FAILURE);
     }
-    
+
     /* Free memory used by localhost's address info */
     freeaddrinfo(result);
 

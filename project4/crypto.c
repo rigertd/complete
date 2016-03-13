@@ -3,7 +3,7 @@
 enum Result encryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {
-        /* Check for errors and return result accordingly. 
+        /* Check for errors and return result accordingly.
            Caller prints the error messages. */
         if (key[i] == '\0') {
             return Result_KEY_ERROR;
@@ -13,18 +13,18 @@ enum Result encryptText(char *key, char *msg) {
             ) {
             return Result_INVALID_CHAR;
         }
-        
+
         /* Convert spaces to '@' symbol */
         if (msg[i] == ' ') msg[i] = '@';
         if (key[i] == ' ') key[i] = '@';
 
         /* Encrypt the text */
         msg[i] = ((msg[i] - '@' + key[i] - '@') % 27) + '@';
-        
+
         /* Convert '@' symbol back to space */
         if (msg[i] == '@') msg[i] = ' ';
         if (key[i] == '@') key[i] = ' ';
-        
+
         ++i;
     }
     return Result_SUCCESS;
@@ -33,14 +33,14 @@ enum Result encryptText(char *key, char *msg) {
 enum Result decryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {
-        /* Check for errors and return result accordingly. 
+        /* Check for errors and return result accordingly.
            Caller prints the error messages. */
         if (key[i] == '\0') {
             return Result_KEY_ERROR;
         } else if (msg[i] != ' ' && (msg[i] < 'A' || msg[i] > 'Z')) {
             return Result_INVALID_CHAR;
         }
-        
+
         /* Convert spaces to '@' symbol */
         if (msg[i] == ' ') msg[i] = '@';
         if (key[i] == ' ') key[i] = '@';
@@ -49,11 +49,11 @@ enum Result decryptText(char *key, char *msg) {
         msg[i] = ((msg[i] - '@') - (key[i] - '@')) % 27;
         msg[i] = msg[i] < 0 ? msg[i] + 27 : msg[i];
         msg[i] += '@';
-        
+
         /* Convert '@' symbol back to space */
         if (msg[i] == '@') msg[i] = ' ';
         if (key[i] == '@') key[i] = ' ';
-        
+
         ++i;
     }
     return Result_SUCCESS;
