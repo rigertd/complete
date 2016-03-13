@@ -1,10 +1,31 @@
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         keygen.c
+* Description:  An encryption key generator for a one-time-pad.
+*
+*               This program generates a pseudorandom encryption key of
+*               the specified length and outputs it to stdout.
+*
+*               The command line syntax is as follows:
+*
+*                   keygen key_length
+*
+*               This program takes the following arguments:
+*               - key_length    -- The length of the key to generate.
+\*********************************************************/
+#include <errno.h>      /* perror */
+#include <stdlib.h>     /* srand, rand */
+#include <stdio.h>      /* fprintf, printf */
+#include <string.h>     /* strcmp */
+#include <time.h>       /* time */
+#include <unistd.h>     /* write, getpid */
+#include <sys/types.h>  /* getpid */
 
+/*========================================================*
+ * main function
+ *========================================================*/
 int main(int argc, char *argv[]) {
     long i, keylen; /* Loop variable and key length */
     char *end;      /* Stores first invalid char in strtol */
@@ -32,7 +53,8 @@ int main(int argc, char *argv[]) {
     }
 
     /* Seed random number generator */
-    srand(time(0));
+    /* Use PID for additional randomness when called in rapid succession */
+    srand(time(0) ^ getpid());
 
     /* Allocate memory to store key */
     buf = malloc(keylen + 1);

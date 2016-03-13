@@ -1,3 +1,10 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         client.c
+* Description:  Implementation file for client.h
+\*********************************************************/
 #include "client.h"
 
 #include <stdlib.h>     /* malloc, free */
@@ -12,10 +19,25 @@
 
 #include "socketio.h"
 
+/*========================================================*
+ * Macro definitions
+ *========================================================*/
 /* Length of buffer for converting plaintext and key sizes to a string */
 #define BUF_SIZE 50
+/* Exit code for attempts to contact the incorrect server type */
 #define EXIT_INVALID_SERVER 2
 
+/**
+ * Connects to the server on the localhost at the specified port.
+ *
+ * This function attempts to connect to a server running on the specified
+ * port on the localhost using IPv6 or IPv4, whichever is available.
+ *
+ *  prog    The name of the calling program.
+ *  port    The port to bind, as a c-style string.
+ *
+ * Returns the socket descriptor for the connection.
+ */
 int connectServer(const char *prog, const char *port) {
     int fd, val;
     struct addrinfo hints, *result, *rp;
@@ -66,6 +88,21 @@ int connectServer(const char *prog, const char *port) {
     return fd;
 }
 
+/**
+ * Requests the specified operation on the specified port.
+ *
+ * This function attempts to load message and key data from the specified
+ * files, connect to a server running on localhost on the specified port,
+ * and request the specified type of operation.
+ *
+ *  prog    The name of the calling program.
+ *  msgpath The path to the file that contains the message data.
+ *  msgpath The path to the file that contains the key data.
+ *  port    The port to bind, as a c-style string.
+ *  type    The type of request. Must be ENCRYPT_REQ or DECRYPT_REQ.
+ *
+ * Returns 0 for success, 1 for failure, and 2 for invalid server type.
+ */
 int requestOp(  const char *prog,
                 const char *msgpath,
                 const char *keypath,
@@ -180,6 +217,17 @@ int requestOp(  const char *prog,
     return EXIT_SUCCESS;
 }
 
+/**
+ * Loads the content of the specified file into the specified buffer.
+ *
+ * This function allocates memory and loads the data contained in
+ * the specified file. The specified pointer points to the data.
+ *
+ *  path    The path of the file to load.
+ *  data    NULL pointer that will point to the file data.
+ *
+ * Returns the bytes of data loaded.
+ */
 ssize_t loadData(const char *path, char **data) {
     int fd = openFile(path);
     ssize_t bytes = readline(fd, data);
@@ -187,6 +235,13 @@ ssize_t loadData(const char *path, char **data) {
     return bytes;
 }
 
+/**
+ * Opens the file at the specified path for reading.
+ *
+ *  path    The path of the file to load.
+ *
+ * Returns a valid file descriptor for the file.
+ */
 int openFile(const char *path) {
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
@@ -276,11 +331,22 @@ ssize_t readline(int fd, char **buf) {
     return total;
 }
 
+/**
+ * Verifies that the correct number of command-line arguments were specified.
+ *
+ * This function makes sure the correct number of command-line arguments were
+ * specified and displays help if not, or if the --help or -h argument was
+ * specified. This function does not verify the validity of the argument values
+ * themselves.
+ *
+ *  argc    The number of arguments.
+ *  argv    The values of the arguments.
+ */
 void verifyArgs(int argc, char *argv[]) {
     if (argc < 4 ||
         strcmp(argv[1], "--help") == 0 ||
         strcmp(argv[1], "-h") == 0) {
-        fprintf(stderr, "usage: %s plaintext key port\n", argv[0]);
+        fprintf(stderr, "usage: %s message key port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 }

@@ -1,5 +1,23 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         crypto.c
+* Description:  Implementation file for crypto.h
+\*********************************************************/
 #include "crypto.h"
 
+/**
+ * Encrypts the specified message using the specified key.
+ *
+ * This function uses the one-time-pad encryption technique to encrypt
+ * the specified message using the specified key.
+ *
+ *  key     The key to use for encryption.
+ *  msg     The message to encrypt.
+ *
+ * Returns a Result enumerator indicating whether the operation was successful.
+ */
 enum Result encryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {
@@ -30,6 +48,17 @@ enum Result encryptText(char *key, char *msg) {
     return Result_SUCCESS;
 }
 
+/**
+ * Decrypts the specified message using the specified key.
+ *
+ * This function uses the one-time-pad encryption technique to decrypt
+ * the specified message using the specified key.
+ *
+ *  key     The key to use for decryption.
+ *  msg     The message to decrypt.
+ *
+ * Returns a Result enumerator indicating whether the operation was successful.
+ */
 enum Result decryptText(char *key, char *msg) {
     int i = 0;
     while (msg[i] != '\0') {

@@ -1,3 +1,10 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         server.c
+* Description:  Implementation file for server.h
+\*********************************************************/
 #include "server.h"
 
 #include <stdlib.h>     /* EXIT_*, rand, srand, malloc, free */
@@ -15,7 +22,23 @@
 #include "crypto.h"
 #include "socketio.h"
 
-/* Accept a connection on the specified socket and return the new fd */
+/*========================================================*
+ * Macro definitions
+ *========================================================*/
+/* Defines the max number of connections to queue when waiting */
+#define MAX_CONNECTIONS 5
+
+/**
+ * Accepts a connection on the specified socket and returns the new fd.
+ *
+ * This function accepts any incoming connection on the specified socket.
+ * If no connection is waiting, it blocks until one is available.
+ *
+ *  fd      The socket descriptor to wait for a connection on.
+ *
+ * Returns the new socket descriptor once the connection is established,
+ * or -1 if the accept operation fails.
+ */
 int acceptConnection(int fd) {
     int result;
     result = accept(fd, NULL, NULL);
@@ -25,7 +48,14 @@ int acceptConnection(int fd) {
     return result;
 }
 
-/* Wait on any terminated child processes */
+/**
+ * Checks for any terminated child processes and waits on them.
+ *
+ * This function performs a non-blocking check for zombie child processes
+ * and reaps any that are around at the time of calling.
+ *
+ *  sig     The signal that triggered the call.
+ */
 void reapChildren(int sig) {
     int oldErrno = errno;
     while (waitpid(-1, NULL, WNOHANG) > 0) {
@@ -34,7 +64,13 @@ void reapChildren(int sig) {
     errno = oldErrno;
 }
 
-/* Set signal handler for cleaning up zombies */
+/**
+ * Sets the signal handler for cleaning up zombies.
+ *
+ * This function sets the reapChildren function as the signal handler
+ * for cleaning up any zombie child processes. The handler is invoked
+ * whenever SIGCHLD occurs.
+ */
 void registerChildHandler() {
     struct sigaction sigact;
     sigact.sa_handler = reapChildren;
@@ -46,10 +82,31 @@ void registerChildHandler() {
     }
 }
 
+/**
+ * Generates a random port number between 2000 and the maximum allowable port.
+ *
+ * Returns the random port number.
+ */
 unsigned short getRandPort() {
     return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
 }
 
+/**
+ * Handles a client request for encryption or decryption.
+ *
+ * This function performs all of the necessary operations to handle
+ * a request from one of the client programs. As part of the process,
+ * it verifies that the client type is valid and provides a different
+ * port for the client to connect to. If any of the steps fail,
+ * it exits with an error code of 1. If all steps succeed, it exits
+ * with an error code of 0.
+ * 
+ * This function always terminates the child process.
+ *
+ *  prog    The name of the calling program.
+ *  fd      The socket descriptor over which to handle the request.
+ *  type    The type of request. Must be ENCRYPT_REQ or DECRYPT_REQ.
+ */
 void handleRequest(const char *prog, int fd, const char *type) {
     char *msg = NULL;       /* stores the message data */
     char *key = NULL;       /* stores the key data */
@@ -143,6 +200,17 @@ void handleRequest(const char *prog, int fd, const char *type) {
         exit(EXIT_FAILURE);
 }
 
+/**
+ * Binds and starts listening on the specified port.
+ *
+ * This function binds the specified port on the localhost using
+ * either IPv4 or IPv6, whichever is available. It then begins listening
+ * for connections on that port.
+ *
+ *  port    The port to bind, as a c-style string.
+ *
+ * Returns the socket descriptor for the bound and listened port.
+ */
 int listenPort(const char *port) {
     int fd, val;
     int yes = 1;
@@ -207,6 +275,17 @@ int listenPort(const char *port) {
     return fd;
 }
 
+/**
+ * Verifies that the correct number of command-line arguments were specified.
+ *
+ * This function makes sure the correct number of command-line arguments were
+ * specified and displays help if not, or if the --help or -h argument was
+ * specified. This function does not verify the validity of the argument values
+ * themselves.
+ *
+ *  argc    The number of arguments.
+ *  argv    The values of the arguments.
+ */
 void verifyArgs(int argc, char *argv[]) {
     if (argc < 2 ||
         strcmp(argv[1], "--help") == 0 ||

@@ -1,7 +1,13 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         server.h
+* Description:  Defines functions used by the server-side programs
+*               in a one-time-pad implementation.
+\*********************************************************/
 #ifndef SERVER_H
 #define SERVER_H
-
-#define MAX_CONNECTIONS 5
 
 int acceptConnection(int fd);
 void registerChildHandler();

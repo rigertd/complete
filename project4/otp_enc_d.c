@@ -1,12 +1,34 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         otp_enc_d.c
+* Description:  A one-time-pad encryption daemon written in C.
+*
+*               This program accepts TCP connections from encryption clients
+*               and encrypts plaintext data using the provided encryption
+*               key. It then sends the encrypted data back to the client.
+*
+*               The command line syntax is as follows:
+*
+*                   otp_enc_d port
+*
+*               This program takes the following arguments:
+*               - port      -- The TCP port on which to wait for client
+*                              connections.
+\*********************************************************/
 #include <stdlib.h> /* srand */
 #include <stdio.h>  /* perror */
 #include <unistd.h> /* fork */
 #include <errno.h>  /* perror */
 #include <time.h>   /* time */
 
-#include "socketio.h"
 #include "server.h"
+#include "socketio.h"   /* ENCRYPT_REQ */
 
+/*========================================================*
+ * main function
+ *========================================================*/
 int main(int argc, char *argv[]) {
     /* Verify command line arguments */
     verifyArgs(argc, argv);

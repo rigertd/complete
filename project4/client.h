@@ -1,3 +1,11 @@
+/*********************************************************\
+* Author:       David Rigert
+* Class:        CS344 Winter 2016
+* Assignment:   Program 4 - OTP
+* File:         client.h
+* Description:  Defines functions used by the client-side programs
+*               in a one-time-pad implementation.
+\*********************************************************/
 #ifndef CLIENT_H
 #define CLIENT_H
 
