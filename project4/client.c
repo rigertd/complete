@@ -101,7 +101,7 @@ ssize_t readline(int fd, char **buf) {
         /* Search for newline character in read data */
         for (i = 0; i < bytes; ++i) {
             if (buffer[i] == '\n' || buffer[i] == '\r') {
-                buffer[i] == '\0';
+                buffer[i] = '\0';
                 flag = 1;
                 break;
             }
