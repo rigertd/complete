@@ -54,8 +54,8 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
     }
     else {
         /* Null-terminate buffer */
-        buf[bytes] = '\0';
-        printf("received %d bytes total: '%s'\n", (int)bytes, buf);
+        buf[running] = '\0';
+        printf("received %d bytes total: '%s'\n", (int)running, buf);
         return bytes;
     }
 }
