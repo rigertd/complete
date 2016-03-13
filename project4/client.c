@@ -1,57 +1,146 @@
-#include <stdio.h>
+#include "client.h"
+
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
+#include <stdio.h>
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(0);
+#include "socketio.h"
+
+int connectServer(char *port) {
+    int fd, val;
+    int yes = 1;
+    struct addrinfo hints, *result, *rp;
+
+    /* Zero-initialize and set addrinfo structure */
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;    /* IPv4 or IPv6, whichever is available */
+    hints.ai_socktype = SOCK_STREAM;/* TCP */
+    hints.ai_flags = AI_PASSIVE;    /* Use localhost IP */
+
+    /* Look up the localhost address info */
+    val = getaddrinfo(NULL, port, &hints, &result);
+    if (val != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(val));
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Loop through address structure results until connect succeeds */
+    for (rp = result; rp != NULL; rp = rp->ai_next) {
+        /* Attempt to open a socket based on the localhost's address info */
+        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (fd == -1) {
+            perror("server: socket");
+            continue; /* Try next on error */
+        }
+        
+        /* Attempt to connect to the open socket */
+        if (connect(fd, p->ai_addr, p->ai_addrlen) == -1) {
+            perror("client: connect");
+            close(fd);
+            continue; /* Try next on error */
+        }
+        
+        /* Connection succeeded if we reach here */
+        break;
+    }
+    
+    if (rp == NULL) {
+        fprintf(stderr, "connect: No valid address found");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Free memory used by localhost's address info */
+    freeaddrinfo(result);
+
+    /* Return the connected socket file descriptor */
+    return fd;
 }
 
-int main(int argc, char *argv[])
-{
-    int sockfd, portno, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-
-    char buffer[256];
-    if (argc < 3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
-       exit(0);
+int openFile(char *path) {
+    int fd = open(path, O_RDONLY);
+    if (fd == -1) {
+        fprintf(stderr, "Failed to open file %s\n", path);
+        perror("open");
+        exit(EXIT_FAILURE);
     }
-    portno = atoi(argv[2]);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-        error("ERROR opening socket");
-    server = gethostbyname(argv[1]);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
-        exit(0);
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-        error("ERROR connecting");
-    printf("Please enter the message: ");
-    bzero(buffer,256);
-    fgets(buffer,255,stdin);
-    n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0) 
-         error("ERROR writing to socket");
-    bzero(buffer,256);
-    n = read(sockfd,buffer,255);
-    if (n < 0) 
-         error("ERROR reading from socket");
-    printf("%s\n",buffer);
-    close(sockfd);
-    return 0;
+    return fd;
 }
+
+/**
+ * Reads from the specified file descriptor until an EOL char is found.
+ * The line does not include the EOL character(s).
+ *
+ *  fd      The file descriptor to read from. Must be open and readable.
+ *  buf     The buffer to store the result in. Must be NULL.
+ *
+ * Returns the number of bytes in the line.
+ * The data is stored in the buf pointer.
+ * The data buffer must be freed after it is no longer needed.
+ */
+ssize_t readline(int fd, char **buf) {
+    char *tmp;
+    char buffer[BUFFER_SIZE];
+    int i, flag;
+    ssize_t bytes;
+    size_t total = 0;
+
+    flag = 0;
+    
+    /* Make sure buf is NULL */
+    if (*buf != NULL) {
+        fprintf(stderr, "readline: buffer pointer must be NULL\n");
+        exit(EXIT_FAILURE);
+    }
+
+    while (!flag && (bytes = read(fd, buffer, BUFFER_SIZE)) > 0) {
+        /* Search for newline character in read data */
+        for (i = 0; i < bytes; ++i) {
+            if (buffer[i] == '\n' || buffer[i] == '\r') {
+                buffer[i] == '\0';
+                flag = 1;
+                break;
+            }
+        }
+        
+        total += i;
+        
+        /* Append data to end of heap buffer */
+        tmp = malloc(total + 1);
+        if (tmp == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        /* Copy existing data to new heap buffer */
+        if (*buf != NULL) {
+            strncpy(tmp, *buf, total - i);
+            free(*buf);
+            *buf = NULL;
+        }
+        /* Copy stack buffer to heap buffer */
+        strncpy(&tmp[total - i], buffer, i);
+        
+        /* Add NULL terminator to end of buffer */
+        tmp[total] = '\0';
+        
+        /* Assign new string to buf pointer */
+        *buf = tmp;
+    }
+
+    /* Return -1 if read fails */
+    if (bytes < 0) {
+        return -1;
+    }
+
+    /* Reset position of fd to next non-whitespace character */
+    while (++i < bytes
+        && (buf[i] == ' '
+            || buf[i] == '\n'
+            || buf[i] == '\t'
+            || buf[i] == '\r')
+        ) {
+        buf[i] = '\0';
+    }
+    lseek(fd, -(bytes - i), SEEK_CUR);
+    
+    return total;
+}
+

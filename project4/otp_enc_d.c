@@ -10,10 +10,6 @@
 #include "socketio.h"
 #include "server.h"
 
-unsigned short getRandPort() {
-	return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
-}
-
 int handleClient(int fd) {
     char *msg = NULL;      /* stores the message data */
     char *key = NULL;      /* stores the key data */
@@ -24,16 +20,16 @@ int handleClient(int fd) {
     
     /* Validate that client is correct one */
 	receiveAny(fd, buf, BUFFER_SIZE);
-	str = strtok_r(buf, " ", &tmp);
+	str = strtok_r(buf, " \n\r", &tmp);
     if (strcmp(str, "ENCRYPT") != 0) {
         fprintf(stderr, "otp_enc_d: Invalid request from client\n");
 		exit(EXIT_FAILURE);
     }
 	
 	/* get key and message sizes */
-	str = strtok_r(NULL, " ", &tmp);
+	str = strtok_r(NULL, " \n\r", &tmp);
 	keylen = atoi(str);
-	str = strtok_r(NULL, " ", &tmp);
+	str = strtok_r(NULL, " \n\r", &tmp);
 	msglen = atoi(str);
     
 	/* Tell client which port to connect to */
@@ -63,6 +59,7 @@ int handleClient(int fd) {
 	
 	/* Get the key data, followed by the message data */
 	receiveAll(newfd, key, keylen + 1);
+    sendAll(newfd, "MSG");
 	receiveAll(newfd, msg, msglen + 1);
 	
     /* Encrypt plaintext message */

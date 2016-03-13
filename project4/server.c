@@ -45,6 +45,10 @@ void registerChildHandler() {
     }
 }
 
+unsigned short getRandPort() {
+	return (unsigned short)(rand() % (USHRT_MAX - 2000) + 2000);
+}
+
 int listenPort(const char *port) {
     int fd, val;
     int yes = 1;

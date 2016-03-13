@@ -5,6 +5,7 @@
 
 int acceptConnection(int fd);
 void registerChildHandler();
+unsigned short getRandPort();
 int listenPort(const char *port);
 
 #endif

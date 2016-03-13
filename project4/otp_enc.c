@@ -3,18 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "socketio.h"
+#include "client.h"
 
-/**
- * Gets a pointer to the sin_addr for IPv4 and sin6_addr for IPv6.
- * Copied from https://beej.us/guide/bgnet/
- */
-void *get_in_addr(struct sockaddr *sa) {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in *)sa)->sin_addr);
-    }
-    
-    return &(((struct sockaddr_in6 *)sa)->sin6_addr);
+void requestEncryption() {
 }
 
 int main(int argc, char *argv[]) {
@@ -24,6 +15,26 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s plaintext key port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    
+    int serverfd, msgfd, keyfd;
+    char *msg, *key;
+    ssize_t msglen, keylen;
+    
+    /* Open files and socket */
+    msgfd = openFile(argv[1]);
+    keyfd = openFile(argv[2]);
+    serverfd = connectServer(argv[3]);
+    
+    /* Attempt to read plaintext and key from files */
+    msglen = readline(msgfd, &msg);
+    keylen = readline(keyfd, &key);
+    
+    printf("msg: '%s'\n", msg);
+    printf("key: '%s'\n", key);
+    
+    /* Free memory allocated for plaintext and key */
+    if (msg != NULL) free(msg);
+    if (key != NULL) free(key);
 
     return EXIT_SUCCESS;
 }
