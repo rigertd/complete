@@ -138,12 +138,12 @@ ssize_t readline(int fd, char **buf) {
 
     /* Reset position of fd to next non-whitespace character */
     while (++i < bytes
-        && (buf[i] == ' '
-            || buf[i] == '\n'
-            || buf[i] == '\t'
-            || buf[i] == '\r')
+        && (buffer[i] == ' '
+            || buffer[i] == '\n'
+            || buffer[i] == '\t'
+            || buffer[i] == '\r')
         ) {
-        buf[i] = '\0';
+        buffer[i] = '\0';
     }
     lseek(fd, -(bytes - i), SEEK_CUR);
     
