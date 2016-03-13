@@ -69,7 +69,7 @@ int listenPort(const char *port) {
         fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == -1) {
             perror("server: socket");
-            continue /* Try next on error */
+            continue; /* Try next on error */
         }
         
         /* Attempt to reuse the socket if it's already in use */
@@ -97,7 +97,7 @@ int listenPort(const char *port) {
     }
     
     /* Free memory used by localhost's address info */
-    freeaddrinfo(res);
+    freeaddrinfo(result);
 
     /* Listen on port for up to MAX_CONNECTIONS */
     if (listen(fd, MAX_CONNECTIONS) < 0) {
