@@ -77,10 +77,10 @@ void handleRequest(const char *prog, int fd, const char *type) {
     msglen = atoi(str);
     
     /* Listen for the client on that port */
+    snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
     listenfd = listenPort(buf);
     
     /* Tell client which port to connect to */
-    snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
     sendAll(fd, buf);
     
     /* Accept the connection on the new port */
