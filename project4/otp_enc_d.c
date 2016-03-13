@@ -23,7 +23,7 @@ int handleClient(int fd) {
 	size_t keylen, msglen;    /* stores the key and message sizes */
     
     /* Validate that client is correct one */
-	receive(fd, buf, BUFFER_SIZE);
+	receiveAny(fd, buf, BUFFER_SIZE);
 	str = strtok_r(buf, " ", &tmp);
     if (strcmp(str, "ENCRYPT") != 0) {
         fprintf(stderr, "otp_enc_d: Invalid request from client\n");

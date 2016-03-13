@@ -6,10 +6,10 @@
 #include <string.h>
 #include <sys/socket.h>
 
-ssize_t receive(int fd, char *buf, size_t len) {
-    int bytes;
+ssize_t receiveAny(int fd, char *buf, size_t len) {
+    ssize_t bytes;
 
-    bytes = recv(fd, &buf[running], len, 0);
+    bytes = recv(fd, buf, len, 0);
 
     /* Return -1 if receive error, or total bytes received otherwise */
     if (bytes == -1) {
@@ -29,7 +29,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
 
     while (running < len - 1) {
         /* Block until all data is received */
-        bytes = recv(fd, &buffer[running], len, MSG_WAITALL);
+        bytes = recv(fd, &buf[running], len, MSG_WAITALL);
         
         /* Stop if an error other than a signal interrupt occurred,
            or if socket was closed */
@@ -43,7 +43,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
         }
         running += bytes;
         
-        printf("received %d bytes, %d of %d total\n", bytes, running, len);
+        printf("received %d bytes, %du of %du total\n", bytes, running, len);
         
     }
 
@@ -60,26 +60,28 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
 }
 
 ssize_t sendAll(int fd, const char *buf) {
-    int bytes, total;
-    int running = 0;
+    ssize_t bytes;
+    size_t total, running = 0;
 
-    /* Make sure buf is not NULL */
-    if (buf == NULL) {
-        fprintf(stderr, "NULL buffer specified in send function.\n");
-        return -1;
-    }
-    
+    /* Use NULL terminator to determine total length */
     total = strlen(buf);
 
     /* Send until there is nothing left to send */
     while (running < total) {
         bytes = send(fd, &buf[running], total, 0);
-        if (bytes == -1 && errno != EINTR) {
-            /* Some non-interrupt error occurred. Abort. */
-            perror("send");
+        if (bytes == 0) {
+            /* Socket was closed */
             break;
+        } else if (bytes == -1) {
+            if (errno == EINTR) continue;
+            else {
+                /* Some non-interrupt error occurred. Abort. */
+                perror("send");
+                break;
+            }
         }
-        printf("sent %d bytes of %d total: %.*s\n", running + bytes, total, bytes, &buf[running]);
+        }
+        printf("sent %du bytes of %du total: %.*s\n", running + bytes, total, &buf[running]);
         /* Update running total */
         running += bytes;
     }
