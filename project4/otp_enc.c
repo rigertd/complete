@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "client.h"
+#include "socketio.h"
 
 #define BUF_SIZE 32
 
