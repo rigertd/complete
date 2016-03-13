@@ -6,13 +6,14 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include "socketio.h"
 
 int connectServer(char *port) {
     int fd, val;
-    int yes = 1;
     struct addrinfo hints, *result, *rp;
 
     /* Zero-initialize and set addrinfo structure */
@@ -38,7 +39,7 @@ int connectServer(char *port) {
         }
         
         /* Attempt to connect to the open socket */
-        if (connect(fd, p->ai_addr, p->ai_addrlen) == -1) {
+        if (connect(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
             perror("client: connect");
             close(fd);
             continue; /* Try next on error */
