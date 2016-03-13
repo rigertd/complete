@@ -14,7 +14,7 @@ all: $(PROGS)
 otp_enc_d: $(SOBJS) $(OBJS) otp_enc_d.c
 	$(C) $(CFLAGS) otp_enc_d.c $(SOBJS) $(OBJS) -o $(@)
 
-opt_enc: $(CLOBJS) $(OBJS) otp_enc.c
+otp_enc: $(CLOBJS) $(OBJS) otp_enc.c
 	$(C) $(CFLAGS) otp_enc.c $(CLOBJS) $(OBJS) -o $(@)
 
 keygen: keygen.c
