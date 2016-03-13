@@ -28,7 +28,7 @@ ssize_t receiveAll(int fd, char *buf, size_t len) {
     ssize_t bytes;
     size_t running = 0;
 
-    while (running < len - 1) {
+    while (running < len) {
         /* Block until all data is received */
         bytes = recv(fd, &buf[running], len, MSG_WAITALL);
         
@@ -82,7 +82,7 @@ ssize_t sendAll(int fd, const char *buf) {
                 break;
             }
         }
-        printf("sent %d bytes of %d total: %s\n", (int)(running + bytes), (int)total, &buf[running]);
+        printf("sent %d bytes of %d total: '%s'\n", (int)(running + bytes), (int)total, &buf[running]);
         /* Update running total */
         running += bytes;
     }
