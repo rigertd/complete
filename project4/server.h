@@ -8,5 +8,6 @@ void registerChildHandler();
 unsigned short getRandPort();
 void handleRequest(const char *prog, int fd, const char *type);
 int listenPort(const char *port);
+void verifyArgs(int argc, char *argv[]);
 
 #endif
