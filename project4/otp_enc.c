@@ -6,7 +6,8 @@
 #include "client.h"
 #include "socketio.h"
 
-#define BUF_SIZE 32
+/* Length of buffer for converting plaintext and key sizes to a string */
+#define BUF_SIZE 50
 
 void requestEncryption() {
 }
@@ -45,15 +46,12 @@ int main(int argc, char *argv[]) {
     }
     
     /* Send request type and key/message lengths to server */
-    char buffer[BUF_SIZE]; /* Make buffer long enough to hold max len of 2 ints */
+    char buffer[BUF_SIZE];
     snprintf(buffer, BUF_SIZE, "ENCRYPT %d %d", (int)keylen, (int)msglen);
-    printf("otp_enc: sending '%s'\n", buffer);
     sendAll(serverfd, buffer);
     
     /* Get new port number from server */
-    printf("otp_enc: waiting for port\n");
     receiveAny(serverfd, buffer, BUF_SIZE);
-    printf("otp_enc: received port '%s'\n", buffer);
     
     /* Verify response from server */
     if (strncmp(buffer, "INVALID", BUF_SIZE) == 0) {
@@ -65,10 +63,8 @@ int main(int argc, char *argv[]) {
     
     /* Close current connection and open new one on new port */
     close(serverfd);
-    printf("otp_enc: connecting to '%s'\n", buffer);
 
     serverfd = connectServer(buffer);
-    printf("otp_enc: connected\n");
     
     /* Wait for server to ask for key data */
     receiveAny(serverfd, buffer, BUF_SIZE);
@@ -80,7 +76,6 @@ int main(int argc, char *argv[]) {
     }
     
     /* Send the key data */
-    printf("otp_enc: sending key '%s'\n", key);
     if (sendAll(serverfd, key) == -1) {
         fprintf(stderr, "otp_enc error: sending key data failed\n");
         if (key != NULL) free(key);
