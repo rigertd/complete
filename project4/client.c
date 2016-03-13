@@ -92,7 +92,7 @@ int requestOp(  const char *prog,
 
     /* Send request type and key/message lengths to server */
     char buffer[BUF_SIZE];
-    snprintf(buffer, BUF_SIZE, "ENCRYPT %d %d", (int)keylen, (int)msglen);
+    snprintf(buffer, BUF_SIZE, "%s %d %d", type, (int)keylen, (int)msglen);
     sendAll(serverfd, buffer);
 
     /* Get new port number from server */
@@ -140,7 +140,7 @@ int requestOp(  const char *prog,
         return EXIT_FAILURE;
     }
 
-    /* Send plaintext message data */
+    /* Send message data */
     if (sendAll(serverfd, msg) == -1) {
         fprintf(stderr, "%s error: sending plaintext message failed\n", prog);
         if (msg != NULL) free(msg);
