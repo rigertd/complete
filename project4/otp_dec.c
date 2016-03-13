@@ -4,5 +4,5 @@
 int main(int argc, char *argv[]) {
     verifyArgs(argc, argv);
     
-    return requestOp(argv[0], argv[1], argv[2], argv[3], "DECRYPT");
+    return requestOp(argv[0], argv[1], argv[2], argv[3], DECRYPT_REQ);
 }

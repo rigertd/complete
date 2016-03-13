@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
             /* Seed random number generator here based on time OR pid */
             /* Otherwise, every child process will inherit the same sequence */
             srand(time(0) ^ getpid());
-            handleRequest(argv[0], new_fd, "DECRYPT");
+            handleRequest(argv[0], new_fd, DECRYPT_REQ);
             break;
         default:
             /* Parent process doesn't need new socket descriptor */
