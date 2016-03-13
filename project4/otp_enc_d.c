@@ -5,7 +5,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "crypto.h"
 #include "socketio.h"
 #include "server.h"
 

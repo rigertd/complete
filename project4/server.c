@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "crypto.h"
 #include "socketio.h"
 
 /* Accept a connection on the specified socket and return the new fd */
