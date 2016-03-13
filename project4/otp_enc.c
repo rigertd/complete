@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     }
     
     int serverfd, msgfd, keyfd;
-    char *msg, *key;
+    char *msg = NULL, *key = NULL;
     ssize_t msglen, keylen;
     
     /* Open files and socket */
