@@ -80,7 +80,6 @@ ssize_t sendAll(int fd, const char *buf) {
                 break;
             }
         }
-        }
         printf("sent %du bytes of %du total: %.*s\n", running + bytes, total, &buf[running]);
         /* Update running total */
         running += bytes;
