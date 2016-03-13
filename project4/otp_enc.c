@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     }
     
     /* Receive encrypted data */
-    receiveAll(serverfd, msg, msglen);
+    msglen = receiveAll(serverfd, msg, msglen);
     
     /* Verify result */
     if (strncmp(msg, "key_error", 9) == 0) {
