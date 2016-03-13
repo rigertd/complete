@@ -7,7 +7,10 @@ enum Result encryptText(char *key, char *msg) {
            Caller prints the error messages. */
         if (key[i] == '\0') {
             return Result_KEY_ERROR;
-        } else if (msg[i] != ' ' && (msg[i] < 'A' || msg[i] > 'Z')) {
+        } else if (
+            (msg[i] != ' ' && (msg[i] < 'A' || msg[i] > 'Z')) ||
+            (key[i] != ' ' && (key[i] < 'A' || key[i] > 'Z'))
+            ) {
             return Result_INVALID_CHAR;
         }
         
