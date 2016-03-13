@@ -127,10 +127,10 @@ void handleRequest(const char *prog, int fd, const char *type) {
         sendAll(newfd, msg);
         break;
     case Result_KEY_ERROR:
-        sendAll(newfd, "KEYERROR");
+        sendAll(newfd, "key_error");
         break;
     case Result_INVALID_CHAR:
-        sendAll(newfd, "INVALIDCHAR");
+        sendAll(newfd, "invalid_char");
         break;
     }
 

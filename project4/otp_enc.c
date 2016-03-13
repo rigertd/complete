@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     
     /* Verify key length */
     if (keylen < msglen) {
-        fprintf(stderr, "Error: key '%s' is too short", argv[2]);
+        fprintf(stderr, "%s error: key '%s' is too short\n", argv[0], argv[2]);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     
     /* Verify response from server */
     if (strncmp(buffer, "INVALID", BUF_SIZE) == 0) {
-        fprintf(stderr, "otp_enc error: invalid server type\n");
+        fprintf(stderr, "%s error: invalid server type\n", argv[0]);
         if (key != NULL) free(key);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
@@ -94,11 +94,11 @@ int main(int argc, char *argv[]) {
     receiveAll(serverfd, msg, msglen);
     
     /* Verify result */
-    if (strcmp(msg, "KEYERROR") == 0) {
+    if (strncmp(msg, "key_error", 9) == 0) {
         fprintf(stderr, "%s error: key '%s' is too short\n", argv[0], argv[2]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);
-    } else if (strcmp(msg, "INVALIDCHAR") == 0) {
+    } else if (strncmp(msg, "invalid_char", 12) == 0) {
         fprintf(stderr, "%s error: input contains bad characters\n", argv[0]);
         if (msg != NULL) free(msg);
         exit(EXIT_FAILURE);

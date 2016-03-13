@@ -14,9 +14,6 @@ int main(int argc, char *argv[]) {
 
     int listen_fd, new_fd;
 
-    /* Seed random number generator */
-    srand(time(0));
-
     /* Configure, bind, and start listening on the listening socket */
     listen_fd = listenPort(argv[1]);
 
@@ -42,6 +39,9 @@ int main(int argc, char *argv[]) {
         case 0:
             /* Child process doesn't need listen socket descriptor */
             close(listen_fd);
+            /* Seed random number generator here based on time OR pid */
+            /* Otherwise, every child process will inherit the same sequence */
+            srand(time(0) ^ getpid());
             handleRequest(argv[0], new_fd, "ENCRYPT");
             break;
         default:
