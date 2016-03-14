@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
 
     /* Configure, bind, and start listening on the listening socket */
     listen_fd = listenPort(argv[1]);
+    if (listen_fd == -1)
+        return EXIT_FAILURE;
 
     /* Set up signal handler to reap child processes */
     registerChildHandler();

@@ -132,9 +132,11 @@ void handleRequest(const char *prog, int fd, const char *type) {
     str = strtok_r(NULL, " \n\r", &tmp);
     msglen = atoi(str);
 
-    /* Listen for the client on that port */
-    snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
-    listenfd = listenPort(buf);
+    /* Attempt to bind and listen on a random port */
+    do {
+        snprintf(buf, BUFFER_SIZE, "%hu", getRandPort());
+        listenfd = listenPort(buf);
+    } while (listenfd == -1);
 
     /* Tell client which port to connect to */
     sendAll(fd, buf);
@@ -209,7 +211,8 @@ void handleRequest(const char *prog, int fd, const char *type) {
  *
  *  port    The port to bind, as a c-style string.
  *
- * Returns the socket descriptor for the bound and listened port.
+ * Returns the socket descriptor for the bound and listened port,
+ * or -1 if unsuccessful.
  */
 int listenPort(const char *port) {
     int fd, val;
@@ -226,6 +229,7 @@ int listenPort(const char *port) {
     val = getaddrinfo(NULL, port, &hints, &result);
     if (val != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(val));
+        return -1;
         exit(EXIT_FAILURE);
     }
 
@@ -242,7 +246,7 @@ int listenPort(const char *port) {
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
             perror("setsockopt");
             freeaddrinfo(result);
-            exit(EXIT_FAILURE);
+            return -1;
         }
 
         /* Attempt to bind the socket to the port */
@@ -259,7 +263,7 @@ int listenPort(const char *port) {
     if (rp == NULL) {
         freeaddrinfo(result);
         fprintf(stderr, "bind: No valid address found.\n");
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     /* Free memory used by localhost's address info */
@@ -268,7 +272,7 @@ int listenPort(const char *port) {
     /* Listen on port for up to MAX_CONNECTIONS */
     if (listen(fd, MAX_CONNECTIONS) < 0) {
         perror("listen");
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     /* Return the listening socket file descriptor */
