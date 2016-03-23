@@ -1,0 +1,114 @@
+#!/bin/bash
+# Author:	David Rigert
+# Class:	CS344 Winter 2016
+# Assignment:	Program 1 - stats
+
+# Trap to clean up temp files if program interrupted
+trap "{ rm -f temp$$* ; exit 1; }" INT HUP TERM
+
+# Name of script without leading dot-slash
+name=`basename "$0"`
+
+# Function to display usage instuctions to stdout and stderr
+echo_usage () {
+	echo "Usage: $name {-rows|-cols} [file]" >&2
+}
+
+# Start with argument error handling and exit the program if error found.
+# Display usage and exit with error 1 if rows or columns not specified
+[[ $1 != -r* ]] && [[ $1 != -c* ]] && echo_usage && exit 1
+
+# Display usage and exit with error 1 if too many arguments specified
+[ $# -gt 2 ] && echo_usage && exit 1
+
+# Display error to stderr and give exit code 1 if file not found/unreadable
+[ ! -r $2 ] && echo "$name: cannot read $2" >&2 && exit 1
+
+# Store the mean and median for each col/row in an array
+means=()
+medians=()
+
+# Write stdin or specified file to temp file. This lets us handle just one
+# type of input in the rest of the code. Also, once you read a line of
+# stdin, it is lost for good. Storing it in a temp file makes it possible
+# to read a line multiple times if necessary.
+cat ${2:-/dev/stdin} > temp$$
+
+# Read first line of temp file to count columns. We could do this in
+# the transpose loop, but this eliminates the need for a conditional
+# test every iteration of the read loop.
+read -r line <temp$$
+colCount=`echo $line | wc -w`
+
+# Transpose table if -col is specified. This lets us use the same main
+# logic loop for both rows and columns.
+if [[ $1 == -c* ]]
+then
+	counter=0
+	# Create empty file in case filename already exists
+	printf "" > temp$$t
+	# Cut each column and paste as a row
+	while [ $counter -lt $colCount ]
+	do
+		((counter++))
+		cat temp$$ | cut -f$counter | paste -s  >> temp$$t
+	done
+	# Remove old temp file and replace with transposed table
+	rm -f temp$$
+	mv temp$$t temp$$
+fi
+
+# Read the temp file line by line
+while read -r line
+do
+	# Sort the values in ascending order and create array
+	declare -a vals=( $( echo "$line" | grep '[0-9]+' -E -o | sort -n ) )
+
+	# Skip line if array length is 0
+	[ ${#vals[@]} -eq 0 ] && continue
+
+	lineSum=0
+
+	# Find the sum of all values on the current line
+	for val in ${vals[@]}
+	do
+		let "lineSum += $val"
+	done
+
+	# Calculate the mean and round by shifting decimal by 1 and adding 5
+	mean=$(( ( (lineSum * 10 / ${#vals[@]}) + 5) / 10  ))
+	means+=($mean)
+
+	# Find the median. Array is sorted so second is always larger 
+	idx=$(( ${#vals[@]} / 2 ))
+	median=${vals[$idx]}
+	medians+=($median)
+done < "temp$$" # Read from temp file
+
+# NOTE: Uncomment the following line if you want the script
+#       to run slower so the kill command works
+#sleep 1
+
+# Display the means and medians
+if [[ $1 == -c* ]]
+then
+	# By column if -cols option
+	echo Averages:
+	# This printf syntax prints each element of the array into the specified
+	# format string. (In this case, each element on its own line.)
+	# This is then redirected into paste with -s to print tab-separated
+	# values with no trailing tab character.
+	paste -s <(printf "%s\n" "${means[@]}")
+	echo Medians:
+	paste -s <(printf "%s\n" "${medians[@]}")
+else
+	# By row if -rows option
+	echo -e "Average\tMedian"
+	# Print each element on its own line and combine arrays using paste
+	# stackoverflow.com/questions/27231477/bash-for-loop-multiple-arrays
+	paste <(printf "%s\n" "${means[@]}") <(printf "%s\n" "${medians[@]}")
+fi
+
+# Clean up temp file
+rm -f temp$$ && exit 0
+
